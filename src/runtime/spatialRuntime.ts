@@ -58,7 +58,11 @@ export function switchSpatialRuntimeLocation(
   };
 }
 
-function entityIdsRequiringPlacement(patch: ScenePatch): ReadonlySet<string> {
+function entityIdsRequiringPlacement(
+  previousSnapshot: WorldSnapshot,
+  nextSnapshot: WorldSnapshot,
+  patch: ScenePatch,
+): ReadonlySet<string> {
   const ids = new Set<string>();
   for (const operation of patch.operations) {
     if (operation.op === "add_entity" || operation.op === "move_entity") {
@@ -66,6 +70,29 @@ function entityIdsRequiringPlacement(patch: ScenePatch): ReadonlySet<string> {
     }
     if (operation.op === "update_entity" && operation.changes.transform?.position) {
       ids.add(operation.entityId);
+    }
+    if (operation.op === "update_entity" && operation.changes.dimensions) {
+      ids.add(operation.entityId);
+    }
+    if (operation.op === "add_relation") ids.add(operation.relation.subjectId);
+    if (operation.op === "remove_relation") {
+      const relation = previousSnapshot.relations.find(
+        (candidate) => candidate.id === operation.relationId,
+      );
+      if (relation) ids.add(relation.subjectId);
+    }
+  }
+
+  // Relations such as "map on desk" are mounted transforms, not decoration.
+  // Reflow their subjects transitively whenever the object they depend on moves.
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const relation of nextSnapshot.relations) {
+      if (relation.objectId && ids.has(relation.objectId) && !ids.has(relation.subjectId)) {
+        ids.add(relation.subjectId);
+        changed = true;
+      }
     }
   }
   return ids;
@@ -117,7 +144,7 @@ export function advanceSpatialRuntime(
 ): SpatialRuntimeState {
   const snapshot = applyScenePatch(previous.snapshot, patch);
   const nextEntities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
-  const requiresPlacement = entityIdsRequiringPlacement(patch);
+  const requiresPlacement = entityIdsRequiringPlacement(previous.snapshot, snapshot, patch);
   const removedIds = removedEntityIds(patch);
 
   const pinnedItems = previous.layout.items.flatMap((item) => {

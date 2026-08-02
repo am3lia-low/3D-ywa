@@ -88,9 +88,10 @@ The prototype pipeline is:
 selected novel segment
   -> WorldSnapshot / ScenePatch
   -> VisualScenePlan
-  -> compileScenePresentation(...)
-  -> architecture + palette + lighting + dressing + asset requests
-  -> WorldViewer
+  -> buildSceneManifest(...)
+  -> resolved asset registry + architecture + palette + lighting + dressing
+  -> WorldViewer (ready)
+     or asynchronous asset-generation jobs (assets_pending)
 ```
 
 Part 1 fixture targets:
@@ -98,7 +99,14 @@ Part 1 fixture targets:
 - `fixtures/visual_scene_plan_1.json` — opening plan for world version 1.
 - `fixtures/visual_scene_plan_3.json` — revised plan after the passage-3 reveal.
 
-The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
+The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`, while `src/runtime/sceneBuildPipeline.ts` resolves project/catalog assets under canonical entity IDs and emits explicit jobs for missing assets. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
+
+`ready` manifests can render immediately. `assets_pending` is intentionally not a
+claim that the browser has generated a model: a server-side worker must execute
+those jobs, optimize the outputs, register the resulting asset definitions, and
+rerun the manifest. The current repository implements and tests the deterministic
+consumer/build boundary; it does not yet include that external worker or its
+model-provider credentials.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 

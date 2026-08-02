@@ -134,6 +134,7 @@ function placeWithoutCollision(
   desired: Vector3Tuple,
   bounds: Vector3Tuple,
   placed: LayoutItem[],
+  allowedOverlapIds: ReadonlySet<string> = new Set(),
 ): LayoutItem {
   const step = Math.max(draft.dimensions[0], draft.dimensions[2], 0.75) + SPACING;
   for (const [offsetX, offsetZ] of candidateOffsets(draft.entity, step)) {
@@ -143,7 +144,11 @@ function placeWithoutCollision(
       bounds,
     );
     const candidate: LayoutItem = { ...draft, position };
-    if (!placed.some((other) => overlaps(candidate, other))) return candidate;
+    if (
+      !placed.some(
+        (other) => !allowedOverlapIds.has(other.entity.id) && overlaps(candidate, other),
+      )
+    ) return candidate;
   }
   return { ...draft, position: clampToRoom(desired, draft.dimensions, bounds) };
 }
@@ -220,14 +225,31 @@ export function createWorldLayout(
     const nextPending: typeof pending = [];
     for (const draft of pending) {
       const relations = relationsBySubject.get(draft.entity.id) ?? [];
-      const desired = relations
-        .map((relation) => relationPosition(relation, draft, placedById, bounds))
-        .find((position): position is Vector3Tuple => position !== undefined);
-      if (!desired) {
+      const resolved = relations
+        .map((relation) => ({
+          relation,
+          position: relationPosition(relation, draft, placedById, bounds),
+        }))
+        .find(
+          (candidate): candidate is { relation: SpatialRelation; position: Vector3Tuple } =>
+            candidate.position !== undefined,
+        );
+      if (!resolved) {
         nextPending.push(draft);
         continue;
       }
-      const item = placeWithoutCollision(draft, desired, bounds, placed);
+      const supportedBy =
+        (resolved.relation.predicate === "on" || resolved.relation.predicate === "inside") &&
+        resolved.relation.objectId
+          ? new Set([resolved.relation.objectId])
+          : new Set<string>();
+      const item = placeWithoutCollision(
+        draft,
+        resolved.position,
+        bounds,
+        placed,
+        supportedBy,
+      );
       placed.push(item);
       placedById.set(item.entity.id, item);
       progress = true;

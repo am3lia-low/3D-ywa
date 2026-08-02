@@ -30,7 +30,7 @@ describe("createWorldLayout", () => {
       (desk?.position[1] ?? 0) + (desk?.dimensions[1] ?? 0) / 2 + 0.008,
       4,
     );
-    expect(map?.asset.key).toBe("fallback:document");
+    expect(map?.asset.key).toBe("map");
   });
 
   it("keeps every object's footprint inside the room bounds", () => {

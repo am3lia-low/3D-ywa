@@ -245,15 +245,28 @@ function usePbrSurface(
   return textures;
 }
 
+function useStoryTexture(path: string) {
+  const texture = useMemo(() => {
+    const loaded = new THREE.TextureLoader().load(path);
+    loaded.colorSpace = THREE.SRGBColorSpace;
+    loaded.wrapS = THREE.ClampToEdgeWrapping;
+    loaded.wrapT = THREE.ClampToEdgeWrapping;
+    loaded.anisotropy = 8;
+    return loaded;
+  }, [path]);
+  useEffect(() => () => texture.dispose(), [texture]);
+  return texture;
+}
+
 function StoryRug({ highlighted, highlightColor }: {
   highlighted: boolean;
   highlightColor: string;
 }) {
   const surface = usePbrSurface(
-    "/textures/polyhaven/dirty_carpet_diff_1k.jpg",
+    "/textures/story/faded-red-rug-v1.png",
     "/textures/polyhaven/dirty_carpet_nor_gl_1k.jpg",
     "/textures/polyhaven/dirty_carpet_arm_1k.jpg",
-    [2.8, 2.1],
+    [1, 1],
   );
 
   return (
@@ -289,6 +302,33 @@ function StoryRug({ highlighted, highlightColor }: {
           </mesh>
         ));
       })}
+    </group>
+  );
+}
+
+function StoryMap({ highlighted, highlightColor }: {
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const mapTexture = useStoryTexture("/textures/story/antique-map-v1.png");
+
+  return (
+    <group>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[1, 0.72, 1]} />
+        <meshStandardMaterial color="#b58d50" roughness={0.94} />
+      </mesh>
+      <mesh position={[0, 0.375, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[0.98, 0.98]} />
+        <meshStandardMaterial
+          map={mapTexture}
+          roughness={0.92}
+          emissive={highlighted ? highlightColor : "#000000"}
+          emissiveIntensity={highlighted ? 0.2 : 0}
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
+      </mesh>
     </group>
   );
 }
@@ -406,6 +446,10 @@ function EntityAsset({
 
   if (asset.key === "fireplace") {
     return <StoryFireplace highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+
+  if (asset.key === "map") {
+    return <StoryMap highlighted={highlighted} highlightColor={highlightColor} />;
   }
 
   if (!asset.modelUrl) return fallback;

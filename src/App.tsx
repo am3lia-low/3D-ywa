@@ -8,6 +8,7 @@ import { EntityInspector } from "./components/EntityInspector";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
+import { buildSceneManifest } from "./runtime/sceneBuildPipeline";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 const patch2 = patch2Fixture as unknown as ScenePatch;
@@ -37,6 +38,10 @@ export default function App() {
     const version2 = applyScenePatch(snapshot, patch2);
     return step === 1 ? version2 : applyScenePatch(version2, patch3);
   }, [step]);
+  const sceneBuild = useMemo(
+    () => buildSceneManifest(derivedSnapshot, visualPlan),
+    [derivedSnapshot, visualPlan],
+  );
   const reset = () => {
     setStep(0);
     setInvalidPatchMode(false);
@@ -62,6 +67,7 @@ export default function App() {
           <strong>v{step + 1}</strong>
           <small>renderer ack v{acknowledgedVersion}</small>
           <small>visual plan v{visualPlan.planVersion}</small>
+          <small>scene build {sceneBuild.status}</small>
         </div>
       </header>
 
@@ -78,6 +84,7 @@ export default function App() {
             snapshot={snapshot}
             patch={patch}
             visualPlan={visualPlan}
+            assetRegistry={sceneBuild.assetRegistry}
             activeLocationId={activeLocationId}
             selectedEntityId={selectedEntityId}
             onEntitySelect={setSelectedEntityId}

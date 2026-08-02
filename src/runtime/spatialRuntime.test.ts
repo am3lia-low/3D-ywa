@@ -91,6 +91,32 @@ describe("spatial runtime continuity", () => {
     }
   });
 
+  it("keeps an on-relation attached when its supporting entity moves", () => {
+    const initial = createSpatialRuntime(snapshot);
+    const moveDesk: ScenePatch = {
+      fromVersion: 1,
+      toVersion: 2,
+      operations: [
+        {
+          op: "move_entity",
+          entityId: "desk-1",
+          position: [-2.4, 0.6, 1.8],
+        },
+      ],
+    };
+
+    const next = advanceSpatialRuntime(initial, moveDesk);
+    const desk = itemById(next, "desk-1");
+    const map = itemById(next, "map-1");
+
+    expect(map.position[0]).toBe(desk.position[0]);
+    expect(map.position[2]).toBe(desk.position[2]);
+    expect(map.position[1]).toBeCloseTo(
+      desk.position[1] + desk.dimensions[1] / 2 + map.dimensions[1] / 2 + 0.008,
+    );
+    expect(map.position).not.toEqual(itemById(initial, "map-1").position);
+  });
+
   it("retains removed nodes as temporary exit state without disturbing survivors", () => {
     const initial = createSpatialRuntime(snapshot);
     const removal: ScenePatch = {

@@ -56,7 +56,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     modelUrl: "/models/rug.glb",
     roughness: 1,
   },
-  map: {
+  "map-1": {
     key: "map",
     geometry: "box",
     dimensions: [0.92, 0.025, 0.64],
@@ -87,7 +87,7 @@ export function resolveAsset(
   registry: AssetRegistry = defaultAssetRegistry,
 ): AssetDefinition {
   const requested = entity.assetKey ?? entity.kind;
-  const registered = registry[requested];
+  const registered = registry[entity.id] ?? registry[requested];
 
   if (registered) {
     return entity.dimensions
