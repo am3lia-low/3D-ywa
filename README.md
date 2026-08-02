@@ -11,6 +11,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Renders a selectable room with orbit controls, primitive asset registry, unknown-asset fallbacks and change transitions.
 - Demonstrates three passages using the required fixture files.
 
+## Milestone 2
+
+- Pins resolved coordinates across versions, placing only added or explicitly moved entities.
+- Preserves layout-item references for unaffected entities, including primitive fallbacks.
+- Keeps removed entities as temporary exit nodes so they animate out before unmounting.
+- Covers adversarial insertion, movement, removal and fixture progression with continuity tests.
+
 ## Component contract
 
 ```tsx
@@ -34,4 +41,3 @@ pnpm build
 ```
 
 The public integration surface is exported from `src/index.ts`. Fixture JSON lives in `fixtures/` and does not depend on Member 1's extraction service.
-

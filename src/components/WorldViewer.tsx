@@ -8,8 +8,12 @@ import {
   type AssetDefinition,
   type AssetRegistry,
 } from "../runtime/assetRegistry";
-import { applyScenePatch } from "../runtime/applyScenePatch";
-import { createWorldLayout, type LayoutItem } from "../runtime/layoutEngine";
+import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
+import {
+  advanceSpatialRuntime,
+  clearSpatialRuntimeExits,
+  createSpatialRuntime,
+} from "../runtime/spatialRuntime";
 
 export interface WorldViewerProps {
   snapshot: WorldSnapshot;
@@ -20,7 +24,7 @@ export interface WorldViewerProps {
   className?: string;
 }
 
-type ChangeKind = "added" | "moved" | "changed" | undefined;
+type ChangeKind = "added" | "moved" | "changed" | "removed" | undefined;
 
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
   const result = new Map<string, ChangeKind>();
@@ -28,6 +32,7 @@ function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, Chan
     if (operation.op === "add_entity") result.set(operation.entity.id, "added");
     if (operation.op === "move_entity") result.set(operation.entityId, "moved");
     if (operation.op === "update_entity") result.set(operation.entityId, "changed");
+    if (operation.op === "remove_entity") result.set(operation.entityId, "removed");
   }
   return result;
 }
@@ -47,13 +52,13 @@ function WorldEntity({
   item: LayoutItem;
   selected: boolean;
   change: ChangeKind;
-  onSelect: (event: ThreeEvent<PointerEvent>) => void;
+  onSelect?: (event: ThreeEvent<PointerEvent>) => void;
 }) {
   const group = useRef<THREE.Group>(null);
   const initialPosition = useRef<THREE.Vector3>(null);
   initialPosition.current ??= new THREE.Vector3(...item.position);
   const targetPosition = useMemo(() => new THREE.Vector3(...item.position), [item.position]);
-  const targetScale = useMemo(
+  const resolvedScale = useMemo(
     () =>
       new THREE.Vector3(
         item.dimensions[0] * item.scale[0],
@@ -62,12 +67,13 @@ function WorldEntity({
       ),
     [item.dimensions, item.scale],
   );
-  const initialScale = change === "added" ? 0.05 : 1;
-
-  useEffect(() => {
-    if (!group.current) return;
-    if (change === "added") group.current.scale.setScalar(0.05);
-  }, [change, item.entity.id]);
+  const targetScale = useMemo(
+    () => (change === "removed" ? new THREE.Vector3(0.001, 0.001, 0.001) : resolvedScale),
+    [change, resolvedScale],
+  );
+  const initialScale = useRef<THREE.Vector3>(null);
+  initialScale.current ??=
+    change === "added" ? new THREE.Vector3(0.05, 0.05, 0.05) : resolvedScale.clone();
 
   useFrame((_, delta) => {
     if (!group.current) return;
@@ -77,7 +83,13 @@ function WorldEntity({
   });
 
   const highlighted = selected || change !== undefined;
-  const emissive = selected ? "#54e7d5" : change === "added" ? "#79ef9b" : "#ffb84d";
+  const emissive = selected
+    ? "#54e7d5"
+    : change === "added"
+      ? "#79ef9b"
+      : change === "removed"
+        ? "#ef6f6c"
+        : "#ffb84d";
 
   return (
     <group
@@ -85,7 +97,7 @@ function WorldEntity({
       name={item.entity.id}
       position={initialPosition.current}
       rotation={item.rotation}
-      scale={initialScale}
+      scale={initialScale.current}
       onPointerDown={onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
@@ -109,7 +121,7 @@ function WorldEntity({
   );
 }
 
-function Room({ layout }: { layout: ReturnType<typeof createWorldLayout> }) {
+function Room({ layout }: { layout: WorldLayout }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const environment = layout.location.environment;
   const wallThickness = 0.12;
@@ -134,19 +146,18 @@ function Room({ layout }: { layout: ReturnType<typeof createWorldLayout> }) {
 }
 
 function WorldScene({
-  snapshot,
+  layout,
+  exitingItems,
   selectedEntityId,
   changes,
-  registry,
   onEntitySelect,
 }: {
-  snapshot: WorldSnapshot;
+  layout: WorldLayout;
+  exitingItems: readonly LayoutItem[];
   selectedEntityId?: string | null;
   changes: ReadonlyMap<string, ChangeKind>;
-  registry: AssetRegistry;
   onEntitySelect?: (entityId: string | null) => void;
 }) {
-  const layout = useMemo(() => createWorldLayout(snapshot, registry), [snapshot, registry]);
   const ambientColor = layout.location.environment?.ambientColor ?? "#d9d2c5";
 
   return (
@@ -171,6 +182,14 @@ function WorldScene({
             event.stopPropagation();
             onEntitySelect?.(item.entity.id);
           }}
+        />
+      ))}
+      {exitingItems.map((item) => (
+        <WorldEntity
+          key={`exiting:${item.entity.id}`}
+          item={item}
+          selected={false}
+          change="removed"
         />
       ))}
       <OrbitControls
@@ -198,32 +217,43 @@ export function WorldViewer({
   assetRegistry = defaultAssetRegistry,
   className,
 }: WorldViewerProps) {
-  const [scene, setScene] = useState(snapshot);
+  const [runtime, setRuntime] = useState(() => createSpatialRuntime(snapshot, assetRegistry));
   const appliedPatch = useRef<string | null>(null);
 
   useEffect(() => {
-    setScene(snapshot);
+    setRuntime(createSpatialRuntime(snapshot, assetRegistry));
     appliedPatch.current = null;
-  }, [snapshot.storyId, snapshot.version]);
+  }, [snapshot.storyId, snapshot.version, assetRegistry]);
 
   useEffect(() => {
     if (!patch) return;
     const patchKey = `${patch.fromVersion}:${patch.toVersion}`;
     if (appliedPatch.current === patchKey) return;
-    setScene((current) => {
-      if (current.version !== patch.fromVersion) return current;
+    setRuntime((current) => {
+      if (current.snapshot.version !== patch.fromVersion) return current;
       appliedPatch.current = patchKey;
-      return applyScenePatch(current, patch);
+      return advanceSpatialRuntime(current, patch, assetRegistry);
     });
-  }, [patch]);
+  }, [patch, assetRegistry]);
+
+  useEffect(() => {
+    if (runtime.exitingItems.length === 0) return;
+    const version = runtime.snapshot.version;
+    const timeout = window.setTimeout(() => {
+      setRuntime((current) =>
+        current.snapshot.version === version ? clearSpatialRuntimeExits(current) : current,
+      );
+    }, 650);
+    return () => window.clearTimeout(timeout);
+  }, [runtime.exitingItems.length, runtime.snapshot.version]);
 
   const changes = useMemo(() => changeMapFromPatch(patch), [patch]);
 
   return (
     <div
       className={className}
-      data-story-id={scene.storyId}
-      data-world-version={scene.version}
+      data-story-id={runtime.snapshot.storyId}
+      data-world-version={runtime.snapshot.version}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       <Canvas
@@ -233,10 +263,10 @@ export function WorldViewer({
         onPointerMissed={() => onEntitySelect?.(null)}
       >
         <WorldScene
-          snapshot={scene}
+          layout={runtime.layout}
+          exitingItems={runtime.exitingItems}
           selectedEntityId={selectedEntityId}
           changes={changes}
-          registry={assetRegistry}
           onEntitySelect={onEntitySelect}
         />
       </Canvas>

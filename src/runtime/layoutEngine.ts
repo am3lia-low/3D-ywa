@@ -159,6 +159,7 @@ function defaultPosition(entity: Entity, bounds: Vector3Tuple, height: number): 
 export function createWorldLayout(
   snapshot: WorldSnapshot,
   registry: AssetRegistry = defaultAssetRegistry,
+  pinnedItems: readonly LayoutItem[] = [],
 ): WorldLayout {
   const location = snapshot.locations[0] ?? {
     id: "default-room",
@@ -166,8 +167,15 @@ export function createWorldLayout(
     bounds: DEFAULT_BOUNDS,
   };
   const bounds = location.bounds ?? DEFAULT_BOUNDS;
+  const validEntityIds = new Set(
+    snapshot.entities
+      .filter((entity) => entity.locationId === location.id)
+      .map((entity) => entity.id),
+  );
+  const validPinnedItems = pinnedItems.filter((item) => validEntityIds.has(item.entity.id));
+  const pinnedIds = new Set(validPinnedItems.map((item) => item.entity.id));
   const entities = snapshot.entities
-    .filter((entity) => entity.locationId === location.id)
+    .filter((entity) => entity.locationId === location.id && !pinnedIds.has(entity.id))
     .sort((a, b) => a.id.localeCompare(b.id));
   const relationsBySubject = new Map<string, SpatialRelation[]>();
   for (const relation of snapshot.relations) {
@@ -176,8 +184,10 @@ export function createWorldLayout(
     relationsBySubject.set(relation.subjectId, existing);
   }
 
-  const placed: LayoutItem[] = [];
-  const placedById = new Map<string, LayoutItem>();
+  // Pinned items are accepted as already-resolved world coordinates. They are
+  // inserted before new work so later entities route around the existing room.
+  const placed = [...validPinnedItems];
+  const placedById = new Map(placed.map((item) => [item.entity.id, item]));
   let pending = entities.map((entity) => {
     const asset = resolveAsset(entity, registry);
     return {
@@ -233,4 +243,3 @@ export function createWorldLayout(
 
   return { location, items: placed };
 }
-
