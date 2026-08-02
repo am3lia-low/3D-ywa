@@ -12,6 +12,16 @@
         "wallColor": "#a89d8d",
         "ambientColor": "#d8cfbd"
       }
+    },
+    {
+      "id": "archive-vault",
+      "name": "Archive vault",
+      "bounds": [8, 4, 7],
+      "environment": {
+        "floorColor": "#273333",
+        "wallColor": "#667474",
+        "ambientColor": "#b8d0ca"
+      }
     }
   ],
   "entities": [
@@ -58,6 +68,31 @@
       "locationId": "attic-study",
       "dimensions": [0.55, 0.08, 0.4],
       "provenance": { "passageId": "P1", "confidence": 0.84 }
+    },
+    {
+      "id": "archive-desk-1",
+      "name": "Archive catalog desk",
+      "kind": "furniture",
+      "locationId": "archive-vault",
+      "assetKey": "desk",
+      "transform": { "position": [0, 0.6, -1.8] },
+      "provenance": { "passageId": "P1", "confidence": 0.94 }
+    },
+    {
+      "id": "archive-chair-1",
+      "name": "Archivist's chair",
+      "kind": "furniture",
+      "locationId": "archive-vault",
+      "assetKey": "chair",
+      "provenance": { "passageId": "P1", "confidence": 0.92 }
+    },
+    {
+      "id": "archive-rug-1",
+      "name": "Moth-eaten archive rug",
+      "kind": "decor",
+      "locationId": "archive-vault",
+      "assetKey": "rug",
+      "provenance": { "passageId": "P1", "confidence": 0.9 }
     }
   ],
   "relations": [
@@ -84,8 +119,19 @@
       "subjectId": "map-1",
       "predicate": "on",
       "objectId": "desk-1"
+    },
+    {
+      "id": "archive-chair-near-desk",
+      "subjectId": "archive-chair-1",
+      "predicate": "in_front_of",
+      "objectId": "archive-desk-1",
+      "distance": 0.3
+    },
+    {
+      "id": "archive-rug-centered",
+      "subjectId": "archive-rug-1",
+      "predicate": "centered"
     }
   ],
   "conflicts": []
 }
-

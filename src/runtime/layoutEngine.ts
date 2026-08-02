@@ -160,8 +160,10 @@ export function createWorldLayout(
   snapshot: WorldSnapshot,
   registry: AssetRegistry = defaultAssetRegistry,
   pinnedItems: readonly LayoutItem[] = [],
+  locationId?: string,
 ): WorldLayout {
-  const location = snapshot.locations[0] ?? {
+  const location = snapshot.locations.find((candidate) => candidate.id === locationId) ??
+    snapshot.locations[0] ?? {
     id: "default-room",
     name: "Untitled room",
     bounds: DEFAULT_BOUNDS,

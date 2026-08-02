@@ -20,19 +20,23 @@ export default function App() {
   const [session, setSession] = useState(0);
   const [invalidPatchMode, setInvalidPatchMode] = useState(false);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
+  const [activeLocationId, setActiveLocationId] = useState(snapshot.locations[0]?.id ?? "");
   const patch = invalidPatchMode ? invalidPatch : step === 1 ? patch2 : step === 2 ? patch3 : null;
   const derivedSnapshot = useMemo(() => {
     if (step === 0) return snapshot;
     const version2 = applyScenePatch(snapshot, patch2);
     return step === 1 ? version2 : applyScenePatch(version2, patch3);
   }, [step]);
-  const selected = derivedSnapshot.entities.find((entity) => entity.id === selectedEntityId);
+  const selected = derivedSnapshot.entities.find(
+    (entity) => entity.id === selectedEntityId && entity.locationId === activeLocationId,
+  );
 
   const reset = () => {
     setStep(0);
     setInvalidPatchMode(false);
     setSession((current) => current + 1);
     setSelectedEntityId(null);
+    setActiveLocationId(snapshot.locations[0]?.id ?? "");
   };
 
   return (
@@ -57,6 +61,7 @@ export default function App() {
           key={session}
           snapshot={snapshot}
           patch={patch}
+          activeLocationId={activeLocationId}
           selectedEntityId={selectedEntityId}
           onEntitySelect={setSelectedEntityId}
         />
@@ -66,6 +71,22 @@ export default function App() {
       <section className="control-deck">
         <div className="passage-card">
           <span>Passage {step + 1}</span>
+          <label className="location-picker">
+            <span>Active location</span>
+            <select
+              value={activeLocationId}
+              onChange={(event) => {
+                setActiveLocationId(event.target.value);
+                setSelectedEntityId(null);
+              }}
+            >
+              {derivedSnapshot.locations.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          </label>
           <p>
             {step === 0 && "The attic study is established: desk, chair, hearth and worn rug."}
             {step === 1 && "The chair has moved. A brass lantern now waits beside the desk."}

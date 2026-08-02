@@ -32,19 +32,27 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Rejects duplicate IDs, broken semantic references, malformed operations and non-forward versions.
 - Keeps the last valid scene mounted while displaying recoverable patch errors.
 
+## Milestone 5
+
+- Resolves any location in the plural `locations` contract instead of assuming the first room.
+- Switches rooms without rolling back the current patched snapshot version.
+- Filters entities and semantic relations to the active location and resets the camera to its bounds.
+- Handles entities moving between rooms as an exit from one spatial layout and an entry into another.
+
 ## Component contract
 
 ```tsx
 <WorldViewer
   snapshot={snapshot}
   patch={patch}
+  activeLocationId={activeLocationId}
   selectedEntityId={selectedEntityId}
   onEntitySelect={handleEntitySelect}
   onRuntimeError={handleRuntimeError}
 />
 ```
 
-The `snapshot` initializes the mounted scene. A new `patch` is applied only when its `fromVersion` matches the scene's current version. Consumers should send patches in order. Supplying a new snapshot version re-synchronizes the viewer.
+The `snapshot` initializes the mounted scene. A new `patch` is applied only when its `fromVersion` matches the scene's current version. Consumers should send patches in order. Supplying a new snapshot version re-synchronizes the viewer. `activeLocationId` is optional and defaults to the first location; changing it switches the mounted room without replacing the current world state.
 
 ## Commands
 

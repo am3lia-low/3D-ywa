@@ -7,6 +7,8 @@ import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
+  SpatialLocationError,
+  switchSpatialRuntimeLocation,
 } from "./spatialRuntime";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
@@ -116,5 +118,52 @@ describe("spatial runtime continuity", () => {
     for (const entityId of ["chair-1", "desk-1", "map-1", "rug-1"]) {
       expect(itemById(version3, entityId).position).toBe(itemById(version2, entityId).position);
     }
+  });
+
+  it("switches rooms without rolling back the patched world version", () => {
+    const version2 = advanceSpatialRuntime(createSpatialRuntime(snapshot), patch2);
+    const archive = switchSpatialRuntimeLocation(version2, "archive-vault");
+    const atticAgain = switchSpatialRuntimeLocation(archive, "attic-study");
+
+    expect(archive.snapshot.version).toBe(2);
+    expect(archive.layout.location.id).toBe("archive-vault");
+    expect(archive.layout.items.map((item) => item.entity.id).sort()).toEqual([
+      "archive-chair-1",
+      "archive-desk-1",
+      "archive-rug-1",
+    ]);
+    expect(atticAgain.snapshot.version).toBe(2);
+    expect(itemById(atticAgain, "lantern-1")).toBeDefined();
+  });
+
+  it("animates an entity out when a patch moves it into another room", () => {
+    const initial = createSpatialRuntime(snapshot);
+    const relocation: ScenePatch = {
+      fromVersion: 1,
+      toVersion: 2,
+      operations: [
+        {
+          op: "move_entity",
+          entityId: "chair-1",
+          locationId: "archive-vault",
+          position: [2, 0.55, 1],
+        },
+      ],
+    };
+
+    const next = advanceSpatialRuntime(initial, relocation);
+    expect(next.layout.items.some((item) => item.entity.id === "chair-1")).toBe(false);
+    expect(next.exitingItems.map((item) => item.entity.id)).toContain("chair-1");
+
+    const archive = switchSpatialRuntimeLocation(next, "archive-vault");
+    expect(itemById(archive, "chair-1").position).toEqual([2, 0.55, 1]);
+  });
+
+  it("rejects unknown room IDs without changing the mounted runtime", () => {
+    const initial = createSpatialRuntime(snapshot);
+    expect(() => switchSpatialRuntimeLocation(initial, "missing-room")).toThrow(
+      SpatialLocationError,
+    );
+    expect(initial.layout.location.id).toBe("attic-study");
   });
 });

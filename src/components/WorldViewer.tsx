@@ -1,5 +1,5 @@
 import { Clone, OrbitControls, useGLTF } from "@react-three/drei";
-import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber";
+import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
   Suspense,
@@ -27,6 +27,8 @@ import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
+  SpatialLocationError,
+  switchSpatialRuntimeLocation,
   type SpatialRuntimeState,
 } from "../runtime/spatialRuntime";
 import "./WorldViewer.css";
@@ -34,6 +36,7 @@ import "./WorldViewer.css";
 export type WorldViewerErrorCode =
   | "INVALID_SNAPSHOT"
   | "INVALID_PATCH"
+  | "INVALID_LOCATION"
   | "PATCH_VERSION_MISMATCH"
   | "PATCH_APPLICATION_FAILED";
 
@@ -48,6 +51,8 @@ export interface WorldViewerProps {
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
+  /** Optional room selection; defaults to the snapshot's first location. */
+  activeLocationId?: string;
   assetRegistry?: AssetRegistry;
   className?: string;
 }
@@ -81,16 +86,27 @@ function runtimeErrorFrom(error: unknown, fallbackCode: WorldViewerErrorCode): W
   if (error instanceof PatchVersionError) {
     return { code: "PATCH_VERSION_MISMATCH", message: error.message };
   }
+  if (error instanceof SpatialLocationError) {
+    return { code: "INVALID_LOCATION", message: error.message };
+  }
   return {
     code: fallbackCode,
     message: error instanceof Error ? error.message : "The world update could not be applied.",
   };
 }
 
-function createViewerState(snapshot: WorldSnapshot, registry: AssetRegistry): ViewerState {
+function createViewerState(
+  snapshot: WorldSnapshot,
+  registry: AssetRegistry,
+  activeLocationId?: string,
+): ViewerState {
   try {
     return {
-      runtime: createSpatialRuntime(validateWorldSnapshot(snapshot), registry),
+      runtime: createSpatialRuntime(
+        validateWorldSnapshot(snapshot),
+        registry,
+        activeLocationId,
+      ),
       error: null,
     };
   } catch (error) {
@@ -273,6 +289,32 @@ function Room({ layout }: { layout: WorldLayout }) {
   );
 }
 
+function SceneCamera({ layout }: { layout: WorldLayout }) {
+  const { camera } = useThree();
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+
+  useEffect(() => {
+    const roomSpan = Math.max(bounds[0], bounds[2]);
+    const target = new THREE.Vector3(0, Math.min(bounds[1] * 0.28, 1.25), 0);
+    camera.position.set(roomSpan * 0.67, Math.max(bounds[1] + 2, 5.5), roomSpan * 0.75);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+  }, [bounds, camera, layout.location.id]);
+
+  return (
+    <OrbitControls
+      key={layout.location.id}
+      makeDefault
+      enableDamping
+      dampingFactor={0.08}
+      minDistance={3}
+      maxDistance={Math.max(18, Math.max(bounds[0], bounds[2]) * 2)}
+      maxPolarAngle={Math.PI / 2.02}
+      target={[0, Math.min(bounds[1] * 0.28, 1.25), 0]}
+    />
+  );
+}
+
 function WorldScene({
   layout,
   exitingItems,
@@ -320,15 +362,7 @@ function WorldScene({
           change="removed"
         />
       ))}
-      <OrbitControls
-        makeDefault
-        enableDamping
-        dampingFactor={0.08}
-        minDistance={3}
-        maxDistance={24}
-        maxPolarAngle={Math.PI / 2.02}
-        target={[0, 0.9, 0]}
-      />
+      <SceneCamera layout={layout} />
     </>
   );
 }
@@ -343,16 +377,38 @@ export function WorldViewer({
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
+  activeLocationId,
   assetRegistry = defaultAssetRegistry,
   className,
 }: WorldViewerProps) {
-  const [viewer, setViewer] = useState(() => createViewerState(snapshot, assetRegistry));
+  const [viewer, setViewer] = useState(() =>
+    createViewerState(snapshot, assetRegistry, activeLocationId),
+  );
   const appliedPatch = useRef<string | null>(null);
 
   useEffect(() => {
-    setViewer(createViewerState(snapshot, assetRegistry));
+    setViewer(createViewerState(snapshot, assetRegistry, activeLocationId));
     appliedPatch.current = null;
   }, [snapshot.storyId, snapshot.version, assetRegistry]);
+
+  useEffect(() => {
+    if (!activeLocationId) return;
+    setViewer((current) => {
+      if (!current.runtime) return current;
+      try {
+        return {
+          runtime: switchSpatialRuntimeLocation(
+            current.runtime,
+            activeLocationId,
+            assetRegistry,
+          ),
+          error: null,
+        };
+      } catch (error) {
+        return { ...current, error: runtimeErrorFrom(error, "INVALID_LOCATION") };
+      }
+    });
+  }, [activeLocationId, assetRegistry]);
 
   useEffect(() => {
     if (!patch) return;
@@ -414,6 +470,7 @@ export function WorldViewer({
       data-runtime-status={viewer.error ? "error" : "ready"}
       data-story-id={runtime?.snapshot.storyId ?? "invalid"}
       data-world-version={runtime?.snapshot.version ?? "invalid"}
+      data-location-id={runtime?.layout.location.id ?? "invalid"}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       {runtime ? (

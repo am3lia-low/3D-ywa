@@ -41,4 +41,16 @@ describe("createWorldLayout", () => {
       expect(item.position[1] - item.dimensions[1] / 2).toBeGreaterThanOrEqual(0);
     }
   });
+
+  it("lays out only entities belonging to the requested location", () => {
+    const archive = createWorldLayout(snapshot, undefined, [], "archive-vault");
+
+    expect(archive.location.id).toBe("archive-vault");
+    expect(archive.items.map((item) => item.entity.id).sort()).toEqual([
+      "archive-chair-1",
+      "archive-desk-1",
+      "archive-rug-1",
+    ]);
+    expect(archive.items.every((item) => item.entity.locationId === "archive-vault")).toBe(true);
+  });
 });

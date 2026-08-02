@@ -15,13 +15,45 @@ export interface SpatialRuntimeState {
   exitingItems: readonly LayoutItem[];
 }
 
+export class SpatialLocationError extends Error {
+  constructor(locationId: string) {
+    super(`Location '${locationId}' does not exist in the current world snapshot.`);
+    this.name = "SpatialLocationError";
+  }
+}
+
+function requireLocation(snapshot: WorldSnapshot, locationId?: string): string | undefined {
+  if (!locationId) return snapshot.locations[0]?.id;
+  if (!snapshot.locations.some((location) => location.id === locationId)) {
+    throw new SpatialLocationError(locationId);
+  }
+  return locationId;
+}
+
 export function createSpatialRuntime(
   snapshot: WorldSnapshot,
   registry: AssetRegistry = defaultAssetRegistry,
+  locationId?: string,
 ): SpatialRuntimeState {
+  const resolvedLocationId = requireLocation(snapshot, locationId);
   return {
     snapshot,
-    layout: createWorldLayout(snapshot, registry),
+    layout: createWorldLayout(snapshot, registry, [], resolvedLocationId),
+    exitingItems: [],
+  };
+}
+
+/** Switches the mounted room without replacing or rolling back world state. */
+export function switchSpatialRuntimeLocation(
+  state: SpatialRuntimeState,
+  locationId: string,
+  registry: AssetRegistry = defaultAssetRegistry,
+): SpatialRuntimeState {
+  requireLocation(state.snapshot, locationId);
+  if (state.layout.location.id === locationId) return state;
+  return {
+    ...state,
+    layout: createWorldLayout(state.snapshot, registry, [], locationId),
     exitingItems: [],
   };
 }
@@ -94,10 +126,16 @@ export function advanceSpatialRuntime(
     return [refreshPinnedItem(item, entity, registry)];
   });
 
-  const layout = createWorldLayout(snapshot, registry, pinnedItems);
-  const newlyExiting = previous.layout.items.filter(
-    (item) => removedIds.has(item.entity.id) && !nextEntities.has(item.entity.id),
-  );
+  const activeLocationId = previous.layout.location.id;
+  const layout = createWorldLayout(snapshot, registry, pinnedItems, activeLocationId);
+  const nextVisibleIds = new Set(layout.items.map((item) => item.entity.id));
+  const newlyExiting = previous.layout.items.filter((item) => {
+    const nextEntity = nextEntities.get(item.entity.id);
+    return (
+      !nextVisibleIds.has(item.entity.id) &&
+      (removedIds.has(item.entity.id) || nextEntity?.locationId !== activeLocationId)
+    );
+  });
   const exitingById = new Map(
     [...previous.exitingItems, ...newlyExiting].map((item) => [item.entity.id, item]),
   );
