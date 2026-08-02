@@ -65,7 +65,9 @@ export default function App() {
           selectedEntityId={selectedEntityId}
           onEntitySelect={setSelectedEntityId}
         />
-        <div className="viewer-hint">Drag to orbit · Scroll to zoom · Select an object</div>
+        <div className="viewer-hint">
+          Left-drag to pan · Right-drag to rotate · Scroll to zoom · Double-click floor to move
+        </div>
       </section>
 
       <section className="control-deck">

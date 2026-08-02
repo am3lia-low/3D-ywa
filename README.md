@@ -39,6 +39,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Filters entities and semantic relations to the active location and resets the camera to its bounds.
 - Handles entities moving between rooms as an exit from one spatial layout and an entry into another.
 
+## Milestone 6
+
+- Adds Google Maps-style navigation with left-drag panning, right-drag rotation and wheel/pinch zoom.
+- Smoothly travels to a bounded floor point on double-click and centers selected entities.
+- Keeps navigation targets inside the active room and scales camera limits to each location.
+- Provides a reset-view control that glides back to the room overview.
+
 ## Component contract
 
 ```tsx

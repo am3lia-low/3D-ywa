@@ -44,3 +44,19 @@
   line-height: 1.4;
 }
 
+.world-camera-reset {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e8f8f5;
+  background: rgba(24, 33, 36, 0.84);
+  font-size: 0.78rem;
+  backdrop-filter: blur(12px);
+}
+
+.world-camera-reset:hover {
+  background: rgba(40, 58, 60, 0.94);
+}

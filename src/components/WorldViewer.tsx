@@ -1,4 +1,4 @@
-import { Clone, OrbitControls, useGLTF } from "@react-three/drei";
+import { Clone, MapControls, useGLTF } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ComponentRef,
   type ReactNode,
 } from "react";
 import * as THREE from "three";
@@ -15,7 +16,7 @@ import {
   validateScenePatch,
   validateWorldSnapshot,
 } from "../contracts/validation";
-import type { ScenePatch, WorldSnapshot } from "../contracts/world";
+import type { ScenePatch, Vector3Tuple, WorldSnapshot } from "../contracts/world";
 import {
   defaultAssetRegistry,
   type AssetDefinition,
@@ -23,6 +24,11 @@ import {
 } from "../runtime/assetRegistry";
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import { PatchVersionError } from "../runtime/applyScenePatch";
+import {
+  clampNavigationTarget,
+  createOverviewCameraPose,
+  createTravelCameraPose,
+} from "../runtime/cameraNavigation";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -58,6 +64,15 @@ export interface WorldViewerProps {
 }
 
 type ChangeKind = "added" | "moved" | "changed" | "removed" | undefined;
+
+type CameraCommand =
+  | { id: number; kind: "reset" }
+  | { id: number; kind: "travel" | "focus"; target: Vector3Tuple };
+
+interface CameraDestination {
+  position: THREE.Vector3;
+  target: THREE.Vector3;
+}
 
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
   const result = new Map<string, ChangeKind>();
@@ -265,14 +280,27 @@ function WorldEntity({
   );
 }
 
-function Room({ layout }: { layout: WorldLayout }) {
+function Room({
+  layout,
+  onGroundNavigate,
+}: {
+  layout: WorldLayout;
+  onGroundNavigate: (target: Vector3Tuple) => void;
+}) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const environment = layout.location.environment;
   const wallThickness = 0.12;
 
   return (
     <group>
-      <mesh position={[0, -0.06, 0]} receiveShadow>
+      <mesh
+        position={[0, -0.06, 0]}
+        receiveShadow
+        onDoubleClick={(event) => {
+          event.stopPropagation();
+          onGroundNavigate([event.point.x, 0.9, event.point.z]);
+        }}
+      >
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
         <meshStandardMaterial color={environment?.floorColor ?? "#3c3935"} roughness={1} />
       </mesh>
@@ -289,28 +317,96 @@ function Room({ layout }: { layout: WorldLayout }) {
   );
 }
 
-function SceneCamera({ layout }: { layout: WorldLayout }) {
+function tupleFromVector(vector: THREE.Vector3): Vector3Tuple {
+  return [vector.x, vector.y, vector.z];
+}
+
+function SceneCamera({
+  layout,
+  command,
+}: {
+  layout: WorldLayout;
+  command: CameraCommand | null;
+}) {
   const { camera } = useThree();
+  const controls = useRef<ComponentRef<typeof MapControls>>(null);
+  const destination = useRef<CameraDestination | null>(null);
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
 
   useEffect(() => {
-    const roomSpan = Math.max(bounds[0], bounds[2]);
-    const target = new THREE.Vector3(0, Math.min(bounds[1] * 0.28, 1.25), 0);
-    camera.position.set(roomSpan * 0.67, Math.max(bounds[1] + 2, 5.5), roomSpan * 0.75);
-    camera.lookAt(target);
+    const overview = createOverviewCameraPose(bounds);
+    destination.current = null;
+    camera.position.set(...overview.position);
+    controls.current?.target.set(...overview.target);
+    controls.current?.update();
+    camera.lookAt(new THREE.Vector3(...overview.target));
     camera.updateProjectionMatrix();
-  }, [bounds, camera, layout.location.id]);
+  }, [bounds[0], bounds[1], bounds[2], camera, layout.location.id]);
+
+  useEffect(() => {
+    const currentControls = controls.current;
+    if (!command || !currentControls) return;
+    const pose =
+      command.kind === "reset"
+        ? createOverviewCameraPose(bounds)
+        : createTravelCameraPose(
+            tupleFromVector(camera.position),
+            tupleFromVector(currentControls.target),
+            command.target,
+            bounds,
+          );
+    destination.current = {
+      position: new THREE.Vector3(...pose.position),
+      target: new THREE.Vector3(...pose.target),
+    };
+  }, [bounds[0], bounds[1], bounds[2], camera, command]);
+
+  useFrame((_, delta) => {
+    const currentControls = controls.current;
+    const next = destination.current;
+    if (!currentControls || !next) return;
+    const alpha = 1 - Math.exp(-delta * 5.5);
+    camera.position.lerp(next.position, alpha);
+    currentControls.target.lerp(next.target, alpha);
+    currentControls.update();
+    if (
+      camera.position.distanceToSquared(next.position) < 0.0004 &&
+      currentControls.target.distanceToSquared(next.target) < 0.0004
+    ) {
+      camera.position.copy(next.position);
+      currentControls.target.copy(next.target);
+      destination.current = null;
+    }
+  });
 
   return (
-    <OrbitControls
+    <MapControls
+      ref={controls}
       key={layout.location.id}
       makeDefault
       enableDamping
       dampingFactor={0.08}
+      enablePan
+      screenSpacePanning={false}
+      zoomToCursor
       minDistance={3}
       maxDistance={Math.max(18, Math.max(bounds[0], bounds[2]) * 2)}
       maxPolarAngle={Math.PI / 2.02}
-      target={[0, Math.min(bounds[1] * 0.28, 1.25), 0]}
+      target={createOverviewCameraPose(bounds).target}
+      onStart={() => {
+        destination.current = null;
+      }}
+      onChange={() => {
+        const currentControls = controls.current;
+        if (!currentControls) return;
+        const bounded = new THREE.Vector3(
+          ...clampNavigationTarget(tupleFromVector(currentControls.target), bounds),
+        );
+        const correction = bounded.sub(currentControls.target);
+        if (correction.lengthSq() === 0) return;
+        currentControls.target.add(correction);
+        camera.position.add(correction);
+      }}
     />
   );
 }
@@ -321,12 +417,16 @@ function WorldScene({
   selectedEntityId,
   changes,
   onEntitySelect,
+  cameraCommand,
+  onCameraCommand,
 }: {
   layout: WorldLayout;
   exitingItems: readonly LayoutItem[];
   selectedEntityId?: string | null;
   changes: ReadonlyMap<string, ChangeKind>;
   onEntitySelect?: (entityId: string | null) => void;
+  cameraCommand: CameraCommand | null;
+  onCameraCommand: (kind: "travel" | "focus", target: Vector3Tuple) => void;
 }) {
   const ambientColor = layout.location.environment?.ambientColor ?? "#d9d2c5";
 
@@ -341,7 +441,10 @@ function WorldScene({
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <Room layout={layout} />
+      <Room
+        layout={layout}
+        onGroundNavigate={(target) => onCameraCommand("travel", target)}
+      />
       {layout.items.map((item) => (
         <WorldEntity
           key={item.entity.id}
@@ -351,6 +454,7 @@ function WorldScene({
           onSelect={(event) => {
             event.stopPropagation();
             onEntitySelect?.(item.entity.id);
+            onCameraCommand("focus", item.position);
           }}
         />
       ))}
@@ -362,7 +466,16 @@ function WorldScene({
           change="removed"
         />
       ))}
-      <SceneCamera layout={layout} />
+      {cameraCommand?.kind === "travel" && (
+        <mesh
+          position={[cameraCommand.target[0], 0.015, cameraCommand.target[2]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.18, 0.28, 32]} />
+          <meshBasicMaterial color="#69dfce" transparent opacity={0.8} />
+        </mesh>
+      )}
+      <SceneCamera layout={layout} command={cameraCommand} />
     </>
   );
 }
@@ -384,7 +497,19 @@ export function WorldViewer({
   const [viewer, setViewer] = useState(() =>
     createViewerState(snapshot, assetRegistry, activeLocationId),
   );
+  const [cameraCommand, setCameraCommand] = useState<CameraCommand | null>(null);
+  const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
+
+  const requestCamera = (kind: "travel" | "focus", target: Vector3Tuple) => {
+    cameraCommandId.current += 1;
+    setCameraCommand({ id: cameraCommandId.current, kind, target });
+  };
+
+  const resetCamera = () => {
+    cameraCommandId.current += 1;
+    setCameraCommand({ id: cameraCommandId.current, kind: "reset" });
+  };
 
   useEffect(() => {
     setViewer(createViewerState(snapshot, assetRegistry, activeLocationId));
@@ -393,6 +518,7 @@ export function WorldViewer({
 
   useEffect(() => {
     if (!activeLocationId) return;
+    setCameraCommand(null);
     setViewer((current) => {
       if (!current.runtime) return current;
       try {
@@ -471,6 +597,7 @@ export function WorldViewer({
       data-story-id={runtime?.snapshot.storyId ?? "invalid"}
       data-world-version={runtime?.snapshot.version ?? "invalid"}
       data-location-id={runtime?.layout.location.id ?? "invalid"}
+      data-navigation-mode="map"
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       {runtime ? (
@@ -486,10 +613,24 @@ export function WorldViewer({
             selectedEntityId={selectedEntityId}
             changes={changes}
             onEntitySelect={onEntitySelect}
+            cameraCommand={cameraCommand}
+            onCameraCommand={requestCamera}
           />
         </Canvas>
       ) : (
         <div className="world-runtime-empty">The supplied world snapshot cannot be rendered.</div>
+      )}
+      {runtime && (
+        <button
+          type="button"
+          className="world-camera-reset"
+          onClick={() => {
+            resetCamera();
+            onEntitySelect?.(null);
+          }}
+        >
+          Reset view
+        </button>
       )}
       {viewer.error && (
         <div className="world-runtime-error" role="alert" data-error-code={viewer.error.code}>
