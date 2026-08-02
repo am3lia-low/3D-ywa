@@ -60,3 +60,55 @@
 .world-camera-reset:hover {
   background: rgba(40, 58, 60, 0.94);
 }
+
+.world-conflict-summary {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(239, 111, 108, 0.34);
+  border-radius: 999px;
+  color: #edc2b8;
+  background: rgba(55, 31, 29, 0.86);
+  font-size: 0.72rem;
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+.world-conflict-summary strong {
+  color: #ff9d87;
+}
+
+.world-relation-label,
+.world-conflict-marker {
+  display: block;
+  width: max-content;
+  max-width: 14rem;
+  border-radius: 999px;
+  padding: 0.32rem 0.55rem;
+  color: #dff9f4;
+  background: rgba(20, 42, 42, 0.88);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+}
+
+.world-conflict-marker {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 148, 122, 0.5);
+  border-radius: 50%;
+  color: #ffe1d7;
+  background: rgba(81, 36, 29, 0.9);
+}

@@ -46,6 +46,14 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Keeps navigation targets inside the active room and scales camera limits to each location.
 - Provides a reset-view control that glides back to the room overview.
 
+## Milestone 7
+
+- Draws selected semantic relations directly between visible entities with compact predicate labels.
+- Marks unresolved entity conflicts in-scene and summarizes open world facts in the viewer chrome.
+- Adds a reusable entity inspector for state, provenance, confidence, relations and conflict details.
+- Lets inspector relation links focus related entities through the map-style camera.
+- Keeps selection mounted while patches update state and relation context in place.
+
 ## Component contract
 
 ```tsx
@@ -56,6 +64,16 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
   selectedEntityId={selectedEntityId}
   onEntitySelect={handleEntitySelect}
   onRuntimeError={handleRuntimeError}
+/>
+```
+
+The optional companion inspector consumes the same current snapshot and controlled selection:
+
+```tsx
+<EntityInspector
+  snapshot={currentSnapshot}
+  selectedEntityId={selectedEntityId}
+  onEntitySelect={setSelectedEntityId}
 />
 ```
 

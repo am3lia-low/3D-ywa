@@ -125,7 +125,7 @@ h1 {
 
 .control-deck {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) auto minmax(220px, 0.75fr);
+  grid-template-columns: minmax(0, 1.35fr) auto minmax(300px, 0.9fr);
   gap: 1rem;
   align-items: stretch;
   margin-top: 1rem;

@@ -1,8 +1,9 @@
-import { Clone, MapControls, useGLTF } from "@react-three/drei";
+import { Clone, Html, Line, MapControls, useGLTF } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
   Suspense,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -16,7 +17,12 @@ import {
   validateScenePatch,
   validateWorldSnapshot,
 } from "../contracts/validation";
-import type { ScenePatch, Vector3Tuple, WorldSnapshot } from "../contracts/world";
+import type {
+  Conflict,
+  ScenePatch,
+  Vector3Tuple,
+  WorldSnapshot,
+} from "../contracts/world";
 import {
   defaultAssetRegistry,
   type AssetDefinition,
@@ -29,6 +35,11 @@ import {
   createOverviewCameraPose,
   createTravelCameraPose,
 } from "../runtime/cameraNavigation";
+import {
+  createVisibleRelationEdges,
+  spatialPredicateLabel,
+  type VisibleRelationEdge,
+} from "../runtime/spatialAwareness";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -411,6 +422,65 @@ function SceneCamera({
   );
 }
 
+function RelationAwareness({ edges }: { edges: readonly VisibleRelationEdge[] }) {
+  return edges.map((edge, index) => (
+    <group key={edge.relation.id}>
+      <Line
+        points={[edge.from, edge.to]}
+        color="#69dfce"
+        lineWidth={1.8}
+        transparent
+        opacity={0.82}
+      />
+      <Html
+        center
+        position={[
+          edge.midpoint[0],
+          edge.midpoint[1] + index * 0.22,
+          edge.midpoint[2],
+        ]}
+        distanceFactor={9}
+        style={{ pointerEvents: "none" }}
+      >
+        <span className="world-relation-label">
+          {spatialPredicateLabel(edge.relation.predicate)}
+        </span>
+      </Html>
+    </group>
+  ));
+}
+
+function ConflictMarkers({
+  layout,
+  conflicts,
+}: {
+  layout: WorldLayout;
+  conflicts: readonly Conflict[];
+}) {
+  const conflictEntityIds = new Set(
+    conflicts.flatMap((conflict) => (conflict.entityId ? [conflict.entityId] : [])),
+  );
+  return layout.items.flatMap((item) =>
+    conflictEntityIds.has(item.entity.id)
+      ? [
+          <Html
+            key={item.entity.id}
+            center
+            position={[
+              item.position[0],
+              item.position[1] + item.dimensions[1] * 0.9 + 0.75,
+              item.position[2],
+            ]}
+            distanceFactor={9}
+            style={{ pointerEvents: "none" }}
+          >
+            <span className="world-conflict-marker" title="Needs review">!</span>
+          </Html>,
+        ]
+      : [],
+  );
+}
+
 function WorldScene({
   layout,
   exitingItems,
@@ -419,6 +489,8 @@ function WorldScene({
   onEntitySelect,
   cameraCommand,
   onCameraCommand,
+  relationEdges,
+  openConflicts,
 }: {
   layout: WorldLayout;
   exitingItems: readonly LayoutItem[];
@@ -427,6 +499,8 @@ function WorldScene({
   onEntitySelect?: (entityId: string | null) => void;
   cameraCommand: CameraCommand | null;
   onCameraCommand: (kind: "travel" | "focus", target: Vector3Tuple) => void;
+  relationEdges: readonly VisibleRelationEdge[];
+  openConflicts: readonly Conflict[];
 }) {
   const ambientColor = layout.location.environment?.ambientColor ?? "#d9d2c5";
 
@@ -454,7 +528,6 @@ function WorldScene({
           onSelect={(event) => {
             event.stopPropagation();
             onEntitySelect?.(item.entity.id);
-            onCameraCommand("focus", item.position);
           }}
         />
       ))}
@@ -466,6 +539,8 @@ function WorldScene({
           change="removed"
         />
       ))}
+      <RelationAwareness edges={relationEdges} />
+      <ConflictMarkers layout={layout} conflicts={openConflicts} />
       {cameraCommand?.kind === "travel" && (
         <mesh
           position={[cameraCommand.target[0], 0.015, cameraCommand.target[2]]}
@@ -501,15 +576,15 @@ export function WorldViewer({
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
 
-  const requestCamera = (kind: "travel" | "focus", target: Vector3Tuple) => {
+  const requestCamera = useCallback((kind: "travel" | "focus", target: Vector3Tuple) => {
     cameraCommandId.current += 1;
     setCameraCommand({ id: cameraCommandId.current, kind, target });
-  };
+  }, []);
 
-  const resetCamera = () => {
+  const resetCamera = useCallback(() => {
     cameraCommandId.current += 1;
     setCameraCommand({ id: cameraCommandId.current, kind: "reset" });
-  };
+  }, []);
 
   useEffect(() => {
     setViewer(createViewerState(snapshot, assetRegistry, activeLocationId));
@@ -584,11 +659,34 @@ export function WorldViewer({
     if (viewer.error) onRuntimeError?.(viewer.error);
   }, [onRuntimeError, viewer.error]);
 
+  useEffect(() => {
+    if (!selectedEntityId || !viewer.runtime) return;
+    const selectedItem = viewer.runtime.layout.items.find(
+      (item) => item.entity.id === selectedEntityId,
+    );
+    if (selectedItem) requestCamera("focus", selectedItem.position);
+  }, [requestCamera, selectedEntityId, viewer.runtime?.layout]);
+
   const changes = useMemo(
     () => (viewer.error ? new Map<string, ChangeKind>() : changeMapFromPatch(patch)),
     [patch, viewer.error],
   );
   const runtime = viewer.runtime;
+  const relationEdges = useMemo(
+    () =>
+      runtime
+        ? createVisibleRelationEdges(
+            runtime.layout,
+            runtime.snapshot.relations,
+            selectedEntityId,
+          )
+        : [],
+    [runtime?.layout, runtime?.snapshot.relations, selectedEntityId],
+  );
+  const openConflicts = useMemo(
+    () => runtime?.snapshot.conflicts.filter((conflict) => conflict.status === "open") ?? [],
+    [runtime?.snapshot.conflicts],
+  );
 
   return (
     <div
@@ -598,6 +696,8 @@ export function WorldViewer({
       data-world-version={runtime?.snapshot.version ?? "invalid"}
       data-location-id={runtime?.layout.location.id ?? "invalid"}
       data-navigation-mode="map"
+      data-visible-relations={relationEdges.length}
+      data-open-conflicts={openConflicts.length}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       {runtime ? (
@@ -615,6 +715,8 @@ export function WorldViewer({
             onEntitySelect={onEntitySelect}
             cameraCommand={cameraCommand}
             onCameraCommand={requestCamera}
+            relationEdges={relationEdges}
+            openConflicts={openConflicts}
           />
         </Canvas>
       ) : (
@@ -631,6 +733,12 @@ export function WorldViewer({
         >
           Reset view
         </button>
+      )}
+      {!viewer.error && openConflicts.length > 0 && (
+        <div className="world-conflict-summary" role="status">
+          <strong>{openConflicts.length}</strong>
+          <span>{openConflicts.length === 1 ? "unresolved world fact" : "unresolved world facts"}</span>
+        </div>
       )}
       {viewer.error && (
         <div className="world-runtime-error" role="alert" data-error-code={viewer.error.code}>

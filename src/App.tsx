@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import snapshotFixture from "../fixtures/snapshot_1.json";
 import patch2Fixture from "../fixtures/patch_2.json";
 import patch3Fixture from "../fixtures/patch_3.json";
-import { WorldViewer } from "./components";
+import { EntityInspector, WorldViewer } from "./components";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 
@@ -27,10 +27,6 @@ export default function App() {
     const version2 = applyScenePatch(snapshot, patch2);
     return step === 1 ? version2 : applyScenePatch(version2, patch3);
   }, [step]);
-  const selected = derivedSnapshot.entities.find(
-    (entity) => entity.id === selectedEntityId && entity.locationId === activeLocationId,
-  );
-
   const reset = () => {
     setStep(0);
     setInvalidPatchMode(false);
@@ -118,7 +114,6 @@ export default function App() {
             onClick={() => {
               setInvalidPatchMode(false);
               setStep((current) => Math.min(2, current + 1));
-              setSelectedEntityId(null);
             }}
             disabled={step === 2}
           >
@@ -126,11 +121,11 @@ export default function App() {
           </button>
         </div>
 
-        <aside className="selection-card" aria-live="polite">
-          <span>Selected entity</span>
-          <strong>{selected?.name ?? "None"}</strong>
-          <small>{selected ? `${selected.id} · ${selected.assetKey ?? "fallback primitive"}` : "Click an object in the room"}</small>
-        </aside>
+        <EntityInspector
+          snapshot={derivedSnapshot}
+          selectedEntityId={selectedEntityId}
+          onEntitySelect={setSelectedEntityId}
+        />
       </section>
     </main>
   );

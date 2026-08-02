@@ -133,5 +133,13 @@
       "predicate": "centered"
     }
   ],
-  "conflicts": []
+  "conflicts": [
+    {
+      "id": "map-display-conflict",
+      "entityId": "map-1",
+      "description": "The map is described as folded, but its exact display state is uncertain.",
+      "status": "open",
+      "passageIds": ["P1"]
+    }
+  ]
 }
