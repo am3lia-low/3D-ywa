@@ -8,7 +8,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Adds renderer-owned nested entity, relation, transform and patch-operation types.
 - Resolves explicit coordinates and semantic relations with deterministic collision correction.
 - Applies ordered scene patches while retaining stable identity for untouched entities.
-- Renders a selectable room with orbit controls, primitive asset registry, unknown-asset fallbacks and change transitions.
+- Renders a selectable room with resilient map-style camera controls, a semantic asset registry, unknown-asset fallbacks and change transitions.
 - Demonstrates three passages using the required fixture files.
 
 ## Milestone 2
@@ -20,10 +20,10 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 
 ## Milestone 3
 
-- Loads project-owned low-poly GLB models through the semantic asset registry.
+- Loads normalized glTF assets through the semantic registry, including web-sized CC0 Poly Haven PBR models for hero furniture.
 - Uses suspense placeholders while models load and per-entity primitive fallbacks on failure.
 - Preserves selection and change highlighting across modeled and fallback assets.
-- Generates all model files reproducibly with `pnpm models:generate`.
+- Generates the original fallback model set reproducibly with `pnpm models:generate`; vendored CC0 assets retain source and license manifests.
 
 ## Milestone 4
 
@@ -43,7 +43,8 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 
 - Adds Google Maps-style navigation with left-drag panning, right-drag rotation and wheel/pinch zoom.
 - Smoothly travels to a bounded floor point on double-click and centers selected entities.
-- Keeps navigation targets inside the active room and scales camera limits to each location.
+- Keeps navigation targets inside the active room with a dedicated camera controller that survives rerenders and repeated pan/rotate/zoom gestures.
+- Uses 1K PBR plaster, wood, stone and worn-fabric maps for the attic architecture and hero surfaces.
 - Provides a reset-view control that glides back to the room overview.
 
 ## Milestone 7

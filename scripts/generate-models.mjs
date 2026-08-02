@@ -208,10 +208,36 @@ for (const [key, createModel] of Object.entries(models)) {
   });
 }
 
+manifest.push(
+  {
+    key: "desk-polyhaven",
+    url: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "Serhii Khromov",
+    license: "CC0 1.0 Universal",
+    bytes: 485316,
+  },
+  {
+    key: "chair-polyhaven",
+    url: "/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "Jake Mobley",
+    license: "CC0 1.0 Universal",
+    bytes: 1079531,
+  },
+  {
+    key: "crate-polyhaven",
+    url: "/models/polyhaven/wooden_crate_01/wooden_crate_01_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "James Ray Cock",
+    license: "CC0 1.0 Universal",
+    bytes: 2277087,
+  },
+);
+
 await writeFile(
   resolve(outputDirectory, "manifest.json"),
   `${JSON.stringify({ generatedBy: "scripts/generate-models.mjs", assets: manifest }, null, 2)}\n`,
 );
 
-console.log(`Generated ${manifest.length} original GLB assets in ${outputDirectory}.`);
-
+console.log(`Recorded ${manifest.length} generated and vendored assets in ${outputDirectory}.`);

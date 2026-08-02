@@ -29,7 +29,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [2.4, 1.2, 1.1],
     color: "#6f472c",
-    modelUrl: "/models/desk.glb",
+    modelUrl: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
     roughness: 0.9,
   },
   chair: {
@@ -37,7 +37,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [0.85, 1.1, 0.85],
     color: "#8a5b38",
-    modelUrl: "/models/chair.glb",
+    modelUrl: "/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
     roughness: 0.88,
   },
   fireplace: {
@@ -54,6 +54,13 @@ export const defaultAssetRegistry: AssetRegistry = {
     dimensions: [3.8, 0.08, 2.6],
     color: "#874b48",
     modelUrl: "/models/rug.glb",
+    roughness: 1,
+  },
+  map: {
+    key: "map",
+    geometry: "box",
+    dimensions: [0.92, 0.025, 0.64],
+    color: "#d8bd80",
     roughness: 1,
   },
   lantern: {

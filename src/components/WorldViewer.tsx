@@ -1,8 +1,9 @@
 import {
+  CameraControls,
+  CameraControlsImpl,
   Clone,
   Html,
   Line,
-  MapControls,
   PerformanceMonitor,
   useGLTF,
 } from "@react-three/drei";
@@ -101,11 +102,6 @@ type CameraCommand =
   | { id: number; kind: "reset" }
   | { id: number; kind: "travel" | "focus"; target: Vector3Tuple };
 
-interface CameraDestination {
-  position: THREE.Vector3;
-  target: THREE.Vector3;
-}
-
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
   const result = new Map<string, ChangeKind>();
   if (!patch || !Array.isArray(patch.operations)) return result;
@@ -192,7 +188,184 @@ function PrimitiveAsset({
 
 function LoadedModel({ url }: { url: string }) {
   const model = useGLTF(url);
-  return <Clone object={model.scene} castShadow receiveShadow />;
+  const normalization = useMemo(() => {
+    model.scene.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(model.scene);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    return {
+      offset: center.multiplyScalar(-1),
+      scale: new THREE.Vector3(
+        size.x > 0 ? 1 / size.x : 1,
+        size.y > 0 ? 1 / size.y : 1,
+        size.z > 0 ? 1 / size.z : 1,
+      ),
+    };
+  }, [model.scene]);
+
+  return (
+    <group scale={normalization.scale}>
+      <Clone
+        object={model.scene}
+        position={normalization.offset}
+        castShadow
+        receiveShadow
+      />
+    </group>
+  );
+}
+
+function usePbrSurface(
+  colorPath: string,
+  normalPath: string,
+  armPath: string,
+  repeat: [number, number],
+) {
+  const textures = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const configure = (texture: THREE.Texture, isColor = false) => {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...repeat);
+      texture.anisotropy = 8;
+      if (isColor) texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    };
+    return {
+      color: configure(loader.load(colorPath), true),
+      normal: configure(loader.load(normalPath)),
+      arm: configure(loader.load(armPath)),
+    };
+  }, [armPath, colorPath, normalPath, repeat[0], repeat[1]]);
+
+  useEffect(
+    () => () => Object.values(textures).forEach((texture) => texture.dispose()),
+    [textures],
+  );
+  return textures;
+}
+
+function StoryRug({ highlighted, highlightColor }: {
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const surface = usePbrSurface(
+    "/textures/polyhaven/dirty_carpet_diff_1k.jpg",
+    "/textures/polyhaven/dirty_carpet_nor_gl_1k.jpg",
+    "/textures/polyhaven/dirty_carpet_arm_1k.jpg",
+    [2.8, 2.1],
+  );
+
+  return (
+    <group>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[1, 0.18, 1]} />
+        <meshStandardMaterial
+          color="#9d7658"
+          roughness={0.96}
+          emissive={highlighted ? highlightColor : "#000000"}
+          emissiveIntensity={highlighted ? 0.3 : 0}
+        />
+      </mesh>
+      <mesh position={[0, 0.105, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.88, 0.07, 0.84]} />
+        <meshStandardMaterial
+          color="#ffffff"
+          map={surface.color}
+          normalMap={surface.normal}
+          normalScale={new THREE.Vector2(0.72, 0.72)}
+          roughnessMap={surface.arm}
+          roughness={1}
+          emissive={highlighted ? highlightColor : "#000000"}
+          emissiveIntensity={highlighted ? 0.24 : 0}
+        />
+      </mesh>
+      {Array.from({ length: 11 }, (_, index) => {
+        const x = -0.44 + index * 0.088;
+        return [-0.54, 0.54].map((z) => (
+          <mesh key={`${index}:${z}`} position={[x, 0, z]}>
+            <boxGeometry args={[0.018, 0.06, 0.11]} />
+            <meshStandardMaterial color="#c9ad7d" roughness={1} />
+          </mesh>
+        ));
+      })}
+    </group>
+  );
+}
+
+function StoryFireplace({ highlighted, highlightColor }: {
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const surface = usePbrSurface(
+    "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_nor_gl_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_arm_1k.jpg",
+    [1.35, 1.35],
+  );
+  const stoneMaterial = (
+    <meshStandardMaterial
+      color="#aaa49b"
+      map={surface.color}
+      normalMap={surface.normal}
+      normalScale={new THREE.Vector2(0.62, 0.62)}
+      roughnessMap={surface.arm}
+      roughness={0.98}
+      emissive={highlighted ? highlightColor : "#000000"}
+      emissiveIntensity={highlighted ? 0.22 : 0}
+    />
+  );
+
+  return (
+    <group>
+      <mesh position={[0, 0.02, -0.08]} castShadow receiveShadow>
+        <boxGeometry args={[0.98, 0.92, 0.28]} />
+        {stoneMaterial}
+      </mesh>
+      <mesh position={[0, -0.1, 0.075]}>
+        <boxGeometry args={[0.53, 0.57, 0.035]} />
+        <meshStandardMaterial color="#100b08" roughness={1} />
+      </mesh>
+      {[-0.39, 0.39].map((x) => (
+        <mesh key={x} position={[x, -0.08, 0.13]} castShadow receiveShadow>
+          <boxGeometry args={[0.2, 0.72, 0.36]} />
+          {stoneMaterial}
+        </mesh>
+      ))}
+      <mesh position={[0, 0.39, 0.15]} castShadow receiveShadow>
+        <boxGeometry args={[1, 0.18, 0.48]} />
+        {stoneMaterial}
+      </mesh>
+      <mesh position={[0, -0.43, 0.2]} castShadow receiveShadow>
+        <boxGeometry args={[1, 0.14, 0.64]} />
+        {stoneMaterial}
+      </mesh>
+      {[-0.14, 0.14].map((x) => (
+        <mesh key={x} position={[x, -0.34, 0.25]} rotation={[0, 0, x * 1.6]} castShadow>
+          <cylinderGeometry args={[0.055, 0.075, 0.42, 10]} />
+          <meshStandardMaterial color="#392218" roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function PeriodCrate({
+  position,
+  rotation = [0, 0, 0],
+  scale,
+}: {
+  position: Vector3Tuple;
+  rotation?: Vector3Tuple;
+  scale: Vector3Tuple;
+}) {
+  return (
+    <group position={position} rotation={rotation} scale={scale}>
+      <Suspense fallback={null}>
+        <LoadedModel url="/models/polyhaven/wooden_crate_01/wooden_crate_01_1k.gltf" />
+      </Suspense>
+    </group>
+  );
 }
 
 class ModelErrorBoundary extends Component<
@@ -226,6 +399,14 @@ function EntityAsset({
       highlightColor={highlightColor}
     />
   );
+
+  if (asset.key === "rug") {
+    return <StoryRug highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+
+  if (asset.key === "fireplace") {
+    return <StoryFireplace highlighted={highlighted} highlightColor={highlightColor} />;
+  }
 
   if (!asset.modelUrl) return fallback;
 
@@ -327,22 +508,47 @@ function Room({
   const wallThickness = 0.12;
   const usesAtticKit = presentation.architecture.timberFrame;
   const usesArchiveKit = presentation.architecture.archiveShelves;
-  const plasterTexture = useMemo(() => {
-    const texture = new THREE.TextureLoader().load("/textures/attic-plaster.webp");
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(3.2, 1.8);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }, []);
-  const floorboards = Array.from({ length: 18 }, (_, index) => {
-    const depth = bounds[2] / 18;
-    return {
-      z: -bounds[2] / 2 + depth * (index + 0.5),
-      depth,
-      color: index % 3 === 0 ? "#493427" : index % 2 === 0 ? "#3e2d23" : "#443126",
+  const roomTextures = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const load = (path: string, repeat: [number, number], color = false) => {
+      const texture = loader.load(path);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...repeat);
+      texture.anisotropy = 8;
+      if (color) texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
     };
-  });
+
+    return {
+      wallColor: load(
+        "/textures/polyhaven/plastered_wall_03_diff_1k.jpg",
+        [2.7, 1.45],
+        true,
+      ),
+      wallNormal: load(
+        "/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg",
+        [2.7, 1.45],
+      ),
+      wallArm: load(
+        "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
+        [2.7, 1.45],
+      ),
+      floorColor: load(
+        "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
+        [3.2, 3.2],
+        true,
+      ),
+      floorNormal: load(
+        "/textures/polyhaven/dark_wooden_planks_nor_gl_1k.jpg",
+        [3.2, 3.2],
+      ),
+      floorArm: load(
+        "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
+        [3.2, 3.2],
+      ),
+    };
+  }, []);
   const rearStuds = Array.from({ length: 7 }, (_, index) =>
     -bounds[0] / 2 + (bounds[0] / 6) * index,
   );
@@ -357,7 +563,10 @@ function Room({
   const archiveShelfCenters = [-bounds[0] * 0.28, 0, bounds[0] * 0.28];
   const archiveShelfLevels = [0.55, 1.22, 1.89, 2.56];
 
-  useEffect(() => () => plasterTexture.dispose(), [plasterTexture]);
+  useEffect(
+    () => () => Object.values(roomTextures).forEach((texture) => texture.dispose()),
+    [roomTextures],
+  );
 
   return (
     <group
@@ -376,27 +585,40 @@ function Room({
       <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
-          color={presentation.palette.wall}
-          map={presentation.architecture.plasterWalls ? plasterTexture : undefined}
+          color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
+          map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
+          normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+          normalScale={new THREE.Vector2(0.48, 0.48)}
+          roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
           roughness={0.98}
         />
       </mesh>
       <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
-          color={presentation.palette.wall}
-          map={presentation.architecture.plasterWalls ? plasterTexture : undefined}
+          color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
+          map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
+          normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+          normalScale={new THREE.Vector2(0.48, 0.48)}
+          roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
           roughness={0.98}
         />
       </mesh>
       {usesAtticKit ? (
         <>
-          {presentation.architecture.floorboards && floorboards.map((board, index) => (
-            <mesh key={`floorboard-${index}`} position={[0, 0.012, board.z]} receiveShadow>
-              <boxGeometry args={[bounds[0] - 0.08, 0.025, board.depth - 0.025]} />
-              <meshStandardMaterial color={board.color} roughness={0.92} />
+          {presentation.architecture.floorboards && (
+            <mesh position={[0, 0.012, 0]} receiveShadow>
+              <boxGeometry args={[bounds[0] - 0.08, 0.025, bounds[2] - 0.08]} />
+              <meshStandardMaterial
+                color="#a98d76"
+                map={roomTextures.floorColor}
+                normalMap={roomTextures.floorNormal}
+                normalScale={new THREE.Vector2(0.55, 0.55)}
+                roughnessMap={roomTextures.floorArm}
+                roughness={0.96}
+              />
             </mesh>
-          ))}
+          )}
           <mesh position={[0, 0.18, -bounds[2] / 2 + 0.1]} castShadow receiveShadow>
             <boxGeometry args={[bounds[0], 0.34, 0.18]} />
             <meshStandardMaterial color={presentation.palette.timber} roughness={0.96} />
@@ -467,37 +689,22 @@ function Room({
             visible={presentation.dressing.storageCrates}
             position={[-bounds[0] * 0.38, 0, bounds[2] * 0.3]}
           >
-            <mesh position={[0, 0.38, 0]} castShadow receiveShadow>
-              <boxGeometry args={[1.35, 0.76, 1.05]} />
-              <meshStandardMaterial color="#70503a" roughness={0.96} />
-            </mesh>
-            {[-0.48, 0, 0.48].map((x) => (
-              <mesh key={`crate-slat-${x}`} position={[x, 0.39, 0.535]} castShadow>
-                <boxGeometry args={[0.11, 0.64, 0.045]} />
-                <meshStandardMaterial color={presentation.palette.timber} roughness={1} />
-              </mesh>
-            ))}
-            <mesh position={[0.48, 1.07, -0.05]} rotation={[0, 0.16, 0]} castShadow>
-              <boxGeometry args={[0.82, 0.62, 0.75]} />
-              <meshStandardMaterial color="#5d422f" roughness={0.98} />
-            </mesh>
+            <PeriodCrate position={[0, 0.42, 0]} scale={[1.38, 0.84, 1.08]} />
+            <PeriodCrate
+              position={[0.48, 1.18, -0.05]}
+              rotation={[0, 0.18, 0.08]}
+              scale={[0.92, 0.62, 0.76]}
+            />
           </group>
           <group
             visible={presentation.dressing.travelChest}
             position={[bounds[0] * 0.37, 0, bounds[2] * 0.27]}
           >
-            <mesh position={[0, 0.36, 0]} castShadow receiveShadow>
-              <boxGeometry args={[2.1, 0.72, 1.0]} />
-              <meshStandardMaterial color="#4d3124" roughness={0.94} />
-            </mesh>
-            <mesh position={[0, 0.78, 0]} rotation={[0.08, 0, 0]} castShadow>
-              <boxGeometry args={[2.16, 0.16, 1.04]} />
-              <meshStandardMaterial color="#654332" roughness={0.92} />
-            </mesh>
-            <mesh position={[0, 0.5, 0.51]}>
-              <boxGeometry args={[0.24, 0.24, 0.06]} />
-              <meshStandardMaterial color="#b18445" metalness={0.55} roughness={0.42} />
-            </mesh>
+            <PeriodCrate
+              position={[0, 0.48, 0]}
+              rotation={[0, -0.08, 0]}
+              scale={[2.05, 0.96, 1.12]}
+            />
           </group>
           <group
             visible={presentation.dressing.books}
@@ -745,10 +952,6 @@ function StoryEffects({
   );
 }
 
-function tupleFromVector(vector: THREE.Vector3): Vector3Tuple {
-  return [vector.x, vector.y, vector.z];
-}
-
 function SceneCamera({
   layout,
   command,
@@ -756,78 +959,65 @@ function SceneCamera({
   layout: WorldLayout;
   command: CameraCommand | null;
 }) {
-  const { camera } = useThree();
-  const controls = useRef<ComponentRef<typeof MapControls>>(null);
-  const destination = useRef<CameraDestination | null>(null);
+  const controls = useRef<ComponentRef<typeof CameraControls>>(null);
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
 
   useEffect(() => {
     const overview = createOverviewCameraPose(bounds);
-    destination.current = null;
-    camera.position.set(...overview.position);
-    controls.current?.target.set(...overview.target);
-    controls.current?.update();
-    camera.lookAt(new THREE.Vector3(...overview.target));
-    camera.updateProjectionMatrix();
-  }, [bounds[0], bounds[1], bounds[2], camera, layout.location.id]);
+    const currentControls = controls.current;
+    if (!currentControls) return;
+
+    currentControls.cancel();
+    currentControls.setBoundary(
+      new THREE.Box3(
+        new THREE.Vector3(-bounds[0] / 2 + 0.45, 0.35, -bounds[2] / 2 + 0.45),
+        new THREE.Vector3(bounds[0] / 2 - 0.45, bounds[1] - 0.35, bounds[2] / 2 - 0.45),
+      ),
+    );
+    void currentControls.setLookAt(
+      ...overview.position,
+      ...overview.target,
+      false,
+    );
+    currentControls.saveState();
+  }, [bounds[0], bounds[1], bounds[2], layout.location.id]);
 
   useEffect(() => {
     const currentControls = controls.current;
     if (!command || !currentControls) return;
+    const currentPosition = currentControls.getPosition(new THREE.Vector3(), true);
+    const currentTarget = currentControls.getTarget(new THREE.Vector3(), true);
     const pose =
       command.kind === "reset"
         ? createOverviewCameraPose(bounds)
         : createTravelCameraPose(
-            tupleFromVector(camera.position),
-            tupleFromVector(currentControls.target),
+            [currentPosition.x, currentPosition.y, currentPosition.z],
+            [currentTarget.x, currentTarget.y, currentTarget.z],
             command.target,
             bounds,
           );
-    destination.current = {
-      position: new THREE.Vector3(...pose.position),
-      target: new THREE.Vector3(...pose.target),
-    };
-  }, [bounds[0], bounds[1], bounds[2], camera, command]);
-
-  useFrame((_, delta) => {
-    const currentControls = controls.current;
-    const next = destination.current;
-    if (!currentControls || !next) return;
-    const alpha = 1 - Math.exp(-delta * 5.5);
-    camera.position.lerp(next.position, alpha);
-    currentControls.target.lerp(next.target, alpha);
-    currentControls.update();
-    if (
-      camera.position.distanceToSquared(next.position) < 0.0004 &&
-      currentControls.target.distanceToSquared(next.target) < 0.0004
-    ) {
-      camera.position.copy(next.position);
-      currentControls.target.copy(next.target);
-      destination.current = null;
-    }
-  });
+    currentControls.cancel();
+    void currentControls.setLookAt(...pose.position, ...pose.target, true);
+  }, [bounds[0], bounds[1], bounds[2], command]);
 
   return (
-    <MapControls
+    <CameraControls
       ref={controls}
       key={layout.location.id}
       makeDefault
-      enableDamping
-      dampingFactor={0.08}
-      enablePan
-      mouseButtons={{
-        LEFT: THREE.MOUSE.PAN,
-        MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE,
-      }}
-      screenSpacePanning={false}
-      zoomToCursor
+      smoothTime={0.22}
+      draggingSmoothTime={0.08}
+      boundaryFriction={0.18}
+      dollyToCursor
+      truckSpeed={2.2}
       minDistance={1.1}
       maxDistance={Math.max(48, Math.max(bounds[0], bounds[2]) * 6)}
       maxPolarAngle={Math.PI / 2.02}
-      target={createOverviewCameraPose(bounds).target}
-      onStart={() => {
-        destination.current = null;
+      mouseButtons={{
+        left: CameraControlsImpl.ACTION.TRUCK,
+        middle: CameraControlsImpl.ACTION.DOLLY,
+        right: CameraControlsImpl.ACTION.ROTATE,
+        wheel: CameraControlsImpl.ACTION.DOLLY,
       }}
     />
   );
@@ -1204,6 +1394,11 @@ export function WorldViewer({
         <Canvas
           shadows={qualityProfile.shadows}
           dpr={qualityProfile.dpr}
+          gl={{
+            antialias: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.08,
+          }}
           camera={{ position: [8, 7, 9], fov: 48, near: 0.1, far: 100 }}
           style={{ touchAction: "none" }}
           onPointerMissed={() => onEntitySelect?.(null)}

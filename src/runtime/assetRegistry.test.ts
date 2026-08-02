@@ -29,7 +29,9 @@ describe("asset registry", () => {
       entity({ assetKey: "desk", dimensions: [3, 1.4, 1.2] }),
     );
 
-    expect(asset.modelUrl).toBe("/models/desk.glb");
+    expect(asset.modelUrl).toBe(
+      "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
+    );
     expect(asset.dimensions).toEqual([3, 1.4, 1.2]);
   });
 
@@ -41,4 +43,3 @@ describe("asset registry", () => {
     expect(asset.geometry).toBe("box");
   });
 });
-
