@@ -7,6 +7,8 @@ export interface AssetDefinition {
   geometry: PrimitiveGeometry;
   dimensions: Vector3Tuple;
   color: string;
+  /** Public URL for the preferred normalized glTF 2.0 binary asset. */
+  modelUrl?: string;
   roughness?: number;
   metalness?: number;
 }
@@ -27,6 +29,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [2.4, 1.2, 1.1],
     color: "#6f472c",
+    modelUrl: "/models/desk.glb",
     roughness: 0.9,
   },
   chair: {
@@ -34,6 +37,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [0.85, 1.1, 0.85],
     color: "#8a5b38",
+    modelUrl: "/models/chair.glb",
     roughness: 0.88,
   },
   fireplace: {
@@ -41,6 +45,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [2.2, 2.2, 0.65],
     color: "#776d65",
+    modelUrl: "/models/fireplace.glb",
     roughness: 1,
   },
   rug: {
@@ -48,6 +53,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [3.8, 0.08, 2.6],
     color: "#874b48",
+    modelUrl: "/models/rug.glb",
     roughness: 1,
   },
   lantern: {
@@ -55,6 +61,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "cylinder",
     dimensions: [0.45, 0.8, 0.45],
     color: "#c98f34",
+    modelUrl: "/models/lantern.glb",
     roughness: 0.45,
     metalness: 0.65,
   },
@@ -63,6 +70,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "box",
     dimensions: [1.8, 2.9, 0.25],
     color: "#4e3c31",
+    modelUrl: "/models/hidden-door.glb",
     roughness: 0.95,
   },
 };
@@ -86,4 +94,3 @@ export function resolveAsset(
     dimensions: entity.dimensions ?? fallback.dimensions,
   };
 }
-

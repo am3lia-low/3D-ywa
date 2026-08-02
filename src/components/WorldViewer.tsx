@@ -1,6 +1,14 @@
-import { OrbitControls } from "@react-three/drei";
+import { Clone, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Component,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import * as THREE from "three";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import {
@@ -37,10 +45,81 @@ function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, Chan
   return result;
 }
 
-function PrimitiveAsset({ asset }: { asset: AssetDefinition }) {
+function PrimitiveGeometry({ asset }: { asset: AssetDefinition }) {
   if (asset.geometry === "sphere") return <sphereGeometry args={[0.5, 24, 16]} />;
   if (asset.geometry === "cylinder") return <cylinderGeometry args={[0.5, 0.5, 1, 20]} />;
   return <boxGeometry args={[1, 1, 1]} />;
+}
+
+function PrimitiveAsset({
+  asset,
+  highlighted,
+  highlightColor,
+}: {
+  asset: AssetDefinition;
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  return (
+    <mesh castShadow receiveShadow>
+      <PrimitiveGeometry asset={asset} />
+      <meshStandardMaterial
+        color={asset.color}
+        emissive={highlighted ? highlightColor : "#000000"}
+        emissiveIntensity={highlighted ? 0.38 : 0}
+        roughness={asset.roughness ?? 0.8}
+        metalness={asset.metalness ?? 0}
+      />
+    </mesh>
+  );
+}
+
+function LoadedModel({ url }: { url: string }) {
+  const model = useGLTF(url);
+  return <Clone object={model.scene} castShadow receiveShadow />;
+}
+
+class ModelErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
+function EntityAsset({
+  asset,
+  highlighted,
+  highlightColor,
+}: {
+  asset: AssetDefinition;
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const fallback = (
+    <PrimitiveAsset
+      asset={asset}
+      highlighted={highlighted}
+      highlightColor={highlightColor}
+    />
+  );
+
+  if (!asset.modelUrl) return fallback;
+
+  return (
+    <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
+      <Suspense fallback={fallback}>
+        <LoadedModel url={asset.modelUrl} />
+      </Suspense>
+    </ModelErrorBoundary>
+  );
 }
 
 function WorldEntity({
@@ -101,20 +180,16 @@ function WorldEntity({
       onPointerDown={onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
-      <mesh castShadow receiveShadow>
-        <PrimitiveAsset asset={item.asset} />
-        <meshStandardMaterial
-          color={item.asset.color}
-          emissive={highlighted ? emissive : "#000000"}
-          emissiveIntensity={highlighted ? 0.38 : 0}
-          roughness={item.asset.roughness ?? 0.8}
-          metalness={item.asset.metalness ?? 0}
-        />
-      </mesh>
-      {selected && (
-        <mesh scale={[1.06, 1.06, 1.06]}>
-          <PrimitiveAsset asset={item.asset} />
-          <meshBasicMaterial color="#66f2e0" wireframe transparent opacity={0.7} />
+      <EntityAsset asset={item.asset} highlighted={highlighted} highlightColor={emissive} />
+      {highlighted && (
+        <mesh scale={[1.04, 1.04, 1.04]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial
+            color={emissive}
+            wireframe
+            transparent
+            opacity={selected ? 0.74 : 0.42}
+          />
         </mesh>
       )}
     </group>

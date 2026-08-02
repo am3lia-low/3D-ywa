@@ -1,0 +1,53 @@
+{
+  "generatedBy": "scripts/generate-models.mjs",
+  "assets": [
+    {
+      "key": "desk",
+      "url": "/models/desk.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 17420
+    },
+    {
+      "key": "chair",
+      "url": "/models/chair.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 16692
+    },
+    {
+      "key": "fireplace",
+      "url": "/models/fireplace.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 11684
+    },
+    {
+      "key": "rug",
+      "url": "/models/rug.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 9564
+    },
+    {
+      "key": "lantern",
+      "url": "/models/lantern.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 21056
+    },
+    {
+      "key": "hidden-door",
+      "url": "/models/hidden-door.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 18616
+    }
+  ]
+}

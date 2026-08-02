@@ -18,6 +18,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Keeps removed entities as temporary exit nodes so they animate out before unmounting.
 - Covers adversarial insertion, movement, removal and fixture progression with continuity tests.
 
+## Milestone 3
+
+- Loads project-owned low-poly GLB models through the semantic asset registry.
+- Uses suspense placeholders while models load and per-entity primitive fallbacks on failure.
+- Preserves selection and change highlighting across modeled and fallback assets.
+- Generates all model files reproducibly with `pnpm models:generate`.
+
 ## Component contract
 
 ```tsx
@@ -35,6 +42,7 @@ The `snapshot` initializes the mounted scene. A new `patch` is applied only when
 
 ```bash
 pnpm install
+pnpm models:generate
 pnpm dev
 pnpm test
 pnpm build
