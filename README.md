@@ -68,6 +68,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 <WorldViewer
   snapshot={snapshot}
   patch={patch}
+  visualPlan={visualPlan}
   activeLocationId={activeLocationId}
   selectedEntityId={selectedEntityId}
   onEntitySelect={handleEntitySelect}
@@ -75,6 +76,28 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
   onPatchApplied={handlePatchApplied}
 />
 ```
+
+## Visual scene generation prototype
+
+The renderer can consume a versioned `VisualScenePlan` alongside factual world state. The plan carries novel-derived art direction, location archetypes, semantic architecture and dressing tags, lighting intent, visual entity descriptions, asset search/generation prompts and explicitly presentation-only connections.
+
+The prototype pipeline is:
+
+```text
+selected novel segment
+  -> WorldSnapshot / ScenePatch
+  -> VisualScenePlan
+  -> compileScenePresentation(...)
+  -> architecture + palette + lighting + dressing + asset requests
+  -> WorldViewer
+```
+
+Part 1 fixture targets:
+
+- `fixtures/visual_scene_plan_1.json` — opening plan for world version 1.
+- `fixtures/visual_scene_plan_3.json` — revised plan after the passage-3 reveal.
+
+The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 

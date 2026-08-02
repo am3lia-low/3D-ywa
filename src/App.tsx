@@ -2,13 +2,18 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import snapshotFixture from "../fixtures/snapshot_1.json";
 import patch2Fixture from "../fixtures/patch_2.json";
 import patch3Fixture from "../fixtures/patch_3.json";
+import visualPlan1Fixture from "../fixtures/visual_scene_plan_1.json";
+import visualPlan3Fixture from "../fixtures/visual_scene_plan_3.json";
 import { EntityInspector } from "./components/EntityInspector";
+import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 const patch2 = patch2Fixture as unknown as ScenePatch;
 const patch3 = patch3Fixture as unknown as ScenePatch;
+const visualPlan1 = visualPlan1Fixture as unknown as VisualScenePlan;
+const visualPlan3 = visualPlan3Fixture as unknown as VisualScenePlan;
 const WorldViewer = lazy(() =>
   import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
 );
@@ -26,6 +31,7 @@ export default function App() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [activeLocationId, setActiveLocationId] = useState(snapshot.locations[0]?.id ?? "");
   const patch = invalidPatchMode ? invalidPatch : step === 1 ? patch2 : step === 2 ? patch3 : null;
+  const visualPlan = acknowledgedVersion >= 3 ? visualPlan3 : visualPlan1;
   const derivedSnapshot = useMemo(() => {
     if (step === 0) return snapshot;
     const version2 = applyScenePatch(snapshot, patch2);
@@ -55,6 +61,7 @@ export default function App() {
           <span>World state</span>
           <strong>v{step + 1}</strong>
           <small>renderer ack v{acknowledgedVersion}</small>
+          <small>visual plan v{visualPlan.planVersion}</small>
         </div>
       </header>
 
@@ -70,9 +77,14 @@ export default function App() {
             key={session}
             snapshot={snapshot}
             patch={patch}
+            visualPlan={visualPlan}
             activeLocationId={activeLocationId}
             selectedEntityId={selectedEntityId}
             onEntitySelect={setSelectedEntityId}
+            onLocationRequest={(locationId) => {
+              setActiveLocationId(locationId);
+              setSelectedEntityId(null);
+            }}
             onPatchApplied={(currentSnapshot) =>
               setAcknowledgedVersion(currentSnapshot.version)
             }
@@ -103,9 +115,12 @@ export default function App() {
             </select>
           </label>
           <p>
-            {step === 0 && "The attic study is established: desk, chair, hearth and worn rug."}
-            {step === 1 && "The chair has moved. A brass lantern now waits beside the desk."}
-            {step === 2 && "Firelight reveals a narrow hidden door in the north wall."}
+            {step === 0 &&
+              "Elian enters the old attic study. A faded rug faces the writing desk, while a folded map rests beside the cold north-wall hearth."}
+            {step === 1 &&
+              "He drags the chair away and finds fresh scratches in the wood. An unlit brass lantern waits beside the desk."}
+            {step === 2 &&
+              "Elian lights the hearth and carries the lantern north. In the warm flicker, the outline of a hidden door appears."}
           </p>
         </div>
 

@@ -1,5 +1,6 @@
 export * from "./components";
 export * from "./contracts/world";
+export * from "./contracts/visualScenePlan";
 export * from "./contracts/validation";
 export * from "./runtime/applyScenePatch";
 export * from "./runtime/assetRegistry";
@@ -8,4 +9,5 @@ export * from "./runtime/spatialRuntime";
 export * from "./runtime/cameraNavigation";
 export * from "./runtime/spatialAwareness";
 export * from "./runtime/renderQuality";
+export * from "./runtime/sceneCompiler";
 export * from "./integration/worldStream";

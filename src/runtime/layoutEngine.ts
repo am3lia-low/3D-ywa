@@ -119,7 +119,7 @@ function relationPosition(
     case "on":
       return [
         target.position[0],
-        target.position[1] + target.dimensions[1] / 2 + item.dimensions[1] / 2 + SPACING / 2,
+        target.position[1] + target.dimensions[1] / 2 + item.dimensions[1] / 2 + 0.008,
         target.position[2],
       ];
     case "inside":

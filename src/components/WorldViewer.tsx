@@ -26,10 +26,12 @@ import {
 } from "../contracts/validation";
 import type {
   Conflict,
+  Location,
   ScenePatch,
   Vector3Tuple,
   WorldSnapshot,
 } from "../contracts/world";
+import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import {
   defaultAssetRegistry,
   type AssetDefinition,
@@ -38,7 +40,6 @@ import {
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
-  clampNavigationTarget,
   createOverviewCameraPose,
   createTravelCameraPose,
 } from "../runtime/cameraNavigation";
@@ -52,6 +53,11 @@ import {
   renderQualityProfiles,
   type RenderQuality,
 } from "../runtime/renderQuality";
+import {
+  compileScenePresentation,
+  createFallbackScenePresentation,
+  type ScenePresentation,
+} from "../runtime/sceneCompiler";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -77,10 +83,12 @@ export interface WorldViewerRuntimeError {
 export interface WorldViewerProps {
   snapshot: WorldSnapshot;
   patch?: ScenePatch | null;
+  visualPlan?: VisualScenePlan;
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
   onPatchApplied?: (snapshot: WorldSnapshot, patch: ScenePatch) => void;
+  onLocationRequest?: (locationId: string) => void;
   /** Optional room selection; defaults to the snapshot's first location. */
   activeLocationId?: string;
   assetRegistry?: AssetRegistry;
@@ -235,11 +243,13 @@ function WorldEntity({
   selected,
   change,
   onSelect,
+  onActivate,
 }: {
   item: LayoutItem;
   selected: boolean;
   change: ChangeKind;
   onSelect?: (event: ThreeEvent<PointerEvent>) => void;
+  onActivate?: (event: ThreeEvent<PointerEvent>) => void;
 }) {
   const group = useRef<THREE.Group>(null);
   const initialPosition = useRef<THREE.Vector3>(null);
@@ -285,7 +295,7 @@ function WorldEntity({
       position={initialPosition.current}
       rotation={item.rotation}
       scale={initialScale.current}
-      onPointerDown={onSelect}
+      onPointerDown={onActivate ?? onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
       <EntityAsset asset={item.asset} highlighted={highlighted} highlightColor={emissive} />
@@ -306,38 +316,432 @@ function WorldEntity({
 
 function Room({
   layout,
+  presentation,
   onGroundNavigate,
 }: {
   layout: WorldLayout;
+  presentation: ScenePresentation;
   onGroundNavigate: (target: Vector3Tuple) => void;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
-  const environment = layout.location.environment;
   const wallThickness = 0.12;
+  const usesAtticKit = presentation.architecture.timberFrame;
+  const usesArchiveKit = presentation.architecture.archiveShelves;
+  const plasterTexture = useMemo(() => {
+    const texture = new THREE.TextureLoader().load("/textures/attic-plaster.webp");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(3.2, 1.8);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }, []);
+  const floorboards = Array.from({ length: 18 }, (_, index) => {
+    const depth = bounds[2] / 18;
+    return {
+      z: -bounds[2] / 2 + depth * (index + 0.5),
+      depth,
+      color: index % 3 === 0 ? "#493427" : index % 2 === 0 ? "#3e2d23" : "#443126",
+    };
+  });
+  const rearStuds = Array.from({ length: 7 }, (_, index) =>
+    -bounds[0] / 2 + (bounds[0] / 6) * index,
+  );
+  const sideStuds = Array.from({ length: 6 }, (_, index) =>
+    -bounds[2] / 2 + (bounds[2] / 5) * index,
+  );
+  const wallTop = bounds[1] * 0.72;
+  const archiveFloorTiles = Array.from({ length: 8 * 7 }, (_, index) => ({
+    x: index % 8,
+    z: Math.floor(index / 8),
+  }));
+  const archiveShelfCenters = [-bounds[0] * 0.28, 0, bounds[0] * 0.28];
+  const archiveShelfLevels = [0.55, 1.22, 1.89, 2.56];
+
+  useEffect(() => () => plasterTexture.dispose(), [plasterTexture]);
 
   return (
-    <group>
+    <group
+      onDoubleClick={(event) => {
+        event.stopPropagation();
+        onGroundNavigate([event.point.x, 0.9, event.point.z]);
+      }}
+    >
       <mesh
         position={[0, -0.06, 0]}
         receiveShadow
-        onDoubleClick={(event) => {
-          event.stopPropagation();
-          onGroundNavigate([event.point.x, 0.9, event.point.z]);
-        }}
       >
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
-        <meshStandardMaterial color={environment?.floorColor ?? "#3c3935"} roughness={1} />
+        <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
       </mesh>
       <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
-        <meshStandardMaterial color={environment?.wallColor ?? "#b7aa98"} roughness={1} />
+        <meshStandardMaterial
+          color={presentation.palette.wall}
+          map={presentation.architecture.plasterWalls ? plasterTexture : undefined}
+          roughness={0.98}
+        />
       </mesh>
       <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
-        <meshStandardMaterial color={environment?.wallColor ?? "#b7aa98"} roughness={1} />
+        <meshStandardMaterial
+          color={presentation.palette.wall}
+          map={presentation.architecture.plasterWalls ? plasterTexture : undefined}
+          roughness={0.98}
+        />
       </mesh>
-      <gridHelper args={[Math.max(bounds[0], bounds[2]), 20, "#70685f", "#4b4742"]} />
+      {usesAtticKit ? (
+        <>
+          {presentation.architecture.floorboards && floorboards.map((board, index) => (
+            <mesh key={`floorboard-${index}`} position={[0, 0.012, board.z]} receiveShadow>
+              <boxGeometry args={[bounds[0] - 0.08, 0.025, board.depth - 0.025]} />
+              <meshStandardMaterial color={board.color} roughness={0.92} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.18, -bounds[2] / 2 + 0.1]} castShadow receiveShadow>
+            <boxGeometry args={[bounds[0], 0.34, 0.18]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.96} />
+          </mesh>
+          <mesh position={[-bounds[0] / 2 + 0.1, 0.18, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.18, 0.34, bounds[2]]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.96} />
+          </mesh>
+          {rearStuds.map((x, index) => (
+            <mesh
+              key={`rear-stud-${index}`}
+              position={[x, wallTop / 2, -bounds[2] / 2 + 0.055]}
+              castShadow
+            >
+              <boxGeometry args={[0.16, wallTop, 0.18]} />
+              <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
+            </mesh>
+          ))}
+          {sideStuds.map((z, index) => (
+            <mesh
+              key={`side-stud-${index}`}
+              position={[-bounds[0] / 2 + 0.055, wallTop / 2, z]}
+              castShadow
+            >
+              <boxGeometry args={[0.18, wallTop, 0.16]} />
+              <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
+            </mesh>
+          ))}
+          <mesh position={[0, wallTop, -bounds[2] / 2 + 0.04]} castShadow>
+            <boxGeometry args={[bounds[0], 0.2, 0.22]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.95} />
+          </mesh>
+          <mesh position={[-bounds[0] / 2 + 0.04, wallTop, 0]} castShadow>
+            <boxGeometry args={[0.22, 0.2, bounds[2]]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.95} />
+          </mesh>
+          <group
+            visible={presentation.architecture.window}
+            position={[-bounds[0] * 0.31, bounds[1] * 0.61, -bounds[2] / 2 + 0.075]}
+          >
+            <mesh>
+              <planeGeometry args={[1.75, 1.45]} />
+              <meshStandardMaterial
+                color="#91a6ad"
+                emissive="#9cc7d1"
+                emissiveIntensity={0.52}
+                roughness={0.32}
+              />
+            </mesh>
+            <mesh position={[0, 0, 0.025]}>
+              <boxGeometry args={[0.1, 1.65, 0.08]} />
+              <meshStandardMaterial color="#30221c" roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0, 0.03]}>
+              <boxGeometry args={[1.95, 0.1, 0.08]} />
+              <meshStandardMaterial color="#30221c" roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0.79, 0.02]}>
+              <boxGeometry args={[2.05, 0.14, 0.12]} />
+              <meshStandardMaterial color="#2b1e18" roughness={0.95} />
+            </mesh>
+            <mesh position={[0, -0.79, 0.02]}>
+              <boxGeometry args={[2.05, 0.14, 0.12]} />
+              <meshStandardMaterial color="#2b1e18" roughness={0.95} />
+            </mesh>
+          </group>
+          <group
+            visible={presentation.dressing.storageCrates}
+            position={[-bounds[0] * 0.38, 0, bounds[2] * 0.3]}
+          >
+            <mesh position={[0, 0.38, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.35, 0.76, 1.05]} />
+              <meshStandardMaterial color="#70503a" roughness={0.96} />
+            </mesh>
+            {[-0.48, 0, 0.48].map((x) => (
+              <mesh key={`crate-slat-${x}`} position={[x, 0.39, 0.535]} castShadow>
+                <boxGeometry args={[0.11, 0.64, 0.045]} />
+                <meshStandardMaterial color={presentation.palette.timber} roughness={1} />
+              </mesh>
+            ))}
+            <mesh position={[0.48, 1.07, -0.05]} rotation={[0, 0.16, 0]} castShadow>
+              <boxGeometry args={[0.82, 0.62, 0.75]} />
+              <meshStandardMaterial color="#5d422f" roughness={0.98} />
+            </mesh>
+          </group>
+          <group
+            visible={presentation.dressing.travelChest}
+            position={[bounds[0] * 0.37, 0, bounds[2] * 0.27]}
+          >
+            <mesh position={[0, 0.36, 0]} castShadow receiveShadow>
+              <boxGeometry args={[2.1, 0.72, 1.0]} />
+              <meshStandardMaterial color="#4d3124" roughness={0.94} />
+            </mesh>
+            <mesh position={[0, 0.78, 0]} rotation={[0.08, 0, 0]} castShadow>
+              <boxGeometry args={[2.16, 0.16, 1.04]} />
+              <meshStandardMaterial color="#654332" roughness={0.92} />
+            </mesh>
+            <mesh position={[0, 0.5, 0.51]}>
+              <boxGeometry args={[0.24, 0.24, 0.06]} />
+              <meshStandardMaterial color="#b18445" metalness={0.55} roughness={0.42} />
+            </mesh>
+          </group>
+          <group
+            visible={presentation.dressing.books}
+            position={[-bounds[0] / 2 + 0.38, 1.65, -0.25]}
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            <mesh castShadow>
+              <boxGeometry args={[2.7, 0.13, 0.62]} />
+              <meshStandardMaterial color="#4a3226" roughness={0.94} />
+            </mesh>
+            {Array.from({ length: 9 }, (_, index) => (
+              <mesh
+                key={`attic-shelf-book-${index}`}
+                position={[-1.05 + index * 0.26, 0.22, 0]}
+                rotation={[0, 0, index % 4 === 0 ? -0.08 : 0]}
+                castShadow
+              >
+                <boxGeometry args={[0.18, 0.42 + (index % 3) * 0.05, 0.34]} />
+                <meshStandardMaterial
+                  color={["#6f4639", "#5b6355", "#8a6b43"][index % 3]}
+                  roughness={0.96}
+                />
+              </mesh>
+            ))}
+          </group>
+        </>
+      ) : usesArchiveKit ? (
+        <>
+          {archiveFloorTiles.map((tile) => {
+            const tileWidth = bounds[0] / 8;
+            const tileDepth = bounds[2] / 7;
+            return (
+              <mesh
+                key={`archive-tile-${tile.x}-${tile.z}`}
+                position={[
+                  -bounds[0] / 2 + tileWidth * (tile.x + 0.5),
+                  0.014,
+                  -bounds[2] / 2 + tileDepth * (tile.z + 0.5),
+                ]}
+                receiveShadow
+              >
+                <boxGeometry args={[tileWidth - 0.035, 0.028, tileDepth - 0.035]} />
+                <meshStandardMaterial
+                  color={(tile.x + tile.z) % 3 === 0 ? "#263a39" : "#2d4240"}
+                  roughness={0.98}
+                />
+              </mesh>
+            );
+          })}
+          <mesh position={[0, 0.16, -bounds[2] / 2 + 0.09]} receiveShadow>
+            <boxGeometry args={[bounds[0], 0.32, 0.18]} />
+            <meshStandardMaterial color="#263534" roughness={1} />
+          </mesh>
+          <mesh position={[-bounds[0] / 2 + 0.09, 0.16, 0]} receiveShadow>
+            <boxGeometry args={[0.18, 0.32, bounds[2]]} />
+            <meshStandardMaterial color="#263534" roughness={1} />
+          </mesh>
+          {archiveShelfCenters.map((center, shelfIndex) => (
+            <group key={`archive-shelf-${shelfIndex}`} position={[center, 0, -bounds[2] / 2 + 0.24]}>
+              <mesh position={[0, 1.55, -0.05]} castShadow receiveShadow>
+                <boxGeometry args={[1.65, 3.1, 0.16]} />
+                <meshStandardMaterial color="#30413f" roughness={0.96} />
+              </mesh>
+              <mesh position={[-0.77, 1.55, 0.12]} castShadow>
+                <boxGeometry args={[0.12, 3.2, 0.5]} />
+                <meshStandardMaterial color="#3a2920" roughness={0.92} />
+              </mesh>
+              <mesh position={[0.77, 1.55, 0.12]} castShadow>
+                <boxGeometry args={[0.12, 3.2, 0.5]} />
+                <meshStandardMaterial color="#3a2920" roughness={0.92} />
+              </mesh>
+              {archiveShelfLevels.map((level, levelIndex) => (
+                <group key={`archive-shelf-level-${levelIndex}`}>
+                  <mesh position={[0, level, 0.12]} castShadow>
+                    <boxGeometry args={[1.65, 0.1, 0.54]} />
+                    <meshStandardMaterial color="#4b3326" roughness={0.9} />
+                  </mesh>
+                  {Array.from({ length: 7 }, (_, bookIndex) => (
+                    <mesh
+                      key={`archive-book-${bookIndex}`}
+                      position={[
+                        -0.59 + bookIndex * 0.19,
+                        level + 0.23 + ((bookIndex + levelIndex) % 3) * 0.025,
+                        0.17,
+                      ]}
+                      rotation={[0, 0, bookIndex % 4 === 0 ? -0.07 : 0]}
+                      castShadow
+                    >
+                      <boxGeometry args={[0.13, 0.4 + ((bookIndex + 1) % 3) * 0.045, 0.27]} />
+                      <meshStandardMaterial
+                        color={["#78594a", "#657165", "#6f4a45", "#88714c"][
+                          (bookIndex + levelIndex) % 4
+                        ]}
+                        roughness={0.94}
+                      />
+                    </mesh>
+                  ))}
+                </group>
+              ))}
+            </group>
+          ))}
+          {sideStuds.map((z, index) => (
+            <mesh
+              key={`archive-pier-${index}`}
+              position={[-bounds[0] / 2 + 0.07, bounds[1] / 2, z]}
+              receiveShadow
+            >
+              <boxGeometry args={[0.2, bounds[1], 0.28]} />
+              <meshStandardMaterial color="#354a48" roughness={1} />
+            </mesh>
+          ))}
+        </>
+      ) : (
+        <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
+      )}
     </group>
+  );
+}
+
+function DustMotes({ bounds }: { bounds: Vector3Tuple }) {
+  const points = useRef<THREE.Points>(null);
+  const positions = useMemo(() => {
+    const values = new Float32Array(90 * 3);
+    for (let index = 0; index < 90; index += 1) {
+      const seed = index + 1;
+      values[index * 3] = Math.sin(seed * 12.9898) * bounds[0] * 0.5;
+      values[index * 3 + 1] = 0.3 + Math.abs(Math.sin(seed * 4.1414)) * bounds[1] * 0.85;
+      values[index * 3 + 2] = Math.sin(seed * 7.233) * bounds[2] * 0.5;
+    }
+    return values;
+  }, [bounds]);
+
+  useFrame((state, delta) => {
+    if (!points.current) return;
+    points.current.rotation.y += delta * 0.008;
+    points.current.position.y = Math.sin(state.clock.elapsedTime * 0.16) * 0.08;
+  });
+
+  return (
+    <points ref={points}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#f1d5ad"
+        size={0.028}
+        transparent
+        opacity={0.48}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+function Firelight({ item }: { item: LayoutItem }) {
+  const light = useRef<THREE.PointLight>(null);
+  const flame = useRef<THREE.Mesh>(null);
+  const frontOffset = item.asset.key === "fireplace" ? 0.38 : 0;
+  const height = item.asset.key === "fireplace" ? 0.58 : item.dimensions[1] * 0.72;
+
+  useFrame((state) => {
+    const flicker =
+      0.88 +
+      Math.sin(state.clock.elapsedTime * 9.1) * 0.08 +
+      Math.sin(state.clock.elapsedTime * 15.7) * 0.04;
+    if (light.current) light.current.intensity = 3.5 * flicker;
+    if (flame.current) flame.current.scale.y = flicker;
+  });
+
+  return (
+    <group position={[item.position[0], height, item.position[2] + frontOffset]}>
+      <pointLight
+        ref={light}
+        color="#ff9a52"
+        intensity={3.5}
+        distance={7.5}
+        decay={1.7}
+        castShadow={false}
+      />
+      <mesh ref={flame} position={[0, 0.04, 0]} scale={[0.17, 0.34, 0.12]}>
+        <sphereGeometry args={[1, 16, 12]} />
+        <meshBasicMaterial color="#ffb052" transparent opacity={0.9} />
+      </mesh>
+      <mesh position={[0, 0.09, 0]} scale={[0.075, 0.22, 0.065]}>
+        <sphereGeometry args={[1, 12, 8]} />
+        <meshBasicMaterial color="#fff1b0" />
+      </mesh>
+    </group>
+  );
+}
+
+function StoryEffects({
+  layout,
+  portalDestination,
+  onLocationRequest,
+}: {
+  layout: WorldLayout;
+  portalDestination?: Location;
+  onLocationRequest?: (locationId: string) => void;
+}) {
+  const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
+  const hiddenDoor = layout.items.find((item) => item.asset.key === "hidden-door");
+
+  return (
+    <>
+      {litItems.map((item) => (
+        <Firelight key={`firelight-${item.entity.id}`} item={item} />
+      ))}
+      {hiddenDoor && (
+        <group position={hiddenDoor.position}>
+          <mesh position={[-hiddenDoor.dimensions[0] / 2 - 0.05, 0, 0.17]}>
+            <boxGeometry args={[0.06, hiddenDoor.dimensions[1] + 0.16, 0.06]} />
+            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+          </mesh>
+          <mesh position={[hiddenDoor.dimensions[0] / 2 + 0.05, 0, 0.17]}>
+            <boxGeometry args={[0.06, hiddenDoor.dimensions[1] + 0.16, 0.06]} />
+            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+          </mesh>
+          <mesh position={[0, hiddenDoor.dimensions[1] / 2 + 0.05, 0.17]}>
+            <boxGeometry args={[hiddenDoor.dimensions[0] + 0.16, 0.06, 0.06]} />
+            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+          </mesh>
+          {portalDestination && onLocationRequest && (
+            <Html
+              center
+              position={[0, hiddenDoor.dimensions[1] / 2 + 0.52, 0.28]}
+              distanceFactor={8}
+            >
+              <button
+                type="button"
+                className="world-portal-action"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onLocationRequest(portalDestination.id);
+                }}
+              >
+                Enter {portalDestination.name}
+              </button>
+            </Html>
+          )}
+        </group>
+      )}
+    </>
   );
 }
 
@@ -411,25 +815,19 @@ function SceneCamera({
       enableDamping
       dampingFactor={0.08}
       enablePan
+      mouseButtons={{
+        LEFT: THREE.MOUSE.PAN,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE,
+      }}
       screenSpacePanning={false}
       zoomToCursor
-      minDistance={3}
-      maxDistance={Math.max(18, Math.max(bounds[0], bounds[2]) * 2)}
+      minDistance={1.1}
+      maxDistance={Math.max(48, Math.max(bounds[0], bounds[2]) * 6)}
       maxPolarAngle={Math.PI / 2.02}
       target={createOverviewCameraPose(bounds).target}
       onStart={() => {
         destination.current = null;
-      }}
-      onChange={() => {
-        const currentControls = controls.current;
-        if (!currentControls) return;
-        const bounded = new THREE.Vector3(
-          ...clampNavigationTarget(tupleFromVector(currentControls.target), bounds),
-        );
-        const correction = bounded.sub(currentControls.target);
-        if (correction.lengthSq() === 0) return;
-        currentControls.target.add(correction);
-        camera.position.add(correction);
       }}
     />
   );
@@ -496,6 +894,7 @@ function ConflictMarkers({
 
 function WorldScene({
   layout,
+  presentation,
   exitingItems,
   selectedEntityId,
   changes,
@@ -505,8 +904,11 @@ function WorldScene({
   relationEdges,
   openConflicts,
   enableShadows,
+  portalDestination,
+  onLocationRequest,
 }: {
   layout: WorldLayout;
+  presentation: ScenePresentation;
   exitingItems: readonly LayoutItem[];
   selectedEntityId?: string | null;
   changes: ReadonlyMap<string, ChangeKind>;
@@ -516,23 +918,52 @@ function WorldScene({
   relationEdges: readonly VisibleRelationEdge[];
   openConflicts: readonly Conflict[];
   enableShadows: boolean;
+  portalDestination?: Location;
+  onLocationRequest?: (locationId: string) => void;
 }) {
-  const ambientColor = layout.location.environment?.ambientColor ?? "#d9d2c5";
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
 
   return (
     <>
-      <color attach="background" args={["#171b20"]} />
-      <ambientLight color={ambientColor} intensity={1.25} />
+      <color attach="background" args={[presentation.palette.background]} />
+      <fog attach="fog" args={[presentation.palette.fog, 10, 29]} />
+      <hemisphereLight
+        color={presentation.palette.keyLight}
+        groundColor={presentation.palette.timber}
+        intensity={presentation.location.lighting.contrast === "high" ? 0.78 : 0.95}
+      />
+      <ambientLight
+        color={presentation.palette.ambient}
+        intensity={presentation.location.lighting.ambientIntensity}
+      />
       <directionalLight
         castShadow={enableShadows}
-        position={[4, 8, 5]}
-        intensity={2.2}
+        color={presentation.palette.keyLight}
+        position={[5, 8, 4]}
+        intensity={presentation.location.lighting.keyIntensity}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
+        shadow-bias={-0.0004}
       />
+      {presentation.atmosphere.coolWindowLight && (
+        <pointLight
+          color="#aacfd7"
+          position={[bounds[0] * 0.3, bounds[1] * 0.62, -bounds[2] * 0.38]}
+          intensity={2.1}
+          distance={9}
+          decay={1.8}
+        />
+      )}
       <Room
         layout={layout}
+        presentation={presentation}
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
+      />
+      {presentation.atmosphere.dust && <DustMotes bounds={bounds} />}
+      <StoryEffects
+        layout={layout}
+        portalDestination={portalDestination}
+        onLocationRequest={onLocationRequest}
       />
       {layout.items.map((item) => (
         <WorldEntity
@@ -544,6 +975,14 @@ function WorldScene({
             event.stopPropagation();
             onEntitySelect?.(item.entity.id);
           }}
+          onActivate={
+            item.asset.key === "hidden-door" && portalDestination && onLocationRequest
+              ? (event) => {
+                  event.stopPropagation();
+                  onLocationRequest(portalDestination.id);
+                }
+              : undefined
+          }
         />
       ))}
       {exitingItems.map((item) => (
@@ -577,10 +1016,12 @@ function WorldScene({
 export function WorldViewer({
   snapshot,
   patch,
+  visualPlan,
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
   onPatchApplied,
+  onLocationRequest,
   activeLocationId,
   assetRegistry = defaultAssetRegistry,
   className,
@@ -722,6 +1163,26 @@ export function WorldViewer({
     [runtime?.snapshot.conflicts],
   );
   const qualityProfile = renderQualityProfiles[renderQuality];
+  const presentation = useMemo(() => {
+    if (!runtime) return null;
+    if (!visualPlan) {
+      return createFallbackScenePresentation(
+        runtime.snapshot,
+        runtime.layout.location.id,
+      );
+    }
+    return compileScenePresentation(
+      visualPlan,
+      runtime.snapshot,
+      runtime.layout.location.id,
+    );
+  }, [runtime?.layout.location.id, runtime?.snapshot, visualPlan]);
+  const portalDestination =
+    runtime && presentation?.portalTargetLocationId
+      ? runtime.snapshot.locations.find(
+          (location) => location.id === presentation.portalTargetLocationId,
+        )
+      : undefined;
 
   return (
     <div
@@ -734,17 +1195,22 @@ export function WorldViewer({
       data-visible-relations={relationEdges.length}
       data-open-conflicts={openConflicts.length}
       data-render-quality={renderQuality}
+      data-visual-plan-version={presentation?.planVersion ?? 0}
+      data-visual-style={presentation?.styleLabel ?? "unavailable"}
+      data-asset-requests={presentation?.assetRequests.length ?? 0}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
-      {runtime ? (
+      {runtime && presentation ? (
         <Canvas
           shadows={qualityProfile.shadows}
           dpr={qualityProfile.dpr}
           camera={{ position: [8, 7, 9], fov: 48, near: 0.1, far: 100 }}
+          style={{ touchAction: "none" }}
           onPointerMissed={() => onEntitySelect?.(null)}
         >
           <WorldScene
             layout={runtime.layout}
+            presentation={presentation}
             exitingItems={runtime.exitingItems}
             selectedEntityId={selectedEntityId}
             changes={changes}
@@ -754,6 +1220,8 @@ export function WorldViewer({
             relationEdges={relationEdges}
             openConflicts={openConflicts}
             enableShadows={qualityProfile.shadows}
+            portalDestination={portalDestination}
+            onLocationRequest={onLocationRequest}
           />
           <PerformanceMonitor
             ms={250}

@@ -20,6 +20,7 @@
         "kind": "architecture",
         "locationId": "attic-study",
         "assetKey": "hidden-door",
+        "transform": { "position": [3.8, 1.45, -4.68] },
         "state": { "revealed": true },
         "provenance": { "passageId": "P3", "confidence": 0.91 }
       }
@@ -35,4 +36,3 @@
     }
   ]
 }
-

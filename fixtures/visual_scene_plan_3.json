@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0",
+  "storyId": "story-attic-study",
+  "segmentId": "attic-reveal",
+  "sourcePassageIds": ["P1", "P2", "P3"],
+  "snapshotVersion": 3,
+  "planVersion": 2,
+  "previousPlanVersion": 1,
+  "artDirection": {
+    "styleLabel": "hand-painted storybook realism",
+    "stylePrompt": "A tactile storybook world with grounded proportions, painterly PBR surfaces, restrained detail and cinematic readable lighting.",
+    "negativePrompt": ["plastic materials", "toy proportions", "flat debug colors", "photoreal uncanny detail"],
+    "materialVocabulary": ["aged lime plaster", "dark oak", "worn wool", "oxidized brass", "rough stone"]
+  },
+  "locations": [
+    {
+      "locationId": "attic-study",
+      "archetype": "timber-attic",
+      "visualDescription": "The old timber attic study, now animated by hearth light and a revealed door in a separate eastern wall bay.",
+      "architectureTags": ["aged-plaster", "timber-frame", "wood-floorboards", "small-window"],
+      "dressingTags": ["books", "storage-crates", "travel-chest"],
+      "dressingDensity": "rich",
+      "mood": "warm revelation within a mysterious room",
+      "timeOfDay": "blue-hour dusk",
+      "palette": {
+        "background": "#151414",
+        "fog": "#251a15",
+        "floor": "#443126",
+        "wall": "#d3c3a8",
+        "timber": "#39271e",
+        "ambient": "#d8cfbd",
+        "keyLight": "#bdd5d8",
+        "practical": "#ff9a52"
+      },
+      "lighting": {
+        "warmth": "warm",
+        "contrast": "high",
+        "ambientIntensity": 0.5,
+        "keyIntensity": 1.55,
+        "atmosphericEffects": ["dust-motes", "window-shaft"]
+      },
+      "evidence": {
+        "passageIds": ["P1", "P3"],
+        "confidence": 0.91,
+        "basis": "explicit_text"
+      }
+    },
+    {
+      "locationId": "archive-vault",
+      "archetype": "archive-vault",
+      "visualDescription": "A cool masonry catalog room lined with dark wooden shelving and worn green-grey stone tiles.",
+      "architectureTags": ["archive-shelving", "stone-tiles", "masonry-piers"],
+      "dressingTags": ["books", "catalog-ledgers"],
+      "dressingDensity": "rich",
+      "mood": "cool, ordered and secretive",
+      "timeOfDay": "windowless interior",
+      "palette": {
+        "background": "#111a1b",
+        "fog": "#172526",
+        "floor": "#2d4240",
+        "wall": "#667474",
+        "timber": "#4b3326",
+        "ambient": "#b8d0ca",
+        "keyLight": "#c4dfda",
+        "practical": "#89bdb4"
+      },
+      "lighting": {
+        "warmth": "cool",
+        "contrast": "medium",
+        "ambientIntensity": 0.72,
+        "keyIntensity": 1.9,
+        "atmosphericEffects": []
+      },
+      "evidence": { "passageIds": ["P1"], "confidence": 0.78, "basis": "cross_passage_inference" }
+    }
+  ],
+  "entities": [
+    {
+      "entityId": "hearth-1",
+      "visualDescription": "The old stone hearth burning with lively amber firelight.",
+      "importance": "hero",
+      "materials": ["rough grey stone", "soot", "iron grate"],
+      "colors": ["warm grey", "charcoal", "amber flame"],
+      "condition": "lit",
+      "assetSearchTags": ["old stone fireplace", "lit hearth"],
+      "evidence": { "passageIds": ["P1", "P3"], "confidence": 0.97, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "lantern-1",
+      "visualDescription": "A compact brass lantern with an aged frame and clear glass panels.",
+      "importance": "supporting",
+      "materials": ["oxidized brass", "glass"],
+      "colors": ["muted gold", "smoke grey"],
+      "condition": "carried and unlit",
+      "assetSearchTags": ["antique brass lantern", "hand lantern"],
+      "evidence": { "passageIds": ["P2", "P3"], "confidence": 0.94, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "hidden-door-1",
+      "visualDescription": "A narrow dark timber door whose edges have only just become visible in the plaster wall.",
+      "importance": "hero",
+      "materials": ["dark oak", "aged iron"],
+      "colors": ["deep brown", "warm reveal glow"],
+      "condition": "newly revealed",
+      "assetSearchTags": ["hidden timber door", "secret passage door"],
+      "evidence": { "passageIds": ["P3"], "confidence": 0.96, "basis": "explicit_text" }
+    }
+  ],
+  "presentationConnections": [
+    {
+      "entityId": "hidden-door-1",
+      "fromLocationId": "attic-study",
+      "targetLocationId": "archive-vault",
+      "presentationOnly": true,
+      "evidence": {
+        "passageIds": ["P1", "P3"],
+        "confidence": 0.42,
+        "basis": "art_direction_default",
+        "note": "Presentation-only demo route; it is not promoted into canonical story truth."
+      }
+    }
+  ],
+  "unresolvedQuestions": [
+    "The novel segment does not explicitly establish where the hidden door leads."
+  ]
+}

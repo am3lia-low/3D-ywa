@@ -4,6 +4,16 @@
   background: #171b20;
 }
 
+.world-viewer canvas {
+  filter: saturate(1.08) contrast(1.035);
+  cursor: grab;
+  touch-action: none;
+}
+
+.world-viewer canvas:active {
+  cursor: grabbing;
+}
+
 .world-runtime-empty {
   display: grid;
   width: 100%;
@@ -111,4 +121,23 @@
   border-radius: 50%;
   color: #ffe1d7;
   background: rgba(81, 36, 29, 0.9);
+}
+
+.world-portal-action {
+  width: max-content;
+  padding: 0.55rem 0.78rem;
+  border: 1px solid rgba(255, 206, 139, 0.5);
+  color: #fff2dc;
+  background: rgba(53, 32, 22, 0.9);
+  box-shadow: 0 8px 24px rgba(13, 7, 4, 0.45);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+
+.world-portal-action:hover {
+  color: #2a170d;
+  background: #efbf7e;
 }

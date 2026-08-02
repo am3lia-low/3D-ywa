@@ -24,6 +24,12 @@ describe("createWorldLayout", () => {
     expect(desk).toBeDefined();
     expect(chair?.position[2]).toBeGreaterThan(desk?.position[2] ?? 0);
     expect(map?.position[1]).toBeGreaterThan(desk?.position[1] ?? 0);
+    expect(
+      (map?.position[1] ?? 0) - (map?.dimensions[1] ?? 0) / 2,
+    ).toBeCloseTo(
+      (desk?.position[1] ?? 0) + (desk?.dimensions[1] ?? 0) / 2 + 0.008,
+      4,
+    );
     expect(map?.asset.key).toBe("fallback:document");
   });
 

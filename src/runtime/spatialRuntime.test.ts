@@ -118,6 +118,12 @@ describe("spatial runtime continuity", () => {
     for (const entityId of ["chair-1", "desk-1", "map-1", "rug-1"]) {
       expect(itemById(version3, entityId).position).toBe(itemById(version2, entityId).position);
     }
+
+    const hearth = itemById(version3, "hearth-1");
+    const hiddenDoor = itemById(version3, "hidden-door-1");
+    expect(Math.abs(hiddenDoor.position[0] - hearth.position[0])).toBeGreaterThanOrEqual(
+      (hiddenDoor.dimensions[0] + hearth.dimensions[0]) / 2,
+    );
   });
 
   it("switches rooms without rolling back the patched world version", () => {
