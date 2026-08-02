@@ -1,0 +1,10 @@
+[
+  {
+    "id": "conflict-door-wall",
+    "entityId": "hidden-door-1",
+    "description": "A later passage calls the revealed opening an east-wall door.",
+    "status": "open",
+    "passageIds": ["P3", "P4"]
+  }
+]
+

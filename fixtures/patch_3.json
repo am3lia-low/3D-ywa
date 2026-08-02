@@ -1,0 +1,38 @@
+{
+  "fromVersion": 2,
+  "toVersion": 3,
+  "operations": [
+    {
+      "op": "update_entity",
+      "entityId": "hearth-1",
+      "changes": { "state": { "lit": true } }
+    },
+    {
+      "op": "move_entity",
+      "entityId": "lantern-1",
+      "position": [2.9, 0.4, -3.7]
+    },
+    {
+      "op": "add_entity",
+      "entity": {
+        "id": "hidden-door-1",
+        "name": "Hidden north door",
+        "kind": "architecture",
+        "locationId": "attic-study",
+        "assetKey": "hidden-door",
+        "state": { "revealed": true },
+        "provenance": { "passageId": "P3", "confidence": 0.91 }
+      }
+    },
+    {
+      "op": "add_relation",
+      "relation": {
+        "id": "door-north-wall",
+        "subjectId": "hidden-door-1",
+        "predicate": "against_wall",
+        "metadata": { "wall": "north" }
+      }
+    }
+  ]
+}
+
