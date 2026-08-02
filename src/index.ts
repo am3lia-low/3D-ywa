@@ -7,3 +7,5 @@ export * from "./runtime/layoutEngine";
 export * from "./runtime/spatialRuntime";
 export * from "./runtime/cameraNavigation";
 export * from "./runtime/spatialAwareness";
+export * from "./runtime/renderQuality";
+export * from "./integration/worldStream";

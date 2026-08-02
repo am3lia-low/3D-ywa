@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "bundle:check": "node scripts/check-bundle.mjs",
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
     "models:generate": "node scripts/generate-models.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --pretty false"
+    "typecheck": "tsc -b --pretty false",
+    "verify": "pnpm test && pnpm typecheck && pnpm build && pnpm bundle:check"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

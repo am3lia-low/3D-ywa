@@ -1,4 +1,11 @@
-import { Clone, Html, Line, MapControls, useGLTF } from "@react-three/drei";
+import {
+  Clone,
+  Html,
+  Line,
+  MapControls,
+  PerformanceMonitor,
+  useGLTF,
+} from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import {
   Component,
@@ -41,6 +48,11 @@ import {
   type VisibleRelationEdge,
 } from "../runtime/spatialAwareness";
 import {
+  qualityForPerformanceFactor,
+  renderQualityProfiles,
+  type RenderQuality,
+} from "../runtime/renderQuality";
+import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
@@ -68,6 +80,7 @@ export interface WorldViewerProps {
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
+  onPatchApplied?: (snapshot: WorldSnapshot, patch: ScenePatch) => void;
   /** Optional room selection; defaults to the snapshot's first location. */
   activeLocationId?: string;
   assetRegistry?: AssetRegistry;
@@ -491,6 +504,7 @@ function WorldScene({
   onCameraCommand,
   relationEdges,
   openConflicts,
+  enableShadows,
 }: {
   layout: WorldLayout;
   exitingItems: readonly LayoutItem[];
@@ -501,6 +515,7 @@ function WorldScene({
   onCameraCommand: (kind: "travel" | "focus", target: Vector3Tuple) => void;
   relationEdges: readonly VisibleRelationEdge[];
   openConflicts: readonly Conflict[];
+  enableShadows: boolean;
 }) {
   const ambientColor = layout.location.environment?.ambientColor ?? "#d9d2c5";
 
@@ -509,7 +524,7 @@ function WorldScene({
       <color attach="background" args={["#171b20"]} />
       <ambientLight color={ambientColor} intensity={1.25} />
       <directionalLight
-        castShadow
+        castShadow={enableShadows}
         position={[4, 8, 5]}
         intensity={2.2}
         shadow-mapSize-width={1024}
@@ -565,6 +580,7 @@ export function WorldViewer({
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
+  onPatchApplied,
   activeLocationId,
   assetRegistry = defaultAssetRegistry,
   className,
@@ -573,8 +589,11 @@ export function WorldViewer({
     createViewerState(snapshot, assetRegistry, activeLocationId),
   );
   const [cameraCommand, setCameraCommand] = useState<CameraCommand | null>(null);
+  const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
+  const appliedPatchValue = useRef<ScenePatch | null>(null);
+  const notifiedPatch = useRef<string | null>(null);
 
   const requestCamera = useCallback((kind: "travel" | "focus", target: Vector3Tuple) => {
     cameraCommandId.current += 1;
@@ -589,6 +608,8 @@ export function WorldViewer({
   useEffect(() => {
     setViewer(createViewerState(snapshot, assetRegistry, activeLocationId));
     appliedPatch.current = null;
+    appliedPatchValue.current = null;
+    notifiedPatch.current = null;
   }, [snapshot.storyId, snapshot.version, assetRegistry]);
 
   useEffect(() => {
@@ -633,6 +654,7 @@ export function WorldViewer({
       try {
         const runtime = advanceSpatialRuntime(current.runtime, validatedPatch, assetRegistry);
         appliedPatch.current = patchKey;
+        appliedPatchValue.current = validatedPatch;
         return { runtime, error: null };
       } catch (error) {
         return {
@@ -658,6 +680,18 @@ export function WorldViewer({
   useEffect(() => {
     if (viewer.error) onRuntimeError?.(viewer.error);
   }, [onRuntimeError, viewer.error]);
+
+  useEffect(() => {
+    const applied = appliedPatchValue.current;
+    if (!applied || !viewer.runtime || viewer.runtime.snapshot.version !== applied.toVersion) {
+      return;
+    }
+    if (!onPatchApplied) return;
+    const patchKey = `${applied.fromVersion}:${applied.toVersion}`;
+    if (notifiedPatch.current === patchKey) return;
+    notifiedPatch.current = patchKey;
+    onPatchApplied(viewer.runtime.snapshot, applied);
+  }, [onPatchApplied, viewer.runtime?.snapshot]);
 
   useEffect(() => {
     if (!selectedEntityId || !viewer.runtime) return;
@@ -687,6 +721,7 @@ export function WorldViewer({
     () => runtime?.snapshot.conflicts.filter((conflict) => conflict.status === "open") ?? [],
     [runtime?.snapshot.conflicts],
   );
+  const qualityProfile = renderQualityProfiles[renderQuality];
 
   return (
     <div
@@ -698,12 +733,13 @@ export function WorldViewer({
       data-navigation-mode="map"
       data-visible-relations={relationEdges.length}
       data-open-conflicts={openConflicts.length}
+      data-render-quality={renderQuality}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       {runtime ? (
         <Canvas
-          shadows
-          dpr={[1, 1.75]}
+          shadows={qualityProfile.shadows}
+          dpr={qualityProfile.dpr}
           camera={{ position: [8, 7, 9], fov: 48, near: 0.1, far: 100 }}
           onPointerMissed={() => onEntitySelect?.(null)}
         >
@@ -717,6 +753,16 @@ export function WorldViewer({
             onCameraCommand={requestCamera}
             relationEdges={relationEdges}
             openConflicts={openConflicts}
+            enableShadows={qualityProfile.shadows}
+          />
+          <PerformanceMonitor
+            ms={250}
+            iterations={6}
+            flipflops={3}
+            onChange={({ factor }) =>
+              setRenderQuality(qualityForPerformanceFactor(factor))
+            }
+            onFallback={() => setRenderQuality("low")}
           />
         </Canvas>
       ) : (

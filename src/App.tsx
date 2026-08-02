@@ -1,14 +1,17 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import snapshotFixture from "../fixtures/snapshot_1.json";
 import patch2Fixture from "../fixtures/patch_2.json";
 import patch3Fixture from "../fixtures/patch_3.json";
-import { EntityInspector, WorldViewer } from "./components";
+import { EntityInspector } from "./components/EntityInspector";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 const patch2 = patch2Fixture as unknown as ScenePatch;
 const patch3 = patch3Fixture as unknown as ScenePatch;
+const WorldViewer = lazy(() =>
+  import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
+);
 const invalidPatch: ScenePatch = {
   fromVersion: 99,
   toVersion: 100,
@@ -19,6 +22,7 @@ export default function App() {
   const [step, setStep] = useState(0);
   const [session, setSession] = useState(0);
   const [invalidPatchMode, setInvalidPatchMode] = useState(false);
+  const [acknowledgedVersion, setAcknowledgedVersion] = useState(snapshot.version);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [activeLocationId, setActiveLocationId] = useState(snapshot.locations[0]?.id ?? "");
   const patch = invalidPatchMode ? invalidPatch : step === 1 ? patch2 : step === 2 ? patch3 : null;
@@ -33,6 +37,7 @@ export default function App() {
     setSession((current) => current + 1);
     setSelectedEntityId(null);
     setActiveLocationId(snapshot.locations[0]?.id ?? "");
+    setAcknowledgedVersion(snapshot.version);
   };
 
   return (
@@ -49,18 +54,30 @@ export default function App() {
         <div className="version-chip" aria-live="polite">
           <span>World state</span>
           <strong>v{step + 1}</strong>
+          <small>renderer ack v{acknowledgedVersion}</small>
         </div>
       </header>
 
       <section className="viewer-frame" aria-label="Interactive 3D story world">
-        <WorldViewer
-          key={session}
-          snapshot={snapshot}
-          patch={patch}
-          activeLocationId={activeLocationId}
-          selectedEntityId={selectedEntityId}
-          onEntitySelect={setSelectedEntityId}
-        />
+        <Suspense
+          fallback={
+            <div className="viewer-loading" role="status">
+              Loading spatial runtime…
+            </div>
+          }
+        >
+          <WorldViewer
+            key={session}
+            snapshot={snapshot}
+            patch={patch}
+            activeLocationId={activeLocationId}
+            selectedEntityId={selectedEntityId}
+            onEntitySelect={setSelectedEntityId}
+            onPatchApplied={(currentSnapshot) =>
+              setAcknowledgedVersion(currentSnapshot.version)
+            }
+          />
+        </Suspense>
         <div className="viewer-hint">
           Left-drag to pan · Right-drag to rotate · Scroll to zoom · Double-click floor to move
         </div>

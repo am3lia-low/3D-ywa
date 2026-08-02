@@ -54,6 +54,14 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Lets inspector relation links focus related entities through the map-style camera.
 - Keeps selection mounted while patches update state and relation context in place.
 
+## Milestone 8
+
+- Lazy-loads the WebGL viewer so the initial application chunk stays small.
+- Splits React, Three.js and R3F dependencies into deterministic cacheable chunks below 500 KB.
+- Adapts device pixel ratio and shadow rendering across low, balanced and high performance tiers.
+- Adds an ordered stream controller that queues burst patches, ignores duplicates and pauses on gaps.
+- Publishes a React stream binding driven by `WorldViewer.onPatchApplied` acknowledgements.
+
 ## Component contract
 
 ```tsx
@@ -64,6 +72,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
   selectedEntityId={selectedEntityId}
   onEntitySelect={handleEntitySelect}
   onRuntimeError={handleRuntimeError}
+  onPatchApplied={handlePatchApplied}
 />
 ```
 
@@ -79,6 +88,38 @@ The optional companion inspector consumes the same current snapshot and controll
 
 The `snapshot` initializes the mounted scene. A new `patch` is applied only when its `fromVersion` matches the scene's current version. Consumers should send patches in order. Supplying a new snapshot version re-synchronizes the viewer. `activeLocationId` is optional and defaults to the first location; changing it switches the mounted room without replacing the current world state.
 
+## Streaming integration
+
+`useWorldStream` bridges a WebSocket or event stream to the viewer without allowing burst, stale or out-of-order patches to skip a version:
+
+```tsx
+const stream = useWorldStream(initialSnapshot);
+
+useEffect(() => {
+  socket.onmessage = ({ data }) => {
+    const packet = JSON.parse(data);
+    if (packet.type === "snapshot") stream.resynchronize(packet.snapshot);
+    if (packet.type === "patch") stream.ingestPatch(packet.patch);
+  };
+}, [socket, stream.ingestPatch, stream.resynchronize]);
+
+<WorldViewer
+  snapshot={stream.snapshot}
+  patch={stream.patch}
+  onPatchApplied={stream.onPatchApplied}
+  selectedEntityId={selectedEntityId}
+  onEntitySelect={setSelectedEntityId}
+/>
+
+<EntityInspector
+  snapshot={stream.currentSnapshot}
+  selectedEntityId={selectedEntityId}
+  onEntitySelect={setSelectedEntityId}
+/>
+```
+
+When `stream.status === "resync_required"`, request a fresh snapshot from the backend and pass it to `stream.resynchronize(...)` before accepting more patches.
+
 ## Commands
 
 ```bash
@@ -88,6 +129,8 @@ pnpm models:generate
 pnpm dev
 pnpm test
 pnpm build
+pnpm bundle:check
+pnpm verify
 ```
 
 The public integration surface is exported from `src/index.ts`. Fixture JSON lives in `fixtures/` and does not depend on Member 1's extraction service.
