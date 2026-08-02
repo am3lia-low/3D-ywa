@@ -25,6 +25,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Preserves selection and change highlighting across modeled and fallback assets.
 - Generates all model files reproducibly with `pnpm models:generate`.
 
+## Milestone 4
+
+- Validates `WorldSnapshot` and `ScenePatch` values at the viewer boundary.
+- Publishes Draft 2020-12 JSON Schemas under `contracts/` for backend and product integration.
+- Rejects duplicate IDs, broken semantic references, malformed operations and non-forward versions.
+- Keeps the last valid scene mounted while displaying recoverable patch errors.
+
 ## Component contract
 
 ```tsx
@@ -33,6 +40,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
   patch={patch}
   selectedEntityId={selectedEntityId}
   onEntitySelect={handleEntitySelect}
+  onRuntimeError={handleRuntimeError}
 />
 ```
 
@@ -42,6 +50,7 @@ The `snapshot` initializes the mounted scene. A new `patch` is applied only when
 
 ```bash
 pnpm install
+pnpm contracts:generate
 pnpm models:generate
 pnpm dev
 pnpm test

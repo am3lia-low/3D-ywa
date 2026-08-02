@@ -10,6 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import * as THREE from "three";
+import {
+  ContractValidationError,
+  validateScenePatch,
+  validateWorldSnapshot,
+} from "../contracts/validation";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import {
   defaultAssetRegistry,
@@ -17,17 +22,32 @@ import {
   type AssetRegistry,
 } from "../runtime/assetRegistry";
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
+import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
+  type SpatialRuntimeState,
 } from "../runtime/spatialRuntime";
+import "./WorldViewer.css";
+
+export type WorldViewerErrorCode =
+  | "INVALID_SNAPSHOT"
+  | "INVALID_PATCH"
+  | "PATCH_VERSION_MISMATCH"
+  | "PATCH_APPLICATION_FAILED";
+
+export interface WorldViewerRuntimeError {
+  code: WorldViewerErrorCode;
+  message: string;
+}
 
 export interface WorldViewerProps {
   snapshot: WorldSnapshot;
   patch?: ScenePatch | null;
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
+  onRuntimeError?: (error: WorldViewerRuntimeError) => void;
   assetRegistry?: AssetRegistry;
   className?: string;
 }
@@ -36,6 +56,7 @@ type ChangeKind = "added" | "moved" | "changed" | "removed" | undefined;
 
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
   const result = new Map<string, ChangeKind>();
+  if (!patch || !Array.isArray(patch.operations)) return result;
   for (const operation of patch?.operations ?? []) {
     if (operation.op === "add_entity") result.set(operation.entity.id, "added");
     if (operation.op === "move_entity") result.set(operation.entityId, "moved");
@@ -43,6 +64,38 @@ function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, Chan
     if (operation.op === "remove_entity") result.set(operation.entityId, "removed");
   }
   return result;
+}
+
+interface ViewerState {
+  runtime: SpatialRuntimeState | null;
+  error: WorldViewerRuntimeError | null;
+}
+
+function runtimeErrorFrom(error: unknown, fallbackCode: WorldViewerErrorCode): WorldViewerRuntimeError {
+  if (error instanceof ContractValidationError) {
+    return {
+      code: error.contract === "WorldSnapshot" ? "INVALID_SNAPSHOT" : "INVALID_PATCH",
+      message: error.issues[0] ?? error.message,
+    };
+  }
+  if (error instanceof PatchVersionError) {
+    return { code: "PATCH_VERSION_MISMATCH", message: error.message };
+  }
+  return {
+    code: fallbackCode,
+    message: error instanceof Error ? error.message : "The world update could not be applied.",
+  };
+}
+
+function createViewerState(snapshot: WorldSnapshot, registry: AssetRegistry): ViewerState {
+  try {
+    return {
+      runtime: createSpatialRuntime(validateWorldSnapshot(snapshot), registry),
+      error: null,
+    };
+  } catch (error) {
+    return { runtime: null, error: runtimeErrorFrom(error, "INVALID_SNAPSHOT") };
+  }
 }
 
 function PrimitiveGeometry({ asset }: { asset: AssetDefinition }) {
@@ -289,62 +342,104 @@ export function WorldViewer({
   patch,
   selectedEntityId,
   onEntitySelect,
+  onRuntimeError,
   assetRegistry = defaultAssetRegistry,
   className,
 }: WorldViewerProps) {
-  const [runtime, setRuntime] = useState(() => createSpatialRuntime(snapshot, assetRegistry));
+  const [viewer, setViewer] = useState(() => createViewerState(snapshot, assetRegistry));
   const appliedPatch = useRef<string | null>(null);
 
   useEffect(() => {
-    setRuntime(createSpatialRuntime(snapshot, assetRegistry));
+    setViewer(createViewerState(snapshot, assetRegistry));
     appliedPatch.current = null;
   }, [snapshot.storyId, snapshot.version, assetRegistry]);
 
   useEffect(() => {
     if (!patch) return;
-    const patchKey = `${patch.fromVersion}:${patch.toVersion}`;
-    if (appliedPatch.current === patchKey) return;
-    setRuntime((current) => {
-      if (current.snapshot.version !== patch.fromVersion) return current;
-      appliedPatch.current = patchKey;
-      return advanceSpatialRuntime(current, patch, assetRegistry);
+    let validatedPatch: ScenePatch;
+    try {
+      validatedPatch = validateScenePatch(patch);
+    } catch (error) {
+      setViewer((current) => ({
+        ...current,
+        error: runtimeErrorFrom(error, "INVALID_PATCH"),
+      }));
+      return;
+    }
+    const patchKey = `${validatedPatch.fromVersion}:${validatedPatch.toVersion}`;
+    if (appliedPatch.current === patchKey) {
+      setViewer((current) => (current.error ? { ...current, error: null } : current));
+      return;
+    }
+    setViewer((current) => {
+      if (!current.runtime) return current;
+      try {
+        const runtime = advanceSpatialRuntime(current.runtime, validatedPatch, assetRegistry);
+        appliedPatch.current = patchKey;
+        return { runtime, error: null };
+      } catch (error) {
+        return {
+          ...current,
+          error: runtimeErrorFrom(error, "PATCH_APPLICATION_FAILED"),
+        };
+      }
     });
   }, [patch, assetRegistry]);
 
   useEffect(() => {
-    if (runtime.exitingItems.length === 0) return;
-    const version = runtime.snapshot.version;
+    if (!viewer.runtime || viewer.runtime.exitingItems.length === 0) return;
+    const version = viewer.runtime.snapshot.version;
     const timeout = window.setTimeout(() => {
-      setRuntime((current) =>
-        current.snapshot.version === version ? clearSpatialRuntimeExits(current) : current,
-      );
+      setViewer((current) => {
+        if (!current.runtime || current.runtime.snapshot.version !== version) return current;
+        return { ...current, runtime: clearSpatialRuntimeExits(current.runtime) };
+      });
     }, 650);
     return () => window.clearTimeout(timeout);
-  }, [runtime.exitingItems.length, runtime.snapshot.version]);
+  }, [viewer.runtime?.exitingItems.length, viewer.runtime?.snapshot.version]);
 
-  const changes = useMemo(() => changeMapFromPatch(patch), [patch]);
+  useEffect(() => {
+    if (viewer.error) onRuntimeError?.(viewer.error);
+  }, [onRuntimeError, viewer.error]);
+
+  const changes = useMemo(
+    () => (viewer.error ? new Map<string, ChangeKind>() : changeMapFromPatch(patch)),
+    [patch, viewer.error],
+  );
+  const runtime = viewer.runtime;
 
   return (
     <div
-      className={className}
-      data-story-id={runtime.snapshot.storyId}
-      data-world-version={runtime.snapshot.version}
+      className={["world-viewer", className].filter(Boolean).join(" ")}
+      data-runtime-status={viewer.error ? "error" : "ready"}
+      data-story-id={runtime?.snapshot.storyId ?? "invalid"}
+      data-world-version={runtime?.snapshot.version ?? "invalid"}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
-      <Canvas
-        shadows
-        dpr={[1, 1.75]}
-        camera={{ position: [8, 7, 9], fov: 48, near: 0.1, far: 100 }}
-        onPointerMissed={() => onEntitySelect?.(null)}
-      >
-        <WorldScene
-          layout={runtime.layout}
-          exitingItems={runtime.exitingItems}
-          selectedEntityId={selectedEntityId}
-          changes={changes}
-          onEntitySelect={onEntitySelect}
-        />
-      </Canvas>
+      {runtime ? (
+        <Canvas
+          shadows
+          dpr={[1, 1.75]}
+          camera={{ position: [8, 7, 9], fov: 48, near: 0.1, far: 100 }}
+          onPointerMissed={() => onEntitySelect?.(null)}
+        >
+          <WorldScene
+            layout={runtime.layout}
+            exitingItems={runtime.exitingItems}
+            selectedEntityId={selectedEntityId}
+            changes={changes}
+            onEntitySelect={onEntitySelect}
+          />
+        </Canvas>
+      ) : (
+        <div className="world-runtime-empty">The supplied world snapshot cannot be rendered.</div>
+      )}
+      {viewer.error && (
+        <div className="world-runtime-error" role="alert" data-error-code={viewer.error.code}>
+          <strong>World update paused</strong>
+          <span>{viewer.error.message}</span>
+        </div>
+      )}
     </div>
   );
 }

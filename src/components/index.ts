@@ -1,2 +1,6 @@
-export { WorldViewer, type WorldViewerProps } from "./WorldViewer";
-
+export {
+  WorldViewer,
+  type WorldViewerErrorCode,
+  type WorldViewerProps,
+  type WorldViewerRuntimeError,
+} from "./WorldViewer";

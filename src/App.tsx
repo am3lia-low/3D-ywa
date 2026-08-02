@@ -9,12 +9,18 @@ import { applyScenePatch } from "./runtime/applyScenePatch";
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 const patch2 = patch2Fixture as unknown as ScenePatch;
 const patch3 = patch3Fixture as unknown as ScenePatch;
+const invalidPatch: ScenePatch = {
+  fromVersion: 99,
+  toVersion: 100,
+  operations: [],
+};
 
 export default function App() {
   const [step, setStep] = useState(0);
   const [session, setSession] = useState(0);
+  const [invalidPatchMode, setInvalidPatchMode] = useState(false);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
-  const patch = step === 1 ? patch2 : step === 2 ? patch3 : null;
+  const patch = invalidPatchMode ? invalidPatch : step === 1 ? patch2 : step === 2 ? patch3 : null;
   const derivedSnapshot = useMemo(() => {
     if (step === 0) return snapshot;
     const version2 = applyScenePatch(snapshot, patch2);
@@ -24,6 +30,7 @@ export default function App() {
 
   const reset = () => {
     setStep(0);
+    setInvalidPatchMode(false);
     setSession((current) => current + 1);
     setSelectedEntityId(null);
   };
@@ -67,12 +74,26 @@ export default function App() {
         </div>
 
         <div className="actions">
-          <button type="button" className="secondary" onClick={reset} disabled={step === 0}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={reset}
+            disabled={step === 0 && !invalidPatchMode}
+          >
             Reset world
           </button>
           <button
             type="button"
+            className="secondary"
+            onClick={() => setInvalidPatchMode(true)}
+            disabled={invalidPatchMode}
+          >
+            Test invalid patch
+          </button>
+          <button
+            type="button"
             onClick={() => {
+              setInvalidPatchMode(false);
               setStep((current) => Math.min(2, current + 1));
               setSelectedEntityId(null);
             }}
