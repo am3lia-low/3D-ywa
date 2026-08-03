@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import modelManifest from "../../public/models/manifest.json";
 import type { Entity } from "../contracts/world";
+import { assetKitCatalog } from "./assetKitCatalog";
 import { defaultAssetRegistry, resolveAsset } from "./assetRegistry";
 
 function entity(overrides: Partial<Entity>): Entity {
@@ -20,7 +21,12 @@ describe("asset registry", () => {
       [asset.modelUrl, asset.surfaceTextureUrl].filter((url): url is string => Boolean(url)),
     );
 
-    expect(registeredUrls).toHaveLength(7);
+    const catalogUrls = assetKitCatalog.assets.flatMap((asset) =>
+      [asset.runtimeAsset.modelUrl, asset.runtimeAsset.surfaceTextureUrl]
+        .filter((url): url is string => Boolean(url)),
+    );
+
+    expect(registeredUrls.sort()).toEqual(catalogUrls.sort());
     expect(registeredUrls.every((url) => manifestUrls.has(url))).toBe(true);
   });
 

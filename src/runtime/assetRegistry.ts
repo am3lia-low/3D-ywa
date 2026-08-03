@@ -1,4 +1,5 @@
 import type { Entity, Vector3Tuple } from "../contracts/world";
+import { assetKitCatalog, catalogAssetDefinition } from "./assetKitCatalog";
 
 export type PrimitiveGeometry = "box" | "cylinder" | "sphere";
 
@@ -27,66 +28,9 @@ const fallback: AssetDefinition = {
   roughness: 0.85,
 };
 
-export const defaultAssetRegistry: AssetRegistry = {
-  desk: {
-    key: "desk",
-    geometry: "box",
-    dimensions: [2.4, 1.2, 1.1],
-    color: "#6f472c",
-    modelUrl: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
-    roughness: 0.9,
-  },
-  chair: {
-    key: "chair",
-    geometry: "box",
-    dimensions: [0.95, 1.55, 0.95],
-    color: "#8a5b38",
-    modelUrl: "/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
-    roughness: 0.88,
-  },
-  fireplace: {
-    key: "fireplace",
-    geometry: "box",
-    dimensions: [2.2, 2.2, 0.65],
-    color: "#776d65",
-    modelUrl: "/models/fireplace.glb",
-    roughness: 1,
-  },
-  rug: {
-    key: "rug",
-    geometry: "box",
-    dimensions: [3.8, 0.08, 2.6],
-    color: "#874b48",
-    modelUrl: "/models/rug.glb",
-    roughness: 1,
-  },
-  "map-1": {
-    key: "map",
-    geometry: "box",
-    dimensions: [0.92, 0.025, 0.64],
-    color: "#d8bd80",
-    roughness: 1,
-  },
-  lantern: {
-    key: "lantern",
-    geometry: "cylinder",
-    dimensions: [0.5, 0.86, 0.5],
-    color: "#c98f34",
-    modelUrl: "/models/lantern.glb",
-    roughness: 0.45,
-    metalness: 0.65,
-  },
-  "hidden-door": {
-    key: "hidden-door",
-    geometry: "box",
-    dimensions: [1.8, 2.9, 0.25],
-    color: "#4e3c31",
-    modelUrl: "/models/hidden-door.glb",
-    surfaceTextureUrl: "/generated/hidden-door-1-v1.png",
-    surfaceCrop: [0.255, 0.097, 0.767, 0.916],
-    roughness: 0.95,
-  },
-};
+export const defaultAssetRegistry: AssetRegistry = Object.fromEntries(
+  assetKitCatalog.assets.map((asset) => [asset.registryKey, catalogAssetDefinition(asset)]),
+);
 
 export function resolveAsset(
   entity: Entity,

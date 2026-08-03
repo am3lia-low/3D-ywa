@@ -1,6 +1,7 @@
 import type { VisualEntityPlan, VisualScenePlan } from "../contracts/visualScenePlan";
 import type { Entity, WorldSnapshot } from "../contracts/world";
-import { defaultAssetRegistry, type AssetDefinition, type AssetRegistry } from "./assetRegistry";
+import type { AssetDefinition, AssetRegistry } from "./assetRegistry";
+import { assetKitCatalog, catalogAssetDefinition } from "./assetKitCatalog";
 
 export interface StoryStyleKit {
   id: string;
@@ -39,126 +40,25 @@ export interface ApprovedAssetResolution {
   unresolvedEntityIds: string[];
 }
 
-export const storyStyleKits: readonly StoryStyleKit[] = [
-  {
-    id: "botanical-gothic",
-    label: "Moonlit botanical gothic",
-    description: "Cool glasshouse architecture, oxidized metalwork and jewel-toned natural accents.",
-    matchTags: ["botanical", "gothic", "conservatory", "glasshouse", "iron", "glass", "verdigris"],
-  },
-  {
-    id: "storybook-historical",
-    label: "Grounded storybook historical",
-    description: "Warm, tactile period interiors with aged natural materials and readable silhouettes.",
-    matchTags: ["storybook", "historical", "aged", "antique", "oak", "timber", "parchment"],
-  },
-  {
-    id: "generic-grounded",
-    label: "Grounded neutral",
-    description: "A restrained fallback kit for stories without a selected art direction.",
-    matchTags: [],
-  },
-];
+export const storyStyleKits: readonly StoryStyleKit[] = assetKitCatalog.kits.map(
+  ({ id, label, description, matchTags }) => ({ id, label, description, matchTags }),
+);
 
-function requiredAsset(key: string): AssetDefinition {
-  const asset = defaultAssetRegistry[key];
-  if (!asset) throw new Error(`Approved asset '${key}' is missing from the runtime registry.`);
-  return asset;
-}
-
-export const approvedAssetEntries: readonly ApprovedAssetEntry[] = [
-  {
-    catalogId: "polyhaven:wooden_table_02",
-    asset: requiredAsset("desk"),
-    assetKeys: ["desk", "writing-desk", "table"],
-    semanticKinds: ["desk", "furniture", "table"],
-    tags: ["desk", "writing", "table", "wood", "oak", "antique", "worn", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "floor",
-    source: "cc0",
-    author: "Serhii Khromov",
-    license: "CC0 1.0 Universal",
-    quality: "hero",
-  },
-  {
-    catalogId: "polyhaven:WoodenChair_01",
-    asset: requiredAsset("chair"),
-    assetKeys: ["chair", "wooden-chair", "armchair"],
-    semanticKinds: ["chair", "furniture", "seat"],
-    tags: ["chair", "seat", "wood", "oak", "antique", "worn", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "floor",
-    source: "cc0",
-    author: "Jake Mobley",
-    license: "CC0 1.0 Universal",
-    quality: "hero",
-  },
-  {
-    catalogId: "project:stone-hearth-v1",
-    asset: requiredAsset("fireplace"),
-    assetKeys: ["fireplace", "hearth"],
-    semanticKinds: ["architecture", "fireplace", "hearth"],
-    tags: ["fireplace", "hearth", "stone", "soot", "old", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "wall",
-    source: "project",
-    author: "Persistent StoryWorld 3D team",
-    license: "Project-owned original asset",
-    quality: "hero",
-  },
-  {
-    catalogId: "project:worn-red-rug-v1",
-    asset: requiredAsset("rug"),
-    assetKeys: ["rug", "carpet"],
-    semanticKinds: ["decor", "rug", "carpet"],
-    tags: ["rug", "carpet", "wool", "red", "faded", "woven", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "floor",
-    source: "project",
-    author: "Persistent StoryWorld 3D team",
-    license: "Project-owned original asset",
-    quality: "supporting",
-  },
-  {
-    catalogId: "project:parchment-map-v1",
-    asset: requiredAsset("map-1"),
-    assetKeys: ["map", "document", "parchment"],
-    semanticKinds: ["document", "map", "paper"],
-    tags: ["map", "document", "paper", "parchment", "ink", "folded", "antique"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "surface",
-    source: "project",
-    author: "Persistent StoryWorld 3D team",
-    license: "Project-owned original asset",
-    quality: "supporting",
-  },
-  {
-    catalogId: "project:brass-lantern-v2",
-    asset: requiredAsset("lantern"),
-    assetKeys: ["lantern", "lamp"],
-    semanticKinds: ["light", "lantern", "lamp"],
-    tags: ["lantern", "lamp", "brass", "glass", "aged", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "surface",
-    source: "project",
-    author: "Persistent StoryWorld 3D team",
-    license: "Project-owned original asset",
-    quality: "hero",
-  },
-  {
-    catalogId: "project:hidden-oak-door-v1",
-    asset: requiredAsset("hidden-door"),
-    assetKeys: ["hidden-door", "door", "portal"],
-    semanticKinds: ["architecture", "door", "portal"],
-    tags: ["door", "hidden", "oak", "timber", "wall", "historical"],
-    styleKitIds: ["storybook-historical", "botanical-gothic", "generic-grounded"],
-    placement: "wall",
-    source: "project",
-    author: "Persistent StoryWorld 3D team",
-    license: "Project-owned original asset",
-    quality: "hero",
-  },
-];
+export const approvedAssetEntries: readonly ApprovedAssetEntry[] = assetKitCatalog.assets.map(
+  (entry) => ({
+    catalogId: entry.catalogId,
+    asset: catalogAssetDefinition(entry),
+    assetKeys: entry.assetKeys,
+    semanticKinds: entry.semanticKinds,
+    tags: entry.tags,
+    styleKitIds: entry.styleKitIds,
+    placement: entry.placement,
+    source: entry.source,
+    author: entry.author,
+    license: entry.license,
+    quality: entry.quality,
+  }),
+);
 
 function tokens(values: readonly string[]): Set<string> {
   return new Set(

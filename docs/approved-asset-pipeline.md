@@ -23,9 +23,33 @@ direction and entity descriptions without changing narrative truth.
 Exact asset keys make selections stable across passage patches. Semantic
 selection uses deterministic scoring and catalog-ID tie-breaking.
 
+## Versioned quality gate
+
+`src/data/asset-kit-catalog.json` is the runtime and semantic resolver's single
+source of truth. It records complete style-kit roles, provenance, normalized
+runtime dimensions and measurable quality limits. A catalog entry is not
+approved merely because a URL loads.
+
+Run the local gate before committing a new asset:
+
+```bash
+pnpm assets:report
+```
+
+The gate parses local glTF and GLB files, resolves their buffers and images,
+checks glTF 2.0 structure, PBR texture assignments, triangle and byte budgets,
+source bounds and normalization distortion. It also proves that each style kit
+covers all of its declared roles. The deterministic report is written to
+`docs/asset-quality-report.json`; `pnpm verify` runs the same checks without
+rewriting it.
+
+A known issue can pass only as an explicit warning with a reviewed `waiver` in
+the catalog. Missing files, incomplete kits and unwaived budget or material
+failures stop verification.
+
 ## Approval metadata
 
-Every `ApprovedAssetEntry` records:
+Every catalog asset records:
 
 - accepted semantic kinds, aliases and tags;
 - compatible style kits;
@@ -35,7 +59,7 @@ Every `ApprovedAssetEntry` records:
 - normalized runtime geometry, dimensions and material definition.
 
 Vendored assets should be converted to web-sized glTF/GLB, normalized, visually
-reviewed and recorded in `public/models/manifest.json` before an entry is added.
+reviewed and recorded with its source URL and license before an entry is added.
 
 ## Expansion strategy
 

@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "1.0",
+  "catalogSchemaVersion": "1.0",
+  "summary": {
+    "kits": 3,
+    "completeKits": 3,
+    "assets": 8,
+    "passed": 8,
+    "warnings": 0,
+    "failed": 0
+  },
+  "catalogErrors": [],
+  "kits": [
+    {
+      "id": "botanical-gothic",
+      "requiredRoles": [
+        "primary-table",
+        "seat",
+        "floor-textile",
+        "practical-light",
+        "portal",
+        "storage",
+        "surface-document"
+      ],
+      "missingRoles": [],
+      "complete": true
+    },
+    {
+      "id": "storybook-historical",
+      "requiredRoles": [
+        "primary-table",
+        "seat",
+        "floor-textile",
+        "practical-light",
+        "portal",
+        "storage",
+        "surface-document",
+        "hearth"
+      ],
+      "missingRoles": [],
+      "complete": true
+    },
+    {
+      "id": "generic-grounded",
+      "requiredRoles": [
+        "primary-table",
+        "seat",
+        "floor-textile",
+        "practical-light",
+        "portal",
+        "storage",
+        "surface-document"
+      ],
+      "missingRoles": [],
+      "complete": true
+    }
+  ],
+  "assets": [
+    {
+      "catalogId": "polyhaven:wooden_table_02",
+      "registryKey": "desk",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/wooden_table_02/textures/wooden_table_02_arm_1k.jpg",
+        "public/models/polyhaven/wooden_table_02/textures/wooden_table_02_diff_1k.jpg",
+        "public/models/polyhaven/wooden_table_02/textures/wooden_table_02_nor_gl_1k.jpg",
+        "public/models/polyhaven/wooden_table_02/wooden_table_02.bin",
+        "public/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf"
+      ],
+      "totalBytes": 485316,
+      "triangles": 196,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.1344,
+        0.7995,
+        0.706
+      ],
+      "aspectDistortion": 1.41,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "polyhaven:WoodenChair_01",
+      "registryKey": "chair",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/WoodenChair_01/WoodenChair_01.bin",
+        "public/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
+        "public/models/polyhaven/WoodenChair_01/textures/WoodenChair_01_arm_1k.jpg",
+        "public/models/polyhaven/WoodenChair_01/textures/WoodenChair_01_diff_1k.jpg",
+        "public/models/polyhaven/WoodenChair_01/textures/WoodenChair_01_nor_gl_1k.jpg"
+      ],
+      "totalBytes": 1079531,
+      "triangles": 19992,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.6882,
+        2.2735,
+        0.6585
+      ],
+      "aspectDistortion": 2.12,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "polyhaven:wooden_crate_01",
+      "registryKey": "crate",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/wooden_crate_01/textures/wooden_crate_01_arm_1k.jpg",
+        "public/models/polyhaven/wooden_crate_01/textures/wooden_crate_01_diff_1k.jpg",
+        "public/models/polyhaven/wooden_crate_01/textures/wooden_crate_01_nor_gl_1k.jpg",
+        "public/models/polyhaven/wooden_crate_01/wooden_crate_01.bin",
+        "public/models/polyhaven/wooden_crate_01/wooden_crate_01_1k.gltf"
+      ],
+      "totalBytes": 2277087,
+      "triangles": 6576,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8253,
+        0.3496,
+        0.409
+      ],
+      "aspectDistortion": 1.62,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "project:stone-hearth-v1",
+      "registryKey": "fireplace",
+      "status": "pass",
+      "files": [
+        "public/models/fireplace.glb"
+      ],
+      "totalBytes": 11684,
+      "triangles": 72,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.98,
+        0.84,
+        0.72
+      ],
+      "aspectDistortion": 2.9,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "project:worn-red-rug-v1",
+      "registryKey": "rug",
+      "status": "pass",
+      "files": [
+        "public/models/rug.glb",
+        "public/textures/story/faded-red-rug-v1.png"
+      ],
+      "totalBytes": 3452368,
+      "triangles": 60,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        0.08,
+        1
+      ],
+      "aspectDistortion": 3.8,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "project:parchment-map-v1",
+      "registryKey": "map-1",
+      "status": "pass",
+      "files": [
+        "public/textures/story/antique-map-v1.png"
+      ],
+      "totalBytes": 3875384,
+      "triangles": 2,
+      "materialCount": 1,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "project:brass-lantern-v2",
+      "registryKey": "lantern",
+      "status": "pass",
+      "files": [
+        "public/models/lantern.glb"
+      ],
+      "totalBytes": 35540,
+      "triangles": 476,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.82,
+        0.7,
+        0.62
+      ],
+      "aspectDistortion": 2.01,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "project:hidden-oak-door-v1",
+      "registryKey": "hidden-door",
+      "status": "pass",
+      "files": [
+        "public/generated/hidden-door-1-v1.png",
+        "public/models/hidden-door.glb"
+      ],
+      "totalBytes": 1032818,
+      "triangles": 224,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.9,
+        1,
+        0.16
+      ],
+      "aspectDistortion": 1.86,
+      "warnings": [],
+      "errors": []
+    }
+  ]
+}

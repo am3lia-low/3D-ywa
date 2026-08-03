@@ -229,6 +229,22 @@ manifest.push(
     bytes: (await stat(resolve(rootDirectory, "public", "generated", "hidden-door-1-v1.png"))).size,
   },
   {
+    key: "worn-red-rug-surface",
+    url: "/textures/story/faded-red-rug-v1.png",
+    format: "PNG projected onto controlled floor geometry",
+    author: "Persistent StoryWorld 3D team",
+    license: "Project-owned original asset",
+    bytes: (await stat(resolve(rootDirectory, "public", "textures", "story", "faded-red-rug-v1.png"))).size,
+  },
+  {
+    key: "parchment-map-surface",
+    url: "/textures/story/antique-map-v1.png",
+    format: "PNG projected onto controlled document geometry",
+    author: "Persistent StoryWorld 3D team",
+    license: "Project-owned original asset",
+    bytes: (await stat(resolve(rootDirectory, "public", "textures", "story", "antique-map-v1.png"))).size,
+  },
+  {
     key: "desk-polyhaven",
     url: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
     format: "glTF 2.0 with 1K PBR textures",
