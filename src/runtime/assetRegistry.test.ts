@@ -14,13 +14,13 @@ function entity(overrides: Partial<Entity>): Entity {
 }
 
 describe("asset registry", () => {
-  it("keeps every registered model URL synchronized with the generated manifest", () => {
+  it("keeps every registered runtime asset URL synchronized with the generated manifest", () => {
     const manifestUrls = new Set(modelManifest.assets.map((asset) => asset.url));
     const registeredUrls = Object.values(defaultAssetRegistry).flatMap((asset) =>
-      asset.modelUrl ? [asset.modelUrl] : [],
+      [asset.modelUrl, asset.surfaceTextureUrl].filter((url): url is string => Boolean(url)),
     );
 
-    expect(registeredUrls).toHaveLength(6);
+    expect(registeredUrls).toHaveLength(7);
     expect(registeredUrls.every((url) => manifestUrls.has(url))).toBe(true);
   });
 

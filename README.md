@@ -83,6 +83,14 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Enforces an approval gate before reconstruction so collages, cropped objects and narrative contradictions such as a lit “unlit” lantern cannot silently enter the world.
 - Proves the complete local path from `visual_scene_plan_3.json` to an approved PNG, then to the content-addressed `lantern-1-df16671b5965.glb` registered under the canonical entity ID.
 
+## Milestone 12
+
+- Adds a serializable, revisioned asset queue that resumes reference generation, human review, reconstruction and optimization without losing canonical entity identity.
+- Persists every state transition and keeps rejected or failed jobs retryable without promoting them into the runtime registry.
+- Automatically rejects structurally invalid image payloads and exposes a validator boundary for stronger semantic or composition checks.
+- Routes volumetric objects to image-to-mesh and planar assets such as maps, rugs and doors to generated textures on controlled geometry.
+- Proves the template route with an approved narrow timber door while retaining the existing Archive-vault traversal behavior.
+
 ## Component contract
 
 ```tsx
@@ -112,8 +120,12 @@ selected novel segment
   -> resolved asset registry + architecture + palette + lighting + dressing
   -> WorldViewer (ready)
      or asynchronous asset-generation jobs (assets_pending)
-        -> runSceneAssetWorker(provider, optimizer)
-        -> updated ready manifest
+        -> revisioned asset queue
+        -> generate reference candidates
+        -> automatic integrity checks
+        -> human review (needs_review)
+        -> image-to-mesh or surface-template provider
+        -> promoted ready manifest
 ```
 
 Part 1 fixture targets:
@@ -130,6 +142,14 @@ under the existing canonical entity ID. Failed jobs stay in the manifest for a
 retry. `src/runtime/tripoSrProvider.ts` is the first real adapter: a replaceable
 `SceneReferenceImageProvider` supplies a clean reference image, then the local
 service reconstructs a normalized GLB and returns its public model URL.
+
+`src/runtime/sceneAssetQueue.ts` is the resumable production-facing path. Its
+`advanceSceneAssetQueue(...)` function processes every runnable item and pauses
+naturally at review. `promoteReadySceneAssets(...)` installs only completed
+outputs. Queue storage is adapter-based; a browser storage adapter is included
+for the prototype, while a deployed worker can persist the same JSON structure
+in object storage or a database. Reconstruction providers are selected by the
+job's `image_to_mesh` or `surface_template` strategy.
 
 Local TripoSR setup and proof:
 

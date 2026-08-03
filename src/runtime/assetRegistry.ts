@@ -9,6 +9,10 @@ export interface AssetDefinition {
   color: string;
   /** Public URL for the preferred normalized glTF 2.0 binary asset. */
   modelUrl?: string;
+  /** Public image projected onto controlled geometry for planar assets. */
+  surfaceTextureUrl?: string;
+  /** Normalized image crop in top-left coordinates: left, top, right, bottom. */
+  surfaceCrop?: [number, number, number, number];
   roughness?: number;
   metalness?: number;
 }
@@ -78,6 +82,8 @@ export const defaultAssetRegistry: AssetRegistry = {
     dimensions: [1.8, 2.9, 0.25],
     color: "#4e3c31",
     modelUrl: "/models/hidden-door.glb",
+    surfaceTextureUrl: "/generated/hidden-door-1-v1.png",
+    surfaceCrop: [0.255, 0.097, 0.767, 0.916],
     roughness: 0.95,
   },
 };

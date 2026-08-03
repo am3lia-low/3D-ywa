@@ -218,6 +218,14 @@ manifest.push(
     bytes: (await stat(resolve(rootDirectory, "public", "generated", "lantern-1-df16671b5965.glb"))).size,
   },
   {
+    key: "hidden-door-generated-surface",
+    url: "/generated/hidden-door-1-v1.png",
+    format: "PNG projected onto controlled architectural geometry",
+    author: "Persistent StoryWorld 3D team using ComfyUI",
+    license: "Project-owned generated artifact; source model license documented in services/comfyui/README.md",
+    bytes: (await stat(resolve(rootDirectory, "public", "generated", "hidden-door-1-v1.png"))).size,
+  },
+  {
     key: "desk-polyhaven",
     url: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
     format: "glTF 2.0 with 1K PBR textures",

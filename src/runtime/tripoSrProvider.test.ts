@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SceneAssetGenerationJob } from "./sceneBuildPipeline";
 import {
   createTripoSrHttpProvider,
+  createTripoSrReconstructionProvider,
   type SceneReferenceImageProvider,
 } from "./tripoSrProvider";
 
@@ -13,6 +14,7 @@ const job: SceneAssetGenerationJob = {
   prompt: "ornate aged brass oil lantern",
   searchTags: ["lantern", "brass"],
   priority: "hero",
+  strategy: "image_to_mesh",
   reason: "no_catalog_match",
 };
 
@@ -79,5 +81,19 @@ describe("TripoSR provider", () => {
     await expect(provider.generate(job)).rejects.toThrow(
       "TripoSR request failed (503): CUDA out of memory",
     );
+  });
+
+  it("refuses planar template jobs before calling the mesh service", async () => {
+    const request = vi.fn();
+    const provider = createTripoSrReconstructionProvider({
+      endpoint: "http://127.0.0.1:8123",
+      fetch: request as typeof fetch,
+    });
+
+    await expect(provider.reconstruct(
+      { ...job, entityId: "hidden-door-1", entityKind: "architecture", strategy: "surface_template" },
+      { mimeType: "image/png", base64: "cG5n" },
+    )).rejects.toThrow("TripoSR cannot reconstruct 'surface_template' asset 'hidden-door-1'.");
+    expect(request).not.toHaveBeenCalled();
   });
 });

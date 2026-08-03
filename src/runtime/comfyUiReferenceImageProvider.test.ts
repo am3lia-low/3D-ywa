@@ -13,6 +13,7 @@ const job: SceneAssetGenerationJob = {
   prompt: "An ornate aged brass oil lantern with clear glass panels. Condition: unlit.",
   searchTags: ["lantern", "brass"],
   priority: "hero",
+  strategy: "image_to_mesh",
   reason: "no_catalog_match",
 };
 

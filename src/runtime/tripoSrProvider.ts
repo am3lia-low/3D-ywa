@@ -1,6 +1,7 @@
 import type { Vector3Tuple } from "../contracts/world";
 import type { SceneAssetGenerationJob } from "./sceneBuildPipeline";
 import type { SceneAssetProvider } from "./sceneAssetWorker";
+import type { SceneAssetReconstructionProvider } from "./sceneAssetQueue";
 import {
   arrayBufferToBase64,
   type SceneReferenceImageProvider,
@@ -18,6 +19,11 @@ export interface TripoSrHttpProviderOptions {
   meshResolution?: number;
   defaultDimensions?: Vector3Tuple;
 }
+
+export type TripoSrReconstructionProviderOptions = Omit<
+  TripoSrHttpProviderOptions,
+  "referenceImages"
+>;
 
 interface TripoSrResponse {
   artifactId: string;
@@ -51,16 +57,34 @@ function positiveResolution(value: number | undefined): number {
 export function createTripoSrHttpProvider(
   options: TripoSrHttpProviderOptions,
 ): SceneAssetProvider {
+  const reconstruction = createTripoSrReconstructionProvider(options);
+
+  return {
+    id: `triposr:${options.referenceImages.id}`,
+    source: reconstruction.source,
+    async generate(job, signal) {
+      const reference = await options.referenceImages.generate(job, signal);
+      return reconstruction.reconstruct(job, reference, signal);
+    },
+  };
+}
+
+/** Reconstructs an already reviewed reference without generating a second image. */
+export function createTripoSrReconstructionProvider(
+  options: TripoSrReconstructionProviderOptions,
+): SceneAssetReconstructionProvider {
   const request = options.fetch ?? fetch;
   const endpoint = options.endpoint.replace(/\/+$/, "");
   const meshResolution = positiveResolution(options.meshResolution);
   const defaultDimensions = options.defaultDimensions ?? [1, 1, 1];
 
   return {
-    id: `triposr:${options.referenceImages.id}`,
+    id: "triposr-local",
     source: "generated",
-    async generate(job, signal) {
-      const reference = await options.referenceImages.generate(job, signal);
+    async reconstruct(job, reference, signal) {
+      if (job.strategy !== "image_to_mesh") {
+        throw new Error(`TripoSR cannot reconstruct '${job.strategy}' asset '${job.entityId}'.`);
+      }
       const response = await request(`${endpoint}/v1/reconstruct`, {
         method: "POST",
         headers: { "content-type": "application/json" },

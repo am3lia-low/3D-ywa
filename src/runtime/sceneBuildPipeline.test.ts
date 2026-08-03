@@ -37,6 +37,7 @@ describe("scene build pipeline", () => {
       entityId: "map-1",
       locationId: "attic-study",
       priority: "supporting",
+      strategy: "surface_template",
       reason: "no_catalog_match",
     });
   });

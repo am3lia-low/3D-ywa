@@ -32,7 +32,28 @@ export interface SceneAssetGenerationJob extends AssetGenerationRequest {
   locationId: string;
   entityKind: string;
   dimensions?: Vector3Tuple;
+  strategy: "image_to_mesh" | "surface_template";
   reason: "no_catalog_match";
+}
+
+const SURFACE_ENTITY_KINDS = new Set([
+  "architecture",
+  "document",
+  "map",
+  "painting",
+  "poster",
+  "rug",
+  "tapestry",
+]);
+
+export function chooseSceneAssetStrategy(entity: Entity): SceneAssetGenerationJob["strategy"] {
+  if (SURFACE_ENTITY_KINDS.has(entity.kind.toLowerCase())) return "surface_template";
+  const dimensions = entity.dimensions;
+  if (dimensions) {
+    const sorted = [...dimensions].sort((left, right) => left - right);
+    if (sorted[0]! / sorted[2]! <= 0.12) return "surface_template";
+  }
+  return "image_to_mesh";
 }
 
 export interface SceneBuildManifest {
@@ -154,6 +175,7 @@ export function buildSceneManifest(
         locationId: entity.locationId,
         entityKind: entity.kind,
         dimensions: entity.dimensions,
+        strategy: chooseSceneAssetStrategy(entity),
         prompt: visualAssetPrompt(visual),
         searchTags: visual.assetSearchTags,
         priority: visual.importance,

@@ -246,17 +246,56 @@ function usePbrSurface(
   return textures;
 }
 
-function useStoryTexture(path: string) {
+function useStoryTexture(
+  path: string,
+  crop?: [number, number, number, number],
+) {
   const texture = useMemo(() => {
     const loaded = new THREE.TextureLoader().load(path);
     loaded.colorSpace = THREE.SRGBColorSpace;
     loaded.wrapS = THREE.ClampToEdgeWrapping;
     loaded.wrapT = THREE.ClampToEdgeWrapping;
     loaded.anisotropy = 8;
+    if (crop) {
+      const [left, top, right, bottom] = crop;
+      loaded.repeat.set(right - left, bottom - top);
+      loaded.offset.set(left, 1 - bottom);
+    }
     return loaded;
-  }, [path]);
+  }, [crop, path]);
   useEffect(() => () => texture.dispose(), [texture]);
   return texture;
+}
+
+function StorySurfaceAsset({
+  asset,
+  highlighted,
+  highlightColor,
+}: {
+  asset: AssetDefinition;
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const texture = useStoryTexture(asset.surfaceTextureUrl!, asset.surfaceCrop);
+  return (
+    <group>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color={asset.color} roughness={asset.roughness ?? 0.9} />
+      </mesh>
+      <mesh position={[0, 0, 0.501]} castShadow receiveShadow>
+        <planeGeometry args={[1, 1]} />
+        <meshStandardMaterial
+          map={texture}
+          roughness={asset.roughness ?? 0.9}
+          emissive={highlighted ? highlightColor : "#000000"}
+          emissiveIntensity={highlighted ? 0.24 : 0}
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
+      </mesh>
+    </group>
+  );
 }
 
 function StoryRug({ highlighted, highlightColor }: {
@@ -451,6 +490,16 @@ function EntityAsset({
 
   if (asset.key === "map") {
     return <StoryMap highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+
+  if (asset.surfaceTextureUrl) {
+    return (
+      <StorySurfaceAsset
+        asset={asset}
+        highlighted={highlighted}
+        highlightColor={highlightColor}
+      />
+    );
   }
 
   if (!asset.modelUrl) return fallback;
@@ -1264,6 +1313,7 @@ export function WorldViewer({
   const [viewer, setViewer] = useState(() =>
     createViewerState(snapshot, assetRegistry, activeLocationId),
   );
+  const [visiblePatchKey, setVisiblePatchKey] = useState("");
   const [cameraCommand, setCameraCommand] = useState<CameraCommand | null>(null);
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
   const cameraCommandId = useRef(0);
@@ -1368,6 +1418,19 @@ export function WorldViewer({
   }, [viewer.runtime?.exitingItems.length, viewer.runtime?.snapshot.version]);
 
   useEffect(() => {
+    if (!patch || viewer.error) {
+      setVisiblePatchKey("");
+      return;
+    }
+    const patchKey = `${patch.fromVersion}:${patch.toVersion}`;
+    setVisiblePatchKey(patchKey);
+    const timeout = window.setTimeout(() => {
+      setVisiblePatchKey((current) => (current === patchKey ? "" : current));
+    }, 1_800);
+    return () => window.clearTimeout(timeout);
+  }, [patch, viewer.error]);
+
+  useEffect(() => {
     if (viewer.error) onRuntimeError?.(viewer.error);
   }, [onRuntimeError, viewer.error]);
 
@@ -1392,8 +1455,8 @@ export function WorldViewer({
   }, [requestCamera, selectedEntityId, viewer.runtime?.layout]);
 
   const changes = useMemo(
-    () => (viewer.error ? new Map<string, ChangeKind>() : changeMapFromPatch(patch)),
-    [patch, viewer.error],
+    () => (viewer.error || !visiblePatchKey ? new Map<string, ChangeKind>() : changeMapFromPatch(patch)),
+    [patch, viewer.error, visiblePatchKey],
   );
   const runtime = viewer.runtime;
   const relationEdges = useMemo(
