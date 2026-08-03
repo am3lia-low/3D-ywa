@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as THREE from "three";
@@ -209,6 +209,14 @@ for (const [key, createModel] of Object.entries(models)) {
 }
 
 manifest.push(
+  {
+    key: "lantern-triposr",
+    url: "/generated/lantern-1-4f008ea027c5.glb",
+    format: "glTF 2.0 binary with vertex colors",
+    author: "Persistent StoryWorld 3D team using TripoSR",
+    license: "Project-owned generated artifact; TripoSR code and weights are MIT licensed",
+    bytes: (await stat(resolve(rootDirectory, "public", "generated", "lantern-1-4f008ea027c5.glb"))).size,
+  },
   {
     key: "desk-polyhaven",
     url: "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",

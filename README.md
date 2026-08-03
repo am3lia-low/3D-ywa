@@ -69,6 +69,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Sizes relational chairs at human scale and automatically faces furniture toward the object it is meant to interact with unless Part 1 supplies an explicit rotation.
 - Executes pending asset jobs through a provider-neutral asynchronous worker with progress events, an optional optimization stage, retries for failures and canonical entity-ID registration.
 
+## Milestone 10
+
+- Implements a real local `SceneAssetProvider` backed by the MIT-licensed TripoSR image-to-3D model.
+- Keeps prompt-to-reference-image and reference-image-to-3D as separate replaceable stages instead of pretending TripoSR consumes novel prose.
+- Runs the neural reconstruction on CUDA and uses a reproducible CPU marching-cubes fallback for this machine's newer Visual Studio toolchain.
+- Proves the pipeline with a generated lantern reference and a canonical `lantern-1` GLB that the viewer loads from `public/generated/`.
+
 ## Component contract
 
 ```tsx
@@ -113,9 +120,22 @@ The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer de
 `src/runtime/sceneAssetWorker.ts` executes jobs concurrently, calls a supplied
 search/generation provider, optionally optimizes each result and registers it
 under the existing canonical entity ID. Failed jobs stay in the manifest for a
-retry. A production deployment still needs one backend adapter containing the
-chosen provider SDK and credentials; the provider-neutral orchestration is
-implemented and tested here.
+retry. `src/runtime/tripoSrProvider.ts` is the first real adapter: a replaceable
+`SceneReferenceImageProvider` supplies a clean reference image, then the local
+service reconstructs a normalized GLB and returns its public model URL.
+
+Local TripoSR setup and proof:
+
+```powershell
+pnpm triposr:setup
+pnpm triposr:serve
+# in a second terminal
+pnpm triposr:prove
+```
+
+Large Python packages and model weights stay in ignored `.local/`. The checked-in
+proof input is `fixtures/reference-images/antique-brass-lantern-v1.png`; the
+canonical result is `public/generated/lantern-1-4f008ea027c5.glb`.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
@@ -167,6 +187,9 @@ When `stream.status === "resync_required"`, request a fresh snapshot from the ba
 pnpm install
 pnpm contracts:generate
 pnpm models:generate
+pnpm triposr:setup
+pnpm triposr:serve
+pnpm triposr:prove
 pnpm dev
 pnpm test
 pnpm build

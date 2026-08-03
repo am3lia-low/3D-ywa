@@ -1,4 +1,4 @@
-import type { Entity, WorldSnapshot } from "../contracts/world";
+import type { Entity, Vector3Tuple, WorldSnapshot } from "../contracts/world";
 import type { VisualEntityPlan, VisualScenePlan } from "../contracts/visualScenePlan";
 import {
   defaultAssetRegistry,
@@ -29,6 +29,8 @@ export interface ResolvedSceneAsset {
 
 export interface SceneAssetGenerationJob extends AssetGenerationRequest {
   locationId: string;
+  entityKind: string;
+  dimensions?: Vector3Tuple;
   reason: "no_catalog_match";
 }
 
@@ -149,6 +151,8 @@ export function buildSceneManifest(
       generationJobs.push({
         entityId: entity.id,
         locationId: entity.locationId,
+        entityKind: entity.kind,
+        dimensions: entity.dimensions,
         prompt:
           visual.assetGenerationPrompt ??
           `${visual.visualDescription}. ${visual.materials.join(", ")}. ${visual.colors.join(", ")}.`,
