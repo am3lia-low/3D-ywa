@@ -117,10 +117,12 @@ The prototype pipeline is:
 selected novel segment
   -> WorldSnapshot / ScenePatch
   -> VisualScenePlan
+  -> select one story style kit
+  -> resolveApprovedAssetLibrary(...) by canonical key, semantics and visual tags
+  -> approved registry + architecture + palette + lighting + dressing
   -> buildSceneManifest(...)
-  -> resolved asset registry + architecture + palette + lighting + dressing
   -> WorldViewer (ready)
-     or asynchronous asset-generation jobs (assets_pending)
+     or honest fallback + asynchronous hero-asset job (assets_pending)
         -> revisioned asset queue
         -> generate reference candidates
         -> automatic integrity checks
@@ -179,8 +181,9 @@ reference generator can retry deterministically with `-SeedOffset`; both the
 reference and reconstructed asset must now be approved before registry
 promotion.
 
-The demo app exposes that queue as an **Async visual pipeline** panel below the
-world. It regenerates one selected canonical entity at a time, persists the
+The experimental queue is intentionally hidden from the normal demo. In local
+development, append `?assetLab=1` to expose the **Async visual pipeline** panel.
+It regenerates one selected canonical entity at a time, persists the
 active candidate across refreshes, and blocks stale jobs when the snapshot or
 visual-plan version changes. The browser calls ComfyUI at
 `http://127.0.0.1:8190` and TripoSR at `http://127.0.0.1:8123` by default; both
@@ -201,6 +204,13 @@ texture URLs on preview, avoiding browser-storage duplication.
 Browser storage is deliberately an MVP queue store. A production deployment
 should move candidate image bytes, GLBs and queue JSON to durable object/database
 storage while retaining the same `SceneAssetQueueStore` boundary.
+
+`src/runtime/approvedAssetLibrary.ts` is the normal production-facing path. It
+selects one coherent story style kit, maps entities to assets with recorded
+source and license metadata, installs choices under canonical entity IDs and
+leaves unsupported objects unresolved instead of forcing an unrelated model.
+The opening fixture has 100% approved-asset coverage, and the same catalog IDs
+remain stable as passages 2 and 3 add or move entities.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 

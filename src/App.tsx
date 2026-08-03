@@ -4,12 +4,12 @@ import patch2Fixture from "../fixtures/patch_2.json";
 import patch3Fixture from "../fixtures/patch_3.json";
 import visualPlan1Fixture from "../fixtures/visual_scene_plan_1.json";
 import visualPlan3Fixture from "../fixtures/visual_scene_plan_3.json";
-import { AssetReviewPanel } from "./components/AssetReviewPanel";
 import { EntityInspector } from "./components/EntityInspector";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 import type { AssetRegistry } from "./runtime/assetRegistry";
+import { resolveApprovedAssetLibrary } from "./runtime/approvedAssetLibrary";
 import { buildSceneManifest } from "./runtime/sceneBuildPipeline";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
@@ -20,6 +20,11 @@ const visualPlan3 = visualPlan3Fixture as unknown as VisualScenePlan;
 const WorldViewer = lazy(() =>
   import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
 );
+const AssetReviewPanel = lazy(() =>
+  import("./components/AssetReviewPanel").then((module) => ({ default: module.AssetReviewPanel })),
+);
+const experimentalAssetLabEnabled =
+  import.meta.env.DEV && new URLSearchParams(window.location.search).get("assetLab") === "1";
 const invalidPatch: ScenePatch = {
   fromVersion: 99,
   toVersion: 100,
@@ -41,9 +46,13 @@ export default function App() {
     const version2 = applyScenePatch(snapshot, patch2);
     return step === 1 ? version2 : applyScenePatch(version2, patch3);
   }, [step]);
-  const sceneBuild = useMemo(
-    () => buildSceneManifest(derivedSnapshot, visualPlan),
+  const assetResolution = useMemo(
+    () => resolveApprovedAssetLibrary(derivedSnapshot, visualPlan),
     [derivedSnapshot, visualPlan],
+  );
+  const sceneBuild = useMemo(
+    () => buildSceneManifest(derivedSnapshot, visualPlan, [], assetResolution.assetRegistry),
+    [assetResolution.assetRegistry, derivedSnapshot, visualPlan],
   );
   const reset = () => {
     setStep(0);
@@ -71,6 +80,8 @@ export default function App() {
           <strong>v{step + 1}</strong>
           <small>renderer ack v{acknowledgedVersion}</small>
           <small>visual plan v{visualPlan.planVersion}</small>
+          <small>{assetResolution.styleKit.label}</small>
+          <small>{assetResolution.selections.length}/{derivedSnapshot.entities.length} approved assets</small>
           <small>scene build {sceneBuild.status}</small>
         </div>
       </header>
@@ -172,12 +183,16 @@ export default function App() {
         />
       </section>
 
-      <AssetReviewPanel
-        snapshot={derivedSnapshot}
-        visualPlan={visualPlan}
-        baseRegistry={sceneBuild.assetRegistry}
-        onRegistryPreview={setReviewRegistry}
-      />
+      {experimentalAssetLabEnabled && (
+        <Suspense fallback={null}>
+          <AssetReviewPanel
+            snapshot={derivedSnapshot}
+            visualPlan={visualPlan}
+            baseRegistry={sceneBuild.assetRegistry}
+            onRegistryPreview={setReviewRegistry}
+          />
+        </Suspense>
+      )}
     </main>
   );
 }
