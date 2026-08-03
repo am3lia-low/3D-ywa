@@ -1,0 +1,39 @@
+{
+  "fromVersion": 1,
+  "toVersion": 2,
+  "operations": [
+    {
+      "op": "move_entity",
+      "entityId": "conservatory-chair-1",
+      "position": [2.7, 0.78, -2.8],
+      "rotation": [0, -0.7, 0]
+    },
+    {
+      "op": "update_entity",
+      "entityId": "orrery-1",
+      "changes": { "state": { "active": true } }
+    },
+    {
+      "op": "add_entity",
+      "entity": {
+        "id": "conservatory-lantern-1",
+        "name": "Copper storm lantern",
+        "kind": "light",
+        "locationId": "moonlit-conservatory",
+        "state": { "lit": true },
+        "provenance": { "passageId": "C2", "confidence": 0.96 }
+      }
+    },
+    {
+      "op": "add_relation",
+      "relation": {
+        "id": "lantern-right-of-worktable",
+        "subjectId": "conservatory-lantern-1",
+        "predicate": "right_of",
+        "objectId": "conservatory-worktable-1",
+        "distance": 0.25
+      }
+    },
+    { "op": "remove_relation", "relationId": "chair-in-front-of-worktable" }
+  ]
+}

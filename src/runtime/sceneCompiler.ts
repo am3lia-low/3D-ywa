@@ -24,11 +24,16 @@ export interface ScenePresentation {
     timberFrame: boolean;
     window: boolean;
     archiveShelves: boolean;
+    glasshousePanels: boolean;
+    ironFrame: boolean;
+    stoneTileFloor: boolean;
   };
   dressing: {
     books: boolean;
     storageCrates: boolean;
     travelChest: boolean;
+    planters: boolean;
+    climbingVines: boolean;
     density: VisualLocationPlan["dressingDensity"];
   };
   atmosphere: {
@@ -137,11 +142,16 @@ export function compileScenePresentation(
       timberFrame: architectureTags.has("timber-frame"),
       window: architectureTags.has("small-window"),
       archiveShelves: architectureTags.has("archive-shelving"),
+      glasshousePanels: architectureTags.has("glasshouse-panels"),
+      ironFrame: architectureTags.has("iron-frame"),
+      stoneTileFloor: architectureTags.has("stone-tile-floor"),
     },
     dressing: {
       books: dressingTags.has("books"),
       storageCrates: dressingTags.has("storage-crates"),
       travelChest: dressingTags.has("travel-chest"),
+      planters: dressingTags.has("planters") || dressingTags.has("ceramic-pots"),
+      climbingVines: dressingTags.has("climbing-vines"),
       density: location.dressingDensity,
     },
     atmosphere: {
@@ -204,11 +214,16 @@ export function createFallbackScenePresentation(
       timberFrame: false,
       window: false,
       archiveShelves: false,
+      glasshousePanels: false,
+      ironFrame: false,
+      stoneTileFloor: false,
     },
     dressing: {
       books: false,
       storageCrates: false,
       travelChest: false,
+      planters: false,
+      climbingVines: false,
       density: "sparse",
     },
     atmosphere: { dust: false, coolWindowLight: false },

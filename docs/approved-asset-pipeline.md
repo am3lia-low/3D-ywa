@@ -47,3 +47,16 @@ a kit while retaining different entity IDs and layouts.
 Generated hero assets must pass isolated and in-world review, then be copied to
 durable project storage and promoted into this approved library. Temporary local
 TripoSR previews are never normal application assets.
+
+## Generalization fixture
+
+The fixture selector includes two independent stories:
+
+- **The attic study** uses exact canonical asset keys and the grounded storybook
+  historical kit.
+- **The moonlit conservatory** uses new IDs, semantic-only common-object matches
+  and the botanical-gothic glasshouse kit. Its unique celestial orrery remains a
+  designed fallback, demonstrating where offline hero-asset generation belongs.
+
+Switching fixtures remounts the spatial runtime at that story's first immutable
+snapshot. Patches and renderer acknowledgements cannot leak between stories.

@@ -5,6 +5,10 @@ import patch2Fixture from "../../fixtures/patch_2.json";
 import patch3Fixture from "../../fixtures/patch_3.json";
 import visualPlan1Fixture from "../../fixtures/visual_scene_plan_1.json";
 import visualPlan3Fixture from "../../fixtures/visual_scene_plan_3.json";
+import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
+import conservatoryPatchFixture from "../../fixtures/patch_conservatory_2.json";
+import conservatoryPlan1Fixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
+import conservatoryPlan2Fixture from "../../fixtures/visual_scene_plan_conservatory_2.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -79,5 +83,23 @@ describe("approved asset library", () => {
     const result = resolveApprovedAssetLibrary(unsupportedSnapshot, unsupportedPlan);
     expect(result.selections).toEqual([]);
     expect(result.unresolvedEntityIds).toEqual(["clockwork-bird-1"]);
+  });
+
+  it("resolves a second story semantically while preserving its unique hero fallback", () => {
+    const conservatory = conservatorySnapshotFixture as unknown as WorldSnapshot;
+    const conservatoryPlan1 = conservatoryPlan1Fixture as unknown as VisualScenePlan;
+    const version2 = applyScenePatch(conservatory, conservatoryPatchFixture as ScenePatch);
+    const conservatoryPlan2 = conservatoryPlan2Fixture as unknown as VisualScenePlan;
+    const opening = resolveApprovedAssetLibrary(conservatory, conservatoryPlan1);
+    const awakened = resolveApprovedAssetLibrary(version2, conservatoryPlan2);
+
+    expect(opening.styleKit.id).toBe("botanical-gothic");
+    expect(opening.selections).toHaveLength(4);
+    expect(opening.selections.every((item) => item.reason === "semantic_match")).toBe(true);
+    expect(opening.unresolvedEntityIds).toEqual(["orrery-1"]);
+    expect(awakened.selections).toHaveLength(5);
+    expect(awakened.unresolvedEntityIds).toEqual(["orrery-1"]);
+    expect(awakened.selections.find((item) => item.entityId === "conservatory-worktable-1")?.catalogId)
+      .toBe(opening.selections.find((item) => item.entityId === "conservatory-worktable-1")?.catalogId);
   });
 });

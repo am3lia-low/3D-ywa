@@ -4,6 +4,8 @@ import plan1Fixture from "../../fixtures/visual_scene_plan_1.json";
 import patch2Fixture from "../../fixtures/patch_2.json";
 import patch3Fixture from "../../fixtures/patch_3.json";
 import plan3Fixture from "../../fixtures/visual_scene_plan_3.json";
+import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
+import conservatoryPlanFixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -37,6 +39,22 @@ describe("compileScenePresentation", () => {
     expect(scene.architecture.archiveShelves).toBe(true);
     expect(scene.architecture.floorboards).toBe(false);
     expect(scene.palette.background).toBe("#111a1b");
+  });
+
+  it("compiles the botanical glasshouse as a separate modular environment kit", () => {
+    const scene = compileScenePresentation(
+      conservatoryPlanFixture as unknown as VisualScenePlan,
+      conservatorySnapshotFixture as unknown as WorldSnapshot,
+      "moonlit-conservatory",
+    );
+    expect(scene.architecture).toMatchObject({
+      glasshousePanels: true,
+      ironFrame: true,
+      stoneTileFloor: true,
+      timberFrame: false,
+      archiveShelves: false,
+    });
+    expect(scene.dressing).toMatchObject({ planters: true, climbingVines: true });
   });
 
   it("emits an asset request for a supporting object without a registered asset key", () => {

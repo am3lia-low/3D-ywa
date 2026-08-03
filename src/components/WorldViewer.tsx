@@ -493,6 +493,41 @@ class ModelErrorBoundary extends Component<
   }
 }
 
+function DesignedFallbackAsset({
+  highlighted,
+  highlightColor,
+}: {
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  return (
+    <group>
+      <mesh position={[0, -0.43, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.33, 0.4, 0.14, 16]} />
+        <meshStandardMaterial color="#3f4f4b" roughness={0.82} metalness={0.25} />
+      </mesh>
+      <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
+        <icosahedronGeometry args={[0.34, 1]} />
+        <meshStandardMaterial
+          color="#9a7650"
+          emissive={highlighted ? highlightColor : "#172a28"}
+          emissiveIntensity={highlighted ? 0.32 : 0.12}
+          roughness={0.62}
+          metalness={0.48}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0.15, 0]} scale={[1, 0.72, 1]}>
+        <torusGeometry args={[0.43, 0.018, 8, 42]} />
+        <meshStandardMaterial color="#70b5a8" emissive="#244e48" emissiveIntensity={0.3} />
+      </mesh>
+      <mesh rotation={[0.28, Math.PI / 2, 0.35]} scale={[1, 0.74, 1]}>
+        <torusGeometry args={[0.39, 0.014, 8, 38]} />
+        <meshStandardMaterial color="#d2ab69" roughness={0.45} metalness={0.72} />
+      </mesh>
+    </group>
+  );
+}
+
 function EntityAsset({
   asset,
   highlighted,
@@ -509,6 +544,10 @@ function EntityAsset({
       highlightColor={highlightColor}
     />
   );
+
+  if (asset.key.startsWith("fallback:")) {
+    return <DesignedFallbackAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
 
   if (asset.key === "rug") {
     return <StoryRug highlighted={highlighted} highlightColor={highlightColor} />;
@@ -622,6 +661,193 @@ function WorldEntity({
   );
 }
 
+function BotanicalPlanter({
+  position,
+  scale = 1,
+}: {
+  position: Vector3Tuple;
+  scale?: number;
+}) {
+  return (
+    <group position={position} scale={scale}>
+      <mesh position={[0, 0.28, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.34, 0.25, 0.56, 12]} />
+        <meshStandardMaterial color="#8e6047" roughness={0.92} />
+      </mesh>
+      <mesh position={[0, 0.58, 0]} castShadow>
+        <cylinderGeometry args={[0.055, 0.075, 0.72, 8]} />
+        <meshStandardMaterial color="#315944" roughness={0.9} />
+      </mesh>
+      {[
+        [-0.18, 0.72, 0.02, -0.55],
+        [0.2, 0.88, -0.02, 0.62],
+        [-0.14, 1.03, -0.04, -0.42],
+        [0.15, 1.16, 0.03, 0.5],
+      ].map(([x, y, z, rotation], index) => (
+        <mesh
+          key={`planter-leaf-${index}`}
+          position={[x!, y!, z!]}
+          rotation={[0.12, rotation!, rotation!]}
+          scale={[0.34, 0.12, 0.16]}
+          castShadow
+        >
+          <sphereGeometry args={[1, 14, 8]} />
+          <meshStandardMaterial
+            color={index % 2 === 0 ? "#3f7354" : "#59845f"}
+            roughness={0.86}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function ConservatoryKit({
+  bounds,
+  presentation,
+}: {
+  bounds: Vector3Tuple;
+  presentation: ScenePresentation;
+}) {
+  const frameColor = "#29483f";
+  const rearPosts = Array.from({ length: 7 }, (_, index) =>
+    -bounds[0] / 2 + (bounds[0] / 6) * index,
+  );
+  const sidePosts = Array.from({ length: 6 }, (_, index) =>
+    -bounds[2] / 2 + (bounds[2] / 5) * index,
+  );
+  const tiles = Array.from({ length: 10 * 8 }, (_, index) => ({
+    x: index % 10,
+    z: Math.floor(index / 10),
+  }));
+  const planters: Vector3Tuple[] = [
+    [-bounds[0] * 0.39, 0, -bounds[2] * 0.32],
+    [-bounds[0] * 0.4, 0, 0],
+    [-bounds[0] * 0.38, 0, bounds[2] * 0.3],
+    [bounds[0] * 0.34, 0, -bounds[2] * 0.37],
+    [bounds[0] * 0.4, 0, bounds[2] * 0.32],
+  ];
+
+  return (
+    <>
+      {presentation.architecture.stoneTileFloor && tiles.map((tile) => {
+        const width = bounds[0] / 10;
+        const depth = bounds[2] / 8;
+        return (
+          <mesh
+            key={`glasshouse-tile-${tile.x}-${tile.z}`}
+            position={[
+              -bounds[0] / 2 + width * (tile.x + 0.5),
+              0.016,
+              -bounds[2] / 2 + depth * (tile.z + 0.5),
+            ]}
+            receiveShadow
+          >
+            <boxGeometry args={[width - 0.045, 0.032, depth - 0.045]} />
+            <meshStandardMaterial
+              color={(tile.x + tile.z) % 2 === 0 ? "#355048" : "#2b413b"}
+              roughness={0.88}
+              metalness={0.05}
+            />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, 0.32, -bounds[2] / 2 + 0.1]} receiveShadow>
+        <boxGeometry args={[bounds[0], 0.64, 0.2]} />
+        <meshStandardMaterial color="#304e46" roughness={0.98} />
+      </mesh>
+      <mesh position={[-bounds[0] / 2 + 0.1, 0.32, 0]} receiveShadow>
+        <boxGeometry args={[0.2, 0.64, bounds[2]]} />
+        <meshStandardMaterial color="#304e46" roughness={0.98} />
+      </mesh>
+      {presentation.architecture.glasshousePanels && (
+        <>
+          <mesh position={[0, bounds[1] * 0.57, -bounds[2] / 2 + 0.115]}>
+            <planeGeometry args={[bounds[0] - 0.25, bounds[1] * 0.86]} />
+            <meshPhysicalMaterial
+              color="#80b9b2"
+              transparent
+              opacity={0.24}
+              roughness={0.14}
+              metalness={0.04}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh
+            position={[-bounds[0] / 2 + 0.115, bounds[1] * 0.57, 0]}
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            <planeGeometry args={[bounds[2] - 0.25, bounds[1] * 0.86]} />
+            <meshPhysicalMaterial
+              color="#80b9b2"
+              transparent
+              opacity={0.2}
+              roughness={0.16}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </>
+      )}
+      {presentation.architecture.ironFrame && (
+        <>
+          {rearPosts.map((x, index) => (
+            <mesh key={`glasshouse-rear-post-${index}`} position={[x, bounds[1] / 2, -bounds[2] / 2 + 0.08]} castShadow>
+              <boxGeometry args={[0.1, bounds[1], 0.12]} />
+              <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
+            </mesh>
+          ))}
+          {sidePosts.map((z, index) => (
+            <mesh key={`glasshouse-side-post-${index}`} position={[-bounds[0] / 2 + 0.08, bounds[1] / 2, z]} castShadow>
+              <boxGeometry args={[0.12, bounds[1], 0.1]} />
+              <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
+            </mesh>
+          ))}
+          {[0.66, 0.98].map((heightFactor) => (
+            <group key={`glasshouse-rail-${heightFactor}`}>
+              <mesh position={[0, bounds[1] * heightFactor, -bounds[2] / 2 + 0.08]} castShadow>
+                <boxGeometry args={[bounds[0], 0.1, 0.12]} />
+                <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
+              </mesh>
+              <mesh position={[-bounds[0] / 2 + 0.08, bounds[1] * heightFactor, 0]} castShadow>
+                <boxGeometry args={[0.12, 0.1, bounds[2]]} />
+                <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
+              </mesh>
+            </group>
+          ))}
+          {[-0.28, 0, 0.28].map((xFactor) => (
+            <mesh key={`glasshouse-roof-rib-${xFactor}`} position={[bounds[0] * xFactor, bounds[1] - 0.05, 0]} castShadow>
+              <boxGeometry args={[0.1, 0.1, bounds[2]]} />
+              <meshStandardMaterial color={frameColor} roughness={0.55} metalness={0.6} />
+            </mesh>
+          ))}
+        </>
+      )}
+      {presentation.dressing.planters && planters.map((position, index) => (
+        <BotanicalPlanter key={`botanical-planter-${index}`} position={position} scale={0.9 + (index % 3) * 0.16} />
+      ))}
+      {presentation.dressing.climbingVines && rearPosts.slice(1, -1).map((x, index) => (
+        <group key={`glasshouse-vine-${index}`} position={[x + 0.12, 0.72, -bounds[2] / 2 + 0.22]}>
+          <mesh position={[0, 1.25, 0]} rotation={[0, 0, index % 2 ? 0.08 : -0.08]}>
+            <cylinderGeometry args={[0.025, 0.04, 2.5, 7]} />
+            <meshStandardMaterial color="#315c42" roughness={0.92} />
+          </mesh>
+          {Array.from({ length: 5 }, (_, leafIndex) => (
+            <mesh
+              key={`vine-leaf-${leafIndex}`}
+              position={[(leafIndex % 2 ? 1 : -1) * 0.13, 0.35 + leafIndex * 0.42, 0.04]}
+              rotation={[0.2, 0, leafIndex % 2 ? 0.5 : -0.5]}
+              scale={[0.22, 0.09, 0.12]}
+            >
+              <sphereGeometry args={[1, 10, 6]} />
+              <meshStandardMaterial color={leafIndex % 2 ? "#4b7855" : "#386848"} roughness={0.9} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </>
+  );
+}
+
 function Room({
   layout,
   presentation,
@@ -635,6 +861,7 @@ function Room({
   const wallThickness = 0.12;
   const usesAtticKit = presentation.architecture.timberFrame;
   const usesArchiveKit = presentation.architecture.archiveShelves;
+  const usesConservatoryKit = presentation.architecture.glasshousePanels;
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const load = (path: string, repeat: [number, number], color = false) => {
@@ -709,7 +936,7 @@ function Room({
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
         <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
       </mesh>
-      <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
+      {!usesConservatoryKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -719,8 +946,8 @@ function Room({
           roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
           roughness={0.98}
         />
-      </mesh>
-      <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+      </mesh>}
+      {!usesConservatoryKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -730,7 +957,7 @@ function Room({
           roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
           roughness={0.98}
         />
-      </mesh>
+      </mesh>}
       {usesAtticKit ? (
         <>
           {presentation.architecture.floorboards && (
@@ -944,6 +1171,8 @@ function Room({
             </mesh>
           ))}
         </>
+      ) : usesConservatoryKit ? (
+        <ConservatoryKit bounds={bounds} presentation={presentation} />
       ) : (
         <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
       )}

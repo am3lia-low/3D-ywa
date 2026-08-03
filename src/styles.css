@@ -84,6 +84,32 @@ h1 {
   line-height: 1.6;
 }
 
+.story-fixture-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  color: #91a7a2;
+  font-size: 0.74rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.story-fixture-picker select {
+  min-width: 14rem;
+  border: 1px solid #465157;
+  border-radius: 999px;
+  padding: 0.58rem 2rem 0.58rem 0.85rem;
+  color: #f4efe7;
+  background: #242b30;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
 .version-chip {
   min-width: 118px;
   padding: 1rem 1.2rem;

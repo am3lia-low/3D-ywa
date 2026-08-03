@@ -1,0 +1,86 @@
+{
+  "storyId": "story-moonlit-conservatory",
+  "version": 1,
+  "passageId": "C1",
+  "locations": [
+    {
+      "id": "moonlit-conservatory",
+      "name": "Moonlit conservatory",
+      "bounds": [11, 4.8, 9],
+      "environment": {
+        "floorColor": "#31443c",
+        "wallColor": "#688b82",
+        "ambientColor": "#b8d7d0"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "conservatory-worktable-1",
+      "name": "Weathered potting table",
+      "kind": "furniture",
+      "aliases": ["worktable", "potting bench"],
+      "locationId": "moonlit-conservatory",
+      "provenance": { "passageId": "C1", "confidence": 0.97 }
+    },
+    {
+      "id": "conservatory-chair-1",
+      "name": "Slender wooden chair",
+      "kind": "furniture",
+      "aliases": ["chair", "garden seat"],
+      "locationId": "moonlit-conservatory",
+      "provenance": { "passageId": "C1", "confidence": 0.95 }
+    },
+    {
+      "id": "conservatory-runner-1",
+      "name": "Faded botanical runner rug",
+      "kind": "decor",
+      "locationId": "moonlit-conservatory",
+      "provenance": { "passageId": "C1", "confidence": 0.93 }
+    },
+    {
+      "id": "conservatory-door-1",
+      "name": "Tall garden door",
+      "kind": "architecture",
+      "locationId": "moonlit-conservatory",
+      "state": { "locked": true },
+      "provenance": { "passageId": "C1", "confidence": 0.98 }
+    },
+    {
+      "id": "orrery-1",
+      "name": "Celestial flower orrery",
+      "kind": "instrument",
+      "locationId": "moonlit-conservatory",
+      "dimensions": [0.9, 1.05, 0.9],
+      "state": { "active": false },
+      "provenance": { "passageId": "C1", "confidence": 0.91 }
+    }
+  ],
+  "relations": [
+    {
+      "id": "chair-in-front-of-worktable",
+      "subjectId": "conservatory-chair-1",
+      "predicate": "in_front_of",
+      "objectId": "conservatory-worktable-1",
+      "distance": 0.32
+    },
+    {
+      "id": "runner-centered",
+      "subjectId": "conservatory-runner-1",
+      "predicate": "centered"
+    },
+    {
+      "id": "garden-door-north-wall",
+      "subjectId": "conservatory-door-1",
+      "predicate": "against_wall",
+      "metadata": { "wall": "north" }
+    },
+    {
+      "id": "orrery-on-worktable",
+      "subjectId": "orrery-1",
+      "predicate": "on",
+      "objectId": "conservatory-worktable-1"
+    }
+  ],
+  "conflicts": []
+}

@@ -92,6 +92,21 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Proves the template route with an approved narrow timber door while retaining the existing Archive-vault traversal behavior.
 - Adds a second review gate for the reconstructed runtime asset; the initial lantern mesh was rejected there and the authored fallback was restored.
 
+## Milestone 13
+
+- Makes a licensed, style-aware approved asset library the normal renderer path.
+- Resolves by canonical asset key first and deterministic semantic matching second.
+- Keeps unsupported objects honest instead of forcing unrelated approved models.
+- Hides the experimental generation lab from the default product route.
+
+## Milestone 14
+
+- Adds a second story with entirely different canonical IDs and no hard-coded asset keys for common objects.
+- Selects a distinct moonlit botanical-gothic style kit from visual-plan context.
+- Composes a modular glasshouse from iron framing, translucent panes, tiled flooring, planters and climbing vines.
+- Reuses approved furniture semantically while rendering the unique celestial orrery as a deliberate designed fallback.
+- Applies a second-story patch without changing the environment or approved identities.
+
 ## Component contract
 
 ```tsx
@@ -136,6 +151,8 @@ Part 1 fixture targets:
 
 - `fixtures/visual_scene_plan_1.json` — opening plan for world version 1.
 - `fixtures/visual_scene_plan_3.json` — revised plan after the passage-3 reveal.
+- `fixtures/snapshot_conservatory_1.json` and `fixtures/patch_conservatory_2.json` — second-story generalization proof.
+- `fixtures/visual_scene_plan_conservatory_1.json` and `fixtures/visual_scene_plan_conservatory_2.json` — botanical-gothic environment and asset context.
 
 The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`, while `src/runtime/sceneBuildPipeline.ts` resolves project/catalog assets under canonical entity IDs and emits explicit jobs for missing assets. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
 
