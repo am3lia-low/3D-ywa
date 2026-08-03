@@ -229,6 +229,31 @@ leaves unsupported objects unresolved instead of forcing an unrelated model.
 The opening fixture has 100% approved-asset coverage, and the same catalog IDs
 remain stable as passages 2 and 3 add or move entities.
 
+`src/runtime/sceneRecipeCompiler.ts` is the single production compilation
+boundary. Given a `WorldSnapshot` and its matching `VisualScenePlan`, it emits:
+
+- selected architecture, surface and dressing modules with their source tags;
+- the approved asset registry and canonical entity-to-catalog bindings;
+- designed-fallback IDs and important-object generation jobs;
+- placement constraints derived from factual relations; and
+- an inspectable asset-coverage summary.
+
+```ts
+const recipe = compileSceneRecipe(snapshot, visualPlan);
+
+<WorldViewer
+  snapshot={snapshot}
+  patch={patch}
+  visualPlan={visualPlan}
+  sceneRecipe={recipe}
+  assetRegistry={recipe.assetRegistry}
+/>
+```
+
+The renderer chooses registered modules from recipe IDs; it does not branch on
+story IDs. The current attic and conservatory are therefore regression fixtures
+for two different recipes rather than two custom application screens.
+
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
 ```tsx

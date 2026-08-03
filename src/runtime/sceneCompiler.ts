@@ -13,11 +13,39 @@ export interface AssetGenerationRequest {
   priority: "supporting" | "hero";
 }
 
+export type SceneEnvironmentModuleId =
+  | "shell:solid-room"
+  | "shell:glasshouse"
+  | "surface:wood-floorboards"
+  | "surface:stone-tiles"
+  | "surface:neutral-floor"
+  | "wall:aged-plaster"
+  | "structure:timber-frame"
+  | "structure:iron-frame"
+  | "structure:archive-shelves"
+  | "opening:small-window";
+
+export type SceneDressingModuleId =
+  | "dressing:books"
+  | "dressing:storage-crates"
+  | "dressing:travel-chest"
+  | "dressing:planters"
+  | "dressing:climbing-vines";
+
+export interface SceneModuleSelection<TModuleId extends string> {
+  moduleId: TModuleId;
+  sourceTags: string[];
+}
+
 export interface ScenePresentation {
   planVersion: number;
   styleLabel: string;
   location: VisualLocationPlan;
   palette: ScenePalette;
+  modules: {
+    environment: SceneModuleSelection<SceneEnvironmentModuleId>[];
+    dressing: SceneModuleSelection<SceneDressingModuleId>[];
+  };
   architecture: {
     floorboards: boolean;
     plasterWalls: boolean;
@@ -42,6 +70,58 @@ export interface ScenePresentation {
   };
   portalTargetLocationId?: string;
   assetRequests: AssetGenerationRequest[];
+}
+
+const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
+  moduleId: SceneEnvironmentModuleId;
+  anyTags: string[];
+}> = [
+  { moduleId: "shell:glasshouse", anyTags: ["glasshouse-panels", "arched-glazing"] },
+  { moduleId: "surface:wood-floorboards", anyTags: ["wood-floorboards"] },
+  { moduleId: "surface:stone-tiles", anyTags: ["stone-tile-floor"] },
+  { moduleId: "wall:aged-plaster", anyTags: ["aged-plaster"] },
+  { moduleId: "structure:timber-frame", anyTags: ["timber-frame"] },
+  { moduleId: "structure:iron-frame", anyTags: ["iron-frame"] },
+  { moduleId: "structure:archive-shelves", anyTags: ["archive-shelving"] },
+  { moduleId: "opening:small-window", anyTags: ["small-window"] },
+];
+
+const DRESSING_MODULE_RULES: ReadonlyArray<{
+  moduleId: SceneDressingModuleId;
+  anyTags: string[];
+}> = [
+  { moduleId: "dressing:books", anyTags: ["books"] },
+  { moduleId: "dressing:storage-crates", anyTags: ["storage-crates"] },
+  { moduleId: "dressing:travel-chest", anyTags: ["travel-chest"] },
+  { moduleId: "dressing:planters", anyTags: ["planters", "ceramic-pots"] },
+  { moduleId: "dressing:climbing-vines", anyTags: ["climbing-vines"] },
+];
+
+function selectModules<TModuleId extends string>(
+  tags: ReadonlySet<string>,
+  rules: ReadonlyArray<{ moduleId: TModuleId; anyTags: string[] }>,
+): SceneModuleSelection<TModuleId>[] {
+  return rules.flatMap((rule) => {
+    const sourceTags = rule.anyTags.filter((tag) => tags.has(tag));
+    return sourceTags.length > 0 ? [{ moduleId: rule.moduleId, sourceTags }] : [];
+  });
+}
+
+function environmentModules(
+  architectureTags: ReadonlySet<string>,
+): SceneModuleSelection<SceneEnvironmentModuleId>[] {
+  const selected = selectModules(architectureTags, ENVIRONMENT_MODULE_RULES);
+  const hasGlasshouse = selected.some((module) => module.moduleId === "shell:glasshouse");
+  const hasFloor = selected.some((module) => module.moduleId.startsWith("surface:"));
+  return [
+    ...(!hasGlasshouse
+      ? [{ moduleId: "shell:solid-room" as const, sourceTags: [] }]
+      : []),
+    ...(!hasFloor
+      ? [{ moduleId: "surface:neutral-floor" as const, sourceTags: [] }]
+      : []),
+    ...selected,
+  ];
 }
 
 export class ScenePlanError extends Error {
@@ -130,12 +210,18 @@ export function compileScenePresentation(
   const connection = plan.presentationConnections.find(
     (candidate) => candidate.fromLocationId === locationId,
   );
+  const selectedEnvironmentModules = environmentModules(architectureTags);
+  const selectedDressingModules = selectModules(dressingTags, DRESSING_MODULE_RULES);
 
   return {
     planVersion: plan.planVersion,
     styleLabel: plan.artDirection.styleLabel,
     location,
     palette: location.palette,
+    modules: {
+      environment: selectedEnvironmentModules,
+      dressing: selectedDressingModules,
+    },
     architecture: {
       floorboards: architectureTags.has("wood-floorboards"),
       plasterWalls: architectureTags.has("aged-plaster"),
@@ -208,6 +294,13 @@ export function createFallbackScenePresentation(
     styleLabel: "generic fallback",
     location: visualLocation,
     palette,
+    modules: {
+      environment: [
+        { moduleId: "shell:solid-room", sourceTags: [] },
+        { moduleId: "surface:neutral-floor", sourceTags: [] },
+      ],
+      dressing: [],
+    },
     architecture: {
       floorboards: false,
       plasterWalls: false,

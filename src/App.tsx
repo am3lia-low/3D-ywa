@@ -13,8 +13,7 @@ import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 import type { AssetRegistry } from "./runtime/assetRegistry";
-import { resolveApprovedAssetLibrary } from "./runtime/approvedAssetLibrary";
-import { buildSceneManifest } from "./runtime/sceneBuildPipeline";
+import { compileSceneRecipe } from "./runtime/sceneRecipeCompiler";
 
 interface DemoStory {
   id: string;
@@ -94,13 +93,9 @@ export default function App() {
       : null;
   const visualPlan = visualPlanAt(story, acknowledgedVersion);
   const derivedSnapshot = useMemo(() => snapshotAt(story, step), [step, story]);
-  const assetResolution = useMemo(
-    () => resolveApprovedAssetLibrary(derivedSnapshot, visualPlan),
+  const sceneRecipe = useMemo(
+    () => compileSceneRecipe(derivedSnapshot, visualPlan),
     [derivedSnapshot, visualPlan],
-  );
-  const sceneBuild = useMemo(
-    () => buildSceneManifest(derivedSnapshot, visualPlan, [], assetResolution.assetRegistry),
-    [assetResolution.assetRegistry, derivedSnapshot, visualPlan],
   );
 
   const resetStory = (nextStory = story) => {
@@ -113,7 +108,7 @@ export default function App() {
     setAcknowledgedVersion(nextStory.snapshot.version);
   };
 
-  const unresolvedCount = assetResolution.unresolvedEntityIds.length;
+  const unresolvedCount = sceneRecipe.coverage.designedFallback;
 
   return (
     <main className="app-shell">
@@ -147,13 +142,16 @@ export default function App() {
           <strong>v{derivedSnapshot.version}</strong>
           <small>renderer ack v{acknowledgedVersion}</small>
           <small>visual plan v{visualPlan.planVersion}</small>
-          <small>{assetResolution.styleKit.label}</small>
-          <small>{assetResolution.selections.length}/{derivedSnapshot.entities.length} approved assets</small>
+          <small>{sceneRecipe.styleKit.label}</small>
+          <small>{sceneRecipe.coverage.approved}/{sceneRecipe.coverage.total} approved assets</small>
           {unresolvedCount > 0 && <small>{unresolvedCount} designed fallback</small>}
+          {sceneRecipe.coverage.queuedForGeneration > 0 && (
+            <small>{sceneRecipe.coverage.queuedForGeneration} hero generation job</small>
+          )}
           <small>
-            {sceneBuild.status === "assets_pending"
+            {sceneRecipe.status === "assets_pending"
               ? "scene ready · hero asset pending"
-              : `scene build ${sceneBuild.status}`}
+              : `scene recipe ${sceneRecipe.status}`}
           </small>
         </div>
       </header>
@@ -165,7 +163,8 @@ export default function App() {
             snapshot={story.snapshot}
             patch={patch}
             visualPlan={visualPlan}
-            assetRegistry={reviewRegistry ?? sceneBuild.assetRegistry}
+            sceneRecipe={sceneRecipe}
+            assetRegistry={reviewRegistry ?? sceneRecipe.assetRegistry}
             activeLocationId={activeLocationId}
             selectedEntityId={selectedEntityId}
             onEntitySelect={setSelectedEntityId}
@@ -243,7 +242,7 @@ export default function App() {
           <AssetReviewPanel
             snapshot={derivedSnapshot}
             visualPlan={visualPlan}
-            baseRegistry={sceneBuild.assetRegistry}
+            baseRegistry={sceneRecipe.assetRegistry}
             onRegistryPreview={setReviewRegistry}
           />
         </Suspense>

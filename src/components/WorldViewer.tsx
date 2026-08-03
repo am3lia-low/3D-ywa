@@ -59,6 +59,7 @@ import {
   createFallbackScenePresentation,
   type ScenePresentation,
 } from "../runtime/sceneCompiler";
+import type { CompiledSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -86,6 +87,8 @@ export interface WorldViewerProps {
   snapshot: WorldSnapshot;
   patch?: ScenePatch | null;
   visualPlan?: VisualScenePlan;
+  /** Optional precompiled visual/asset recipe for production integrations. */
+  sceneRecipe?: CompiledSceneRecipe;
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
@@ -859,9 +862,12 @@ function Room({
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const wallThickness = 0.12;
-  const usesAtticKit = presentation.architecture.timberFrame;
-  const usesArchiveKit = presentation.architecture.archiveShelves;
-  const usesConservatoryKit = presentation.architecture.glasshousePanels;
+  const environmentModules = new Set(
+    presentation.modules.environment.map((module) => module.moduleId),
+  );
+  const usesAtticKit = environmentModules.has("structure:timber-frame");
+  const usesArchiveKit = environmentModules.has("structure:archive-shelves");
+  const usesConservatoryKit = environmentModules.has("shell:glasshouse");
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const load = (path: string, repeat: [number, number], color = false) => {
@@ -1563,6 +1569,7 @@ export function WorldViewer({
   snapshot,
   patch,
   visualPlan,
+  sceneRecipe,
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
@@ -1739,6 +1746,14 @@ export function WorldViewer({
   const qualityProfile = renderQualityProfiles[renderQuality];
   const presentation = useMemo(() => {
     if (!runtime) return null;
+    const compiled = sceneRecipe?.locations[runtime.layout.location.id]?.presentation;
+    if (
+      compiled &&
+      sceneRecipe.storyId === runtime.snapshot.storyId &&
+      sceneRecipe.snapshotVersion === runtime.snapshot.version
+    ) {
+      return compiled;
+    }
     if (!visualPlan) {
       return createFallbackScenePresentation(
         runtime.snapshot,
@@ -1750,7 +1765,7 @@ export function WorldViewer({
       runtime.snapshot,
       runtime.layout.location.id,
     );
-  }, [runtime?.layout.location.id, runtime?.snapshot, visualPlan]);
+  }, [runtime?.layout.location.id, runtime?.snapshot, sceneRecipe, visualPlan]);
   const portalDestination =
     runtime && presentation?.portalTargetLocationId
       ? runtime.snapshot.locations.find(
@@ -1772,6 +1787,9 @@ export function WorldViewer({
       data-visual-plan-version={presentation?.planVersion ?? 0}
       data-visual-style={presentation?.styleLabel ?? "unavailable"}
       data-asset-requests={presentation?.assetRequests.length ?? 0}
+      data-environment-modules={presentation?.modules.environment
+        .map((module) => module.moduleId)
+        .join(",") ?? ""}
       style={{ width: "100%", height: "100%", minHeight: 360 }}
     >
       {runtime && presentation ? (

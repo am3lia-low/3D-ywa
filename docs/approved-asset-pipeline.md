@@ -60,3 +60,17 @@ The fixture selector includes two independent stories:
 
 Switching fixtures remounts the spatial runtime at that story's first immutable
 snapshot. Patches and renderer acknowledgements cannot leak between stories.
+
+## Scene recipe compilation
+
+`compileSceneRecipe(snapshot, visualPlan)` combines style selection, modular
+environment selection, approved-asset resolution and missing-asset routing into
+one deterministic artifact. Architecture and dressing tags are matched against
+a closed renderer module registry; unknown tags cannot execute arbitrary code or
+silently create narrative facts.
+
+Spatial relations remain factual inputs. The recipe makes their runtime effect
+inspectable as constraints such as `anchor_to_surface`, `face_target`,
+`reserve_access_zone` and `center_in_room`. Unsupported important entities are
+listed both as designed fallbacks and generation jobs, so the scene stays usable
+while offline asset work continues.
