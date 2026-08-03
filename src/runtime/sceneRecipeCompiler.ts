@@ -16,6 +16,10 @@ import type {
   SceneModuleSelection,
   ScenePresentation,
 } from "./sceneCompiler";
+import {
+  auditSceneComposition,
+  type SceneCompositionAudit,
+} from "./sceneCompositionAudit";
 
 export type PlacementConstraintKind =
   | "avoid_overlap"
@@ -64,6 +68,7 @@ export interface CompiledSceneRecipe {
   fallbackEntityIds: string[];
   generationJobs: SceneAssetGenerationJob[];
   placementConstraints: ScenePlacementConstraint[];
+  composition: SceneCompositionAudit;
   coverage: SceneAssetCoverage;
 }
 
@@ -164,6 +169,11 @@ export function compileSceneRecipe(
   );
   const total = snapshot.entities.length;
   const approvedCount = approved.selections.length;
+  const composition = auditSceneComposition(
+    snapshot,
+    manifest.presentations,
+    manifest.assetRegistry,
+  );
 
   return {
     schemaVersion: "1.0",
@@ -179,6 +189,7 @@ export function compileSceneRecipe(
     fallbackEntityIds: approved.unresolvedEntityIds,
     generationJobs: manifest.generationJobs,
     placementConstraints: compilePlacementConstraints(snapshot),
+    composition,
     coverage: {
       total,
       approved: approvedCount,

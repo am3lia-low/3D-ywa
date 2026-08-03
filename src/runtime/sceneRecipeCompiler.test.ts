@@ -5,6 +5,10 @@ import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.
 import conservatoryPatchFixture from "../../fixtures/patch_conservatory_2.json";
 import conservatoryPlan1Fixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
 import conservatoryPlan2Fixture from "../../fixtures/visual_scene_plan_conservatory_2.json";
+import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
+import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
+import courtyardPlan1Fixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
+import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -95,6 +99,29 @@ describe("scene recipe compiler", () => {
     expect(recipe.fallbackEntityIds).toEqual(["orrery-1"]);
     expect(recipe.approvedAssets.find((asset) => asset.entityId === "conservatory-worktable-1"))
       .toMatchObject({ catalogId: "polyhaven:wooden_table_02" });
+  });
+
+  it("builds a fully approved outdoor recipe and preserves it through a patch", () => {
+    const opening = courtyardSnapshotFixture as unknown as WorldSnapshot;
+    const openingRecipe = compileSceneRecipe(
+      opening,
+      courtyardPlan1Fixture as unknown as VisualScenePlan,
+    );
+    const departure = applyScenePatch(opening, courtyardPatchFixture as unknown as ScenePatch);
+    const departureRecipe = compileSceneRecipe(
+      departure,
+      courtyardPlan2Fixture as unknown as VisualScenePlan,
+    );
+
+    expect(openingRecipe.styleKit.id).toBe("storybook-historical");
+    expect(openingRecipe.coverage).toMatchObject({ total: 5, approved: 5, approvedPercent: 100 });
+    expect(openingRecipe.locations["coaching-courtyard"]?.environmentModules.map((module) => module.moduleId))
+      .toContain("shell:open-air");
+    expect(openingRecipe.composition.status).toBe("clean");
+    expect(departureRecipe.coverage).toMatchObject({ total: 6, approved: 6, approvedPercent: 100 });
+    expect(departureRecipe.approvedAssets.find((asset) => asset.entityId === "courtyard-map-1"))
+      .toMatchObject({ catalogId: "project:parchment-map-v1" });
+    expect(departureRecipe.composition.status).toBe("clean");
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {

@@ -4,6 +4,8 @@ import patch3Fixture from "../../fixtures/patch_3.json";
 import snapshotFixture from "../../fixtures/snapshot_1.json";
 import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
 import conservatoryPatchFixture from "../../fixtures/patch_conservatory_2.json";
+import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
+import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
 import scenePatchJsonSchema from "../../contracts/scene-patch.schema.json";
 import worldSnapshotJsonSchema from "../../contracts/world-snapshot.schema.json";
 import {
@@ -19,6 +21,8 @@ describe("cross-team contracts", () => {
     expect(validateScenePatch(patch3Fixture).toVersion).toBe(3);
     expect(validateWorldSnapshot(conservatorySnapshotFixture).storyId).toBe("story-moonlit-conservatory");
     expect(validateScenePatch(conservatoryPatchFixture).toVersion).toBe(2);
+    expect(validateWorldSnapshot(courtyardSnapshotFixture).storyId).toBe("story-rain-courtyard");
+    expect(validateScenePatch(courtyardPatchFixture).toVersion).toBe(2);
   });
 
   it("rejects semantic references to entities that do not exist", () => {

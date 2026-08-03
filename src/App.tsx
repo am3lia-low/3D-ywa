@@ -8,6 +8,10 @@ import conservatorySnapshotFixture from "../fixtures/snapshot_conservatory_1.jso
 import conservatoryPatch2Fixture from "../fixtures/patch_conservatory_2.json";
 import conservatoryPlan1Fixture from "../fixtures/visual_scene_plan_conservatory_1.json";
 import conservatoryPlan2Fixture from "../fixtures/visual_scene_plan_conservatory_2.json";
+import courtyardSnapshotFixture from "../fixtures/snapshot_courtyard_1.json";
+import courtyardPatch2Fixture from "../fixtures/patch_courtyard_2.json";
+import courtyardPlan1Fixture from "../fixtures/visual_scene_plan_courtyard_1.json";
+import courtyardPlan2Fixture from "../fixtures/visual_scene_plan_courtyard_2.json";
 import { EntityInspector } from "./components/EntityInspector";
 import { Part1ConnectionPanel } from "./components/Part1ConnectionPanel";
 import { SceneBuildDiagnostics } from "./components/SceneBuildDiagnostics";
@@ -70,7 +74,28 @@ const conservatoryStory = runtimeStoryFromPackage({
   ],
 });
 
-const builtInStories: readonly RuntimeStory[] = [atticStory, conservatoryStory];
+const courtyardStory = runtimeStoryFromPackage({
+  schemaVersion: "1.0",
+  packageId: "rain-courtyard",
+  label: "The rain-washed courtyard",
+  initialSnapshot: courtyardSnapshotFixture,
+  moments: [
+    {
+      passageId: "R1",
+      text: "Sera waits in the rain-washed coaching courtyard. A sealed parcel and a dull brass lantern rest on the courier's table before the locked north gate.",
+      visualPlan: courtyardPlan1Fixture,
+    },
+    {
+      passageId: "R2",
+      text: "She lights the lantern, unfolds the rain-marked route map and draws the chair towards the gate as its old lock releases.",
+      patchFromPrevious: courtyardPatch2Fixture,
+      visualPlan: courtyardPlan2Fixture,
+      actionLabel: "Prepare the departure",
+    },
+  ],
+});
+
+const builtInStories: readonly RuntimeStory[] = [atticStory, conservatoryStory, courtyardStory];
 const WorldViewer = lazy(() =>
   import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
 );
@@ -235,6 +260,9 @@ export default function App() {
           )}
           <small>
             {`scene recipe ${sceneRecipe.status}`}
+          </small>
+          <small>
+            {`composition ${sceneRecipe.composition.status} · ${sceneRecipe.composition.score}/100`}
           </small>
         </div>
       </header>

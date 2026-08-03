@@ -1069,6 +1069,260 @@ function ConservatoryKit({
   );
 }
 
+function CourtyardArch({
+  position,
+  stone,
+}: {
+  position: Vector3Tuple;
+  stone: ReturnType<typeof usePbrSurface>;
+}) {
+  const material = (
+    <meshStandardMaterial
+      color="#918a79"
+      map={stone.color}
+      normalMap={stone.normal}
+      normalScale={new THREE.Vector2(0.42, 0.42)}
+      roughnessMap={stone.arm}
+      roughness={0.98}
+    />
+  );
+  return (
+    <group position={position}>
+      {[-0.78, 0.78].map((x) => (
+        <mesh key={`courtyard-arch-column-${x}`} position={[x, 0.95, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.28, 1.9, 0.38]} />
+          {material}
+        </mesh>
+      ))}
+      <mesh position={[0, 1.86, 0]} castShadow receiveShadow>
+        <torusGeometry args={[0.78, 0.19, 8, 28, Math.PI]} />
+        {material}
+      </mesh>
+      <mesh position={[0, 2.18, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.9, 0.32, 0.42]} />
+        {material}
+      </mesh>
+    </group>
+  );
+}
+
+function CourtyardIvy({ position, height, seed }: {
+  position: Vector3Tuple;
+  height: number;
+  seed: number;
+}) {
+  return (
+    <group position={position}>
+      <mesh position={[0, height / 2, 0]} rotation={[0, 0, seed % 2 ? 0.08 : -0.1]}>
+        <cylinderGeometry args={[0.018, 0.035, height, 7]} />
+        <meshStandardMaterial color="#31513a" roughness={0.94} />
+      </mesh>
+      {Array.from({ length: 7 }, (_, index) => {
+        const side = index % 2 ? 1 : -1;
+        return (
+          <mesh
+            key={`courtyard-ivy-leaf-${seed}-${index}`}
+            position={[side * (0.08 + (index % 3) * 0.025), 0.3 + index * (height / 8), 0.04]}
+            rotation={[0.1, side * 0.36, side * 0.52]}
+            scale={[0.13 + (index % 2) * 0.025, 0.055, 0.09]}
+          >
+            <sphereGeometry args={[1, 8, 5]} />
+            <meshStandardMaterial color={index % 3 ? "#496a46" : "#647b4c"} roughness={0.9} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+function CourtyardKit({
+  bounds,
+  presentation,
+}: {
+  bounds: Vector3Tuple;
+  presentation: ScenePresentation;
+}) {
+  const stone = usePbrSurface(
+    "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_nor_gl_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_arm_1k.jpg",
+    [2.4, 1.6],
+  );
+  const wall = usePbrSurface(
+    "/textures/polyhaven/plastered_wall_03_diff_1k.jpg",
+    "/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg",
+    "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
+    [2.8, 1.45],
+  );
+  const columns = 16;
+  const rows = 13;
+  const tileWidth = bounds[0] / columns;
+  const tileDepth = bounds[2] / rows;
+  const arcadeCenters = [-bounds[0] * 0.3, -bounds[0] * 0.1, bounds[0] * 0.1, bounds[0] * 0.3];
+  const puddles: Array<{ position: Vector3Tuple; scale: Vector3Tuple }> = [
+    { position: [-bounds[0] * 0.28, 0.075, bounds[2] * 0.22], scale: [1.25, 0.7, 1] },
+    { position: [bounds[0] * 0.18, 0.075, bounds[2] * 0.06], scale: [0.82, 0.48, 1] },
+    { position: [bounds[0] * 0.32, 0.075, -bounds[2] * 0.22], scale: [1.05, 0.55, 1] },
+  ];
+
+  return (
+    <group>
+      {presentation.architecture.cobblestone && Array.from({ length: columns * rows }, (_, index) => {
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+        const shade = ["#626660", "#6b6d66", "#595f5b", "#737169"][index % 4]!;
+        return (
+          <mesh
+            key={`courtyard-stone-${column}-${row}`}
+            position={[
+              -bounds[0] / 2 + tileWidth * (column + 0.5) + (row % 2 ? tileWidth * 0.12 : 0),
+              0.028 + (index % 3) * 0.006,
+              -bounds[2] / 2 + tileDepth * (row + 0.5),
+            ]}
+            rotation={[0, ((index * 17) % 5 - 2) * 0.012, 0]}
+            receiveShadow
+          >
+            <boxGeometry args={[tileWidth - 0.035, 0.055, tileDepth - 0.035]} />
+            <meshStandardMaterial
+              color={shade}
+              roughness={0.72}
+              metalness={0.03}
+            />
+          </mesh>
+        );
+      })}
+      {presentation.architecture.courtyardWalls && (
+        <>
+          <mesh position={[0, bounds[1] * 0.4, -bounds[2] / 2 + 0.08]} castShadow receiveShadow>
+            <boxGeometry args={[bounds[0], bounds[1] * 0.8, 0.2]} />
+            <meshStandardMaterial
+              color="#d2c6ac"
+              map={wall.color}
+              normalMap={wall.normal}
+              normalScale={new THREE.Vector2(0.38, 0.38)}
+              roughnessMap={wall.arm}
+              roughness={0.99}
+            />
+          </mesh>
+          <mesh position={[-bounds[0] / 2 + 0.08, bounds[1] * 0.4, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.2, bounds[1] * 0.8, bounds[2]]} />
+            <meshStandardMaterial
+              color="#c9bda5"
+              map={wall.color}
+              normalMap={wall.normal}
+              normalScale={new THREE.Vector2(0.38, 0.38)}
+              roughnessMap={wall.arm}
+              roughness={0.99}
+            />
+          </mesh>
+          <mesh position={[0, 0.28, -bounds[2] / 2 + 0.2]} castShadow>
+            <boxGeometry args={[bounds[0], 0.32, 0.55]} />
+            <meshStandardMaterial color="#514d45" roughness={0.96} />
+          </mesh>
+        </>
+      )}
+      {presentation.architecture.stoneArcade && arcadeCenters.map((x, index) => (
+        <CourtyardArch
+          key={`courtyard-arcade-${index}`}
+          position={[x, 0.12, -bounds[2] / 2 + 0.37]}
+          stone={stone}
+        />
+      ))}
+      {presentation.dressing.wallIvy && (
+        <>
+          {[-0.4, -0.18, 0.22, 0.4].map((factor, index) => (
+            <CourtyardIvy
+              key={`courtyard-rear-ivy-${index}`}
+              position={[bounds[0] * factor, 0.18, -bounds[2] / 2 + 0.52]}
+              height={2.2 + (index % 2) * 0.7}
+              seed={index}
+            />
+          ))}
+          {[-0.32, 0.05, 0.34].map((factor, index) => (
+            <group key={`courtyard-side-ivy-${index}`} position={[-bounds[0] / 2 + 0.52, 0, bounds[2] * factor]} rotation={[0, Math.PI / 2, 0]}>
+              <CourtyardIvy position={[0, 0.18, 0]} height={2.15 + index * 0.28} seed={index + 7} />
+            </group>
+          ))}
+        </>
+      )}
+      {presentation.dressing.rainPuddles && puddles.map((puddle, index) => (
+        <mesh
+          key={`courtyard-puddle-${index}`}
+          position={puddle.position}
+          rotation={[-Math.PI / 2, 0, index * 0.42]}
+          scale={puddle.scale}
+        >
+          <circleGeometry args={[0.86, 32]} />
+          <meshPhysicalMaterial
+            color="#8ea4a5"
+            roughness={0.14}
+            metalness={0.08}
+            transparent
+            opacity={0.32}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+      {presentation.dressing.fallenLeaves && Array.from({ length: 28 }, (_, index) => {
+        const x = Math.sin((index + 1) * 7.31) * bounds[0] * 0.41;
+        const z = Math.sin((index + 3) * 4.17) * bounds[2] * 0.41;
+        return (
+          <mesh
+            key={`courtyard-leaf-${index}`}
+            position={[x, 0.085, z]}
+            rotation={[-Math.PI / 2, 0, index * 0.71]}
+            scale={[0.13 + (index % 3) * 0.025, 0.055, 1]}
+          >
+            <circleGeometry args={[1, 5]} />
+            <meshStandardMaterial
+              color={["#9a673a", "#7c5232", "#b17b45", "#6e6438"][index % 4]!}
+              roughness={0.96}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        );
+      })}
+      {presentation.dressing.courtyardClutter && (
+        <>
+          <group position={[-bounds[0] / 2 + 0.78, 0, bounds[2] * 0.28]}>
+            <mesh position={[0, 0.64, 0]} castShadow receiveShadow>
+              <cylinderGeometry args={[0.48, 0.55, 1.28, 18]} />
+              <meshStandardMaterial color="#5b3d2d" roughness={0.88} />
+            </mesh>
+            {[0.24, 0.68, 1.06].map((y) => (
+              <mesh key={`courtyard-barrel-band-${y}`} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                <torusGeometry args={[0.515, 0.035, 7, 22]} />
+                <meshStandardMaterial color="#3d4543" roughness={0.62} metalness={0.48} />
+              </mesh>
+            ))}
+            <PeriodCrate position={[0.78, 0.35, 0.18]} rotation={[0, 0.22, 0]} scale={[0.84, 0.7, 0.78]} />
+          </group>
+          <group position={[-bounds[0] / 2 + 0.48, 0, bounds[2] * 0.02]} rotation={[0, Math.PI / 2, 0]}>
+            <mesh position={[0, 0.62, 0]} castShadow receiveShadow>
+              <boxGeometry args={[2.35, 0.22, 0.62]} />
+              <meshStandardMaterial color="#5a3c2c" roughness={0.9} />
+            </mesh>
+            {[-0.86, 0.86].map((x) => (
+              <mesh key={`courtyard-bench-leg-${x}`} position={[x, 0.3, 0]} castShadow>
+                <boxGeometry args={[0.24, 0.6, 0.5]} />
+                <meshStandardMaterial color="#4b3328" roughness={0.92} />
+              </mesh>
+            ))}
+            <mesh position={[0, 1.15, -0.24]} rotation={[-0.1, 0, 0]} castShadow>
+              <boxGeometry args={[2.35, 0.82, 0.18]} />
+              <meshStandardMaterial color="#624333" roughness={0.9} />
+            </mesh>
+          </group>
+          <group position={[bounds[0] * 0.42, 0, -bounds[2] * 0.27]}>
+            <PeriodCrate position={[0, 0.42, 0]} rotation={[0, -0.26, 0]} scale={[1.12, 0.84, 0.9]} />
+            <PeriodCrate position={[-0.28, 1.08, 0.04]} rotation={[0, 0.14, -0.04]} scale={[0.72, 0.58, 0.66]} />
+          </group>
+        </>
+      )}
+    </group>
+  );
+}
+
 function Room({
   layout,
   presentation,
@@ -1086,6 +1340,7 @@ function Room({
   const usesAtticKit = environmentModules.has("structure:timber-frame");
   const usesArchiveKit = environmentModules.has("structure:archive-shelves");
   const usesConservatoryKit = environmentModules.has("shell:glasshouse");
+  const usesCourtyardKit = environmentModules.has("shell:open-air");
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const load = (path: string, repeat: [number, number], color = false) => {
@@ -1160,7 +1415,7 @@ function Room({
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
         <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
       </mesh>
-      {!usesConservatoryKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
+      {!usesConservatoryKit && !usesCourtyardKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -1171,7 +1426,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!usesConservatoryKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+      {!usesConservatoryKit && !usesCourtyardKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -1373,6 +1628,8 @@ function Room({
         </>
       ) : usesConservatoryKit ? (
         <ConservatoryKit bounds={bounds} presentation={presentation} />
+      ) : usesCourtyardKit ? (
+        <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (
         <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
       )}
@@ -1416,11 +1673,54 @@ function DustMotes({ bounds }: { bounds: Vector3Tuple }) {
   );
 }
 
+function RainStreaks({ bounds }: { bounds: Vector3Tuple }) {
+  const points = useRef<THREE.Points>(null);
+  const positions = useMemo(() => {
+    const values = new Float32Array(110 * 3);
+    for (let index = 0; index < 110; index += 1) {
+      const seed = index + 1;
+      values[index * 3] = Math.sin(seed * 12.731) * bounds[0] * 0.48;
+      values[index * 3 + 1] = 0.35 + Math.abs(Math.sin(seed * 5.117)) * bounds[1];
+      values[index * 3 + 2] = Math.sin(seed * 8.433) * bounds[2] * 0.48;
+    }
+    return values;
+  }, [bounds]);
+
+  useFrame((_, delta) => {
+    if (!points.current) return;
+    const attribute = points.current.geometry.getAttribute("position") as THREE.BufferAttribute;
+    for (let index = 0; index < attribute.count; index += 1) {
+      const nextY = attribute.getY(index) - delta * (2.7 + (index % 5) * 0.34);
+      attribute.setY(index, nextY < 0.12 ? bounds[1] + (index % 7) * 0.16 : nextY);
+    }
+    attribute.needsUpdate = true;
+  });
+
+  return (
+    <points ref={points}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#bed6da"
+        size={0.032}
+        transparent
+        opacity={0.48}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 function Firelight({ item }: { item: LayoutItem }) {
   const light = useRef<THREE.PointLight>(null);
   const flame = useRef<THREE.Mesh>(null);
-  const frontOffset = item.asset.key === "fireplace" ? 0.38 : 0;
-  const height = item.asset.key === "fireplace" ? 0.58 : item.dimensions[1] * 0.72;
+  const isFireplace = item.asset.key === "fireplace";
+  const frontOffset = isFireplace ? 0.38 : 0;
+  const height = isFireplace ? 0.58 : item.position[1];
+  const outerFlameScale: Vector3Tuple = isFireplace ? [0.17, 0.34, 0.12] : [0.045, 0.11, 0.04];
+  const innerFlameScale: Vector3Tuple = isFireplace ? [0.075, 0.22, 0.065] : [0.022, 0.065, 0.018];
 
   useFrame((state) => {
     const flicker =
@@ -1441,11 +1741,11 @@ function Firelight({ item }: { item: LayoutItem }) {
         decay={1.7}
         castShadow={false}
       />
-      <mesh ref={flame} position={[0, 0.04, 0]} scale={[0.17, 0.34, 0.12]}>
+      <mesh ref={flame} position={[0, isFireplace ? 0.04 : 0, 0]} scale={outerFlameScale}>
         <sphereGeometry args={[1, 16, 12]} />
         <meshBasicMaterial color="#ffb052" transparent opacity={0.9} />
       </mesh>
-      <mesh position={[0, 0.09, 0]} scale={[0.075, 0.22, 0.065]}>
+      <mesh position={[0, isFireplace ? 0.09 : 0.015, 0]} scale={innerFlameScale}>
         <sphereGeometry args={[1, 12, 8]} />
         <meshBasicMaterial color="#fff1b0" />
       </mesh>
@@ -1715,6 +2015,7 @@ function WorldScene({
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
       />
       {presentation.atmosphere.dust && <DustMotes bounds={bounds} />}
+      {presentation.atmosphere.rain && <RainStreaks bounds={bounds} />}
       <StoryEffects
         layout={layout}
         portalDestination={portalDestination}

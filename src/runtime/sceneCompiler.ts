@@ -16,13 +16,17 @@ export interface AssetGenerationRequest {
 export type SceneEnvironmentModuleId =
   | "shell:solid-room"
   | "shell:glasshouse"
+  | "shell:open-air"
   | "surface:wood-floorboards"
   | "surface:stone-tiles"
+  | "surface:cobblestone"
   | "surface:neutral-floor"
   | "wall:aged-plaster"
   | "structure:timber-frame"
   | "structure:iron-frame"
   | "structure:archive-shelves"
+  | "structure:stone-arcade"
+  | "boundary:courtyard-wall"
   | "opening:small-window";
 
 export type SceneDressingModuleId =
@@ -30,7 +34,11 @@ export type SceneDressingModuleId =
   | "dressing:storage-crates"
   | "dressing:travel-chest"
   | "dressing:planters"
-  | "dressing:climbing-vines";
+  | "dressing:climbing-vines"
+  | "dressing:rain-puddles"
+  | "dressing:wall-ivy"
+  | "dressing:fallen-leaves"
+  | "dressing:courtyard-clutter";
 
 export interface SceneModuleSelection<TModuleId extends string> {
   moduleId: TModuleId;
@@ -55,6 +63,10 @@ export interface ScenePresentation {
     glasshousePanels: boolean;
     ironFrame: boolean;
     stoneTileFloor: boolean;
+    openAir: boolean;
+    cobblestone: boolean;
+    stoneArcade: boolean;
+    courtyardWalls: boolean;
   };
   dressing: {
     books: boolean;
@@ -62,11 +74,16 @@ export interface ScenePresentation {
     travelChest: boolean;
     planters: boolean;
     climbingVines: boolean;
+    rainPuddles: boolean;
+    wallIvy: boolean;
+    fallenLeaves: boolean;
+    courtyardClutter: boolean;
     density: VisualLocationPlan["dressingDensity"];
   };
   atmosphere: {
     dust: boolean;
     coolWindowLight: boolean;
+    rain: boolean;
   };
   portalTargetLocationId?: string;
   assetRequests: AssetGenerationRequest[];
@@ -77,12 +94,16 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   anyTags: string[];
 }> = [
   { moduleId: "shell:glasshouse", anyTags: ["glasshouse-panels", "arched-glazing"] },
+  { moduleId: "shell:open-air", anyTags: ["open-air", "open-courtyard"] },
   { moduleId: "surface:wood-floorboards", anyTags: ["wood-floorboards"] },
   { moduleId: "surface:stone-tiles", anyTags: ["stone-tile-floor"] },
+  { moduleId: "surface:cobblestone", anyTags: ["cobblestone", "cobblestone-courtyard"] },
   { moduleId: "wall:aged-plaster", anyTags: ["aged-plaster"] },
   { moduleId: "structure:timber-frame", anyTags: ["timber-frame"] },
   { moduleId: "structure:iron-frame", anyTags: ["iron-frame"] },
   { moduleId: "structure:archive-shelves", anyTags: ["archive-shelving"] },
+  { moduleId: "structure:stone-arcade", anyTags: ["stone-arcade", "cloister-arches"] },
+  { moduleId: "boundary:courtyard-wall", anyTags: ["courtyard-walls", "weathered-masonry"] },
   { moduleId: "opening:small-window", anyTags: ["small-window"] },
 ];
 
@@ -95,6 +116,10 @@ const DRESSING_MODULE_RULES: ReadonlyArray<{
   { moduleId: "dressing:travel-chest", anyTags: ["travel-chest"] },
   { moduleId: "dressing:planters", anyTags: ["planters", "ceramic-pots"] },
   { moduleId: "dressing:climbing-vines", anyTags: ["climbing-vines"] },
+  { moduleId: "dressing:rain-puddles", anyTags: ["rain-puddles", "wet-stone"] },
+  { moduleId: "dressing:wall-ivy", anyTags: ["wall-ivy", "ivy"] },
+  { moduleId: "dressing:fallen-leaves", anyTags: ["fallen-leaves", "leaf-litter"] },
+  { moduleId: "dressing:courtyard-clutter", anyTags: ["courtyard-clutter", "coaching-yard-clutter"] },
 ];
 
 function selectModules<TModuleId extends string>(
@@ -112,9 +137,10 @@ function environmentModules(
 ): SceneModuleSelection<SceneEnvironmentModuleId>[] {
   const selected = selectModules(architectureTags, ENVIRONMENT_MODULE_RULES);
   const hasGlasshouse = selected.some((module) => module.moduleId === "shell:glasshouse");
+  const hasOpenAir = selected.some((module) => module.moduleId === "shell:open-air");
   const hasFloor = selected.some((module) => module.moduleId.startsWith("surface:"));
   return [
-    ...(!hasGlasshouse
+    ...(!hasGlasshouse && !hasOpenAir
       ? [{ moduleId: "shell:solid-room" as const, sourceTags: [] }]
       : []),
     ...(!hasFloor
@@ -231,6 +257,10 @@ export function compileScenePresentation(
       glasshousePanels: architectureTags.has("glasshouse-panels"),
       ironFrame: architectureTags.has("iron-frame"),
       stoneTileFloor: architectureTags.has("stone-tile-floor"),
+      openAir: architectureTags.has("open-air") || architectureTags.has("open-courtyard"),
+      cobblestone: architectureTags.has("cobblestone") || architectureTags.has("cobblestone-courtyard"),
+      stoneArcade: architectureTags.has("stone-arcade") || architectureTags.has("cloister-arches"),
+      courtyardWalls: architectureTags.has("courtyard-walls") || architectureTags.has("weathered-masonry"),
     },
     dressing: {
       books: dressingTags.has("books"),
@@ -238,11 +268,16 @@ export function compileScenePresentation(
       travelChest: dressingTags.has("travel-chest"),
       planters: dressingTags.has("planters") || dressingTags.has("ceramic-pots"),
       climbingVines: dressingTags.has("climbing-vines"),
+      rainPuddles: dressingTags.has("rain-puddles") || dressingTags.has("wet-stone"),
+      wallIvy: dressingTags.has("wall-ivy") || dressingTags.has("ivy"),
+      fallenLeaves: dressingTags.has("fallen-leaves") || dressingTags.has("leaf-litter"),
+      courtyardClutter: dressingTags.has("courtyard-clutter") || dressingTags.has("coaching-yard-clutter"),
       density: location.dressingDensity,
     },
     atmosphere: {
       dust: location.lighting.atmosphericEffects.includes("dust-motes"),
       coolWindowLight: location.lighting.atmosphericEffects.includes("window-shaft"),
+      rain: location.lighting.atmosphericEffects.includes("rain-streaks"),
     },
     portalTargetLocationId: connection?.targetLocationId,
     assetRequests: createAssetRequests(plan.entities, snapshot),
@@ -310,6 +345,10 @@ export function createFallbackScenePresentation(
       glasshousePanels: false,
       ironFrame: false,
       stoneTileFloor: false,
+      openAir: false,
+      cobblestone: false,
+      stoneArcade: false,
+      courtyardWalls: false,
     },
     dressing: {
       books: false,
@@ -317,9 +356,13 @@ export function createFallbackScenePresentation(
       travelChest: false,
       planters: false,
       climbingVines: false,
+      rainPuddles: false,
+      wallIvy: false,
+      fallenLeaves: false,
+      courtyardClutter: false,
       density: "sparse",
     },
-    atmosphere: { dust: false, coolWindowLight: false },
+    atmosphere: { dust: false, coolWindowLight: false, rain: false },
     assetRequests: [],
   };
 }

@@ -74,13 +74,16 @@ TripoSR previews are never normal application assets.
 
 ## Generalization fixture
 
-The fixture selector includes two independent stories:
+The fixture selector includes three independent stories:
 
 - **The attic study** uses exact canonical asset keys and the grounded storybook
   historical kit.
 - **The moonlit conservatory** uses new IDs, semantic-only common-object matches
   and the botanical-gothic glasshouse kit. Its unique celestial orrery remains a
   designed fallback, demonstrating where offline hero-asset generation belongs.
+- **The rain-washed courtyard** exercises the same recipe outside: open-air
+  masonry, wet cobbles, rain and decorative-only coaching-yard clusters surround
+  a fully approved canonical prop set.
 
 Switching fixtures remounts the spatial runtime at that story's first immutable
 snapshot. Patches and renderer acknowledgements cannot leak between stories.

@@ -1,0 +1,44 @@
+{
+  "fromVersion": 1,
+  "toVersion": 2,
+  "operations": [
+    {
+      "op": "move_entity",
+      "entityId": "courtyard-chair-1",
+      "position": [2.7, 0.775, -2.9],
+      "rotation": [0, -0.7, 0]
+    },
+    {
+      "op": "update_entity",
+      "entityId": "courtyard-lantern-1",
+      "changes": { "state": { "lit": true } }
+    },
+    {
+      "op": "update_entity",
+      "entityId": "courtyard-gate-1",
+      "changes": { "state": { "locked": false } }
+    },
+    {
+      "op": "add_entity",
+      "entity": {
+        "id": "courtyard-map-1",
+        "name": "Rain-marked route map",
+        "kind": "document",
+        "locationId": "coaching-courtyard",
+        "assetKey": "map-1",
+        "dimensions": [0.62, 0.04, 0.44],
+        "provenance": { "passageId": "R2", "confidence": 0.95 }
+      }
+    },
+    {
+      "op": "add_relation",
+      "relation": {
+        "id": "courtyard-map-on-table",
+        "subjectId": "courtyard-map-1",
+        "predicate": "on",
+        "objectId": "courtyard-table-1"
+      }
+    },
+    { "op": "remove_relation", "relationId": "courtyard-chair-before-table" }
+  ]
+}

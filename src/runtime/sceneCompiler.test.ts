@@ -6,6 +6,8 @@ import patch3Fixture from "../../fixtures/patch_3.json";
 import plan3Fixture from "../../fixtures/visual_scene_plan_3.json";
 import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
 import conservatoryPlanFixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
+import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
+import courtyardPlanFixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -55,6 +57,37 @@ describe("compileScenePresentation", () => {
       archiveShelves: false,
     });
     expect(scene.dressing).toMatchObject({ planters: true, climbingVines: true });
+  });
+
+  it("compiles an open-air courtyard without falling back to an interior shell", () => {
+    const scene = compileScenePresentation(
+      courtyardPlanFixture as unknown as VisualScenePlan,
+      courtyardSnapshotFixture as unknown as WorldSnapshot,
+      "coaching-courtyard",
+    );
+
+    expect(scene.modules.environment.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "shell:open-air",
+        "surface:cobblestone",
+        "structure:stone-arcade",
+        "boundary:courtyard-wall",
+      ]),
+    );
+    expect(scene.modules.environment.map((module) => module.moduleId)).not.toContain("shell:solid-room");
+    expect(scene.architecture).toMatchObject({
+      openAir: true,
+      cobblestone: true,
+      stoneArcade: true,
+      courtyardWalls: true,
+    });
+    expect(scene.dressing).toMatchObject({
+      rainPuddles: true,
+      wallIvy: true,
+      fallenLeaves: true,
+      courtyardClutter: true,
+    });
+    expect(scene.atmosphere.rain).toBe(true);
   });
 
   it("emits an asset request for a supporting object without a registered asset key", () => {
