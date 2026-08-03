@@ -10,6 +10,7 @@ import conservatoryPlan1Fixture from "../fixtures/visual_scene_plan_conservatory
 import conservatoryPlan2Fixture from "../fixtures/visual_scene_plan_conservatory_2.json";
 import { EntityInspector } from "./components/EntityInspector";
 import { Part1ConnectionPanel } from "./components/Part1ConnectionPanel";
+import { SceneBuildDiagnostics } from "./components/SceneBuildDiagnostics";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import {
@@ -227,15 +228,13 @@ export default function App() {
           <small>renderer ack v{acknowledgedVersion}</small>
           <small>visual plan v{visualPlan.planVersion}</small>
           <small>{sceneRecipe.styleKit.label}</small>
-          <small>{sceneRecipe.coverage.approved}/{sceneRecipe.coverage.total} approved assets</small>
-          {unresolvedCount > 0 && <small>{unresolvedCount} designed fallback</small>}
+          <small>{sceneRecipe.coverage.approved}/{sceneRecipe.coverage.total} approved library assets</small>
+          {unresolvedCount > 0 && <small>{unresolvedCount} designed fallback in base recipe</small>}
           {sceneRecipe.coverage.queuedForGeneration > 0 && (
-            <small>{sceneRecipe.coverage.queuedForGeneration} hero generation job</small>
+            <small>{sceneRecipe.coverage.queuedForGeneration} offline hero job</small>
           )}
           <small>
-            {sceneRecipe.status === "assets_pending"
-              ? "scene ready · hero asset pending"
-              : `scene recipe ${sceneRecipe.status}`}
+            {`scene recipe ${sceneRecipe.status}`}
           </small>
         </div>
       </header>
@@ -320,6 +319,12 @@ export default function App() {
           onEntitySelect={setSelectedEntityId}
         />
       </section>
+
+      <SceneBuildDiagnostics
+        snapshot={derivedSnapshot}
+        visualPlan={visualPlan}
+        onRegistryPreview={setReviewRegistry}
+      />
 
       <Part1ConnectionPanel onStoryUpdate={updateLiveStory} />
 

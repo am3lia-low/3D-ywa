@@ -280,6 +280,19 @@ Run `pnpm part1:mock` for a local three-passage integration proof, then use the
 panel defaults. The real-provider response contract and continuity rules are in
 `docs/part1-live-adapter.md`.
 
+## Asynchronous scene builds
+
+`AsyncSceneBuildOrchestrator` owns the Part 2 lifecycle from a validated scene
+recipe to a cached ready manifest. Approved assets resolve first; remaining hero
+jobs move through queued, generating and reviewing states. A generated candidate
+cannot enter the manifest until that exact artifact has been previewed in-world
+and approved.
+
+Open **Part 2 scene-build diagnostics** to exercise this boundary with the
+deterministic mock provider. The mock verifies orchestration and is not a
+production art source. Architecture, provider and Member 3 ownership details are
+documented in `docs/async-scene-build.md`.
+
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
 ```tsx
