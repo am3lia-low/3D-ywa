@@ -9,6 +9,7 @@ import conservatoryPatch2Fixture from "../fixtures/patch_conservatory_2.json";
 import conservatoryPlan1Fixture from "../fixtures/visual_scene_plan_conservatory_1.json";
 import conservatoryPlan2Fixture from "../fixtures/visual_scene_plan_conservatory_2.json";
 import { EntityInspector } from "./components/EntityInspector";
+import { Part1ConnectionPanel } from "./components/Part1ConnectionPanel";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import {
@@ -147,6 +148,26 @@ export default function App() {
       });
     } finally {
       input.value = "";
+    }
+  };
+
+  const updateLiveStory = (nextStory: RuntimeStory) => {
+    const continuesMountedStory =
+      story.id === nextStory.id && nextStory.patches.length === story.patches.length + 1;
+    setStories((current) => [
+      ...current.filter((candidate) => candidate.id !== nextStory.id),
+      nextStory,
+    ]);
+    setStoryId(nextStory.id);
+    setInvalidPatchMode(false);
+    setSelectedEntityId(null);
+    setReviewRegistry(null);
+    setStep(nextStory.patches.length);
+
+    if (!continuesMountedStory) {
+      setSession((current) => current + 1);
+      setActiveLocationId(nextStory.snapshot.locations[0]?.id ?? "");
+      setAcknowledgedVersion(nextStory.snapshot.version);
     }
   };
 
@@ -299,6 +320,8 @@ export default function App() {
           onEntitySelect={setSelectedEntityId}
         />
       </section>
+
+      <Part1ConnectionPanel onStoryUpdate={updateLiveStory} />
 
       {experimentalAssetLabEnabled && (
         <Suspense fallback={null}>

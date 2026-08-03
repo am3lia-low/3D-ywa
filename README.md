@@ -268,6 +268,18 @@ The contract and ordering rules are documented in
 archive and its 5/5 approved-asset recipe even though React never imports that
 fixture.
 
+## Live Part 1 passage API
+
+The **Live Part 1 connection** panel posts passage text to the frozen teammate
+endpoint and incrementally updates the same mounted `WorldViewer`. It verifies
+story/passage identity, ordered patch versions and patch-to-snapshot equivalence
+before accepting an update. Opening responses require the companion
+`visual_plan`; unchanged visual context may carry across later passages.
+
+Run `pnpm part1:mock` for a local three-passage integration proof, then use the
+panel defaults. The real-provider response contract and continuity rules are in
+`docs/part1-live-adapter.md`.
+
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
 ```tsx
@@ -321,6 +333,7 @@ pnpm models:generate
 pnpm triposr:setup
 pnpm triposr:serve
 pnpm triposr:prove
+pnpm part1:mock
 pnpm dev
 pnpm test
 pnpm build

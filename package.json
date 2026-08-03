@@ -9,6 +9,7 @@
     "bundle:check": "node scripts/check-bundle.mjs",
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
     "models:generate": "node scripts/generate-models.mjs",
+    "part1:mock": "node scripts/mock-part1-server.mjs",
     "comfyui:setup": "powershell -ExecutionPolicy Bypass -File scripts/setup-comfyui.ps1",
     "comfyui:serve": "powershell -ExecutionPolicy Bypass -File scripts/run-comfyui.ps1",
     "comfyui:prove": "powershell -ExecutionPolicy Bypass -File scripts/prove-comfyui.ps1",
