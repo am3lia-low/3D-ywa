@@ -39,7 +39,7 @@
       "format": "glTF 2.0 binary",
       "author": "Persistent StoryWorld 3D team",
       "license": "Project-owned original asset",
-      "bytes": 21056
+      "bytes": 35540
     },
     {
       "key": "hidden-door",
@@ -48,14 +48,6 @@
       "author": "Persistent StoryWorld 3D team",
       "license": "Project-owned original asset",
       "bytes": 18616
-    },
-    {
-      "key": "lantern-triposr",
-      "url": "/generated/lantern-1-df16671b5965.glb",
-      "format": "glTF 2.0 binary with vertex colors",
-      "author": "Persistent StoryWorld 3D team using TripoSR",
-      "license": "Project-owned generated artifact; TripoSR code and weights are MIT licensed",
-      "bytes": 1244380
     },
     {
       "key": "hidden-door-generated-surface",

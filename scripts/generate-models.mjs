@@ -136,24 +136,35 @@ function rugModel() {
 }
 
 function lanternModel() {
-  const brass = material("Aged brass", "#c98f34", { roughness: 0.38, metalness: 0.72 });
+  const brass = material("Aged brass", "#b48232", { roughness: 0.55, metalness: 0.28 });
+  const darkMetal = material("Darkened brass", "#493720", { roughness: 0.64, metalness: 0.16 });
   const glass = new THREE.MeshPhysicalMaterial({
-    color: "#ffd58b",
-    roughness: 0.18,
+    color: "#63706d",
+    roughness: 0.24,
     metalness: 0,
     transparent: true,
-    opacity: 0.48,
+    opacity: 0.3,
   });
-  glass.name = "Amber glass";
+  glass.name = "Clear smoke glass";
   const root = new THREE.Group();
-  addCylinder(root, "Lantern base", 0.38, 0.13, [0, -0.42, 0], brass, 12);
-  addCylinder(root, "Glass chamber", 0.28, 0.58, [0, -0.07, 0], glass, 12);
-  addCylinder(root, "Lantern cap", 0.34, 0.12, [0, 0.27, 0], brass, 12);
-  addCylinder(root, "Vent", 0.16, 0.18, [0, 0.42, 0], brass, 10);
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 6, 16, Math.PI), brass);
+  addBox(root, "Wide lantern foot", [0.82, 0.11, 0.62], [0, -0.46, 0], brass);
+  addBox(root, "Lantern base", [0.68, 0.12, 0.5], [0, -0.36, 0], darkMetal);
+  addBox(root, "Dark empty chamber", [0.45, 0.5, 0.3], [0, -0.04, 0], darkMetal);
+  for (const x of [-0.31, 0.31]) {
+    for (const z of [-0.22, 0.22]) {
+      addBox(root, "Brass corner post", [0.075, 0.7, 0.075], [x, -0.01, z], brass);
+    }
+  }
+  addBox(root, "Front glass", [0.54, 0.56, 0.025], [0, -0.02, 0.235], glass);
+  addBox(root, "Rear glass", [0.54, 0.56, 0.025], [0, -0.02, -0.235], glass);
+  addBox(root, "Left glass", [0.025, 0.56, 0.36], [-0.325, -0.02, 0], glass);
+  addBox(root, "Right glass", [0.025, 0.56, 0.36], [0.325, -0.02, 0], glass);
+  addBox(root, "Lantern cap", [0.76, 0.12, 0.56], [0, 0.37, 0], brass);
+  addBox(root, "Sloped cap", [0.58, 0.12, 0.44], [0, 0.47, 0], darkMetal);
+  addCylinder(root, "Vent", 0.14, 0.16, [0, 0.58, 0], brass, 10);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.032, 7, 20, Math.PI), brass);
   handle.name = "Lantern handle";
-  handle.position.set(0, 0.46, 0);
-  handle.rotation.z = Math.PI;
+  handle.position.set(0, 0.61, 0);
   root.add(handle);
   return normalizeModel("Low-poly brass lantern", root);
 }
@@ -209,14 +220,6 @@ for (const [key, createModel] of Object.entries(models)) {
 }
 
 manifest.push(
-  {
-    key: "lantern-triposr",
-    url: "/generated/lantern-1-df16671b5965.glb",
-    format: "glTF 2.0 binary with vertex colors",
-    author: "Persistent StoryWorld 3D team using TripoSR",
-    license: "Project-owned generated artifact; TripoSR code and weights are MIT licensed",
-    bytes: (await stat(resolve(rootDirectory, "public", "generated", "lantern-1-df16671b5965.glb"))).size,
-  },
   {
     key: "hidden-door-generated-surface",
     url: "/generated/hidden-door-1-v1.png",

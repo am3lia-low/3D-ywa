@@ -15,6 +15,7 @@ import {
   promoteReadySceneAssets,
   reconstructApprovedSceneAssets,
   retrySceneAsset,
+  reviewReconstructedSceneAsset,
   reviewSceneAssetCandidate,
   type SceneAssetQueueEvent,
 } from "./sceneAssetQueue";
@@ -95,6 +96,9 @@ describe("scene asset queue", () => {
       { id: "fixture-triposr", source: "generated", reconstruct },
       { store, now, onProgress: (event) => events.push(event) },
     );
+    expect(queue.items[0]?.stage).toBe("needs_asset_review");
+    expect(promoteReadySceneAssets(manifest, queue).assetRegistry["map-1"]).toBeUndefined();
+    queue = await reviewReconstructedSceneAsset(queue, "map-1", "approved", { store, now });
     const ready = promoteReadySceneAssets(manifest, queue);
 
     expect(reconstruct).toHaveBeenCalledOnce();
@@ -112,9 +116,9 @@ describe("scene asset queue", () => {
       "generating_reference",
       "needs_review",
       "reconstructing",
-      "ready",
+      "needs_asset_review",
     ]);
-    expect(saves).toEqual([1, 2, 3, 4, 5]);
+    expect(saves).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it("keeps rejected candidates out of reconstruction and supports a clean retry", async () => {
@@ -241,6 +245,55 @@ describe("scene asset queue", () => {
 
     expect(mesh).not.toHaveBeenCalled();
     expect(surface).toHaveBeenCalledOnce();
+    expect(queue.items[0]?.stage).toBe("needs_asset_review");
     expect(queue.items[0]?.generated?.asset.surfaceTextureUrl).toBe("/generated/map-1-v1.png");
+  });
+
+  it("keeps a rejected reconstructed asset out of the registry and retries from its approved image", async () => {
+    const manifest = pendingMapManifest();
+    let queue = createSceneAssetQueue(manifest, now);
+    queue = await generateSceneAssetReferences(
+      queue,
+      { id: "fixture-sdxl", generate: async () => ({ mimeType: "image/png", base64: "iVBORw==" }) },
+      { now },
+    );
+    queue = await reviewSceneAssetCandidate(queue, "map-1", "approved", { now });
+    queue = await reconstructApprovedSceneAssets(
+      queue,
+      {
+        id: "fixture-surface",
+        source: "generated",
+        reconstruct: async (job) => ({
+          artifactId: "bad-mesh:map-1",
+          asset: {
+            key: "generated:document",
+            geometry: "box",
+            dimensions: job.dimensions ?? [1, 1, 0.05],
+            color: "#000000",
+            modelUrl: "/generated/bad-map.glb",
+          },
+        }),
+      },
+      { now },
+    );
+    queue = await reviewReconstructedSceneAsset(queue, "map-1", "rejected", {
+      note: "muddy materials in the world viewer",
+      now,
+    });
+
+    expect(queue.items[0]).toMatchObject({
+      stage: "rejected",
+      assetReview: {
+        decision: "rejected",
+        note: "muddy materials in the world viewer",
+      },
+    });
+    expect(promoteReadySceneAssets(manifest, queue).assetRegistry["map-1"]).toBeUndefined();
+
+    queue = await retrySceneAsset(queue, "map-1", { now });
+    expect(queue.items[0]?.stage).toBe("approved");
+    expect(queue.items[0]?.candidate?.base64).toBe("iVBORw==");
+    expect(queue.items[0]?.generated).toBeUndefined();
+    expect(queue.items[0]?.assetReview).toBeUndefined();
   });
 });

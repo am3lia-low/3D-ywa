@@ -1,18 +1,19 @@
 # Generated runtime assets
 
-`lantern-1-df16671b5965.glb` is the first fully local text-to-image-to-3D proof.
+The lantern was the first fully local text-to-image-to-3D proof.
 
 - Canonical story entity: `lantern-1`
 - Reference: `fixtures/reference-images/comfyui-lantern-1-v1.png`
 - Reference provider: ComfyUI with SDXL 1.0 base (OpenRAIL++)
-- Reconstruction provider: official TripoSR source and weights (MIT)
-- Mesh resolution: 192
-- Format: glTF 2.0 binary with vertex colors
-- Geometry: 31,084 vertices and 62,168 faces
+- Reconstruction attempt: TripoSR at mesh resolution 192
+- Asset review: rejected because the in-world mesh was skeletal, too dark and
+  lacked believable brass/glass materials
+- Runtime decision: retain `/models/lantern.glb` until another reconstruction
+  or curated asset passes post-reconstruction review
 - Generated: 2026-08-03 on an NVIDIA GeForce RTX 4070 Super
 
-The content hash in the filename makes regeneration explicit and prevents a
-visual-plan update from silently changing an already approved app asset.
+The approved reference remains available for another reconstruction attempt;
+the rejected GLB is deliberately not distributed as a runtime asset.
 
 `hidden-door-1-v1.png` is the second reviewed pipeline proof and the first
 template-routed asset.

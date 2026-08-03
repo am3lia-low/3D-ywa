@@ -20,6 +20,7 @@ export type SceneAssetQueueStage =
   | "approved"
   | "reconstructing"
   | "optimizing"
+  | "needs_asset_review"
   | "ready"
   | "rejected"
   | "failed";
@@ -53,6 +54,7 @@ export interface SceneAssetQueueItem {
   validation?: SceneAssetCandidateValidation;
   review?: SceneAssetReview;
   generated?: GeneratedSceneAsset;
+  assetReview?: SceneAssetReview;
   failedPhase?: "reference" | "reconstruction" | "optimization";
   error?: string;
   updatedAt: string;
@@ -375,12 +377,15 @@ export async function retrySceneAsset(
   const retryReconstruction =
     item.stage === "failed" &&
     (item.failedPhase === "reconstruction" || item.failedPhase === "optimization");
+  const retryRejectedAsset = item.stage === "rejected" && item.assetReview?.decision === "rejected";
+  const reuseReference = retryReconstruction || retryRejectedAsset;
   return persist(updateItem(input, entityId, {
-    stage: retryReconstruction ? "approved" : "queued",
-    candidate: retryReconstruction ? item.candidate : undefined,
-    validation: retryReconstruction ? item.validation : undefined,
-    review: retryReconstruction ? item.review : undefined,
+    stage: reuseReference ? "approved" : "queued",
+    candidate: reuseReference ? item.candidate : undefined,
+    validation: reuseReference ? item.validation : undefined,
+    review: reuseReference ? item.review : undefined,
     generated: undefined,
+    assetReview: undefined,
     failedPhase: undefined,
     error: undefined,
   }, options.now), options.store);
@@ -429,10 +434,11 @@ export async function reconstructApprovedSceneAssets(
         }
       }
       queue = await persist(updateItem(queue, original.entityId, {
-        stage: "ready",
+        stage: "needs_asset_review",
         generated,
+        assetReview: undefined,
       }, options.now), options.store);
-      emit(queue, original.entityId, "ready", options);
+      emit(queue, original.entityId, "needs_asset_review", options);
     } catch (error) {
       const message = failureMessage(error);
       queue = await persist(updateItem(queue, original.entityId, {
@@ -444,6 +450,29 @@ export async function reconstructApprovedSceneAssets(
     }
   }
   return queue;
+}
+
+/** Reviews the actual runtime asset after reconstruction and optimization. */
+export async function reviewReconstructedSceneAsset(
+  input: SceneAssetQueue,
+  entityId: string,
+  decision: "approved" | "rejected",
+  options: Pick<SceneAssetQueueRunOptions, "store" | "now"> & { note?: string } = {},
+): Promise<SceneAssetQueue> {
+  const item = input.items.find((candidate) => candidate.entityId === entityId);
+  if (!item) throw new Error(`Asset queue does not contain canonical entity '${entityId}'.`);
+  if (item.stage !== "needs_asset_review" || !item.generated) {
+    throw new Error(`Asset '${entityId}' does not have a reconstructed asset awaiting review.`);
+  }
+  return persist(updateItem(input, entityId, {
+    stage: decision === "approved" ? "ready" : "rejected",
+    assetReview: {
+      decision,
+      reviewer: "human",
+      reviewedAt: timestamp(options.now),
+      note: options.note,
+    },
+  }, options.now), options.store);
 }
 
 /** Installs only ready queue outputs under their existing canonical entity IDs. */

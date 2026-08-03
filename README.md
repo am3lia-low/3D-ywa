@@ -81,7 +81,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Adds a local ComfyUI reference-image provider using the full SDXL 1.0 base checkpoint and only core workflow nodes.
 - Preserves Part 1's visual description, materials, colors and condition in the generation prompt, with deterministic retry seeds.
 - Enforces an approval gate before reconstruction so collages, cropped objects and narrative contradictions such as a lit “unlit” lantern cannot silently enter the world.
-- Proves the complete local path from `visual_scene_plan_3.json` to an approved PNG, then to the content-addressed `lantern-1-df16671b5965.glb` registered under the canonical entity ID.
+- Proves the complete local path from `visual_scene_plan_3.json` to an approved PNG and a content-addressed TripoSR reconstruction under the canonical entity ID.
 
 ## Milestone 12
 
@@ -90,6 +90,7 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Automatically rejects structurally invalid image payloads and exposes a validator boundary for stronger semantic or composition checks.
 - Routes volumetric objects to image-to-mesh and planar assets such as maps, rugs and doors to generated textures on controlled geometry.
 - Proves the template route with an approved narrow timber door while retaining the existing Archive-vault traversal behavior.
+- Adds a second review gate for the reconstructed runtime asset; the initial lantern mesh was rejected there and the authored fallback was restored.
 
 ## Component contract
 
@@ -125,6 +126,7 @@ selected novel segment
         -> automatic integrity checks
         -> human review (needs_review)
         -> image-to-mesh or surface-template provider
+        -> in-world asset review (needs_asset_review)
         -> promoted ready manifest
 ```
 
@@ -170,11 +172,12 @@ pnpm comfyui:prove
 ```
 
 Large Python packages and model weights stay in ignored `.local/`. The checked-in
-approved proof input is `fixtures/reference-images/comfyui-lantern-1-v1.png`;
-the canonical result is `public/generated/lantern-1-df16671b5965.glb`. The
-reference generator can retry deterministically with `-SeedOffset`; promotion
-to reconstruction is deliberately separate so an invalid image never becomes
-a runtime asset.
+approved proof input is `fixtures/reference-images/comfyui-lantern-1-v1.png`.
+The first TripoSR result proved the service integration but failed the later
+in-world asset review, so the runtime retains `/models/lantern.glb`. The
+reference generator can retry deterministically with `-SeedOffset`; both the
+reference and reconstructed asset must now be approved before registry
+promotion.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
