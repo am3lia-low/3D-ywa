@@ -727,13 +727,67 @@ function AtticLibraryDressing({ rich }: { rich: boolean }) {
   const bookColors = ["#743f35", "#4f655b", "#80633d", "#4a5065", "#8b573f"];
   const booksPerShelf = rich ? 11 : 8;
   const shelfBases = rich ? [-1.08, -0.46, 0.16, 0.78] : [-1.08, -0.46, 0.16];
+  const wood = usePbrSurface(
+    "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_nor_gl_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
+    [2.4, 3.2],
+  );
+  const woodMaterial = (
+    <meshStandardMaterial
+      color="#6b4935"
+      map={wood.color}
+      normalMap={wood.normal}
+      normalScale={new THREE.Vector2(0.3, 0.3)}
+      roughnessMap={wood.arm}
+      roughness={0.9}
+    />
+  );
   return (
     <group>
-      <group scale={[2.8, 2.85, 0.62]}>
-        <LoadedModel url="/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf" />
-      </group>
+      <mesh position={[0, 0, -0.23]} castShadow receiveShadow>
+        <boxGeometry args={[2.48, 2.58, 0.1]} />
+        {woodMaterial}
+      </mesh>
+      {[-1.28, 1.28].map((x) => (
+        <mesh key={`attic-library-side-${x}`} position={[x, 0, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.18, 2.72, 0.6]} />
+          <meshStandardMaterial
+            color="#60402f"
+            map={wood.color}
+            normalMap={wood.normal}
+            normalScale={new THREE.Vector2(0.28, 0.28)}
+            roughnessMap={wood.arm}
+            roughness={0.92}
+          />
+        </mesh>
+      ))}
+      {[-1.35, 1.35].map((y) => (
+        <mesh key={`attic-library-cap-${y}`} position={[0, y, 0.01]} castShadow receiveShadow>
+          <boxGeometry args={[2.78, 0.18, 0.68]} />
+          <meshStandardMaterial
+            color="#654431"
+            map={wood.color}
+            normalMap={wood.normal}
+            normalScale={new THREE.Vector2(0.28, 0.28)}
+            roughnessMap={wood.arm}
+            roughness={0.9}
+          />
+        </mesh>
+      ))}
       {shelfBases.map((shelfBase, shelfIndex) => (
         <group key={`attic-library-shelf-${shelfIndex}`}>
+          <mesh position={[0, shelfBase - 0.07, 0.02]} castShadow receiveShadow>
+            <boxGeometry args={[2.5, 0.13, 0.58]} />
+            <meshStandardMaterial
+              color="#5e3d2d"
+              map={wood.color}
+              normalMap={wood.normal}
+              normalScale={new THREE.Vector2(0.24, 0.24)}
+              roughnessMap={wood.arm}
+              roughness={0.92}
+            />
+          </mesh>
           {Array.from({ length: booksPerShelf }, (_, index) => {
             const width = 0.13 + (index % 3) * 0.022;
             const height = 0.38 + ((index + shelfIndex) % 4) * 0.045;
@@ -759,6 +813,12 @@ function AtticLibraryDressing({ rich }: { rich: boolean }) {
           />
         ))
       )}
+      {[-0.92, 0.92].map((x) => (
+        <mesh key={`attic-library-foot-${x}`} position={[x, -1.49, 0.05]} castShadow>
+          <boxGeometry args={[0.34, 0.18, 0.48]} />
+          <meshStandardMaterial color="#3f291f" roughness={0.95} />
+        </mesh>
+      ))}
     </group>
   );
 }

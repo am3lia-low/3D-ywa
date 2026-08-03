@@ -11,7 +11,6 @@ const approvedSlugs = new Set([
   "large_castle_door",
   "painted_wooden_bench",
   "wine_barrel_01",
-  "wooden_bookshelf_worn",
 ]);
 
 const requestedSlugs = process.argv.slice(2);

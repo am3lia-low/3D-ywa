@@ -4,8 +4,8 @@
   "summary": {
     "kits": 3,
     "completeKits": 3,
-    "assets": 12,
-    "passed": 12,
+    "assets": 11,
+    "passed": 11,
     "warnings": 0,
     "failed": 0
   },
@@ -145,29 +145,6 @@
         0.1764
       ],
       "aspectDistortion": 2.43,
-      "warnings": [],
-      "errors": []
-    },
-    {
-      "catalogId": "polyhaven:wooden_bookshelf_worn",
-      "registryKey": "bookshelf",
-      "status": "pass",
-      "files": [
-        "public/models/polyhaven/wooden_bookshelf_worn/textures/wooden_bookshelf_worn_arm_1k.jpg",
-        "public/models/polyhaven/wooden_bookshelf_worn/textures/wooden_bookshelf_worn_diff_1k.jpg",
-        "public/models/polyhaven/wooden_bookshelf_worn/textures/wooden_bookshelf_worn_nor_gl_1k.jpg",
-        "public/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn.bin",
-        "public/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf"
-      ],
-      "totalBytes": 2777194,
-      "triangles": 10106,
-      "materialCount": 1,
-      "sourceBounds": [
-        1.374,
-        2.0634,
-        0.5813
-      ],
-      "aspectDistortion": 1.91,
       "warnings": [],
       "errors": []
     },
