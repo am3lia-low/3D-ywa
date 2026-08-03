@@ -7,6 +7,7 @@ import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
+  refreshSpatialRuntimeAssets,
   SpatialLocationError,
   switchSpatialRuntimeLocation,
 } from "./spatialRuntime";
@@ -22,6 +23,19 @@ function itemById(state: ReturnType<typeof createSpatialRuntime>, entityId: stri
 }
 
 describe("spatial runtime continuity", () => {
+  it("refreshes visual assets without rewinding snapshot state or moving entities", () => {
+    const version2 = advanceSpatialRuntime(createSpatialRuntime(snapshot), patch2);
+    const previousChair = itemById(version2, "chair-1");
+    const refreshed = refreshSpatialRuntimeAssets(version2, {
+      chair: { ...previousChair.asset, color: "#ffffff" },
+    });
+
+    expect(refreshed.snapshot).toBe(version2.snapshot);
+    expect(refreshed.snapshot.version).toBe(2);
+    expect(itemById(refreshed, "chair-1").position).toBe(previousChair.position);
+    expect(itemById(refreshed, "chair-1").asset.color).toBe("#ffffff");
+  });
+
   it("pins every existing item before placing a lexically earlier addition", () => {
     const initial = createSpatialRuntime(snapshot);
     const addition: ScenePatch = {
@@ -188,7 +202,7 @@ describe("spatial runtime continuity", () => {
     expect(next.exitingItems.map((item) => item.entity.id)).toContain("chair-1");
 
     const archive = switchSpatialRuntimeLocation(next, "archive-vault");
-    expect(itemById(archive, "chair-1").position).toEqual([2, 0.55, 1]);
+    expect(itemById(archive, "chair-1").position).toEqual([2, 0.775, 1]);
   });
 
   it("rejects unknown room IDs without changing the mounted runtime", () => {

@@ -23,6 +23,8 @@ describe("createWorldLayout", () => {
 
     expect(desk).toBeDefined();
     expect(chair?.position[2]).toBeGreaterThan(desk?.position[2] ?? 0);
+    expect(chair?.dimensions[1]).toBeGreaterThan(desk?.dimensions[1] ?? 0);
+    expect(Math.abs((chair?.rotation[1] ?? 0) - Math.PI)).toBeLessThan(0.001);
     expect(map?.position[1]).toBeGreaterThan(desk?.position[1] ?? 0);
     expect(
       (map?.position[1] ?? 0) - (map?.dimensions[1] ?? 0) / 2,

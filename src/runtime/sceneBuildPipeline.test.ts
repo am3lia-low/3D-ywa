@@ -24,6 +24,7 @@ describe("scene build pipeline", () => {
       registryKey: "map-1",
     });
     expect(manifest.generationJobs).toEqual([]);
+    expect(manifest.assetRegistry).toBe(defaultAssetRegistry);
   });
 
   it("emits an async generation job when a planned hero asset cannot resolve", () => {

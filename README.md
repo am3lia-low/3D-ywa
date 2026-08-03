@@ -63,6 +63,12 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Adds an ordered stream controller that queues burst patches, ignores duplicates and pauses on gaps.
 - Publishes a React stream binding driven by `WorldViewer.onPatchApplied` acknowledgements.
 
+## Milestone 9
+
+- Keeps visual-registry refreshes independent from narrative snapshot versions, so asset-plan updates cannot rewind an in-progress passage stream.
+- Sizes relational chairs at human scale and automatically faces furniture toward the object it is meant to interact with unless Part 1 supplies an explicit rotation.
+- Executes pending asset jobs through a provider-neutral asynchronous worker with progress events, an optional optimization stage, retries for failures and canonical entity-ID registration.
+
 ## Component contract
 
 ```tsx
@@ -92,6 +98,8 @@ selected novel segment
   -> resolved asset registry + architecture + palette + lighting + dressing
   -> WorldViewer (ready)
      or asynchronous asset-generation jobs (assets_pending)
+        -> runSceneAssetWorker(provider, optimizer)
+        -> updated ready manifest
 ```
 
 Part 1 fixture targets:
@@ -101,12 +109,13 @@ Part 1 fixture targets:
 
 The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`, while `src/runtime/sceneBuildPipeline.ts` resolves project/catalog assets under canonical entity IDs and emits explicit jobs for missing assets. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
 
-`ready` manifests can render immediately. `assets_pending` is intentionally not a
-claim that the browser has generated a model: a server-side worker must execute
-those jobs, optimize the outputs, register the resulting asset definitions, and
-rerun the manifest. The current repository implements and tests the deterministic
-consumer/build boundary; it does not yet include that external worker or its
-model-provider credentials.
+`ready` manifests can render immediately. For `assets_pending`,
+`src/runtime/sceneAssetWorker.ts` executes jobs concurrently, calls a supplied
+search/generation provider, optionally optimizes each result and registers it
+under the existing canonical entity ID. Failed jobs stay in the manifest for a
+retry. A production deployment still needs one backend adapter containing the
+chosen provider SDK and credentials; the provider-neutral orchestration is
+implemented and tested here.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 

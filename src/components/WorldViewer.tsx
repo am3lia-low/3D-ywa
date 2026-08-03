@@ -63,6 +63,7 @@ import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
+  refreshSpatialRuntimeAssets,
   SpatialLocationError,
   switchSpatialRuntimeLocation,
   type SpatialRuntimeState,
@@ -1269,6 +1270,8 @@ export function WorldViewer({
   const appliedPatch = useRef<string | null>(null);
   const appliedPatchValue = useRef<ScenePatch | null>(null);
   const notifiedPatch = useRef<string | null>(null);
+  const assetRegistryRef = useRef(assetRegistry);
+  assetRegistryRef.current = assetRegistry;
 
   const requestCamera = useCallback((kind: "travel" | "focus", target: Vector3Tuple) => {
     cameraCommandId.current += 1;
@@ -1285,7 +1288,15 @@ export function WorldViewer({
     appliedPatch.current = null;
     appliedPatchValue.current = null;
     notifiedPatch.current = null;
-  }, [snapshot.storyId, snapshot.version, assetRegistry]);
+  }, [snapshot.storyId, snapshot.version]);
+
+  useEffect(() => {
+    setViewer((current) =>
+      current.runtime
+        ? { ...current, runtime: refreshSpatialRuntimeAssets(current.runtime, assetRegistry) }
+        : current,
+    );
+  }, [assetRegistry]);
 
   useEffect(() => {
     if (!activeLocationId) return;
@@ -1297,7 +1308,7 @@ export function WorldViewer({
           runtime: switchSpatialRuntimeLocation(
             current.runtime,
             activeLocationId,
-            assetRegistry,
+            assetRegistryRef.current,
           ),
           error: null,
         };
@@ -1305,7 +1316,7 @@ export function WorldViewer({
         return { ...current, error: runtimeErrorFrom(error, "INVALID_LOCATION") };
       }
     });
-  }, [activeLocationId, assetRegistry]);
+  }, [activeLocationId]);
 
   useEffect(() => {
     if (!patch) return;
@@ -1327,7 +1338,11 @@ export function WorldViewer({
     setViewer((current) => {
       if (!current.runtime) return current;
       try {
-        const runtime = advanceSpatialRuntime(current.runtime, validatedPatch, assetRegistry);
+        const runtime = advanceSpatialRuntime(
+          current.runtime,
+          validatedPatch,
+          assetRegistryRef.current,
+        );
         appliedPatch.current = patchKey;
         appliedPatchValue.current = validatedPatch;
         return { runtime, error: null };
@@ -1338,7 +1353,7 @@ export function WorldViewer({
         };
       }
     });
-  }, [patch, assetRegistry]);
+  }, [patch]);
 
   useEffect(() => {
     if (!viewer.runtime || viewer.runtime.exitingItems.length === 0) return;

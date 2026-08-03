@@ -102,7 +102,7 @@ export function buildSceneManifest(
     ]),
   );
   const visualById = new Map(plan.entities.map((entity) => [entity.entityId, entity]));
-  const registry: Record<string, AssetDefinition> = { ...baseRegistry };
+  let registry: AssetRegistry = baseRegistry;
   const resolvedAssets: ResolvedSceneAsset[] = [];
   const generationJobs: SceneAssetGenerationJob[] = [];
   const missingVisualEntityIds: string[] = [];
@@ -134,7 +134,7 @@ export function buildSceneManifest(
       )[0]?.entry;
 
     if (match) {
-      registry[entity.id] = match.asset;
+      registry = { ...registry, [entity.id]: match.asset };
       resolvedAssets.push({
         entityId: entity.id,
         assetKey: match.asset.key,

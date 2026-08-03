@@ -10,4 +10,6 @@ export * from "./runtime/cameraNavigation";
 export * from "./runtime/spatialAwareness";
 export * from "./runtime/renderQuality";
 export * from "./runtime/sceneCompiler";
+export * from "./runtime/sceneBuildPipeline";
+export * from "./runtime/sceneAssetWorker";
 export * from "./integration/worldStream";

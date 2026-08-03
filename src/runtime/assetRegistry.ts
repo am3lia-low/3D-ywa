@@ -35,7 +35,7 @@ export const defaultAssetRegistry: AssetRegistry = {
   chair: {
     key: "chair",
     geometry: "box",
-    dimensions: [0.85, 1.1, 0.85],
+    dimensions: [0.95, 1.55, 0.95],
     color: "#8a5b38",
     modelUrl: "/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
     roughness: 0.88,

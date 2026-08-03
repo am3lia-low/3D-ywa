@@ -160,6 +160,37 @@ function defaultPosition(entity: Entity, bounds: Vector3Tuple, height: number): 
   return [xRatio * bounds[0] * 0.32, height / 2, zRatio * bounds[2] * 0.32];
 }
 
+const FACING_RELATIONS = new Set(["left_of", "right_of", "in_front_of", "behind", "near"]);
+
+function orientFurnitureTowardRelation(
+  draft: Omit<LayoutItem, "position">,
+  relation: SpatialRelation,
+  position: Vector3Tuple,
+  placedById: ReadonlyMap<string, LayoutItem>,
+): Omit<LayoutItem, "position"> {
+  if (
+    draft.entity.kind !== "furniture" ||
+    draft.entity.transform?.rotation ||
+    !relation.objectId ||
+    !FACING_RELATIONS.has(relation.predicate)
+  ) {
+    return draft;
+  }
+
+  const target = placedById.get(relation.objectId);
+  if (!target) return draft;
+  const directionX = target.position[0] - position[0];
+  const directionZ = target.position[2] - position[2];
+  if (Math.abs(directionX) + Math.abs(directionZ) < Number.EPSILON) return draft;
+
+  return {
+    ...draft,
+    // Normalized furniture assets face +Z. Point that local forward axis at
+    // the related object so chairs face desks instead of the room exterior.
+    rotation: [draft.rotation[0], Math.atan2(directionX, directionZ), draft.rotation[2]],
+  };
+}
+
 /** Deterministically resolves explicit transforms, semantic relations and spacing. */
 export function createWorldLayout(
   snapshot: WorldSnapshot,
@@ -243,8 +274,14 @@ export function createWorldLayout(
         resolved.relation.objectId
           ? new Set([resolved.relation.objectId])
           : new Set<string>();
-      const item = placeWithoutCollision(
+      const orientedDraft = orientFurnitureTowardRelation(
         draft,
+        resolved.relation,
+        resolved.position,
+        placedById,
+      );
+      const item = placeWithoutCollision(
+        orientedDraft,
         resolved.position,
         bounds,
         placed,

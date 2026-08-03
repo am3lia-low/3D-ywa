@@ -132,6 +132,27 @@ function refreshPinnedItem(previous: LayoutItem, entity: Entity, registry: Asset
   };
 }
 
+/** Refreshes resolved visual assets without replacing factual world state or coordinates. */
+export function refreshSpatialRuntimeAssets(
+  state: SpatialRuntimeState,
+  registry: AssetRegistry = defaultAssetRegistry,
+): SpatialRuntimeState {
+  const refresh = (item: LayoutItem) => refreshPinnedItem(item, item.entity, registry);
+  const items = state.layout.items.map(refresh);
+  const exitingItems = state.exitingItems.map(refresh);
+  const unchanged =
+    items.every((item, index) => item === state.layout.items[index]) &&
+    exitingItems.every((item, index) => item === state.exitingItems[index]);
+
+  return unchanged
+    ? state
+    : {
+        ...state,
+        layout: { ...state.layout, items },
+        exitingItems,
+      };
+}
+
 /**
  * Advances the mounted spatial world without recalculating unaffected items.
  * Existing resolved coordinates are pinned before new or moved entities are
