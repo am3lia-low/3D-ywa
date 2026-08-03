@@ -30,7 +30,7 @@ export function createOverviewCameraPose(
   const target: Vector3Tuple = [0, Math.min(bounds[1] * 0.28, 1.25), 0];
   return {
     target,
-    position: [roomSpan * 0.67, Math.max(bounds[1] + 2, 5.5), roomSpan * 0.75],
+    position: [roomSpan * 0.58, Math.max(bounds[1] + 1.45, 5.35), roomSpan * 0.64],
   };
 }
 
