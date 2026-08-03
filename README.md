@@ -76,6 +76,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Runs the neural reconstruction on CUDA and uses a reproducible CPU marching-cubes fallback for this machine's newer Visual Studio toolchain.
 - Proves the pipeline with a generated lantern reference and a canonical `lantern-1` GLB that the viewer loads from `public/generated/`.
 
+## Milestone 11
+
+- Adds a local ComfyUI reference-image provider using the full SDXL 1.0 base checkpoint and only core workflow nodes.
+- Preserves Part 1's visual description, materials, colors and condition in the generation prompt, with deterministic retry seeds.
+- Enforces an approval gate before reconstruction so collages, cropped objects and narrative contradictions such as a lit “unlit” lantern cannot silently enter the world.
+- Proves the complete local path from `visual_scene_plan_3.json` to an approved PNG, then to the content-addressed `lantern-1-df16671b5965.glb` registered under the canonical entity ID.
+
 ## Component contract
 
 ```tsx
@@ -133,9 +140,21 @@ pnpm triposr:serve
 pnpm triposr:prove
 ```
 
+Local ComfyUI setup and reference-image proof:
+
+```powershell
+pnpm comfyui:setup
+pnpm comfyui:serve
+# in a second terminal; inspect the PNG before reconstruction
+pnpm comfyui:prove
+```
+
 Large Python packages and model weights stay in ignored `.local/`. The checked-in
-proof input is `fixtures/reference-images/antique-brass-lantern-v1.png`; the
-canonical result is `public/generated/lantern-1-4f008ea027c5.glb`.
+approved proof input is `fixtures/reference-images/comfyui-lantern-1-v1.png`;
+the canonical result is `public/generated/lantern-1-df16671b5965.glb`. The
+reference generator can retry deterministically with `-SeedOffset`; promotion
+to reconstruction is deliberately separate so an invalid image never becomes
+a runtime asset.
 
 The optional companion inspector consumes the same current snapshot and controlled selection:
 

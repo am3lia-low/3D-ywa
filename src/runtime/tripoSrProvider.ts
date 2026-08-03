@@ -1,21 +1,15 @@
 import type { Vector3Tuple } from "../contracts/world";
 import type { SceneAssetGenerationJob } from "./sceneBuildPipeline";
 import type { SceneAssetProvider } from "./sceneAssetWorker";
+import {
+  arrayBufferToBase64,
+  type SceneReferenceImageProvider,
+} from "./referenceImageProvider";
 
-export interface GeneratedReferenceImage {
-  mimeType: "image/png" | "image/jpeg" | "image/webp";
-  base64: string;
-  artifactId?: string;
-}
-
-/** Text-to-image or curated-image boundary that runs before image-to-3D. */
-export interface SceneReferenceImageProvider {
-  id: string;
-  generate(
-    job: SceneAssetGenerationJob,
-    signal?: AbortSignal,
-  ): Promise<GeneratedReferenceImage>;
-}
+export type {
+  GeneratedReferenceImage,
+  SceneReferenceImageProvider,
+} from "./referenceImageProvider";
 
 export interface TripoSrHttpProviderOptions {
   endpoint: string;
@@ -123,14 +117,9 @@ export function createStaticReferenceImageProvider(
       if (mimeType !== "image/png" && mimeType !== "image/jpeg" && mimeType !== "image/webp") {
         throw new Error(`Unsupported reference image type '${mimeType ?? "unknown"}'.`);
       }
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      let binary = "";
-      for (let offset = 0; offset < bytes.length; offset += 0x8000) {
-        binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
-      }
       return {
         mimeType,
-        base64: btoa(binary),
+        base64: arrayBufferToBase64(await response.arrayBuffer()),
         artifactId: imageUrl,
       };
     },

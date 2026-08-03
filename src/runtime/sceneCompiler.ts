@@ -46,6 +46,18 @@ export class ScenePlanError extends Error {
   }
 }
 
+export function visualAssetPrompt(visual: VisualEntityPlan): string {
+  if (visual.assetGenerationPrompt) return visual.assetGenerationPrompt;
+  return [
+    visual.visualDescription,
+    visual.materials.join(", "),
+    visual.colors.join(", "),
+    visual.condition ? `Condition: ${visual.condition}.` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function requireCanonicalJoins(plan: VisualScenePlan, snapshot: WorldSnapshot): void {
   if (plan.storyId !== snapshot.storyId) {
     throw new ScenePlanError(`Visual plan story '${plan.storyId}' does not match '${snapshot.storyId}'.`);
@@ -89,9 +101,7 @@ function createAssetRequests(
     if (!entity || entity.assetKey || visual.importance === "background") return [];
     return [{
       entityId: visual.entityId,
-      prompt:
-        visual.assetGenerationPrompt ??
-        `${visual.visualDescription}. ${visual.materials.join(", ")}. ${visual.colors.join(", ")}.`,
+      prompt: visualAssetPrompt(visual),
       searchTags: visual.assetSearchTags,
       priority: visual.importance,
     }];

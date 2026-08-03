@@ -211,11 +211,11 @@ for (const [key, createModel] of Object.entries(models)) {
 manifest.push(
   {
     key: "lantern-triposr",
-    url: "/generated/lantern-1-4f008ea027c5.glb",
+    url: "/generated/lantern-1-df16671b5965.glb",
     format: "glTF 2.0 binary with vertex colors",
     author: "Persistent StoryWorld 3D team using TripoSR",
     license: "Project-owned generated artifact; TripoSR code and weights are MIT licensed",
-    bytes: (await stat(resolve(rootDirectory, "public", "generated", "lantern-1-4f008ea027c5.glb"))).size,
+    bytes: (await stat(resolve(rootDirectory, "public", "generated", "lantern-1-df16671b5965.glb"))).size,
   },
   {
     key: "desk-polyhaven",

@@ -51,11 +51,11 @@
     },
     {
       "key": "lantern-triposr",
-      "url": "/generated/lantern-1-4f008ea027c5.glb",
+      "url": "/generated/lantern-1-df16671b5965.glb",
       "format": "glTF 2.0 binary with vertex colors",
       "author": "Persistent StoryWorld 3D team using TripoSR",
       "license": "Project-owned generated artifact; TripoSR code and weights are MIT licensed",
-      "bytes": 696916
+      "bytes": 1244380
     },
     {
       "key": "desk-polyhaven",

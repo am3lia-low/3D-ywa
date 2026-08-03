@@ -9,6 +9,7 @@ import {
   compileScenePresentation,
   type AssetGenerationRequest,
   type ScenePresentation,
+  visualAssetPrompt,
 } from "./sceneCompiler";
 
 export interface SceneAssetCatalogEntry {
@@ -153,9 +154,7 @@ export function buildSceneManifest(
         locationId: entity.locationId,
         entityKind: entity.kind,
         dimensions: entity.dimensions,
-        prompt:
-          visual.assetGenerationPrompt ??
-          `${visual.visualDescription}. ${visual.materials.join(", ")}. ${visual.colors.join(", ")}.`,
+        prompt: visualAssetPrompt(visual),
         searchTags: visual.assetSearchTags,
         priority: visual.importance,
         reason: "no_catalog_match",

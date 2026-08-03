@@ -7,7 +7,11 @@ import plan3Fixture from "../../fixtures/visual_scene_plan_3.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
-import { compileScenePresentation, ScenePlanError } from "./sceneCompiler";
+import {
+  compileScenePresentation,
+  ScenePlanError,
+  visualAssetPrompt,
+} from "./sceneCompiler";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 const plan1 = plan1Fixture as unknown as VisualScenePlan;
@@ -38,6 +42,14 @@ describe("compileScenePresentation", () => {
   it("emits an asset request for a supporting object without a registered asset key", () => {
     const scene = compileScenePresentation(plan1, snapshot, "attic-study");
     expect(scene.assetRequests.map((request) => request.entityId)).toContain("map-1");
+  });
+
+  it("preserves narrative object condition in generated-asset prompts", () => {
+    const revealedPlan = plan3Fixture as unknown as VisualScenePlan;
+    const lantern = revealedPlan.entities.find((entity) => entity.entityId === "lantern-1");
+    if (!lantern) throw new Error("Fixture must contain lantern-1.");
+
+    expect(visualAssetPrompt(lantern)).toContain("Condition: carried and unlit.");
   });
 
   it("rejects non-canonical visual identities", () => {

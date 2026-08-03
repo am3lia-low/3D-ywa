@@ -68,7 +68,7 @@ export const defaultAssetRegistry: AssetRegistry = {
     geometry: "cylinder",
     dimensions: [0.45, 0.8, 0.45],
     color: "#c98f34",
-    modelUrl: "/generated/lantern-1-4f008ea027c5.glb",
+    modelUrl: "/generated/lantern-1-df16671b5965.glb",
     roughness: 0.45,
     metalness: 0.65,
   },
