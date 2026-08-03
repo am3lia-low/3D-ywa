@@ -5,4 +5,5 @@ __pycache__/
 *.pyc
 .proposal-render/
 .local/
+public/generated/*.glb
 *.local

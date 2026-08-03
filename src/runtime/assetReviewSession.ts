@@ -1,8 +1,23 @@
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { WorldSnapshot } from "../contracts/world";
-import type { AssetRegistry } from "./assetRegistry";
+import type { AssetDefinition, AssetRegistry } from "./assetRegistry";
+import type { GeneratedReferenceImage } from "./referenceImageProvider";
 import { buildSceneManifest, type SceneBuildManifest } from "./sceneBuildPipeline";
 import type { SceneAssetReconstructionProvider } from "./sceneAssetQueue";
+
+export const INLINE_SURFACE_REFERENCE_URL = "storyworld-candidate://approved-reference";
+
+export function materializeInlineSurfaceAsset(
+  asset: AssetDefinition,
+  reference?: GeneratedReferenceImage,
+): AssetDefinition {
+  if (asset.surfaceTextureUrl !== INLINE_SURFACE_REFERENCE_URL) return asset;
+  if (!reference) throw new Error("Inline surface asset is missing its approved reference image.");
+  return {
+    ...asset,
+    surfaceTextureUrl: `data:${reference.mimeType};base64,${reference.base64}`,
+  };
+}
 
 export function buildRegenerationManifest(
   snapshot: WorldSnapshot,
@@ -50,7 +65,8 @@ export function createInlineSurfaceTemplateProvider(): SceneAssetReconstructionP
           geometry: "box",
           dimensions: job.dimensions ?? [1, 1, 0.08],
           color: "#ffffff",
-          surfaceTextureUrl: `data:${reference.mimeType};base64,${reference.base64}`,
+          // Keep one persisted copy of the image; the review UI materializes this URL on demand.
+          surfaceTextureUrl: INLINE_SURFACE_REFERENCE_URL,
           roughness: 0.88,
         },
       };

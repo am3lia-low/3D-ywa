@@ -8,6 +8,8 @@ import { defaultAssetRegistry } from "./assetRegistry";
 import {
   buildRegenerationManifest,
   createInlineSurfaceTemplateProvider,
+  INLINE_SURFACE_REFERENCE_URL,
+  materializeInlineSurfaceAsset,
 } from "./assetReviewSession";
 
 const snapshot = snapshotFixture as WorldSnapshot;
@@ -36,7 +38,11 @@ describe("asset review session", () => {
       },
     );
 
-    expect(artifact.asset.surfaceTextureUrl).toBe("data:image/png;base64,iVBORw==");
+    expect(artifact.asset.surfaceTextureUrl).toBe(INLINE_SURFACE_REFERENCE_URL);
+    expect(materializeInlineSurfaceAsset(artifact.asset, {
+      mimeType: "image/png",
+      base64: "iVBORw==",
+    }).surfaceTextureUrl).toBe("data:image/png;base64,iVBORw==");
     expect(artifact.asset.geometry).toBe("box");
   });
 });

@@ -68,6 +68,19 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
+.asset-review__guidance {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.7rem 0 0;
+  color: #9f917f;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.asset-review__guidance p {
+  margin: 0;
+}
+
 .asset-review label {
   display: grid;
   flex: 1 1 180px;
@@ -201,6 +214,24 @@
 .asset-review__error {
   color: #f0afa6;
   font-size: 0.85rem;
+}
+
+.asset-review__warning,
+.asset-review__review-note {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-left: 3px solid #c99b62;
+  border-radius: 4px;
+  background: rgba(201, 155, 98, 0.08);
+  color: #d7bea0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.asset-review__review-note {
+  border-left-color: #62c9bb;
+  background: rgba(98, 201, 187, 0.07);
+  color: #afe1da;
 }
 
 .asset-review__status {

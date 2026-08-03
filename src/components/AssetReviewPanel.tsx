@@ -6,6 +6,7 @@ import type { AssetRegistry } from "../runtime/assetRegistry";
 import {
   buildRegenerationManifest,
   createInlineSurfaceTemplateProvider,
+  materializeInlineSurfaceAsset,
 } from "../runtime/assetReviewSession";
 import { createComfyUiReferenceImageProvider } from "../runtime/comfyUiReferenceImageProvider";
 import {
@@ -64,6 +65,7 @@ export function AssetReviewPanel({
   const [tripoEndpoint, setTripoEndpoint] = useState("http://127.0.0.1:8123");
   const [seedOffset, setSeedOffset] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [previewedArtifact, setPreviewedArtifact] = useState<string | null>(null);
   const [message, setMessage] = useState("Choose an entity to regenerate without replacing its canonical story identity.");
 
   useEffect(() => {
@@ -85,6 +87,16 @@ export function AssetReviewPanel({
   }, [availableEntityIds, targetEntityId]);
 
   const item = queue?.items[0];
+  const targetEntity = snapshot.entities.find((entity) => entity.id === targetEntityId);
+  const targetRegistryKey = targetEntity
+    ? [targetEntity.id, targetEntity.assetKey, targetEntity.kind].find(
+        (key) => key && baseRegistry[key],
+      )
+    : undefined;
+  const targetAsset = targetRegistryKey ? baseRegistry[targetRegistryKey] : undefined;
+  const hasCuratedModel = Boolean(
+    targetAsset?.modelUrl && !targetAsset.key.startsWith("generated:"),
+  );
   const manifestResult = useMemo(() => {
     if (!item) return { manifest: null, error: null };
     if (
@@ -117,6 +129,9 @@ export function AssetReviewPanel({
     try {
       const next = await task();
       setQueue(next);
+      if (next.items[0]?.generated?.artifactId !== item?.generated?.artifactId) {
+        setPreviewedArtifact(null);
+      }
       setMessage(`Done. Asset is now ${next.items[0]?.stage.replaceAll("_", " ")}.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
@@ -125,9 +140,10 @@ export function AssetReviewPanel({
     }
   };
 
-  const queueEntity = async () => {
+  const queueEntity = async (advanceVariation = false) => {
     setBusy(true);
     try {
+      if (advanceVariation) setSeedOffset((current) => current + 1);
       const manifest = buildRegenerationManifest(
         snapshot,
         visualPlan,
@@ -137,6 +153,7 @@ export function AssetReviewPanel({
       const next = createSceneAssetQueue(manifest);
       await store.save(next);
       setQueue(next);
+      setPreviewedArtifact(null);
       onRegistryPreview(null);
       setMessage("Queued. Generate a reference image when ComfyUI is running.");
     } catch (error) {
@@ -148,14 +165,28 @@ export function AssetReviewPanel({
 
   const previewGenerated = () => {
     if (!item?.generated) return;
-    onRegistryPreview({ ...baseRegistry, [item.entityId]: item.generated.asset });
+    const previewAsset = materializeInlineSurfaceAsset(item.generated.asset, item.candidate);
+    onRegistryPreview({ ...baseRegistry, [item.entityId]: previewAsset });
+    setPreviewedArtifact(
+      item.generated.artifactId ?? item.generated.asset.modelUrl ?? item.generated.asset.key,
+    );
     setMessage("Previewing the reconstructed candidate in the world above.");
   };
 
   const promote = () => {
     if (!queue || !manifestResult.manifest) return;
     const promoted = promoteReadySceneAssets(manifestResult.manifest, queue);
-    onRegistryPreview(promoted.assetRegistry);
+    const readyItem = queue.items.find((candidate) => candidate.stage === "ready" && candidate.generated);
+    const registry = readyItem?.generated
+      ? {
+          ...promoted.assetRegistry,
+          [readyItem.entityId]: materializeInlineSurfaceAsset(
+            readyItem.generated.asset,
+            readyItem.candidate,
+          ),
+        }
+      : promoted.assetRegistry;
+    onRegistryPreview(registry);
     setMessage("Approved candidate promoted into this live world session.");
   };
 
@@ -163,6 +194,12 @@ export function AssetReviewPanel({
     ? `data:${item.candidate.mimeType};base64,${item.candidate.base64}`
     : undefined;
   const staleQueue = Boolean(item && !manifestResult.manifest);
+  const generatedArtifact = item?.generated
+    ? item.generated.artifactId ?? item.generated.asset.modelUrl ?? item.generated.asset.key
+    : null;
+  const hasPreviewedCurrentAsset = Boolean(
+    generatedArtifact && previewedArtifact === generatedArtifact,
+  );
 
   return (
     <section className="asset-review" aria-labelledby="asset-review-heading">
@@ -198,7 +235,7 @@ export function AssetReviewPanel({
           <input value={tripoEndpoint} onChange={(event) => setTripoEndpoint(event.target.value)} />
         </label>
         <label className="asset-review__seed">
-          <span>Variation</span>
+          <span>Variation seed</span>
           <input
             type="number"
             min="0"
@@ -208,8 +245,21 @@ export function AssetReviewPanel({
           />
         </label>
         <button type="button" onClick={() => void queueEntity()} disabled={busy || !targetEntityId}>
-          Queue regeneration
+          {hasCuratedModel ? "Regenerate curated asset" : "Queue regeneration"}
         </button>
+      </div>
+
+      <div className="asset-review__guidance">
+        <p>
+          A seed is reproducible: the same entity, prompt and seed intentionally make the same
+          reference. Increase it—or use <strong>Start next variation</strong>—for a new image.
+        </p>
+        {hasCuratedModel && (
+          <p className="asset-review__warning">
+            <strong>{targetEntityId}</strong> already has a curated runtime model. Single-view
+            regeneration is experimental and may be less accurate.
+          </p>
+        )}
       </div>
 
       {item && (
@@ -248,7 +298,7 @@ export function AssetReviewPanel({
                       { store, validator: createReferenceImageIntegrityValidator() },
                     ))}
                 >
-                  Generate reference
+                  Generate variation {seedOffset}
                 </button>
               )}
               {item.stage === "needs_review" && (
@@ -277,12 +327,17 @@ export function AssetReviewPanel({
               {item.stage === "needs_asset_review" && (
                 <>
                   <button type="button" className="secondary" onClick={previewGenerated}>Preview in world</button>
-                  <button type="button" disabled={busy} onClick={() => void run("Approving runtime asset…", () => reviewReconstructedSceneAsset(queue!, item.entityId, "approved", { store }))}>Approve asset</button>
+                  <button type="button" disabled={busy || !hasPreviewedCurrentAsset} onClick={() => void run("Approving runtime asset…", () => reviewReconstructedSceneAsset(queue!, item.entityId, "approved", { store }))}>Approve after preview</button>
                   <button type="button" className="danger" disabled={busy} onClick={() => void run("Rejecting runtime asset…", () => reviewReconstructedSceneAsset(queue!, item.entityId, "rejected", { store, note: "Rejected in runtime review" }))}>Reject</button>
                 </>
               )}
               {(item.stage === "rejected" || item.stage === "failed") && (
-                <button type="button" disabled={busy} onClick={() => void run("Preparing retry…", () => retrySceneAsset(queue!, item.entityId, { store }))}>Retry</button>
+                <>
+                  <button type="button" disabled={busy} onClick={() => void run("Preparing retry…", () => retrySceneAsset(queue!, item.entityId, { store }))}>
+                    {item.assetReview || item.failedPhase === "reconstruction" ? "Retry same reference" : "Retry variation"}
+                  </button>
+                  <button type="button" className="secondary" disabled={busy} onClick={() => void queueEntity(true)}>Start next variation</button>
+                </>
               )}
               {item.stage === "ready" && (
                 <>
@@ -290,8 +345,19 @@ export function AssetReviewPanel({
                   <button type="button" disabled={staleQueue} onClick={promote}>Promote approved asset</button>
                 </>
               )}
-              <button type="button" className="secondary" onClick={() => { onRegistryPreview(null); setMessage("Restored the current live registry."); }}>Use live registry</button>
+              <button type="button" className="secondary" onClick={() => { onRegistryPreview(null); setMessage("Restored the current curated/live registry."); }}>Use live registry</button>
             </div>
+            {item.stage === "needs_asset_review" && !hasPreviewedCurrentAsset && (
+              <p className="asset-review__review-note">
+                Approval stays locked until this exact artifact has been previewed in the world.
+              </p>
+            )}
+            {item.job.strategy === "image_to_mesh" && item.generated && (
+              <p className="asset-review__warning">
+                TripoSR is a single-view draft reconstruction. Reject silhouettes, dark blobs,
+                merged legs, stretched proportions or missing materials.
+              </p>
+            )}
           </div>
         </div>
       )}

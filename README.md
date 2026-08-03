@@ -189,6 +189,15 @@ previewed after ComfyUI without TripoSR. Volumetric `image_to_mesh` jobs need
 both services. No output replaces the live registry until its reference and
 runtime previews have each been approved.
 
+Reference generation is deterministic for a given entity, prompt and variation
+seed. The panel exposes an explicit next-variation path, warns before replacing
+a curated model with experimental single-view reconstruction, and requires the
+exact reconstructed artifact to be previewed in-world before approval. TripoSR
+drafts use a bright vertex-colour diagnostic material during review so missing
+PBR textures are visible rather than reading as an unexplained black silhouette.
+Approved surface references are stored only once and materialized as runtime
+texture URLs on preview, avoiding browser-storage duplication.
+
 Browser storage is deliberately an MVP queue store. A production deployment
 should move candidate image bytes, GLBs and queue JSON to durable object/database
 storage while retaining the same `SceneAssetQueueStore` boundary.

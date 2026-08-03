@@ -187,11 +187,37 @@ function PrimitiveAsset({
   );
 }
 
-function LoadedModel({ url }: { url: string }) {
+function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenerated?: boolean }) {
   const model = useGLTF(url);
+  const renderedScene = useMemo(() => {
+    if (!draftGenerated) return model.scene;
+    const clone = model.scene.clone(true);
+    clone.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+      const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
+      object.material = new THREE.MeshBasicMaterial({
+        color: hasVertexColors ? "#ffffff" : "#a77a55",
+        vertexColors: hasVertexColors,
+        side: THREE.DoubleSide,
+      });
+      object.castShadow = true;
+      object.receiveShadow = true;
+    });
+    return clone;
+  }, [draftGenerated, model.scene]);
+  useEffect(() => {
+    if (!draftGenerated) return;
+    return () => {
+      renderedScene.traverse((object) => {
+        if (!(object instanceof THREE.Mesh)) return;
+        const materials = Array.isArray(object.material) ? object.material : [object.material];
+        materials.forEach((material) => material.dispose());
+      });
+    };
+  }, [draftGenerated, renderedScene]);
   const normalization = useMemo(() => {
-    model.scene.updateMatrixWorld(true);
-    const bounds = new THREE.Box3().setFromObject(model.scene);
+    renderedScene.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(renderedScene);
     const center = bounds.getCenter(new THREE.Vector3());
     const size = bounds.getSize(new THREE.Vector3());
     return {
@@ -202,16 +228,20 @@ function LoadedModel({ url }: { url: string }) {
         size.z > 0 ? 1 / size.z : 1,
       ),
     };
-  }, [model.scene]);
+  }, [renderedScene]);
 
   return (
     <group scale={normalization.scale}>
-      <Clone
-        object={model.scene}
-        position={normalization.offset}
-        castShadow
-        receiveShadow
-      />
+      {draftGenerated ? (
+        <primitive object={renderedScene} position={normalization.offset} />
+      ) : (
+        <Clone
+          object={model.scene}
+          position={normalization.offset}
+          castShadow
+          receiveShadow
+        />
+      )}
     </group>
   );
 }
@@ -507,7 +537,10 @@ function EntityAsset({
   return (
     <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
       <Suspense fallback={fallback}>
-        <LoadedModel url={asset.modelUrl} />
+        <LoadedModel
+          url={asset.modelUrl}
+          draftGenerated={asset.key.startsWith("generated:")}
+        />
       </Suspense>
     </ModelErrorBoundary>
   );
