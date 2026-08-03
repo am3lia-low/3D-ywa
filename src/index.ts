@@ -20,3 +20,4 @@ export * from "./runtime/referenceImageProvider";
 export * from "./runtime/comfyUiReferenceImageProvider";
 export * from "./runtime/tripoSrProvider";
 export * from "./integration/worldStream";
+export * from "./integration/storyPackage";

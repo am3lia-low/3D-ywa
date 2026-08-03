@@ -110,6 +110,55 @@ h1 {
   text-transform: none;
 }
 
+.story-package-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.story-package-import {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #465157;
+  border-radius: 999px;
+  padding: 0.58rem 0.85rem;
+  color: #d9e4e1;
+  background: #242b30;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.story-package-import:focus-within {
+  outline: 2px solid #69dfce;
+  outline-offset: 2px;
+}
+
+.story-package-import input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.story-package-notice {
+  max-width: 34rem;
+  margin: 0;
+  color: #9bd8cd;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.story-package-notice.error {
+  color: #ffad9f;
+}
+
 .version-chip {
   min-width: 118px;
   padding: 1rem 1.2rem;

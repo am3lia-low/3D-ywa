@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "1.0",
+  "packageId": "imported-observatory-archive",
+  "label": "The observatory archive (imported)",
+  "initialSnapshot": {
+    "storyId": "story-observatory-archive",
+    "version": 1,
+    "passageId": "O1",
+    "locations": [
+      {
+        "id": "observatory-archive",
+        "name": "Observatory archive",
+        "bounds": [9, 4.2, 8],
+        "environment": {
+          "floorColor": "#263435",
+          "wallColor": "#64716f",
+          "ambientColor": "#b9cbc7"
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "astronomer-desk-1",
+        "name": "Astronomer's walnut desk",
+        "kind": "furniture",
+        "aliases": ["writing desk"],
+        "locationId": "observatory-archive",
+        "provenance": { "passageId": "O1", "confidence": 0.96 }
+      },
+      {
+        "id": "astronomer-chair-1",
+        "name": "High-backed wooden chair",
+        "kind": "furniture",
+        "aliases": ["chair"],
+        "locationId": "observatory-archive",
+        "provenance": { "passageId": "O1", "confidence": 0.94 }
+      },
+      {
+        "id": "star-chart-1",
+        "name": "Ink-drawn parchment star map",
+        "kind": "document",
+        "aliases": ["map", "star chart"],
+        "locationId": "observatory-archive",
+        "dimensions": [0.78, 0.025, 0.58],
+        "provenance": { "passageId": "O1", "confidence": 0.91 }
+      },
+      {
+        "id": "observatory-rug-1",
+        "name": "Faded midnight runner rug",
+        "kind": "decor",
+        "aliases": ["rug"],
+        "locationId": "observatory-archive",
+        "provenance": { "passageId": "O1", "confidence": 0.88 }
+      },
+      {
+        "id": "observatory-lantern-1",
+        "name": "Old brass reading lantern",
+        "kind": "light",
+        "aliases": ["lantern"],
+        "locationId": "observatory-archive",
+        "state": { "lit": true },
+        "provenance": { "passageId": "O1", "confidence": 0.97 }
+      }
+    ],
+    "relations": [
+      {
+        "id": "observatory-chair-at-desk",
+        "subjectId": "astronomer-chair-1",
+        "predicate": "in_front_of",
+        "objectId": "astronomer-desk-1",
+        "distance": 0.3
+      },
+      {
+        "id": "star-chart-on-desk",
+        "subjectId": "star-chart-1",
+        "predicate": "on",
+        "objectId": "astronomer-desk-1"
+      },
+      {
+        "id": "lantern-on-desk",
+        "subjectId": "observatory-lantern-1",
+        "predicate": "on",
+        "objectId": "astronomer-desk-1"
+      },
+      {
+        "id": "observatory-rug-centered",
+        "subjectId": "observatory-rug-1",
+        "predicate": "centered"
+      }
+    ],
+    "conflicts": []
+  },
+  "moments": [
+    {
+      "passageId": "O1",
+      "text": "Nera enters the observatory archive, where a lit brass lantern pools over an inked star chart on the old astronomer's desk.",
+      "visualPlan": {
+        "schemaVersion": "1.0",
+        "storyId": "story-observatory-archive",
+        "segmentId": "observatory-arrival",
+        "sourcePassageIds": ["O1"],
+        "snapshotVersion": 1,
+        "planVersion": 1,
+        "artDirection": {
+          "styleLabel": "historical celestial storybook realism",
+          "stylePrompt": "A hushed historic observatory archive with deep teal stone, walnut furniture, parchment charts and pools of aged brass lamplight.",
+          "negativePrompt": ["modern electronics", "plastic furniture", "empty room", "flat lighting"],
+          "materialVocabulary": ["dark walnut", "aged brass", "parchment", "teal stone", "worn wool"]
+        },
+        "locations": [
+          {
+            "locationId": "observatory-archive",
+            "archetype": "celestial-archive",
+            "visualDescription": "A compact archive beneath an unseen observatory, lined with shadowed shelves and cool stone tiles.",
+            "architectureTags": ["archive-shelving", "stone-tile-floor", "aged-plaster"],
+            "dressingTags": ["books", "storage-crates"],
+            "dressingDensity": "rich",
+            "mood": "scholarly, secretive and warm",
+            "timeOfDay": "late night",
+            "palette": {
+              "background": "#091718",
+              "fog": "#152727",
+              "floor": "#2d4240",
+              "wall": "#61706d",
+              "timber": "#3d2b24",
+              "ambient": "#abc2bd",
+              "keyLight": "#b9d1d0",
+              "practical": "#f0a14e"
+            },
+            "lighting": {
+              "warmth": "warm",
+              "contrast": "high",
+              "ambientIntensity": 0.55,
+              "keyIntensity": 1.65,
+              "atmosphericEffects": ["dust-motes"]
+            },
+            "evidence": {
+              "passageIds": ["O1"],
+              "confidence": 0.74,
+              "basis": "cross_passage_inference"
+            }
+          }
+        ],
+        "entities": [
+          {
+            "entityId": "astronomer-desk-1",
+            "visualDescription": "A broad old walnut writing desk with document drawers and softened edges.",
+            "importance": "supporting",
+            "materials": ["dark walnut", "iron hardware"],
+            "colors": ["deep brown"],
+            "condition": "well used",
+            "assetSearchTags": ["antique writing desk", "wooden table"],
+            "evidence": { "passageIds": ["O1"], "confidence": 0.9, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "astronomer-chair-1",
+            "visualDescription": "A high-backed wooden reading chair facing the desk.",
+            "importance": "supporting",
+            "materials": ["walnut"],
+            "colors": ["warm brown"],
+            "condition": "worn smooth",
+            "assetSearchTags": ["antique wooden chair"],
+            "evidence": { "passageIds": ["O1"], "confidence": 0.86, "basis": "cross_passage_inference" }
+          },
+          {
+            "entityId": "star-chart-1",
+            "visualDescription": "A cream parchment star chart covered with fine indigo ink constellations.",
+            "importance": "hero",
+            "materials": ["parchment", "ink"],
+            "colors": ["cream", "indigo"],
+            "condition": "creased",
+            "assetSearchTags": ["antique parchment map", "star chart"],
+            "evidence": { "passageIds": ["O1"], "confidence": 0.94, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "observatory-rug-1",
+            "visualDescription": "A faded midnight-blue wool runner with a restrained celestial border.",
+            "importance": "background",
+            "materials": ["woven wool"],
+            "colors": ["midnight blue", "faded red"],
+            "condition": "faded",
+            "assetSearchTags": ["antique runner rug"],
+            "evidence": { "passageIds": ["O1"], "confidence": 0.58, "basis": "art_direction_default" }
+          },
+          {
+            "entityId": "observatory-lantern-1",
+            "visualDescription": "A compact aged-brass reading lantern casting amber light across the chart.",
+            "importance": "supporting",
+            "materials": ["aged brass", "glass"],
+            "colors": ["brass", "amber"],
+            "condition": "lit",
+            "assetSearchTags": ["antique brass lantern"],
+            "evidence": { "passageIds": ["O1"], "confidence": 0.96, "basis": "explicit_text" }
+          }
+        ],
+        "presentationConnections": [],
+        "unresolvedQuestions": []
+      }
+    }
+  ]
+}

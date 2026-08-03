@@ -254,6 +254,20 @@ The renderer chooses registered modules from recipe IDs; it does not branch on
 story IDs. The current attic and conservatory are therefore regression fixtures
 for two different recipes rather than two custom application screens.
 
+## Portable story packages
+
+The **Import story package** control accepts one validated `.json` handoff and
+adds it to the fixture selector without application code changes. The package
+contains an initial snapshot plus ordered story moments, each with passage text,
+an optional new visual plan, and a patch from the previous moment. Built-in
+stories pass through the same loader during startup.
+
+The contract and ordering rules are documented in
+`docs/story-package.md`. A third data-only regression world is available at
+`fixtures/story_package_import_demo.json`; importing it creates the observatory
+archive and its 5/5 approved-asset recipe even though React never imports that
+fixture.
+
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
 ```tsx

@@ -11,51 +11,64 @@ import conservatoryPlan2Fixture from "../fixtures/visual_scene_plan_conservatory
 import { EntityInspector } from "./components/EntityInspector";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
+import {
+  parseStoryPackageJson,
+  runtimeStoryFromPackage,
+  type RuntimeStory,
+} from "./integration/storyPackage";
 import { applyScenePatch } from "./runtime/applyScenePatch";
 import type { AssetRegistry } from "./runtime/assetRegistry";
 import { compileSceneRecipe } from "./runtime/sceneRecipeCompiler";
 
-interface DemoStory {
-  id: string;
-  label: string;
-  snapshot: WorldSnapshot;
-  patches: ScenePatch[];
-  visualPlans: VisualScenePlan[];
-  passages: string[];
-  nextLabels: string[];
-}
-
-const atticStory: DemoStory = {
-  id: "attic-study",
+const atticStory = runtimeStoryFromPackage({
+  schemaVersion: "1.0",
+  packageId: "attic-study",
   label: "The attic study",
-  snapshot: snapshotFixture as unknown as WorldSnapshot,
-  patches: [patch2Fixture, patch3Fixture] as unknown as ScenePatch[],
-  visualPlans: [visualPlan1Fixture, visualPlan3Fixture] as unknown as VisualScenePlan[],
-  passages: [
-    "Elian enters the old attic study. A faded rug faces the writing desk, while a folded map rests beside the cold north-wall hearth.",
-    "He drags the chair away and finds fresh scratches in the wood. An unlit brass lantern waits beside the desk.",
-    "Elian lights the hearth and carries the lantern north. In the warm flicker, the outline of a hidden door appears.",
+  initialSnapshot: snapshotFixture,
+  moments: [
+    {
+      passageId: "P1",
+      text: "Elian enters the old attic study. A faded rug faces the writing desk, while a folded map rests beside the cold north-wall hearth.",
+      visualPlan: visualPlan1Fixture,
+    },
+    {
+      passageId: "P2",
+      text: "He drags the chair away and finds fresh scratches in the wood. An unlit brass lantern waits beside the desk.",
+      patchFromPrevious: patch2Fixture,
+      actionLabel: "Apply passage 2",
+    },
+    {
+      passageId: "P3",
+      text: "Elian lights the hearth and carries the lantern north. In the warm flicker, the outline of a hidden door appears.",
+      patchFromPrevious: patch3Fixture,
+      visualPlan: visualPlan3Fixture,
+      actionLabel: "Reveal passage 3",
+    },
   ],
-  nextLabels: ["Apply passage 2", "Reveal passage 3"],
-};
+});
 
-const conservatoryStory: DemoStory = {
-  id: "moonlit-conservatory",
+const conservatoryStory = runtimeStoryFromPackage({
+  schemaVersion: "1.0",
+  packageId: "moonlit-conservatory",
   label: "The moonlit conservatory",
-  snapshot: conservatorySnapshotFixture as unknown as WorldSnapshot,
-  patches: [conservatoryPatch2Fixture] as unknown as ScenePatch[],
-  visualPlans: [
-    conservatoryPlan1Fixture,
-    conservatoryPlan2Fixture,
-  ] as unknown as VisualScenePlan[],
-  passages: [
-    "Mara enters the moonlit conservatory. A dormant celestial orrery rests on the potting table beneath iron ribs and fogged panes.",
-    "She pulls the chair towards the locked garden door. The orrery unfolds like a flower as a copper storm lantern begins to glow.",
+  initialSnapshot: conservatorySnapshotFixture,
+  moments: [
+    {
+      passageId: "C1",
+      text: "Mara enters the moonlit conservatory. A dormant celestial orrery rests on the potting table beneath iron ribs and fogged panes.",
+      visualPlan: conservatoryPlan1Fixture,
+    },
+    {
+      passageId: "C2",
+      text: "She pulls the chair towards the locked garden door. The orrery unfolds like a flower as a copper storm lantern begins to glow.",
+      patchFromPrevious: conservatoryPatch2Fixture,
+      visualPlan: conservatoryPlan2Fixture,
+      actionLabel: "Awaken the conservatory",
+    },
   ],
-  nextLabels: ["Awaken the conservatory"],
-};
+});
 
-const demoStories: readonly DemoStory[] = [atticStory, conservatoryStory];
+const builtInStories: readonly RuntimeStory[] = [atticStory, conservatoryStory];
 const WorldViewer = lazy(() =>
   import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
 );
@@ -66,19 +79,20 @@ const experimentalAssetLabEnabled =
   import.meta.env.DEV && new URLSearchParams(window.location.search).get("assetLab") === "1";
 const invalidPatch: ScenePatch = { fromVersion: 99, toVersion: 100, operations: [] };
 
-function snapshotAt(story: DemoStory, step: number): WorldSnapshot {
+function snapshotAt(story: RuntimeStory, step: number): WorldSnapshot {
   return story.patches.slice(0, step).reduce(applyScenePatch, story.snapshot);
 }
 
-function visualPlanAt(story: DemoStory, snapshotVersion: number): VisualScenePlan {
+function visualPlanAt(story: RuntimeStory, snapshotVersion: number): VisualScenePlan {
   return [...story.visualPlans]
     .filter((plan) => plan.snapshotVersion <= snapshotVersion)
     .sort((left, right) => right.snapshotVersion - left.snapshotVersion)[0] ?? story.visualPlans[0]!;
 }
 
 export default function App() {
+  const [stories, setStories] = useState<RuntimeStory[]>(() => [...builtInStories]);
   const [storyId, setStoryId] = useState(atticStory.id);
-  const story = demoStories.find((candidate) => candidate.id === storyId) ?? atticStory;
+  const story = stories.find((candidate) => candidate.id === storyId) ?? atticStory;
   const [step, setStep] = useState(0);
   const [session, setSession] = useState(0);
   const [invalidPatchMode, setInvalidPatchMode] = useState(false);
@@ -86,6 +100,10 @@ export default function App() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [activeLocationId, setActiveLocationId] = useState(story.snapshot.locations[0]?.id ?? "");
   const [reviewRegistry, setReviewRegistry] = useState<AssetRegistry | null>(null);
+  const [packageNotice, setPackageNotice] = useState<{
+    kind: "success" | "error";
+    message: string;
+  } | null>(null);
   const patch = invalidPatchMode
     ? invalidPatch
     : step > 0
@@ -108,6 +126,30 @@ export default function App() {
     setAcknowledgedVersion(nextStory.snapshot.version);
   };
 
+  const importStoryPackage = async (file: File, input: HTMLInputElement) => {
+    try {
+      if (file.size > 2_000_000) throw new Error("Story packages must be 2 MB or smaller.");
+      const imported = runtimeStoryFromPackage(parseStoryPackageJson(await file.text()));
+      setStories((current) => [
+        ...current.filter((candidate) => candidate.id !== imported.id),
+        imported,
+      ]);
+      setStoryId(imported.id);
+      resetStory(imported);
+      setPackageNotice({
+        kind: "success",
+        message: `Loaded ${imported.label}: ${imported.passages.length} story moments.`,
+      });
+    } catch (error) {
+      setPackageNotice({
+        kind: "error",
+        message: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      input.value = "";
+    }
+  };
+
   const unresolvedCount = sceneRecipe.coverage.designedFallback;
 
   return (
@@ -125,17 +167,38 @@ export default function App() {
             <select
               value={story.id}
               onChange={(event) => {
-                const nextStory = demoStories.find((candidate) => candidate.id === event.target.value);
+                const nextStory = stories.find((candidate) => candidate.id === event.target.value);
                 if (!nextStory) return;
                 setStoryId(nextStory.id);
                 resetStory(nextStory);
               }}
             >
-              {demoStories.map((candidate) => (
+              {stories.map((candidate) => (
                 <option key={candidate.id} value={candidate.id}>{candidate.label}</option>
               ))}
             </select>
           </label>
+          <div className="story-package-controls">
+            <label className="story-package-import">
+              Import story package
+              <input
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0];
+                  if (file) void importStoryPackage(file, event.currentTarget);
+                }}
+              />
+            </label>
+            {packageNotice && (
+              <p
+                className={`story-package-notice ${packageNotice.kind}`}
+                role={packageNotice.kind === "error" ? "alert" : "status"}
+              >
+                {packageNotice.message}
+              </p>
+            )}
+          </div>
         </div>
         <div className="version-chip" aria-live="polite">
           <span>World state</span>
