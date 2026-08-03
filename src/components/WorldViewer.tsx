@@ -61,6 +61,10 @@ import {
 } from "../runtime/sceneCompiler";
 import type { CompiledSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import {
+  resolveDressingInstances,
+  type ResolvedDressingInstance,
+} from "../runtime/dressingResolver";
+import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
   createSpatialRuntime,
@@ -1282,29 +1286,27 @@ function CourtyardKit({
           </mesh>
         );
       })}
-      {presentation.dressing.courtyardClutter && (
-        <>
-          <group position={[-bounds[0] / 2 + 0.78, 0, bounds[2] * 0.28]}>
-            <group position={[0, 0.53, 0]} scale={[0.82, 1.06, 0.82]}>
-              <LoadedModel url="/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf" />
-            </group>
-            <PeriodCrate position={[0.78, 0.35, 0.18]} rotation={[0, 0.22, 0]} scale={[0.84, 0.7, 0.78]} />
-          </group>
-          <group
-            position={[-bounds[0] / 2 + 0.5, 0.45, bounds[2] * 0.02]}
-            rotation={[0, Math.PI / 2, 0]}
-            scale={[1.75, 0.9, 0.65]}
-          >
-            <LoadedModel url="/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf" />
-          </group>
-          <group position={[bounds[0] * 0.42, 0, -bounds[2] * 0.27]}>
-            <PeriodCrate position={[0, 0.42, 0]} rotation={[0, -0.26, 0]} scale={[1.12, 0.84, 0.9]} />
-            <PeriodCrate position={[-0.28, 1.08, 0.04]} rotation={[0, 0.14, -0.04]} scale={[0.72, 0.58, 0.66]} />
-          </group>
-        </>
-      )}
     </group>
   );
+}
+
+function DressingAssets({ instances }: { instances: readonly ResolvedDressingInstance[] }) {
+  return instances.map((instance) => (
+    <group
+      key={instance.dressingId}
+      name={instance.dressingId}
+      position={instance.position}
+      rotation={instance.rotation}
+      scale={instance.dimensions}
+      userData={{
+        dressingId: instance.dressingId,
+        catalogId: instance.catalogId,
+        decorativeOnly: true,
+      }}
+    >
+      <EntityAsset asset={instance.asset} highlighted={false} highlightColor="#000000" />
+    </group>
+  ));
 }
 
 function Room({
@@ -1931,6 +1933,7 @@ function ConflictMarkers({
 function WorldScene({
   layout,
   presentation,
+  dressingInstances,
   exitingItems,
   selectedEntityId,
   changes,
@@ -1945,6 +1948,7 @@ function WorldScene({
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
+  dressingInstances: readonly ResolvedDressingInstance[];
   exitingItems: readonly LayoutItem[];
   selectedEntityId?: string | null;
   changes: ReadonlyMap<string, ChangeKind>;
@@ -2004,6 +2008,7 @@ function WorldScene({
         presentation={presentation}
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
       />
+      <DressingAssets instances={dressingInstances} />
       {presentation.atmosphere.dust && <DustMotes bounds={bounds} />}
       {presentation.atmosphere.rain && <RainStreaks bounds={bounds} />}
       <StoryEffects
@@ -2266,6 +2271,22 @@ export function WorldViewer({
           (location) => location.id === presentation.portalTargetLocationId,
         )
       : undefined;
+  const dressingInstances = useMemo(() => {
+    if (!runtime || !presentation) return [];
+    const compiledLocation = sceneRecipe?.locations[runtime.layout.location.id];
+    if (
+      compiledLocation &&
+      sceneRecipe.storyId === runtime.snapshot.storyId &&
+      sceneRecipe.snapshotVersion === runtime.snapshot.version
+    ) {
+      return compiledLocation.dressingInstances;
+    }
+    return resolveDressingInstances(
+      runtime.layout,
+      presentation,
+      sceneRecipe?.styleKit.id ?? "generic-grounded",
+    );
+  }, [presentation, runtime?.layout, runtime?.snapshot.storyId, runtime?.snapshot.version, sceneRecipe]);
 
   return (
     <div
@@ -2281,6 +2302,7 @@ export function WorldViewer({
       data-visual-plan-version={presentation?.planVersion ?? 0}
       data-visual-style={presentation?.styleLabel ?? "unavailable"}
       data-asset-requests={presentation?.assetRequests.length ?? 0}
+      data-dressing-instances={dressingInstances.length}
       data-environment-modules={presentation?.modules.environment
         .map((module) => module.moduleId)
         .join(",") ?? ""}
@@ -2302,6 +2324,7 @@ export function WorldViewer({
           <WorldScene
             layout={runtime.layout}
             presentation={presentation}
+            dressingInstances={dressingInstances}
             exitingItems={runtime.exitingItems}
             selectedEntityId={selectedEntityId}
             changes={changes}

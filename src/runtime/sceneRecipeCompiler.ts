@@ -20,6 +20,8 @@ import {
   auditSceneComposition,
   type SceneCompositionAudit,
 } from "./sceneCompositionAudit";
+import { resolveDressingInstances, type ResolvedDressingInstance } from "./dressingResolver";
+import { createWorldLayout } from "./layoutEngine";
 
 export type PlacementConstraintKind =
   | "avoid_overlap"
@@ -44,6 +46,7 @@ export interface LocationSceneRecipe {
   presentation: ScenePresentation;
   environmentModules: SceneModuleSelection<SceneEnvironmentModuleId>[];
   dressingModules: SceneModuleSelection<SceneDressingModuleId>[];
+  dressingInstances: ResolvedDressingInstance[];
 }
 
 export interface SceneAssetCoverage {
@@ -157,15 +160,19 @@ export function compileSceneRecipe(
   const approved = resolveApprovedAssetLibrary(snapshot, plan);
   const manifest = buildSceneManifest(snapshot, plan, [], approved.assetRegistry);
   const locations = Object.fromEntries(
-    Object.entries(manifest.presentations).map(([locationId, presentation]) => [
-      locationId,
-      {
+    Object.entries(manifest.presentations).map(([locationId, presentation]) => {
+      const layout = createWorldLayout(snapshot, manifest.assetRegistry, [], locationId);
+      return [
         locationId,
-        presentation,
-        environmentModules: presentation.modules.environment,
-        dressingModules: presentation.modules.dressing,
-      },
-    ]),
+        {
+          locationId,
+          presentation,
+          environmentModules: presentation.modules.environment,
+          dressingModules: presentation.modules.dressing,
+          dressingInstances: resolveDressingInstances(layout, presentation, approved.styleKit.id),
+        },
+      ];
+    }),
   );
   const total = snapshot.entities.length;
   const approvedCount = approved.selections.length;

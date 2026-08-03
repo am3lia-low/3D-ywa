@@ -118,10 +118,37 @@ describe("scene recipe compiler", () => {
     expect(openingRecipe.locations["coaching-courtyard"]?.environmentModules.map((module) => module.moduleId))
       .toContain("shell:open-air");
     expect(openingRecipe.composition.status).toBe("clean");
+    const openingDressing = openingRecipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
+    const departureDressing = departureRecipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
+    expect(openingDressing).toHaveLength(5);
+    expect(openingDressing.every((instance) => instance.decorativeOnly)).toBe(true);
+    expect(openingDressing.map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
+      "polyhaven:wine_barrel_01",
+      "polyhaven:painted_wooden_bench",
+      "polyhaven:wooden_crate_01",
+    ]));
+    expect(departureDressing.map(({ dressingId, position }) => ({ dressingId, position })))
+      .toEqual(openingDressing.map(({ dressingId, position }) => ({ dressingId, position })));
     expect(departureRecipe.coverage).toMatchObject({ total: 6, approved: 6, approvedPercent: 100 });
     expect(departureRecipe.approvedAssets.find((asset) => asset.entityId === "courtyard-map-1"))
       .toMatchObject({ catalogId: "project:parchment-map-v1" });
     expect(departureRecipe.composition.status).toBe("clean");
+  });
+
+  it("removes presentation-only props when the visual plan drops their source tag", () => {
+    const planWithoutClutter = structuredClone(
+      courtyardPlan1Fixture,
+    ) as unknown as VisualScenePlan;
+    planWithoutClutter.locations[0]!.dressingTags = planWithoutClutter.locations[0]!.dressingTags
+      .filter((tag) => tag !== "courtyard-clutter");
+
+    const recipe = compileSceneRecipe(
+      courtyardSnapshotFixture as unknown as WorldSnapshot,
+      planWithoutClutter,
+    );
+
+    expect(recipe.locations["coaching-courtyard"]?.dressingInstances).toEqual([]);
+    expect(recipe.approvedAssets).toHaveLength(5);
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {
