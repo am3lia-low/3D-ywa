@@ -179,6 +179,20 @@ reference generator can retry deterministically with `-SeedOffset`; both the
 reference and reconstructed asset must now be approved before registry
 promotion.
 
+The demo app exposes that queue as an **Async visual pipeline** panel below the
+world. It regenerates one selected canonical entity at a time, persists the
+active candidate across refreshes, and blocks stale jobs when the snapshot or
+visual-plan version changes. The browser calls ComfyUI at
+`http://127.0.0.1:8190` and TripoSR at `http://127.0.0.1:8123` by default; both
+endpoints are editable in the panel. Planar `surface_template` jobs can be
+previewed after ComfyUI without TripoSR. Volumetric `image_to_mesh` jobs need
+both services. No output replaces the live registry until its reference and
+runtime previews have each been approved.
+
+Browser storage is deliberately an MVP queue store. A production deployment
+should move candidate image bytes, GLBs and queue JSON to durable object/database
+storage while retaining the same `SceneAssetQueueStore` boundary.
+
 The optional companion inspector consumes the same current snapshot and controlled selection:
 
 ```tsx

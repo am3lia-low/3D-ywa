@@ -5,3 +5,4 @@ export {
   type WorldViewerRuntimeError,
 } from "./WorldViewer";
 export { EntityInspector, type EntityInspectorProps } from "./EntityInspector";
+export { AssetReviewPanel, type AssetReviewPanelProps } from "./AssetReviewPanel";

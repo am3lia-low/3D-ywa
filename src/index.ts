@@ -13,6 +13,7 @@ export * from "./runtime/sceneCompiler";
 export * from "./runtime/sceneBuildPipeline";
 export * from "./runtime/sceneAssetWorker";
 export * from "./runtime/sceneAssetQueue";
+export * from "./runtime/assetReviewSession";
 export * from "./runtime/referenceImageProvider";
 export * from "./runtime/comfyUiReferenceImageProvider";
 export * from "./runtime/tripoSrProvider";

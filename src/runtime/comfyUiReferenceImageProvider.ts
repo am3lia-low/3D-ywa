@@ -27,6 +27,16 @@ interface ComfyHistoryEntry {
   };
 }
 
+interface ComfyCheckpointInfo {
+  CheckpointLoaderSimple?: {
+    input?: {
+      required?: {
+        ckpt_name?: [unknown];
+      };
+    };
+  };
+}
+
 export interface ComfyUiReferenceImageProviderOptions {
   endpoint: string;
   checkpointName?: string;
@@ -115,6 +125,12 @@ function reconstructionPrompt(job: SceneAssetGenerationJob): string {
 function reconstructionNegativePrompt(job: SceneAssetGenerationJob, basePrompt: string): string {
   if (!/\bunlit\b/i.test(job.prompt)) return basePrompt;
   return `${basePrompt}, flame, candle, light bulb, glowing, lit interior`;
+}
+
+function availableCheckpoints(value: unknown): string[] {
+  const names = (value as ComfyCheckpointInfo)?.CheckpointLoaderSimple?.input?.required
+    ?.ckpt_name?.[0];
+  return Array.isArray(names) ? names.filter((name): name is string => typeof name === "string") : [];
 }
 
 export function buildSdxlReferenceWorkflow(
@@ -214,7 +230,27 @@ export function createComfyUiReferenceImageProvider(
   return {
     id: "comfyui:sdxl-base-1.0",
     async generate(job, signal): Promise<GeneratedReferenceImage> {
-      const workflow = buildSdxlReferenceWorkflow(job, settings);
+      let checkpointName = settings.checkpointName;
+      if (!input.checkpointName) {
+        try {
+          const info = await request(`${endpoint}/object_info/CheckpointLoaderSimple`, { signal });
+          if (info.ok) {
+            const installed = availableCheckpoints(await info.json());
+            if (!installed.includes(checkpointName) && installed[0]) checkpointName = installed[0];
+          }
+        } catch {
+          // Older or proxied ComfyUI servers may not expose discovery; queueing remains authoritative.
+        }
+      }
+      const lightning = /lightning/i.test(checkpointName);
+      const workflow = buildSdxlReferenceWorkflow(job, {
+        ...settings,
+        checkpointName,
+        steps: input.steps ?? (lightning ? 4 : settings.steps),
+        cfg: input.cfg ?? (lightning ? 1 : settings.cfg),
+        samplerName: input.samplerName ?? (lightning ? "euler" : settings.samplerName),
+        scheduler: input.scheduler ?? (lightning ? "sgm_uniform" : settings.scheduler),
+      });
       const clientId = `storyworld-${safePrefix(job.entityId)}-${stableSeed(job, settings.seedOffset)}`;
       const queued = await request(`${endpoint}/prompt`, {
         method: "POST",

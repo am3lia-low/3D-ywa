@@ -127,6 +127,52 @@ describe("ComfyUI reference image provider", () => {
     });
   });
 
+  it("adapts to the checkpoint installed by a local ComfyUI service", async () => {
+    const request = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/object_info/CheckpointLoaderSimple")) {
+        return Response.json({
+          CheckpointLoaderSimple: {
+            input: { required: { ckpt_name: [["sdxl_lightning_4step.safetensors"]] } },
+          },
+        });
+      }
+      if (url.endsWith("/prompt")) {
+        const workflow = JSON.parse(String(init?.body)).prompt;
+        expect(workflow["1"].inputs.ckpt_name).toBe("sdxl_lightning_4step.safetensors");
+        expect(workflow["5"].inputs).toMatchObject({
+          steps: 4,
+          cfg: 1,
+          sampler_name: "euler",
+          scheduler: "sgm_uniform",
+        });
+        return Response.json({ prompt_id: "lightning-prompt" });
+      }
+      if (url.endsWith("/history/lightning-prompt")) {
+        return Response.json({
+          "lightning-prompt": {
+            status: { completed: true, status_str: "success" },
+            outputs: { "7": { images: [{ filename: "map.png", subfolder: "storyworld", type: "output" }] } },
+          },
+        });
+      }
+      if (url.includes("/view?")) {
+        return new Response(new Uint8Array([137, 80, 78, 71]), {
+          headers: { "content-type": "image/png" },
+        });
+      }
+      throw new Error(`Unexpected URL ${url}`);
+    });
+
+    const provider = createComfyUiReferenceImageProvider({
+      endpoint: "http://127.0.0.1:8190",
+      fetch: request as typeof fetch,
+      pollIntervalMs: 0,
+    });
+
+    await expect(provider.generate(job)).resolves.toMatchObject({ mimeType: "image/png" });
+  });
+
   it("keeps ComfyUI failures explicit and retryable", async () => {
     const provider = createComfyUiReferenceImageProvider({
       endpoint: "http://127.0.0.1:8188",

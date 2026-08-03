@@ -4,10 +4,12 @@ import patch2Fixture from "../fixtures/patch_2.json";
 import patch3Fixture from "../fixtures/patch_3.json";
 import visualPlan1Fixture from "../fixtures/visual_scene_plan_1.json";
 import visualPlan3Fixture from "../fixtures/visual_scene_plan_3.json";
+import { AssetReviewPanel } from "./components/AssetReviewPanel";
 import { EntityInspector } from "./components/EntityInspector";
 import type { VisualScenePlan } from "./contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "./contracts/world";
 import { applyScenePatch } from "./runtime/applyScenePatch";
+import type { AssetRegistry } from "./runtime/assetRegistry";
 import { buildSceneManifest } from "./runtime/sceneBuildPipeline";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
@@ -31,6 +33,7 @@ export default function App() {
   const [acknowledgedVersion, setAcknowledgedVersion] = useState(snapshot.version);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [activeLocationId, setActiveLocationId] = useState(snapshot.locations[0]?.id ?? "");
+  const [reviewRegistry, setReviewRegistry] = useState<AssetRegistry | null>(null);
   const patch = invalidPatchMode ? invalidPatch : step === 1 ? patch2 : step === 2 ? patch3 : null;
   const visualPlan = acknowledgedVersion >= 3 ? visualPlan3 : visualPlan1;
   const derivedSnapshot = useMemo(() => {
@@ -47,6 +50,7 @@ export default function App() {
     setInvalidPatchMode(false);
     setSession((current) => current + 1);
     setSelectedEntityId(null);
+    setReviewRegistry(null);
     setActiveLocationId(snapshot.locations[0]?.id ?? "");
     setAcknowledgedVersion(snapshot.version);
   };
@@ -84,7 +88,7 @@ export default function App() {
             snapshot={snapshot}
             patch={patch}
             visualPlan={visualPlan}
-            assetRegistry={sceneBuild.assetRegistry}
+            assetRegistry={reviewRegistry ?? sceneBuild.assetRegistry}
             activeLocationId={activeLocationId}
             selectedEntityId={selectedEntityId}
             onEntitySelect={setSelectedEntityId}
@@ -152,6 +156,7 @@ export default function App() {
             type="button"
             onClick={() => {
               setInvalidPatchMode(false);
+              setReviewRegistry(null);
               setStep((current) => Math.min(2, current + 1));
             }}
             disabled={step === 2}
@@ -166,6 +171,13 @@ export default function App() {
           onEntitySelect={setSelectedEntityId}
         />
       </section>
+
+      <AssetReviewPanel
+        snapshot={derivedSnapshot}
+        visualPlan={visualPlan}
+        baseRegistry={sceneBuild.assetRegistry}
+        onRegistryPreview={setReviewRegistry}
+      />
     </main>
   );
 }
