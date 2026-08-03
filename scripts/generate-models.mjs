@@ -268,6 +268,30 @@ manifest.push(
     license: "CC0 1.0 Universal",
     bytes: 2277087,
   },
+  {
+    key: "carriage-gate-polyhaven",
+    url: "/models/polyhaven/large_castle_door/large_castle_door_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "Tina",
+    license: "CC0 1.0 Universal",
+    bytes: 3271006,
+  },
+  {
+    key: "courtyard-bench-polyhaven",
+    url: "/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "Kirill Sannikov",
+    license: "CC0 1.0 Universal",
+    bytes: 1989639,
+  },
+  {
+    key: "wine-barrel-polyhaven",
+    url: "/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf",
+    format: "glTF 2.0 with 1K PBR textures",
+    author: "James Ray Cock",
+    license: "CC0 1.0 Universal",
+    bytes: 924683,
+  },
 );
 
 await writeFile(

@@ -121,6 +121,102 @@
       }
     },
     {
+      "catalogId": "polyhaven:large_castle_door",
+      "registryKey": "carriage-gate",
+      "roles": ["portal"],
+      "assetKeys": ["carriage-gate", "castle-gate", "large-castle-door"],
+      "semanticKinds": ["architecture", "door", "gate", "portal"],
+      "tags": ["door", "gate", "castle", "fortified", "oak", "iron", "weathered", "historical"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Tina",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/large_castle_door",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "carriage-gate",
+        "geometry": "box",
+        "dimensions": [2.45, 3.6, 0.38],
+        "color": "#574133",
+        "modelUrl": "/models/polyhaven/large_castle_door/large_castle_door_1k.gltf",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 3400000,
+        "maxTriangles": 15000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:painted_wooden_bench",
+      "registryKey": "courtyard-bench",
+      "roles": ["seat"],
+      "assetKeys": ["courtyard-bench", "painted-wooden-bench", "wooden-bench"],
+      "semanticKinds": ["bench", "furniture", "seat"],
+      "tags": ["bench", "seat", "wood", "painted", "worn", "antique", "rustic", "historical"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_bench",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "courtyard-bench",
+        "geometry": "box",
+        "dimensions": [1.75, 0.9, 0.65],
+        "color": "#74473c",
+        "modelUrl": "/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+        "roughness": 0.92
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2100000,
+        "maxTriangles": 2000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:wine_barrel_01",
+      "registryKey": "wine-barrel",
+      "roles": ["storage"],
+      "assetKeys": ["wine-barrel", "wooden-barrel", "barrel"],
+      "semanticKinds": ["barrel", "container", "storage"],
+      "tags": ["barrel", "wine", "oak", "iron", "worn", "farmhouse", "cellar", "historical"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wine_barrel_01",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "wine-barrel",
+        "geometry": "cylinder",
+        "dimensions": [0.82, 1.06, 0.82],
+        "color": "#684734",
+        "modelUrl": "/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 1000000,
+        "maxTriangles": 12000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.5,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "project:stone-hearth-v1",
       "registryKey": "fireplace",
       "roles": ["hearth"],

@@ -31,6 +31,11 @@ export default defineConfig({
               priority: 10,
               maxSize: 420_000,
             },
+            {
+              name: "asset-catalog",
+              test: /src[\\/]data[\\/]asset-kit-catalog\.json$/,
+              priority: 15,
+            },
           ],
         },
       },

@@ -1285,33 +1285,17 @@ function CourtyardKit({
       {presentation.dressing.courtyardClutter && (
         <>
           <group position={[-bounds[0] / 2 + 0.78, 0, bounds[2] * 0.28]}>
-            <mesh position={[0, 0.64, 0]} castShadow receiveShadow>
-              <cylinderGeometry args={[0.48, 0.55, 1.28, 18]} />
-              <meshStandardMaterial color="#5b3d2d" roughness={0.88} />
-            </mesh>
-            {[0.24, 0.68, 1.06].map((y) => (
-              <mesh key={`courtyard-barrel-band-${y}`} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-                <torusGeometry args={[0.515, 0.035, 7, 22]} />
-                <meshStandardMaterial color="#3d4543" roughness={0.62} metalness={0.48} />
-              </mesh>
-            ))}
+            <group position={[0, 0.53, 0]} scale={[0.82, 1.06, 0.82]}>
+              <LoadedModel url="/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf" />
+            </group>
             <PeriodCrate position={[0.78, 0.35, 0.18]} rotation={[0, 0.22, 0]} scale={[0.84, 0.7, 0.78]} />
           </group>
-          <group position={[-bounds[0] / 2 + 0.48, 0, bounds[2] * 0.02]} rotation={[0, Math.PI / 2, 0]}>
-            <mesh position={[0, 0.62, 0]} castShadow receiveShadow>
-              <boxGeometry args={[2.35, 0.22, 0.62]} />
-              <meshStandardMaterial color="#5a3c2c" roughness={0.9} />
-            </mesh>
-            {[-0.86, 0.86].map((x) => (
-              <mesh key={`courtyard-bench-leg-${x}`} position={[x, 0.3, 0]} castShadow>
-                <boxGeometry args={[0.24, 0.6, 0.5]} />
-                <meshStandardMaterial color="#4b3328" roughness={0.92} />
-              </mesh>
-            ))}
-            <mesh position={[0, 1.15, -0.24]} rotation={[-0.1, 0, 0]} castShadow>
-              <boxGeometry args={[2.35, 0.82, 0.18]} />
-              <meshStandardMaterial color="#624333" roughness={0.9} />
-            </mesh>
+          <group
+            position={[-bounds[0] / 2 + 0.5, 0.45, bounds[2] * 0.02]}
+            rotation={[0, Math.PI / 2, 0]}
+            scale={[1.75, 0.9, 0.65]}
+          >
+            <LoadedModel url="/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf" />
           </group>
           <group position={[bounds[0] * 0.42, 0, -bounds[2] * 0.27]}>
             <PeriodCrate position={[0, 0.42, 0]} rotation={[0, -0.26, 0]} scale={[1.12, 0.84, 0.9]} />
@@ -1763,31 +1747,31 @@ function StoryEffects({
   onLocationRequest?: (locationId: string) => void;
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
-  const hiddenDoor = layout.items.find((item) => item.asset.key === "hidden-door");
+  const portalItem = layout.items.find((item) => isPortalItem(item));
 
   return (
     <>
       {litItems.map((item) => (
         <Firelight key={`firelight-${item.entity.id}`} item={item} />
       ))}
-      {hiddenDoor && (
-        <group position={hiddenDoor.position}>
-          <mesh position={[-hiddenDoor.dimensions[0] / 2 - 0.05, 0, 0.17]}>
-            <boxGeometry args={[0.06, hiddenDoor.dimensions[1] + 0.16, 0.06]} />
+      {portalItem && (
+        <group position={portalItem.position}>
+          <mesh position={[-portalItem.dimensions[0] / 2 - 0.05, 0, 0.17]}>
+            <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
             <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
           </mesh>
-          <mesh position={[hiddenDoor.dimensions[0] / 2 + 0.05, 0, 0.17]}>
-            <boxGeometry args={[0.06, hiddenDoor.dimensions[1] + 0.16, 0.06]} />
+          <mesh position={[portalItem.dimensions[0] / 2 + 0.05, 0, 0.17]}>
+            <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
             <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
           </mesh>
-          <mesh position={[0, hiddenDoor.dimensions[1] / 2 + 0.05, 0.17]}>
-            <boxGeometry args={[hiddenDoor.dimensions[0] + 0.16, 0.06, 0.06]} />
+          <mesh position={[0, portalItem.dimensions[1] / 2 + 0.05, 0.17]}>
+            <boxGeometry args={[portalItem.dimensions[0] + 0.16, 0.06, 0.06]} />
             <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
           </mesh>
           {portalDestination && onLocationRequest && (
             <Html
               center
-              position={[0, hiddenDoor.dimensions[1] / 2 + 0.52, 0.28]}
+              position={[0, portalItem.dimensions[1] / 2 + 0.52, 0.28]}
               distanceFactor={8}
             >
               <button
@@ -1805,6 +1789,12 @@ function StoryEffects({
         </group>
       )}
     </>
+  );
+}
+
+function isPortalItem(item: LayoutItem): boolean {
+  return /\b(?:door|gate|portal|hatch)\b/i.test(
+    `${item.asset.key} ${item.entity.kind} ${item.entity.name}`,
   );
 }
 
@@ -2032,7 +2022,7 @@ function WorldScene({
             onEntitySelect?.(item.entity.id);
           }}
           onActivate={
-            item.asset.key === "hidden-door" && portalDestination && onLocationRequest
+            isPortalItem(item) && portalDestination && onLocationRequest
               ? (event) => {
                   event.stopPropagation();
                   onLocationRequest(portalDestination.id);

@@ -46,7 +46,7 @@
       "name": "North carriage gate",
       "kind": "architecture",
       "locationId": "coaching-courtyard",
-      "assetKey": "hidden-door",
+      "assetKey": "carriage-gate",
       "state": { "locked": true },
       "provenance": { "passageId": "R1", "confidence": 0.98 }
     },

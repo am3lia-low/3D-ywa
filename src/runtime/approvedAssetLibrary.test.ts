@@ -9,6 +9,8 @@ import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.
 import conservatoryPatchFixture from "../../fixtures/patch_conservatory_2.json";
 import conservatoryPlan1Fixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
 import conservatoryPlan2Fixture from "../../fixtures/visual_scene_plan_conservatory_2.json";
+import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
+import courtyardPlanFixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -101,5 +103,21 @@ describe("approved asset library", () => {
     expect(awakened.unresolvedEntityIds).toEqual(["orrery-1"]);
     expect(awakened.selections.find((item) => item.entityId === "conservatory-worktable-1")?.catalogId)
       .toBe(opening.selections.find((item) => item.entityId === "conservatory-worktable-1")?.catalogId);
+  });
+
+  it("promotes a period carriage gate from the approved CC0 kit", () => {
+    const result = resolveApprovedAssetLibrary(
+      courtyardSnapshotFixture as unknown as WorldSnapshot,
+      courtyardPlanFixture as unknown as VisualScenePlan,
+    );
+
+    expect(result.selections.find((item) => item.entityId === "courtyard-gate-1"))
+      .toMatchObject({
+        catalogId: "polyhaven:large_castle_door",
+        reason: "canonical_asset_key",
+        license: "CC0 1.0 Universal",
+      });
+    expect(result.assetRegistry["courtyard-gate-1"]?.modelUrl)
+      .toBe("/models/polyhaven/large_castle_door/large_castle_door_1k.gltf");
   });
 });

@@ -4,8 +4,8 @@
   "summary": {
     "kits": 3,
     "completeKits": 3,
-    "assets": 8,
-    "passed": 8,
+    "assets": 11,
+    "passed": 11,
     "warnings": 0,
     "failed": 0
   },
@@ -122,6 +122,75 @@
         0.409
       ],
       "aspectDistortion": 1.62,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "polyhaven:large_castle_door",
+      "registryKey": "carriage-gate",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/large_castle_door/large_castle_door.bin",
+        "public/models/polyhaven/large_castle_door/large_castle_door_1k.gltf",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_arm_1k.jpg",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_diff_1k.jpg",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_nor_gl_1k.jpg"
+      ],
+      "totalBytes": 3271006,
+      "triangles": 12640,
+      "materialCount": 1,
+      "sourceBounds": [
+        2.0121,
+        4.0623,
+        0.1764
+      ],
+      "aspectDistortion": 2.43,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "polyhaven:painted_wooden_bench",
+      "registryKey": "courtyard-bench",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/painted_wooden_bench/painted_wooden_bench.bin",
+        "public/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+        "public/models/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_arm_1k.jpg",
+        "public/models/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_diff_1k.jpg",
+        "public/models/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_nor_gl_1k.jpg"
+      ],
+      "totalBytes": 1989639,
+      "triangles": 630,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.1649,
+        0.8893,
+        0.4965
+      ],
+      "aspectDistortion": 1.48,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "polyhaven:wine_barrel_01",
+      "registryKey": "wine-barrel",
+      "status": "pass",
+      "files": [
+        "public/models/polyhaven/wine_barrel_01/textures/wine_barrel_01_arm_1k.jpg",
+        "public/models/polyhaven/wine_barrel_01/textures/wine_barrel_01_diff_1k.jpg",
+        "public/models/polyhaven/wine_barrel_01/textures/wine_barrel_01_nor_gl_1k.jpg",
+        "public/models/polyhaven/wine_barrel_01/wine_barrel_01.bin",
+        "public/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf"
+      ],
+      "totalBytes": 924683,
+      "triangles": 10820,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.7419,
+        0.8713,
+        0.756
+      ],
+      "aspectDistortion": 1.12,
       "warnings": [],
       "errors": []
     },
