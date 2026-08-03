@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import atticSnapshotFixture from "../../fixtures/snapshot_1.json";
 import atticPlanFixture from "../../fixtures/visual_scene_plan_1.json";
+import atticPatch2Fixture from "../../fixtures/patch_2.json";
+import atticPatch3Fixture from "../../fixtures/patch_3.json";
+import atticPlan3Fixture from "../../fixtures/visual_scene_plan_3.json";
 import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
 import conservatoryPatchFixture from "../../fixtures/patch_conservatory_2.json";
 import conservatoryPlan1Fixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
@@ -47,6 +50,31 @@ describe("scene recipe compiler", () => {
         "dressing:travel-chest",
       ]),
     );
+    expect(attic?.dressingInstances).toHaveLength(4);
+    expect(attic?.dressingInstances.map((instance) => instance.renderKind)).toEqual(
+      expect.arrayContaining(["asset", "module"]),
+    );
+  });
+
+  it("preserves attic dressing identities while story entities change", () => {
+    const opening = atticSnapshotFixture as unknown as WorldSnapshot;
+    const version2 = applyScenePatch(opening, atticPatch2Fixture as unknown as ScenePatch);
+    const version3 = applyScenePatch(version2, atticPatch3Fixture as unknown as ScenePatch);
+    const openingIds = compileSceneRecipe(
+      opening,
+      atticPlanFixture as unknown as VisualScenePlan,
+    ).locations["attic-study"]!.dressingInstances.map((instance) => instance.dressingId);
+    const version2Instances = compileSceneRecipe(
+      version2,
+      atticPlanFixture as unknown as VisualScenePlan,
+    ).locations["attic-study"]!.dressingInstances;
+    const version3Instances = compileSceneRecipe(
+      version3,
+      atticPlan3Fixture as unknown as VisualScenePlan,
+    ).locations["attic-study"]!.dressingInstances;
+
+    expect(version2Instances.map((instance) => instance.dressingId)).toEqual(openingIds);
+    expect(version3Instances.map((instance) => instance.dressingId)).toEqual(openingIds);
   });
 
   it("selects a different module composition for the conservatory", () => {
@@ -77,6 +105,9 @@ describe("scene recipe compiler", () => {
     expect(conservatory?.dressingModules.map((module) => module.moduleId)).toEqual(
       expect.arrayContaining(["dressing:planters", "dressing:climbing-vines"]),
     );
+    expect(conservatory?.dressingInstances).toHaveLength(10);
+    expect(conservatory?.dressingInstances.every((instance) => instance.renderKind === "module"))
+      .toBe(true);
     expect(recipe.fallbackEntityIds).toEqual(["orrery-1"]);
     expect(recipe.generationJobs[0]).toMatchObject({
       entityId: "orrery-1",
@@ -87,6 +118,10 @@ describe("scene recipe compiler", () => {
 
   it("keeps asset and module decisions stable while compiling the next passage", () => {
     const opening = conservatorySnapshotFixture as unknown as WorldSnapshot;
+    const openingRecipe = compileSceneRecipe(
+      opening,
+      conservatoryPlan1Fixture as unknown as VisualScenePlan,
+    );
     const awakened = applyScenePatch(opening, conservatoryPatchFixture as unknown as ScenePatch);
     const recipe = compileSceneRecipe(
       awakened,
@@ -99,6 +134,28 @@ describe("scene recipe compiler", () => {
     expect(recipe.fallbackEntityIds).toEqual(["orrery-1"]);
     expect(recipe.approvedAssets.find((asset) => asset.entityId === "conservatory-worktable-1"))
       .toMatchObject({ catalogId: "polyhaven:wooden_table_02" });
+    const openingDressing = openingRecipe.locations["moonlit-conservatory"]?.dressingInstances ?? [];
+    const awakenedDressing = recipe.locations["moonlit-conservatory"]?.dressingInstances ?? [];
+    expect(awakenedDressing.map((instance) => instance.dressingId))
+      .toEqual(openingDressing.map((instance) => instance.dressingId));
+    expect(awakenedDressing.filter((instance) => instance.placementStatus === "rerouted")
+      .map((instance) => instance.dressingId))
+      .toContain("moonlit-conservatory:dressing:planters:northeast-planter");
+  });
+
+  it("scales adaptive dressing counts from sparse to rich without changing facts", () => {
+    const sparsePlan = structuredClone(
+      conservatoryPlan1Fixture,
+    ) as unknown as VisualScenePlan;
+    sparsePlan.locations[0]!.dressingDensity = "sparse";
+
+    const recipe = compileSceneRecipe(
+      conservatorySnapshotFixture as unknown as WorldSnapshot,
+      sparsePlan,
+    );
+
+    expect(recipe.locations["moonlit-conservatory"]?.dressingInstances).toHaveLength(4);
+    expect(recipe.coverage).toMatchObject({ total: 5, approved: 4, designedFallback: 1 });
   });
 
   it("builds a fully approved outdoor recipe and preserves it through a patch", () => {
@@ -122,7 +179,7 @@ describe("scene recipe compiler", () => {
     const departureDressing = departureRecipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
     expect(openingDressing).toHaveLength(5);
     expect(openingDressing.every((instance) => instance.decorativeOnly)).toBe(true);
-    expect(openingDressing.map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
+    expect(openingDressing.filter((instance) => instance.renderKind === "asset").map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
       "polyhaven:wine_barrel_01",
       "polyhaven:painted_wooden_bench",
       "polyhaven:wooden_crate_01",

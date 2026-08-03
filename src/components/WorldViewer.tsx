@@ -645,11 +645,11 @@ function DecorativeBook({
   );
 }
 
-function AtticLibraryDressing({ bounds, rich }: { bounds: Vector3Tuple; rich: boolean }) {
+function AtticLibraryDressing({ rich }: { rich: boolean }) {
   const bookColors = ["#743f35", "#4f655b", "#80633d", "#4a5065", "#8b573f"];
   const booksPerShelf = rich ? 13 : 9;
   return (
-    <group position={[-bounds[0] / 2 + 0.4, 0, -0.35]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={[0, -1.375, 0]}>
       {[1.25, 2.08].map((shelfY, shelfIndex) => (
         <group key={`attic-library-shelf-${shelfIndex}`}>
           <mesh position={[0, shelfY, 0]} castShadow receiveShadow>
@@ -945,13 +945,6 @@ function ConservatoryKit({
     x: index % 10,
     z: Math.floor(index / 10),
   }));
-  const planters: Vector3Tuple[] = [
-    [-bounds[0] * 0.39, 0, -bounds[2] * 0.32],
-    [-bounds[0] * 0.4, 0, 0],
-    [-bounds[0] * 0.38, 0, bounds[2] * 0.3],
-    [bounds[0] * 0.34, 0, -bounds[2] * 0.37],
-    [bounds[0] * 0.4, 0, bounds[2] * 0.32],
-  ];
 
   return (
     <>
@@ -1047,28 +1040,6 @@ function ConservatoryKit({
           ))}
         </>
       )}
-      {presentation.dressing.planters && planters.map((position, index) => (
-        <BotanicalPlanter key={`botanical-planter-${index}`} position={position} scale={0.9 + (index % 3) * 0.16} />
-      ))}
-      {presentation.dressing.climbingVines && rearPosts.slice(1, -1).map((x, index) => (
-        <group key={`glasshouse-vine-${index}`} position={[x + 0.12, 0.72, -bounds[2] / 2 + 0.22]}>
-          <mesh position={[0, 1.25, 0]} rotation={[0, 0, index % 2 ? 0.08 : -0.08]}>
-            <cylinderGeometry args={[0.025, 0.04, 2.5, 7]} />
-            <meshStandardMaterial color="#315c42" roughness={0.92} />
-          </mesh>
-          {Array.from({ length: 5 }, (_, leafIndex) => (
-            <mesh
-              key={`vine-leaf-${leafIndex}`}
-              position={[(leafIndex % 2 ? 1 : -1) * 0.13, 0.35 + leafIndex * 0.42, 0.04]}
-              rotation={[0.2, 0, leafIndex % 2 ? 0.5 : -0.5]}
-              scale={[0.22, 0.09, 0.12]}
-            >
-              <sphereGeometry args={[1, 10, 6]} />
-              <meshStandardMaterial color={leafIndex % 2 ? "#4b7855" : "#386848"} roughness={0.9} />
-            </mesh>
-          ))}
-        </group>
-      ))}
     </>
   );
 }
@@ -1290,23 +1261,101 @@ function CourtyardKit({
   );
 }
 
-function DressingAssets({ instances }: { instances: readonly ResolvedDressingInstance[] }) {
-  return instances.map((instance) => (
-    <group
-      key={instance.dressingId}
-      name={instance.dressingId}
-      position={instance.position}
-      rotation={instance.rotation}
-      scale={instance.dimensions}
-      userData={{
-        dressingId: instance.dressingId,
-        catalogId: instance.catalogId,
-        decorativeOnly: true,
-      }}
-    >
-      <EntityAsset asset={instance.asset} highlighted={false} highlightColor="#000000" />
+function TravelChestDressing({ dimensions }: { dimensions: Vector3Tuple }) {
+  return (
+    <group>
+      <PeriodCrate position={[0, 0, 0]} scale={dimensions} />
+      {[-0.58, 0.58].map((x) => (
+        <mesh key={`travel-chest-strap-${x}`} position={[x, 0.02, 0.45]} castShadow>
+          <boxGeometry args={[0.13, 0.74, 0.05]} />
+          <meshStandardMaterial color="#2b1b16" roughness={0.74} />
+        </mesh>
+      ))}
+      <mesh position={[0, -0.02, 0.5]} castShadow>
+        <boxGeometry args={[0.24, 0.27, 0.09]} />
+        <meshStandardMaterial color="#a57835" roughness={0.46} metalness={0.72} />
+      </mesh>
     </group>
-  ));
+  );
+}
+
+function ClimbingVineDressing({ height, seed }: { height: number; seed: number }) {
+  return (
+    <group>
+      <mesh rotation={[0, 0, seed % 2 ? 0.08 : -0.08]}>
+        <cylinderGeometry args={[0.025, 0.04, height, 7]} />
+        <meshStandardMaterial color="#315c42" roughness={0.92} />
+      </mesh>
+      {Array.from({ length: 5 }, (_, leafIndex) => (
+        <mesh
+          key={`vine-leaf-${leafIndex}`}
+          position={[
+            (leafIndex % 2 ? 1 : -1) * 0.13,
+            -height / 2 + 0.35 + leafIndex * ((height - 0.7) / 4),
+            0.04,
+          ]}
+          rotation={[0.2, 0, leafIndex % 2 ? 0.5 : -0.5]}
+          scale={[0.22, 0.09, 0.12]}
+        >
+          <sphereGeometry args={[1, 10, 6]} />
+          <meshStandardMaterial color={leafIndex % 2 ? "#4b7855" : "#386848"} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function DressingModule({ instance }: { instance: Extract<ResolvedDressingInstance, { renderKind: "module" }> }) {
+  if (instance.moduleKey === "attic-library") {
+    return <AtticLibraryDressing rich={instance.density === "rich"} />;
+  }
+  if (instance.moduleKey === "travel-chest") {
+    return <TravelChestDressing dimensions={instance.dimensions} />;
+  }
+  if (instance.moduleKey === "botanical-planter") {
+    const scale = instance.dimensions[1] / 1.28;
+    return <BotanicalPlanter position={[0, -instance.dimensions[1] / 2, 0]} scale={scale} />;
+  }
+  const seed = Number(instance.dressingId.match(/(\d+)$/)?.[1] ?? 0);
+  return <ClimbingVineDressing height={instance.dimensions[1]} seed={seed} />;
+}
+
+function DressingAssets({ instances }: { instances: readonly ResolvedDressingInstance[] }) {
+  return instances.map((instance) => {
+    const userData = {
+      dressingId: instance.dressingId,
+      decorativeOnly: true,
+      placementStatus: instance.placementStatus,
+      ...(instance.renderKind === "asset"
+        ? { catalogId: instance.catalogId }
+        : { moduleKey: instance.moduleKey }),
+    };
+    if (instance.renderKind === "module") {
+      return (
+        <group
+          key={instance.dressingId}
+          name={instance.dressingId}
+          position={instance.position}
+          rotation={instance.rotation}
+          userData={userData}
+        >
+          <DressingModule instance={instance} />
+        </group>
+      );
+    }
+    return (
+      <group
+        key={instance.dressingId}
+        name={instance.dressingId}
+        position={instance.position}
+        rotation={instance.rotation}
+        scale={instance.dimensions}
+        userData={userData}
+      >
+        <EntityAsset asset={instance.asset} highlighted={false} highlightColor="#000000" />
+      </group>
+    );
+  });
 }
 
 function Room({
@@ -1486,43 +1535,6 @@ function Room({
           {presentation.architecture.window && (
             <AtticWindow
               position={[-bounds[0] * 0.31, bounds[1] * 0.61, -bounds[2] / 2 + 0.075]}
-            />
-          )}
-          <group
-            visible={presentation.dressing.storageCrates}
-            position={[-bounds[0] * 0.38, 0, bounds[2] * 0.3]}
-          >
-            <PeriodCrate position={[0, 0.42, 0]} scale={[1.38, 0.84, 1.08]} />
-            <PeriodCrate
-              position={[0.48, 1.18, -0.05]}
-              rotation={[0, 0.18, 0.08]}
-              scale={[0.92, 0.62, 0.76]}
-            />
-          </group>
-          <group
-            visible={presentation.dressing.travelChest}
-            position={[bounds[0] * 0.37, 0, bounds[2] * 0.27]}
-          >
-            <PeriodCrate
-              position={[0, 0.48, 0]}
-              rotation={[0, -0.08, 0]}
-              scale={[2.05, 0.96, 1.12]}
-            />
-            {[-0.58, 0.58].map((x) => (
-              <mesh key={`travel-chest-strap-${x}`} position={[x, 0.5, 0.45]} castShadow>
-                <boxGeometry args={[0.13, 0.74, 0.05]} />
-                <meshStandardMaterial color="#2b1b16" roughness={0.74} />
-              </mesh>
-            ))}
-            <mesh position={[0, 0.46, 0.5]} castShadow>
-              <boxGeometry args={[0.24, 0.27, 0.09]} />
-              <meshStandardMaterial color="#a57835" roughness={0.46} metalness={0.72} />
-            </mesh>
-          </group>
-          {presentation.dressing.books && (
-            <AtticLibraryDressing
-              bounds={bounds}
-              rich={presentation.dressing.density === "rich"}
             />
           )}
         </>
