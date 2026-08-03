@@ -120,6 +120,14 @@
       "author": "James Ray Cock",
       "license": "CC0 1.0 Universal",
       "bytes": 924683
+    },
+    {
+      "key": "bookshelf-polyhaven",
+      "url": "/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "bytes": 2777194
     }
   ]
 }

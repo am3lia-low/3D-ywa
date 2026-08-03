@@ -12,6 +12,7 @@ authors and source pages are retained here for provenance.
 | Large Castle Door | Tina | https://polyhaven.com/a/large_castle_door |
 | Painted Wooden Bench | Kirill Sannikov | https://polyhaven.com/a/painted_wooden_bench |
 | Wine Barrel 01 | James Ray Cock | https://polyhaven.com/a/wine_barrel_01 |
+| Wooden Bookshelf Worn | Ulan Cabanilla | https://polyhaven.com/a/wooden_bookshelf_worn |
 
 License: https://creativecommons.org/publicdomain/zero/1.0/
 

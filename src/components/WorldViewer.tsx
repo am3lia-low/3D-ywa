@@ -432,33 +432,56 @@ function StoryFireplace({ highlighted, highlightColor }: {
       emissiveIntensity={highlighted ? 0.22 : 0}
     />
   );
+  const archShape = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.5, -0.5);
+    shape.lineTo(0.5, -0.5);
+    shape.lineTo(0.5, 0.12);
+    shape.absarc(0, 0.12, 0.5, 0, Math.PI, false);
+    shape.lineTo(-0.5, -0.5);
+
+    const opening = new THREE.Path();
+    opening.moveTo(-0.27, -0.42);
+    opening.lineTo(0.27, -0.42);
+    opening.lineTo(0.27, 0.08);
+    opening.absarc(0, 0.08, 0.27, 0, Math.PI, false);
+    opening.lineTo(-0.27, -0.42);
+    shape.holes.push(opening);
+    return shape;
+  }, []);
+  const archExtrusion = useMemo(() => ({
+    depth: 0.27,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.022,
+    bevelThickness: 0.022,
+    curveSegments: 18,
+  }), []);
 
   return (
     <group>
-      <mesh position={[0, 0.02, -0.08]} castShadow receiveShadow>
-        <boxGeometry args={[0.98, 0.92, 0.28]} />
+      <mesh position={[0, -0.02, -0.13]} castShadow receiveShadow>
+        <extrudeGeometry args={[archShape, archExtrusion]} />
         {stoneMaterial}
       </mesh>
-      <mesh position={[0, -0.1, 0.075]}>
-        <boxGeometry args={[0.53, 0.57, 0.035]} />
+      <mesh position={[0, -0.13, 0.02]}>
+        <planeGeometry args={[0.5, 0.54]} />
         <meshStandardMaterial color="#100b08" roughness={1} />
       </mesh>
-      {[-0.39, 0.39].map((x) => (
-        <mesh key={x} position={[x, -0.08, 0.13]} castShadow receiveShadow>
-          <boxGeometry args={[0.2, 0.72, 0.36]} />
-          {stoneMaterial}
-        </mesh>
-      ))}
-      <mesh position={[0, 0.39, 0.15]} castShadow receiveShadow>
-        <boxGeometry args={[1, 0.18, 0.48]} />
+      <mesh position={[0, 0.48, 0.06]} castShadow receiveShadow>
+        <boxGeometry args={[1.12, 0.14, 0.52]} />
         {stoneMaterial}
       </mesh>
-      <mesh position={[0, -0.43, 0.2]} castShadow receiveShadow>
-        <boxGeometry args={[1, 0.14, 0.64]} />
+      <mesh position={[0, -0.45, 0.18]} castShadow receiveShadow>
+        <boxGeometry args={[1.08, 0.12, 0.7]} />
         {stoneMaterial}
+      </mesh>
+      <mesh position={[0, -0.34, 0.18]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
+        <planeGeometry args={[0.48, 0.38]} />
+        <meshStandardMaterial color="#2a1a13" roughness={1} />
       </mesh>
       {[-0.14, 0.14].map((x) => (
-        <mesh key={x} position={[x, -0.34, 0.25]} rotation={[0, 0, x * 1.6]} castShadow>
+        <mesh key={x} position={[x, -0.31, 0.29]} rotation={[0, 0, x * 1.6]} castShadow>
           <cylinderGeometry args={[0.055, 0.075, 0.42, 10]} />
           <meshStandardMaterial color="#392218" roughness={1} />
         </mesh>
@@ -568,6 +591,61 @@ function AtticRoofFrame({ bounds, timberColor }: { bounds: Vector3Tuple; timberC
   );
 }
 
+function AtticRoofShell({
+  bounds,
+  colorMap,
+  normalMap,
+  roughnessMap,
+}: {
+  bounds: Vector3Tuple;
+  colorMap: THREE.Texture;
+  normalMap: THREE.Texture;
+  roughnessMap: THREE.Texture;
+}) {
+  const eaveY = bounds[1] * 0.72;
+  const ridgeY = bounds[1] - 0.16;
+  const halfWidth = bounds[0] / 2 - 0.12;
+  const rise = ridgeY - eaveY;
+  const slopeLength = Math.hypot(halfWidth, rise);
+  const angle = Math.atan2(rise, halfWidth);
+  const panelDepth = bounds[2] * 0.58;
+  const panelZ = -bounds[2] * 0.21;
+  const material = (
+    <meshStandardMaterial
+      color="#6f5947"
+      map={colorMap}
+      normalMap={normalMap}
+      normalScale={new THREE.Vector2(0.32, 0.32)}
+      roughnessMap={roughnessMap}
+      roughness={0.96}
+      side={THREE.DoubleSide}
+    />
+  );
+
+  return (
+    <group>
+      <mesh
+        position={[-halfWidth / 2, (eaveY + ridgeY) / 2 + 0.05, panelZ]}
+        rotation={[0, 0, angle]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[slopeLength, 0.085, panelDepth]} />
+        {material}
+      </mesh>
+      <mesh
+        position={[halfWidth / 2, (eaveY + ridgeY) / 2 + 0.05, panelZ]}
+        rotation={[0, 0, -angle]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[slopeLength, 0.085, panelDepth]} />
+        {material}
+      </mesh>
+    </group>
+  );
+}
+
 function AtticWindow({ position }: { position: Vector3Tuple }) {
   const panePositions: Vector3Tuple[] = [
     [-0.48, 0.36, 0.035],
@@ -647,29 +725,23 @@ function DecorativeBook({
 
 function AtticLibraryDressing({ rich }: { rich: boolean }) {
   const bookColors = ["#743f35", "#4f655b", "#80633d", "#4a5065", "#8b573f"];
-  const booksPerShelf = rich ? 13 : 9;
+  const booksPerShelf = rich ? 11 : 8;
+  const shelfBases = rich ? [-1.08, -0.46, 0.16, 0.78] : [-1.08, -0.46, 0.16];
   return (
-    <group position={[0, -1.375, 0]}>
-      {[1.25, 2.08].map((shelfY, shelfIndex) => (
+    <group>
+      <group scale={[2.8, 2.85, 0.62]}>
+        <LoadedModel url="/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf" />
+      </group>
+      {shelfBases.map((shelfBase, shelfIndex) => (
         <group key={`attic-library-shelf-${shelfIndex}`}>
-          <mesh position={[0, shelfY, 0]} castShadow receiveShadow>
-            <boxGeometry args={[3.35, 0.13, 0.58]} />
-            <meshStandardMaterial color="#482f23" roughness={0.88} />
-          </mesh>
-          {[-1.3, 1.3].map((x) => (
-            <mesh key={`attic-shelf-bracket-${shelfIndex}-${x}`} position={[x, shelfY - 0.27, 0.08]} rotation={[0.12, 0, x > 0 ? 0.55 : -0.55]} castShadow>
-              <boxGeometry args={[0.12, 0.62, 0.13]} />
-              <meshStandardMaterial color="#34231c" roughness={0.92} />
-            </mesh>
-          ))}
           {Array.from({ length: booksPerShelf }, (_, index) => {
-            const width = 0.14 + (index % 3) * 0.025;
-            const height = 0.43 + ((index + shelfIndex) % 4) * 0.055;
+            const width = 0.13 + (index % 3) * 0.022;
+            const height = 0.38 + ((index + shelfIndex) % 4) * 0.045;
             return (
               <DecorativeBook
                 key={`attic-detail-book-${shelfIndex}-${index}`}
-                position={[-1.38 + index * (2.7 / Math.max(booksPerShelf - 1, 1)), shelfY + height / 2 + 0.07, 0]}
-                size={[width, height, 0.36 + (index % 2) * 0.035]}
+                position={[-1.04 + index * (2.08 / Math.max(booksPerShelf - 1, 1)), shelfBase + height / 2, 0.2]}
+                size={[width, height, 0.31 + (index % 2) * 0.03]}
                 color={bookColors[(index + shelfIndex) % bookColors.length]!}
                 rotation={[0, 0, index % 5 === 0 ? -0.08 : index % 7 === 0 ? 0.06 : 0]}
               />
@@ -678,26 +750,14 @@ function AtticLibraryDressing({ rich }: { rich: boolean }) {
         </group>
       ))}
       {rich && (
-        <>
-          {[0, 1, 2].map((index) => (
-            <DecorativeBook
-              key={`attic-horizontal-book-${index}`}
-              position={[0.92, 2.47 + index * 0.1, 0.02]}
-              size={[0.62 - index * 0.06, 0.09, 0.38]}
-              color={bookColors[(index + 2) % bookColors.length]!}
-            />
-          ))}
-          <group position={[-1.28, 2.49, 0]}>
-            <mesh castShadow>
-              <cylinderGeometry args={[0.13, 0.17, 0.42, 12]} />
-              <meshStandardMaterial color="#60746b" roughness={0.76} />
-            </mesh>
-            <mesh position={[0, 0.26, 0]} castShadow>
-              <cylinderGeometry args={[0.055, 0.09, 0.16, 12]} />
-              <meshStandardMaterial color="#60746b" roughness={0.76} />
-            </mesh>
-          </group>
-        </>
+        [0, 1, 2].map((index) => (
+          <DecorativeBook
+            key={`attic-horizontal-book-${index}`}
+            position={[0.76, 1.17 + index * 0.09, 0.2]}
+            size={[0.54 - index * 0.05, 0.08, 0.33]}
+            color={bookColors[(index + 2) % bookColors.length]!}
+          />
+        ))
       )}
     </group>
   );
@@ -1487,6 +1547,12 @@ function Room({
               />
             </mesh>
           )}
+          <AtticRoofShell
+            bounds={bounds}
+            colorMap={roomTextures.floorColor}
+            normalMap={roomTextures.floorNormal}
+            roughnessMap={roomTextures.floorArm}
+          />
           <AtticRoofFrame bounds={bounds} timberColor={presentation.palette.timber} />
           <mesh position={[0, 0.18, -bounds[2] / 2 + 0.1]} castShadow receiveShadow>
             <boxGeometry args={[bounds[0], 0.34, 0.18]} />

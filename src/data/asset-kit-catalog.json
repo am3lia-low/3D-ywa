@@ -153,6 +153,38 @@
       }
     },
     {
+      "catalogId": "polyhaven:wooden_bookshelf_worn",
+      "registryKey": "bookshelf",
+      "roles": ["storage"],
+      "assetKeys": ["bookshelf", "bookcase", "wooden-shelf"],
+      "semanticKinds": ["bookshelf", "shelf", "storage"],
+      "tags": ["books", "bookcase", "wood", "worn", "distressed", "rustic", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "bookshelf",
+        "geometry": "box",
+        "dimensions": [2.8, 2.85, 0.62],
+        "color": "#5d4436",
+        "modelUrl": "/models/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf",
+        "roughness": 0.94
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2900000,
+        "maxTriangles": 12000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "polyhaven:painted_wooden_bench",
       "registryKey": "courtyard-bench",
       "roles": ["seat"],

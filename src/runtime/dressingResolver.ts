@@ -90,7 +90,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       slotId: "west-library",
       minimumDensity: "sparse",
       positionFactor: [-0.47, -0.035],
-      dimensions: [3.55, 2.75, 0.72],
+      dimensions: [2.8, 2.85, 0.62],
       yaw: Math.PI / 2,
       wall: "west",
     }],
