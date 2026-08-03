@@ -873,12 +873,114 @@ function DesignedFallbackAsset({
   );
 }
 
+function CelestialOrreryAsset({
+  active,
+  highlighted,
+  highlightColor,
+}: {
+  active: boolean;
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const mechanism = useRef<THREE.Group>(null);
+  useFrame((state, delta) => {
+    if (!mechanism.current) return;
+    const targetTilt = active ? Math.sin(state.clock.elapsedTime * 0.55) * 0.08 : 0;
+    mechanism.current.rotation.y += delta * (active ? 0.24 : 0.035);
+    mechanism.current.rotation.z = THREE.MathUtils.lerp(
+      mechanism.current.rotation.z,
+      targetTilt,
+      1 - Math.exp(-delta * 2.5),
+    );
+  });
+  const glow = highlighted ? highlightColor : active ? "#6fd8ca" : "#183b38";
+
+  return (
+    <group>
+      <mesh position={[0, -0.43, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.32, 0.4, 0.12, 24]} />
+        <meshStandardMaterial color="#243c39" roughness={0.64} metalness={0.52} />
+      </mesh>
+      <mesh position={[0, -0.34, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[0.31, 0.035, 8, 32]} />
+        <meshStandardMaterial color="#b48a45" roughness={0.42} metalness={0.82} />
+      </mesh>
+      <mesh position={[0, -0.15, 0]} castShadow>
+        <cylinderGeometry args={[0.055, 0.085, 0.42, 12]} />
+        <meshStandardMaterial color="#88653e" roughness={0.48} metalness={0.72} />
+      </mesh>
+      <group ref={mechanism} position={[0, 0.09, 0]}>
+        {Array.from({ length: 8 }, (_, index) => {
+          const angle = (index / 8) * Math.PI * 2;
+          return (
+            <group key={`orrery-petal-${index}`} rotation={[0, angle, 0]}>
+              <mesh
+                position={[0, active ? 0.02 : -0.035, active ? 0.27 : 0.18]}
+                rotation={[active ? -0.55 : -1.05, 0, 0]}
+                scale={[0.13, 0.055, active ? 0.32 : 0.22]}
+                castShadow
+              >
+                <sphereGeometry args={[1, 16, 8]} />
+                <meshStandardMaterial
+                  color={index % 2 ? "#396d68" : "#b98945"}
+                  emissive={glow}
+                  emissiveIntensity={active ? 0.28 : highlighted ? 0.22 : 0.04}
+                  roughness={0.48}
+                  metalness={0.58}
+                />
+              </mesh>
+            </group>
+          );
+        })}
+        <mesh castShadow>
+          <sphereGeometry args={[0.19, 24, 16]} />
+          <meshStandardMaterial
+            color="#263f66"
+            emissive={glow}
+            emissiveIntensity={active ? 0.55 : highlighted ? 0.3 : 0.08}
+            roughness={0.34}
+            metalness={0.32}
+          />
+        </mesh>
+        {[
+          [Math.PI / 2, 0.1, 0, 0.31, "#82c7b6"],
+          [0.32, Math.PI / 2, 0.4, 0.37, "#d4a557"],
+          [-0.4, 0.22, Math.PI / 2, 0.43, "#718fbc"],
+        ].map(([x, y, z, radius, color], index) => (
+          <mesh key={`orrery-ring-${index}`} rotation={[x as number, y as number, z as number]}>
+            <torusGeometry args={[radius as number, 0.014, 7, 44]} />
+            <meshStandardMaterial
+              color={color as string}
+              emissive={active ? (color as string) : "#132421"}
+              emissiveIntensity={active ? 0.2 : 0.04}
+              roughness={0.4}
+              metalness={0.74}
+            />
+          </mesh>
+        ))}
+        {[
+          [0.31, 0.08, 0.02, "#d69b50"],
+          [-0.24, -0.12, 0.24, "#6ca98c"],
+          [0.04, 0.28, -0.29, "#9a6c70"],
+        ].map(([x, y, z, color], index) => (
+          <mesh key={`orrery-planet-${index}`} position={[x as number, y as number, z as number]} castShadow>
+            <sphereGeometry args={[0.045 + index * 0.009, 14, 10]} />
+            <meshStandardMaterial color={color as string} roughness={0.52} metalness={0.2} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
 function EntityAsset({
   asset,
+  active = false,
   highlighted,
   highlightColor,
 }: {
   asset: AssetDefinition;
+  active?: boolean;
   highlighted: boolean;
   highlightColor: string;
 }) {
@@ -889,6 +991,16 @@ function EntityAsset({
       highlightColor={highlightColor}
     />
   );
+
+  if (asset.key === "fallback:instrument") {
+    return (
+      <CelestialOrreryAsset
+        active={active}
+        highlighted={highlighted}
+        highlightColor={highlightColor}
+      />
+    );
+  }
 
   if (asset.key.startsWith("fallback:")) {
     return <DesignedFallbackAsset highlighted={highlighted} highlightColor={highlightColor} />;
@@ -990,7 +1102,12 @@ function WorldEntity({
       onPointerDown={onActivate ?? onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
-      <EntityAsset asset={item.asset} highlighted={highlighted} highlightColor={emissive} />
+      <EntityAsset
+        asset={item.asset}
+        active={item.entity.state?.active === true}
+        highlighted={highlighted}
+        highlightColor={emissive}
+      />
       {highlighted && (
         <mesh scale={[1.04, 1.04, 1.04]}>
           <boxGeometry args={[1, 1, 1]} />
@@ -1009,37 +1126,78 @@ function WorldEntity({
 function BotanicalPlanter({
   position,
   scale = 1,
+  variant = 0,
 }: {
   position: Vector3Tuple;
   scale?: number;
+  variant?: number;
 }) {
+  const potColors = ["#9b684d", "#58736d", "#81624f"];
+  const leafColors = ["#315f45", "#477a55", "#608c61", "#3f6b50"];
   return (
     <group position={position} scale={scale}>
       <mesh position={[0, 0.28, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.34, 0.25, 0.56, 12]} />
-        <meshStandardMaterial color="#8e6047" roughness={0.92} />
+        <cylinderGeometry args={[0.34, 0.24, 0.56, 18]} />
+        <meshStandardMaterial color={potColors[variant % potColors.length]} roughness={0.83} />
       </mesh>
-      <mesh position={[0, 0.58, 0]} castShadow>
-        <cylinderGeometry args={[0.055, 0.075, 0.72, 8]} />
-        <meshStandardMaterial color="#315944" roughness={0.9} />
+      <mesh position={[0, 0.56, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[0.3, 0.045, 8, 24]} />
+        <meshStandardMaterial color={potColors[variant % potColors.length]} roughness={0.8} />
       </mesh>
-      {[
-        [-0.18, 0.72, 0.02, -0.55],
-        [0.2, 0.88, -0.02, 0.62],
-        [-0.14, 1.03, -0.04, -0.42],
-        [0.15, 1.16, 0.03, 0.5],
-      ].map(([x, y, z, rotation], index) => (
+      <mesh position={[0, 0.555, 0]}>
+        <cylinderGeometry args={[0.285, 0.285, 0.025, 20]} />
+        <meshStandardMaterial color="#241e18" roughness={1} />
+      </mesh>
+      {[-0.09, 0, 0.1].map((x, index) => (
+        <mesh
+          key={`planter-stem-${index}`}
+          position={[x, 0.88 + index * 0.07, (index - 1) * 0.035]}
+          rotation={[0, 0, (index - 1) * 0.14]}
+        >
+          <cylinderGeometry args={[0.025, 0.045, 0.72 + index * 0.16, 8]} />
+          <meshStandardMaterial color="#294c3a" roughness={0.94} />
+        </mesh>
+      ))}
+      {Array.from({ length: 9 }, (_, index) => {
+        const side = index % 2 ? 1 : -1;
+        const tier = Math.floor(index / 2);
+        const angle = variant * 0.52 + index * 1.73;
+        return (
         <mesh
           key={`planter-leaf-${index}`}
-          position={[x!, y!, z!]}
-          rotation={[0.12, rotation!, rotation!]}
-          scale={[0.34, 0.12, 0.16]}
+          position={[
+            side * (0.14 + (tier % 3) * 0.045),
+            0.72 + tier * 0.17,
+            Math.sin(angle) * 0.16,
+          ]}
+          rotation={[0.28 + (index % 3) * 0.12, angle, side * 0.72]}
+          scale={[0.3 + (index % 3) * 0.035, 0.105, 0.16]}
+        >
+          <sphereGeometry args={[1, 16, 8]} />
+          <meshStandardMaterial
+            color={leafColors[(index + variant) % leafColors.length]}
+            roughness={0.82}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        );
+      })}
+      {variant % 3 === 2 && [0, 1, 2].map((index) => (
+        <mesh
+          key={`planter-bloom-${index}`}
+          position={[
+            (index - 1) * 0.16,
+            1.22 + (index % 2) * 0.12,
+            index === 1 ? 0.08 : -0.02,
+          ]}
           castShadow
         >
-          <sphereGeometry args={[1, 14, 8]} />
+          <sphereGeometry args={[0.075, 12, 8]} />
           <meshStandardMaterial
-            color={index % 2 === 0 ? "#3f7354" : "#59845f"}
-            roughness={0.86}
+            color={index === 1 ? "#c9a7c5" : "#8eb8ad"}
+            emissive="#365f58"
+            emissiveIntensity={0.12}
+            roughness={0.68}
           />
         </mesh>
       ))}
@@ -1054,110 +1212,190 @@ function ConservatoryKit({
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
 }) {
-  const frameColor = "#29483f";
-  const rearPosts = Array.from({ length: 7 }, (_, index) =>
-    -bounds[0] / 2 + (bounds[0] / 6) * index,
+  const stone = usePbrSurface(
+    "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_nor_gl_1k.jpg",
+    "/textures/polyhaven/castle_wall_slates_arm_1k.jpg",
+    [5, 4],
   );
-  const sidePosts = Array.from({ length: 6 }, (_, index) =>
-    -bounds[2] / 2 + (bounds[2] / 5) * index,
+  const frameColor = "#27473f";
+  const eaveY = bounds[1] * 0.7;
+  const ridgeY = bounds[1] - 0.1;
+  const halfWidth = bounds[0] / 2 - 0.1;
+  const roofRise = ridgeY - eaveY;
+  const roofSlope = Math.hypot(halfWidth, roofRise);
+  const roofAngle = Math.atan2(roofRise, halfWidth);
+  const rearPosts = Array.from({ length: 9 }, (_, index) =>
+    -bounds[0] / 2 + (bounds[0] / 8) * index,
   );
-  const tiles = Array.from({ length: 10 * 8 }, (_, index) => ({
-    x: index % 10,
-    z: Math.floor(index / 10),
-  }));
+  const sidePosts = Array.from({ length: 7 }, (_, index) =>
+    -bounds[2] / 2 + (bounds[2] / 6) * index,
+  );
+  const roofRibs = Array.from({ length: 7 }, (_, index) =>
+    -bounds[2] / 2 + (bounds[2] / 6) * index,
+  );
+  const glassMaterial = (opacity: number) => (
+    <meshStandardMaterial
+      color="#7db9b3"
+      emissive="#1a4b49"
+      emissiveIntensity={0.12}
+      transparent
+      opacity={opacity}
+      roughness={0.38}
+      metalness={0.08}
+      side={THREE.DoubleSide}
+      depthWrite={false}
+    />
+  );
+  const plinths: Array<[number, number, number, number, number, number]> = [
+    [0, 0.34, -bounds[2] / 2 + 0.1, bounds[0], 0.68, 0.2],
+    [-bounds[0] / 2 + 0.1, 0.34, 0, 0.2, 0.68, bounds[2]],
+    [bounds[0] / 2 - 0.1, 0.34, 0, 0.2, 0.68, bounds[2]],
+  ];
 
   return (
     <>
-      {presentation.architecture.stoneTileFloor && tiles.map((tile) => {
-        const width = bounds[0] / 10;
-        const depth = bounds[2] / 8;
-        return (
-          <mesh
-            key={`glasshouse-tile-${tile.x}-${tile.z}`}
-            position={[
-              -bounds[0] / 2 + width * (tile.x + 0.5),
-              0.016,
-              -bounds[2] / 2 + depth * (tile.z + 0.5),
-            ]}
-            receiveShadow
-          >
-            <boxGeometry args={[width - 0.045, 0.032, depth - 0.045]} />
+      {presentation.architecture.stoneTileFloor && (
+        <group>
+          <mesh position={[0, 0.018, 0]} receiveShadow>
+            <boxGeometry args={[bounds[0], 0.036, bounds[2]]} />
             <meshStandardMaterial
-              color={(tile.x + tile.z) % 2 === 0 ? "#355048" : "#2b413b"}
-              roughness={0.88}
-              metalness={0.05}
+              color="#385349"
+              map={stone.color}
+              normalMap={stone.normal}
+              normalScale={new THREE.Vector2(0.32, 0.32)}
+              roughnessMap={stone.arm}
+              roughness={0.94}
             />
           </mesh>
-        );
-      })}
-      <mesh position={[0, 0.32, -bounds[2] / 2 + 0.1]} receiveShadow>
-        <boxGeometry args={[bounds[0], 0.64, 0.2]} />
-        <meshStandardMaterial color="#304e46" roughness={0.98} />
-      </mesh>
-      <mesh position={[-bounds[0] / 2 + 0.1, 0.32, 0]} receiveShadow>
-        <boxGeometry args={[0.2, 0.64, bounds[2]]} />
-        <meshStandardMaterial color="#304e46" roughness={0.98} />
-      </mesh>
+          {Array.from({ length: 9 }, (_, index) => (
+            <mesh
+              key={`glasshouse-floor-row-${index}`}
+              position={[0, 0.044, -bounds[2] / 2 + (bounds[2] / 8) * index]}
+            >
+              <boxGeometry args={[bounds[0], 0.012, 0.022]} />
+              <meshStandardMaterial color="#172d2b" roughness={0.94} />
+            </mesh>
+          ))}
+          {Array.from({ length: 11 }, (_, index) => (
+            <mesh
+              key={`glasshouse-floor-column-${index}`}
+              position={[-bounds[0] / 2 + (bounds[0] / 10) * index, 0.045, 0]}
+            >
+              <boxGeometry args={[0.022, 0.012, bounds[2]]} />
+              <meshStandardMaterial color="#172d2b" roughness={0.94} />
+            </mesh>
+          ))}
+          {[-1.12, 1.12].map((x) => (
+            <mesh key={`glasshouse-walkway-inlay-${x}`} position={[x, 0.052, 0]}>
+              <boxGeometry args={[0.025, 0.014, bounds[2] * 0.88]} />
+              <meshStandardMaterial color="#9b7445" roughness={0.5} metalness={0.62} />
+            </mesh>
+          ))}
+        </group>
+      )}
+      {plinths.map(([x, y, z, width, height, depth], index) => (
+        <mesh key={`glasshouse-stone-plinth-${index}`} position={[x, y, z]} receiveShadow castShadow>
+          <boxGeometry args={[width, height, depth]} />
+          <meshStandardMaterial
+            color="#426057"
+            map={stone.color}
+            normalMap={stone.normal}
+            normalScale={new THREE.Vector2(0.28, 0.28)}
+            roughnessMap={stone.arm}
+            roughness={0.96}
+          />
+        </mesh>
+      ))}
+      <group position={[bounds[0] * 0.22, bounds[1] * 0.72, -bounds[2] / 2 - 0.22]}>
+        <mesh>
+          <circleGeometry args={[0.62, 48]} />
+          <meshBasicMaterial color="#d9f0ed" transparent opacity={0.88} depthWrite={false} />
+        </mesh>
+        <mesh position={[0, 0, -0.02]} scale={1.38}>
+          <circleGeometry args={[0.62, 48]} />
+          <meshBasicMaterial color="#8ec9c5" transparent opacity={0.14} depthWrite={false} />
+        </mesh>
+      </group>
       {presentation.architecture.glasshousePanels && (
         <>
-          <mesh position={[0, bounds[1] * 0.57, -bounds[2] / 2 + 0.115]}>
-            <planeGeometry args={[bounds[0] - 0.25, bounds[1] * 0.86]} />
-            <meshPhysicalMaterial
-              color="#80b9b2"
-              transparent
-              opacity={0.24}
-              roughness={0.14}
-              metalness={0.04}
-              side={THREE.DoubleSide}
-            />
+          <mesh position={[0, (eaveY + 0.68) / 2, -bounds[2] / 2 + 0.115]}>
+            <planeGeometry args={[bounds[0] - 0.25, eaveY - 0.68]} />
+            {glassMaterial(0.24)}
           </mesh>
           <mesh
-            position={[-bounds[0] / 2 + 0.115, bounds[1] * 0.57, 0]}
+            position={[-bounds[0] / 2 + 0.115, (eaveY + 0.68) / 2, 0]}
             rotation={[0, Math.PI / 2, 0]}
           >
-            <planeGeometry args={[bounds[2] - 0.25, bounds[1] * 0.86]} />
-            <meshPhysicalMaterial
-              color="#80b9b2"
-              transparent
-              opacity={0.2}
-              roughness={0.16}
-              side={THREE.DoubleSide}
-            />
+            <planeGeometry args={[bounds[2] - 0.25, eaveY - 0.68]} />
+            {glassMaterial(0.2)}
+          </mesh>
+          <mesh
+            position={[bounds[0] / 2 - 0.115, (eaveY + 0.68) / 2, 0]}
+            rotation={[0, -Math.PI / 2, 0]}
+          >
+            <planeGeometry args={[bounds[2] - 0.25, eaveY - 0.68]} />
+            {glassMaterial(0.18)}
+          </mesh>
+          <mesh
+            position={[-halfWidth / 2, (eaveY + ridgeY) / 2, 0]}
+            rotation={[0, 0, roofAngle]}
+          >
+            <boxGeometry args={[roofSlope, 0.025, bounds[2] - 0.2]} />
+            {glassMaterial(0.17)}
+          </mesh>
+          <mesh
+            position={[halfWidth / 2, (eaveY + ridgeY) / 2, 0]}
+            rotation={[0, 0, -roofAngle]}
+          >
+            <boxGeometry args={[roofSlope, 0.025, bounds[2] - 0.2]} />
+            {glassMaterial(0.17)}
           </mesh>
         </>
       )}
       {presentation.architecture.ironFrame && (
         <>
           {rearPosts.map((x, index) => (
-            <mesh key={`glasshouse-rear-post-${index}`} position={[x, bounds[1] / 2, -bounds[2] / 2 + 0.08]} castShadow>
-              <boxGeometry args={[0.1, bounds[1], 0.12]} />
+            <mesh key={`glasshouse-rear-post-${index}`} position={[x, eaveY / 2, -bounds[2] / 2 + 0.08]}>
+              <boxGeometry args={[0.085, eaveY, 0.11]} />
               <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
             </mesh>
           ))}
-          {sidePosts.map((z, index) => (
-            <mesh key={`glasshouse-side-post-${index}`} position={[-bounds[0] / 2 + 0.08, bounds[1] / 2, z]} castShadow>
-              <boxGeometry args={[0.12, bounds[1], 0.1]} />
+          {[-1, 1].flatMap((side) => sidePosts.map((z, index) => (
+            <mesh key={`glasshouse-side-post-${side}-${index}`} position={[side * (bounds[0] / 2 - 0.08), eaveY / 2, z]}>
+              <boxGeometry args={[0.11, eaveY, 0.085]} />
               <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
             </mesh>
-          ))}
-          {[0.66, 0.98].map((heightFactor) => (
-            <group key={`glasshouse-rail-${heightFactor}`}>
-              <mesh position={[0, bounds[1] * heightFactor, -bounds[2] / 2 + 0.08]} castShadow>
+          )))}
+          {[0.68, eaveY * 0.56, eaveY].map((height) => (
+            <group key={`glasshouse-rail-${height}`}>
+              <mesh position={[0, height, -bounds[2] / 2 + 0.08]}>
                 <boxGeometry args={[bounds[0], 0.1, 0.12]} />
                 <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
               </mesh>
-              <mesh position={[-bounds[0] / 2 + 0.08, bounds[1] * heightFactor, 0]} castShadow>
-                <boxGeometry args={[0.12, 0.1, bounds[2]]} />
-                <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
-              </mesh>
+              {[-1, 1].map((side) => (
+                <mesh key={`glasshouse-side-rail-${side}-${height}`} position={[side * (bounds[0] / 2 - 0.08), height, 0]}>
+                  <boxGeometry args={[0.12, 0.1, bounds[2]]} />
+                  <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
+                </mesh>
+              ))}
             </group>
           ))}
-          {[-0.28, 0, 0.28].map((xFactor) => (
-            <mesh key={`glasshouse-roof-rib-${xFactor}`} position={[bounds[0] * xFactor, bounds[1] - 0.05, 0]} castShadow>
-              <boxGeometry args={[0.1, 0.1, bounds[2]]} />
-              <meshStandardMaterial color={frameColor} roughness={0.55} metalness={0.6} />
+          {roofRibs.flatMap((z, index) => ([-1, 1] as const).map((side) => (
+            <mesh
+              key={`glasshouse-roof-rib-${side}-${index}`}
+              position={[side * halfWidth / 2, (eaveY + ridgeY) / 2 + 0.025, z]}
+              rotation={[0, 0, side < 0 ? roofAngle : -roofAngle]}
+              castShadow
+            >
+              <boxGeometry args={[roofSlope, 0.075, 0.095]} />
+              <meshStandardMaterial color={frameColor} roughness={0.5} metalness={0.66} />
             </mesh>
-          ))}
+          )))}
+          <mesh position={[0, ridgeY + 0.02, 0]} castShadow>
+            <boxGeometry args={[0.13, 0.13, bounds[2]]} />
+            <meshStandardMaterial color="#355b51" roughness={0.48} metalness={0.68} />
+          </mesh>
         </>
       )}
     </>
@@ -1402,30 +1640,43 @@ function TravelChestDressing({ dimensions }: { dimensions: Vector3Tuple }) {
 function ClimbingVineDressing({ height, seed }: { height: number; seed: number }) {
   return (
     <group>
-      <mesh rotation={[0, 0, seed % 2 ? 0.08 : -0.08]}>
+      <mesh rotation={[0, 0, seed % 2 ? 0.08 : -0.08]} castShadow>
         <cylinderGeometry args={[0.025, 0.04, height, 7]} />
         <meshStandardMaterial color="#315c42" roughness={0.92} />
       </mesh>
-      {Array.from({ length: 5 }, (_, leafIndex) => (
-        <mesh
-          key={`vine-leaf-${leafIndex}`}
-          position={[
-            (leafIndex % 2 ? 1 : -1) * 0.13,
-            -height / 2 + 0.35 + leafIndex * ((height - 0.7) / 4),
-            0.04,
-          ]}
-          rotation={[0.2, 0, leafIndex % 2 ? 0.5 : -0.5]}
-          scale={[0.22, 0.09, 0.12]}
-        >
-          <sphereGeometry args={[1, 10, 6]} />
-          <meshStandardMaterial color={leafIndex % 2 ? "#4b7855" : "#386848"} roughness={0.9} />
-        </mesh>
-      ))}
+      {Array.from({ length: 8 }, (_, leafIndex) => {
+        const side = leafIndex % 2 ? 1 : -1;
+        const y = -height / 2 + 0.25 + leafIndex * ((height - 0.5) / 7);
+        return (
+          <group key={`vine-leaf-${leafIndex}`} position={[side * 0.12, y, 0.04]}>
+            <mesh
+              position={[side * 0.08, 0, 0]}
+              rotation={[0.24, seed * 0.19 + leafIndex * 0.31, side * 0.62]}
+              scale={[0.24 + (leafIndex % 3) * 0.025, 0.085, 0.13]}
+              castShadow
+            >
+              <sphereGeometry args={[1, 12, 6]} />
+              <meshStandardMaterial
+                color={["#376b4b", "#4f7e57", "#66865d"][(leafIndex + seed) % 3]}
+                roughness={0.88}
+              />
+            </mesh>
+            <mesh position={[side * 0.02, 0, 0]} rotation={[0, 0, side * Math.PI / 2]}>
+              <cylinderGeometry args={[0.009, 0.014, 0.18, 6]} />
+              <meshStandardMaterial color="#31553d" roughness={0.94} />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 }
 
 function DressingModule({ instance }: { instance: Extract<ResolvedDressingInstance, { renderKind: "module" }> }) {
+  const seed = Array.from(instance.dressingId).reduce(
+    (sum, character) => sum + character.charCodeAt(0),
+    0,
+  ) % 11;
   if (instance.moduleKey === "attic-library") {
     return <AtticLibraryDressing rich={instance.density === "rich"} />;
   }
@@ -1434,9 +1685,14 @@ function DressingModule({ instance }: { instance: Extract<ResolvedDressingInstan
   }
   if (instance.moduleKey === "botanical-planter") {
     const scale = instance.dimensions[1] / 1.28;
-    return <BotanicalPlanter position={[0, -instance.dimensions[1] / 2, 0]} scale={scale} />;
+    return (
+      <BotanicalPlanter
+        position={[0, -instance.dimensions[1] / 2, 0]}
+        scale={scale}
+        variant={seed}
+      />
+    );
   }
-  const seed = Number(instance.dressingId.match(/(\d+)$/)?.[1] ?? 0);
   return <ClimbingVineDressing height={instance.dimensions[1]} seed={seed} />;
 }
 
@@ -1761,7 +2017,35 @@ function Room({
   );
 }
 
-function DustMotes({ bounds }: { bounds: Vector3Tuple }) {
+function MoonlightShafts({ bounds }: { bounds: Vector3Tuple }) {
+  const shafts: Array<[number, number, number, number, number]> = [
+    [bounds[0] * 0.2, bounds[1] * 0.57, -bounds[2] * 0.22, -0.78, 0.18],
+  ];
+  return (
+    <group>
+      {shafts.map(([x, y, z, rotationX, rotationZ], index) => (
+        <mesh
+          key={`moonlight-shaft-${index}`}
+          position={[x, y, z]}
+          rotation={[rotationX, 0, rotationZ]}
+          renderOrder={-1}
+        >
+          <coneGeometry args={[1.15 + index * 0.22, bounds[1] * 1.35, 24, 1, true]} />
+          <meshBasicMaterial
+            color={index ? "#8fcac3" : "#b9e3df"}
+            transparent
+            opacity={index ? 0.035 : 0.05}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function DustMotes({ bounds, color = "#f1d5ad" }: { bounds: Vector3Tuple; color?: string }) {
   const points = useRef<THREE.Points>(null);
   const positions = useMemo(() => {
     const values = new Float32Array(90 * 3);
@@ -1786,7 +2070,7 @@ function DustMotes({ bounds }: { bounds: Vector3Tuple }) {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color="#f1d5ad"
+        color={color}
         size={0.028}
         transparent
         opacity={0.48}
@@ -2100,6 +2384,9 @@ function WorldScene({
   onLocationRequest?: (locationId: string) => void;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const isGlasshouse = presentation.modules.environment.some(
+    (module) => module.moduleId === "shell:glasshouse",
+  );
 
   return (
     <>
@@ -2108,16 +2395,16 @@ function WorldScene({
       <hemisphereLight
         color={presentation.palette.keyLight}
         groundColor={presentation.palette.timber}
-        intensity={presentation.location.lighting.contrast === "high" ? 0.78 : 0.95}
+        intensity={isGlasshouse ? 0.48 : presentation.location.lighting.contrast === "high" ? 0.78 : 0.95}
       />
       <ambientLight
         color={presentation.palette.ambient}
-        intensity={presentation.location.lighting.ambientIntensity}
+        intensity={presentation.location.lighting.ambientIntensity * (isGlasshouse ? 0.72 : 1)}
       />
       <directionalLight
         castShadow={enableShadows}
         color={presentation.palette.keyLight}
-        position={[5, 8, 4]}
+        position={isGlasshouse ? [3.8, 8.5, -3.4] : [5, 8, 4]}
         intensity={presentation.location.lighting.keyIntensity}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -2127,19 +2414,30 @@ function WorldScene({
         <>
           <rectAreaLight
             color="#b9dce3"
-            position={[-bounds[0] * 0.31, bounds[1] * 0.61, -bounds[2] / 2 + 0.28]}
-            intensity={3.4}
-            width={2.4}
-            height={1.8}
+            position={[
+              bounds[0] * (isGlasshouse ? 0.22 : -0.31),
+              bounds[1] * (isGlasshouse ? 0.72 : 0.61),
+              -bounds[2] / 2 + 0.28,
+            ]}
+            intensity={isGlasshouse ? 4.2 : 3.4}
+            width={isGlasshouse ? 3.1 : 2.4}
+            height={isGlasshouse ? 2.5 : 1.8}
           />
           <pointLight
             color="#aacfd7"
-            position={[-bounds[0] * 0.31, bounds[1] * 0.58, -bounds[2] * 0.38]}
-            intensity={2.35}
-            distance={9}
+            position={[
+              bounds[0] * (isGlasshouse ? 0.22 : -0.31),
+              bounds[1] * (isGlasshouse ? 0.68 : 0.58),
+              -bounds[2] * 0.38,
+            ]}
+            intensity={isGlasshouse ? 2.8 : 2.35}
+            distance={isGlasshouse ? 12 : 9}
             decay={1.8}
           />
         </>
+      )}
+      {presentation.atmosphere.coolWindowLight && isGlasshouse && (
+        <MoonlightShafts bounds={bounds} />
       )}
       <Room
         layout={layout}
@@ -2147,7 +2445,9 @@ function WorldScene({
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
       />
       <DressingAssets instances={dressingInstances} />
-      {presentation.atmosphere.dust && <DustMotes bounds={bounds} />}
+      {presentation.atmosphere.dust && (
+        <DustMotes bounds={bounds} color={isGlasshouse ? "#b6e4dc" : "#f1d5ad"} />
+      )}
       {presentation.atmosphere.rain && <RainStreaks bounds={bounds} />}
       <StoryEffects
         layout={layout}
