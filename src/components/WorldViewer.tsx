@@ -1042,6 +1042,30 @@ function EntityAsset({
   );
 }
 
+function ParcelAccents() {
+  return (
+    <group>
+      <mesh position={[0, 0, 0.515]} castShadow>
+        <boxGeometry args={[0.055, 1.02, 0.024]} />
+        <meshStandardMaterial color="#b99a6e" roughness={0.88} />
+      </mesh>
+      <mesh position={[0, 0, 0.52]} castShadow>
+        <boxGeometry args={[1.02, 0.055, 0.024]} />
+        <meshStandardMaterial color="#b99a6e" roughness={0.88} />
+      </mesh>
+      <mesh position={[0.14, -0.02, 0.555]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.105, 0.105, 0.038, 18]} />
+        <meshStandardMaterial
+          color="#7c2525"
+          emissive="#371010"
+          emissiveIntensity={0.12}
+          roughness={0.66}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function WorldEntity({
   item,
   selected,
@@ -1084,6 +1108,9 @@ function WorldEntity({
   });
 
   const highlighted = selected || change !== undefined;
+  const isParcel =
+    item.asset.key === "crate" &&
+    /\bparcel\b/i.test([item.entity.name, ...(item.entity.aliases ?? [])].join(" "));
   const emissive = selected
     ? "#54e7d5"
     : change === "added"
@@ -1108,6 +1135,7 @@ function WorldEntity({
         highlighted={highlighted}
         highlightColor={emissive}
       />
+      {isParcel && <ParcelAccents />}
       {highlighted && (
         <mesh scale={[1.04, 1.04, 1.04]}>
           <boxGeometry args={[1, 1, 1]} />
@@ -1468,6 +1496,107 @@ function CourtyardIvy({ position, height, seed }: {
   );
 }
 
+function CourtyardCobblestones({
+  bounds,
+  stone,
+}: {
+  bounds: Vector3Tuple;
+  stone: ReturnType<typeof usePbrSurface>;
+}) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const columns = 16;
+  const rows = 13;
+  const count = columns * rows;
+  const tileWidth = bounds[0] / columns;
+  const tileDepth = bounds[2] / rows;
+
+  useEffect(() => {
+    if (!mesh.current) return;
+    const transform = new THREE.Object3D();
+    const shades = ["#68706c", "#747873", "#5b6562", "#7e7b70"];
+    for (let index = 0; index < count; index += 1) {
+      const column = index % columns;
+      const row = Math.floor(index / columns);
+      transform.position.set(
+        -bounds[0] / 2 + tileWidth * (column + 0.5) + (row % 2 ? tileWidth * 0.12 : 0),
+        0.028 + (index % 3) * 0.006,
+        -bounds[2] / 2 + tileDepth * (row + 0.5),
+      );
+      transform.rotation.set(0, ((index * 17) % 5 - 2) * 0.012, 0);
+      transform.scale.set(tileWidth - 0.035, 0.055, tileDepth - 0.035);
+      transform.updateMatrix();
+      mesh.current.setMatrixAt(index, transform.matrix);
+      mesh.current.setColorAt(index, new THREE.Color(shades[index % shades.length]));
+    }
+    mesh.current.instanceMatrix.needsUpdate = true;
+    if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
+  }, [bounds, count, tileDepth, tileWidth]);
+
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, count]} receiveShadow>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial
+        color="#7d817b"
+        map={stone.color}
+        normalMap={stone.normal}
+        normalScale={new THREE.Vector2(0.24, 0.24)}
+        roughnessMap={stone.arm}
+        roughness={0.58}
+        metalness={0.06}
+        vertexColors
+      />
+    </instancedMesh>
+  );
+}
+
+function CourtyardGateSurround({
+  position,
+  stone,
+}: {
+  position: Vector3Tuple;
+  stone: ReturnType<typeof usePbrSurface>;
+}) {
+  const shape = useMemo(() => {
+    const facade = new THREE.Shape();
+    facade.moveTo(-1.65, 0);
+    facade.lineTo(1.65, 0);
+    facade.lineTo(1.65, 3);
+    facade.absarc(0, 3, 1.65, 0, Math.PI, false);
+    facade.lineTo(-1.65, 0);
+
+    const opening = new THREE.Path();
+    opening.moveTo(-1.28, 0.02);
+    opening.lineTo(1.28, 0.02);
+    opening.lineTo(1.28, 2.98);
+    opening.absarc(0, 2.98, 1.28, 0, Math.PI, false);
+    opening.lineTo(-1.28, 0.02);
+    facade.holes.push(opening);
+    return facade;
+  }, []);
+  const extrusion = useMemo(() => ({
+    depth: 0.28,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.025,
+    bevelThickness: 0.025,
+    curveSegments: 24,
+  }), []);
+
+  return (
+    <mesh position={position} castShadow receiveShadow>
+      <extrudeGeometry args={[shape, extrusion]} />
+      <meshStandardMaterial
+        color="#9a9383"
+        map={stone.color}
+        normalMap={stone.normal}
+        normalScale={new THREE.Vector2(0.34, 0.34)}
+        roughnessMap={stone.arm}
+        roughness={0.97}
+      />
+    </mesh>
+  );
+}
+
 function CourtyardKit({
   bounds,
   presentation,
@@ -1487,11 +1616,13 @@ function CourtyardKit({
     "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
     [2.8, 1.45],
   );
-  const columns = 16;
-  const rows = 13;
-  const tileWidth = bounds[0] / columns;
-  const tileDepth = bounds[2] / rows;
-  const arcadeCenters = [-bounds[0] * 0.3, -bounds[0] * 0.1, bounds[0] * 0.1, bounds[0] * 0.3];
+  const arcadeCenters = [-bounds[0] * 0.36, -bounds[0] * 0.18, bounds[0] * 0.18, bounds[0] * 0.36];
+  const wallHeight = bounds[1] * 0.8;
+  const wallSections: Array<[Vector3Tuple, Vector3Tuple, string]> = [
+    [[0, wallHeight / 2, -bounds[2] / 2 + 0.08], [bounds[0], wallHeight, 0.2], "#d2c6ac"],
+    [[-bounds[0] / 2 + 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c9bda5"],
+    [[bounds[0] / 2 - 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c6baa2"],
+  ];
   const puddles: Array<{ position: Vector3Tuple; scale: Vector3Tuple }> = [
     { position: [-bounds[0] * 0.28, 0.075, bounds[2] * 0.22], scale: [1.25, 0.7, 1] },
     { position: [bounds[0] * 0.18, 0.075, bounds[2] * 0.06], scale: [0.82, 0.48, 1] },
@@ -1500,58 +1631,61 @@ function CourtyardKit({
 
   return (
     <group>
-      {presentation.architecture.cobblestone && Array.from({ length: columns * rows }, (_, index) => {
-        const column = index % columns;
-        const row = Math.floor(index / columns);
-        const shade = ["#626660", "#6b6d66", "#595f5b", "#737169"][index % 4]!;
-        return (
-          <mesh
-            key={`courtyard-stone-${column}-${row}`}
-            position={[
-              -bounds[0] / 2 + tileWidth * (column + 0.5) + (row % 2 ? tileWidth * 0.12 : 0),
-              0.028 + (index % 3) * 0.006,
-              -bounds[2] / 2 + tileDepth * (row + 0.5),
-            ]}
-            rotation={[0, ((index * 17) % 5 - 2) * 0.012, 0]}
-            receiveShadow
-          >
-            <boxGeometry args={[tileWidth - 0.035, 0.055, tileDepth - 0.035]} />
-            <meshStandardMaterial
-              color={shade}
-              roughness={0.72}
-              metalness={0.03}
-            />
-          </mesh>
-        );
-      })}
+      {presentation.architecture.cobblestone && (
+        <CourtyardCobblestones bounds={bounds} stone={stone} />
+      )}
       {presentation.architecture.courtyardWalls && (
         <>
-          <mesh position={[0, bounds[1] * 0.4, -bounds[2] / 2 + 0.08]} castShadow receiveShadow>
-            <boxGeometry args={[bounds[0], bounds[1] * 0.8, 0.2]} />
-            <meshStandardMaterial
-              color="#d2c6ac"
-              map={wall.color}
-              normalMap={wall.normal}
-              normalScale={new THREE.Vector2(0.38, 0.38)}
-              roughnessMap={wall.arm}
-              roughness={0.99}
-            />
-          </mesh>
-          <mesh position={[-bounds[0] / 2 + 0.08, bounds[1] * 0.4, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.2, bounds[1] * 0.8, bounds[2]]} />
-            <meshStandardMaterial
-              color="#c9bda5"
-              map={wall.color}
-              normalMap={wall.normal}
-              normalScale={new THREE.Vector2(0.38, 0.38)}
-              roughnessMap={wall.arm}
-              roughness={0.99}
-            />
-          </mesh>
-          <mesh position={[0, 0.28, -bounds[2] / 2 + 0.2]} castShadow>
-            <boxGeometry args={[bounds[0], 0.32, 0.55]} />
-            <meshStandardMaterial color="#514d45" roughness={0.96} />
-          </mesh>
+          {wallSections.map(([position, dimensions, color], index) => (
+            <mesh key={`courtyard-wall-${index}`} position={position} castShadow receiveShadow>
+              <boxGeometry args={dimensions} />
+              <meshStandardMaterial
+                color={color}
+                map={wall.color}
+                normalMap={wall.normal}
+                normalScale={new THREE.Vector2(0.38, 0.38)}
+                roughnessMap={wall.arm}
+                roughness={0.99}
+              />
+            </mesh>
+          ))}
+          {[
+            [[0, wallHeight + 0.08, -bounds[2] / 2 + 0.1], [bounds[0] + 0.18, 0.18, 0.46]],
+            [[-bounds[0] / 2 + 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
+            [[bounds[0] / 2 - 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
+          ].map(([position, dimensions], index) => (
+            <mesh
+              key={`courtyard-coping-${index}`}
+              position={position as Vector3Tuple}
+              castShadow
+              receiveShadow
+            >
+              <boxGeometry args={dimensions as Vector3Tuple} />
+              <meshStandardMaterial
+                color="#817d73"
+                map={stone.color}
+                normalMap={stone.normal}
+                normalScale={new THREE.Vector2(0.3, 0.3)}
+                roughnessMap={stone.arm}
+                roughness={0.94}
+              />
+            </mesh>
+          ))}
+          {[-1, 1].map((side) => (
+            <group
+              key={`courtyard-drainpipe-${side}`}
+              position={[side * bounds[0] * 0.43, wallHeight * 0.5, -bounds[2] / 2 + 0.34]}
+            >
+              <mesh castShadow>
+                <cylinderGeometry args={[0.045, 0.055, wallHeight * 0.86, 10]} />
+                <meshStandardMaterial color="#3e4b48" roughness={0.52} metalness={0.72} />
+              </mesh>
+              <mesh position={[side * 0.13, -wallHeight * 0.42, 0.02]} rotation={[0, 0, Math.PI / 2]}>
+                <cylinderGeometry args={[0.05, 0.05, 0.28, 10]} />
+                <meshStandardMaterial color="#3e4b48" roughness={0.52} metalness={0.72} />
+              </mesh>
+            </group>
+          ))}
         </>
       )}
       {presentation.architecture.stoneArcade && arcadeCenters.map((x, index) => (
@@ -1561,6 +1695,12 @@ function CourtyardKit({
           stone={stone}
         />
       ))}
+      {presentation.architecture.stoneArcade && (
+        <CourtyardGateSurround
+          position={[0, 0.08, -bounds[2] / 2 + 0.18]}
+          stone={stone}
+        />
+      )}
       {presentation.dressing.wallIvy && (
         <>
           {[-0.4, -0.18, 0.22, 0.4].map((factor, index) => (
@@ -1579,22 +1719,40 @@ function CourtyardKit({
         </>
       )}
       {presentation.dressing.rainPuddles && puddles.map((puddle, index) => (
-        <mesh
+        <group
           key={`courtyard-puddle-${index}`}
           position={puddle.position}
-          rotation={[-Math.PI / 2, 0, index * 0.42]}
-          scale={puddle.scale}
+          rotation={[0, index * 0.42, 0]}
+          scale={[puddle.scale[0], 1, puddle.scale[1]]}
         >
-          <circleGeometry args={[0.86, 32]} />
-          <meshPhysicalMaterial
-            color="#8ea4a5"
-            roughness={0.14}
-            metalness={0.08}
-            transparent
-            opacity={0.32}
-            depthWrite={false}
-          />
-        </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.86, 32]} />
+            <meshStandardMaterial
+              color="#829b9c"
+              emissive="#263f41"
+              emissiveIntensity={0.12}
+              roughness={0.22}
+              metalness={0.24}
+              transparent
+              opacity={0.36}
+              depthWrite={false}
+            />
+          </mesh>
+          {[0.19, 0.34].map((radius, rippleIndex) => (
+            <mesh
+              key={`courtyard-puddle-ripple-${rippleIndex}`}
+              position={[
+                (rippleIndex ? 0.18 : -0.16) * (index % 2 ? -1 : 1),
+                0.012,
+                rippleIndex ? -0.08 : 0.15,
+              ]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            >
+              <torusGeometry args={[radius, 0.009, 6, 28]} />
+              <meshBasicMaterial color="#c2d8d8" transparent opacity={0.34} depthWrite={false} />
+            </mesh>
+          ))}
+        </group>
       ))}
       {presentation.dressing.fallenLeaves && Array.from({ length: 28 }, (_, index) => {
         const x = Math.sin((index + 1) * 7.31) * bounds[0] * 0.41;
@@ -2082,42 +2240,60 @@ function DustMotes({ bounds, color = "#f1d5ad" }: { bounds: Vector3Tuple; color?
 }
 
 function RainStreaks({ bounds }: { bounds: Vector3Tuple }) {
-  const points = useRef<THREE.Points>(null);
+  const streaks = useRef<THREE.LineSegments>(null);
+  const streakCount = 84;
   const positions = useMemo(() => {
-    const values = new Float32Array(110 * 3);
-    for (let index = 0; index < 110; index += 1) {
+    const values = new Float32Array(streakCount * 2 * 3);
+    for (let index = 0; index < streakCount; index += 1) {
       const seed = index + 1;
-      values[index * 3] = Math.sin(seed * 12.731) * bounds[0] * 0.48;
-      values[index * 3 + 1] = 0.35 + Math.abs(Math.sin(seed * 5.117)) * bounds[1];
-      values[index * 3 + 2] = Math.sin(seed * 8.433) * bounds[2] * 0.48;
+      const base = index * 6;
+      const x = Math.sin(seed * 12.731) * bounds[0] * 0.48;
+      const y = 0.35 + Math.abs(Math.sin(seed * 5.117)) * bounds[1];
+      const z = Math.sin(seed * 8.433) * bounds[2] * 0.48;
+      const length = 0.16 + (index % 5) * 0.025;
+      values[base] = x;
+      values[base + 1] = y;
+      values[base + 2] = z;
+      values[base + 3] = x - 0.035;
+      values[base + 4] = y - length;
+      values[base + 5] = z + 0.012;
     }
     return values;
-  }, [bounds]);
+  }, [bounds, streakCount]);
 
   useFrame((_, delta) => {
-    if (!points.current) return;
-    const attribute = points.current.geometry.getAttribute("position") as THREE.BufferAttribute;
-    for (let index = 0; index < attribute.count; index += 1) {
-      const nextY = attribute.getY(index) - delta * (2.7 + (index % 5) * 0.34);
-      attribute.setY(index, nextY < 0.12 ? bounds[1] + (index % 7) * 0.16 : nextY);
+    if (!streaks.current) return;
+    const attribute = streaks.current.geometry.getAttribute("position") as THREE.BufferAttribute;
+    for (let index = 0; index < streakCount; index += 1) {
+      const top = index * 2;
+      const bottom = top + 1;
+      const speed = 2.9 + (index % 5) * 0.32;
+      const nextBottom = attribute.getY(bottom) - delta * speed;
+      if (nextBottom < 0.12) {
+        const nextTop = bounds[1] + (index % 7) * 0.16;
+        const length = 0.16 + (index % 5) * 0.025;
+        attribute.setY(top, nextTop);
+        attribute.setY(bottom, nextTop - length);
+      } else {
+        attribute.setY(top, attribute.getY(top) - delta * speed);
+        attribute.setY(bottom, nextBottom);
+      }
     }
     attribute.needsUpdate = true;
   });
 
   return (
-    <points ref={points}>
+    <lineSegments ref={streaks}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial
+      <lineBasicMaterial
         color="#bed6da"
-        size={0.032}
         transparent
-        opacity={0.48}
-        sizeAttenuation
+        opacity={0.42}
         depthWrite={false}
       />
-    </points>
+    </lineSegments>
   );
 }
 
@@ -2172,6 +2348,9 @@ function StoryEffects({
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
   const portalItem = layout.items.find((item) => isPortalItem(item));
+  const portalLocked = portalItem?.entity.state?.locked === true;
+  const portalAccentColor = portalLocked ? "#596765" : "#d79855";
+  const portalAccentOpacity = portalLocked ? 0.3 : 0.72;
 
   return (
     <>
@@ -2182,16 +2361,22 @@ function StoryEffects({
         <group position={portalItem.position}>
           <mesh position={[-portalItem.dimensions[0] / 2 - 0.05, 0, 0.17]}>
             <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
-            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
           </mesh>
           <mesh position={[portalItem.dimensions[0] / 2 + 0.05, 0, 0.17]}>
             <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
-            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
           </mesh>
           <mesh position={[0, portalItem.dimensions[1] / 2 + 0.05, 0.17]}>
             <boxGeometry args={[portalItem.dimensions[0] + 0.16, 0.06, 0.06]} />
-            <meshBasicMaterial color="#d79855" transparent opacity={0.72} />
+            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
           </mesh>
+          {portalLocked && portalItem.asset.key === "carriage-gate" && (
+            <mesh position={[0, 0, 0.2]} rotation={[0, 0, -0.12]} castShadow>
+              <boxGeometry args={[portalItem.dimensions[0] * 0.76, 0.09, 0.09]} />
+              <meshStandardMaterial color="#333d3b" roughness={0.5} metalness={0.76} />
+            </mesh>
+          )}
           {portalDestination && onLocationRequest && (
             <Html
               center
@@ -2387,28 +2572,48 @@ function WorldScene({
   const isGlasshouse = presentation.modules.environment.some(
     (module) => module.moduleId === "shell:glasshouse",
   );
+  const isCourtyard = presentation.modules.environment.some(
+    (module) => module.moduleId === "shell:open-air",
+  );
 
   return (
     <>
       <color attach="background" args={[presentation.palette.background]} />
-      <fog attach="fog" args={[presentation.palette.fog, 10, 29]} />
+      <fog
+        attach="fog"
+        args={[presentation.palette.fog, isCourtyard ? 7.5 : 10, isCourtyard ? 24 : 29]}
+      />
       <hemisphereLight
         color={presentation.palette.keyLight}
         groundColor={presentation.palette.timber}
-        intensity={isGlasshouse ? 0.48 : presentation.location.lighting.contrast === "high" ? 0.78 : 0.95}
+        intensity={
+          isGlasshouse
+            ? 0.48
+            : isCourtyard
+              ? 0.68
+              : presentation.location.lighting.contrast === "high"
+                ? 0.78
+                : 0.95
+        }
       />
       <ambientLight
         color={presentation.palette.ambient}
-        intensity={presentation.location.lighting.ambientIntensity * (isGlasshouse ? 0.72 : 1)}
+        intensity={
+          presentation.location.lighting.ambientIntensity *
+          (isGlasshouse ? 0.72 : isCourtyard ? 0.82 : 1)
+        }
       />
       <directionalLight
         castShadow={enableShadows}
         color={presentation.palette.keyLight}
-        position={isGlasshouse ? [3.8, 8.5, -3.4] : [5, 8, 4]}
-        intensity={presentation.location.lighting.keyIntensity}
+        position={
+          isGlasshouse ? [3.8, 8.5, -3.4] : isCourtyard ? [-4.5, 8, 2.5] : [5, 8, 4]
+        }
+        intensity={presentation.location.lighting.keyIntensity * (isCourtyard ? 0.84 : 1)}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-bias={-0.0004}
+        shadow-radius={isCourtyard ? 3 : 1}
       />
       {presentation.atmosphere.coolWindowLight && (
         <>
