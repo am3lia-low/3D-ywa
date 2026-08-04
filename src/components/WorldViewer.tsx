@@ -2703,11 +2703,11 @@ function SceneCamera({
   const controls = useRef<ComponentRef<typeof CameraControls>>(null);
   const walkInput = useRef({ forward: false, backward: false, left: false, right: false });
   const walkLook = useRef({ yaw: 0, pitch: 0, pointerId: null as number | null });
-  const wasWalking = useRef(false);
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const { camera, gl } = useThree();
 
   useEffect(() => {
+    if (walkMode) return;
     const pov = createPovCameraPose(bounds);
     const currentControls = controls.current;
     if (!currentControls) return;
@@ -2725,7 +2725,7 @@ function SceneCamera({
       false,
     );
     currentControls.saveState();
-  }, [bounds[0], bounds[1], bounds[2], layout.location.id]);
+  }, [bounds[0], bounds[1], bounds[2], layout.location.id, walkMode]);
 
   useEffect(() => {
     if (!walkMode) {
@@ -2802,26 +2802,6 @@ function SceneCamera({
     };
   }, [bounds[0], bounds[1], bounds[2], camera, gl, walkMode]);
 
-  useEffect(() => {
-    if (walkMode) {
-      wasWalking.current = true;
-      return;
-    }
-    if (!wasWalking.current || !controls.current) return;
-    wasWalking.current = false;
-    const direction = camera.getWorldDirection(new THREE.Vector3());
-    const target = camera.position.clone().add(direction.multiplyScalar(4));
-    void controls.current.setLookAt(
-      camera.position.x,
-      camera.position.y,
-      camera.position.z,
-      target.x,
-      target.y,
-      target.z,
-      false,
-    );
-  }, [camera, walkMode]);
-
   useFrame((_, delta) => {
     if (!walkMode) return;
     const { yaw, pitch } = walkLook.current;
@@ -2849,7 +2829,7 @@ function SceneCamera({
 
   useEffect(() => {
     const currentControls = controls.current;
-    if (!command || !currentControls) return;
+    if (walkMode || !command || !currentControls) return;
     const currentPosition = currentControls.getPosition(new THREE.Vector3(), true);
     const currentTarget = currentControls.getTarget(new THREE.Vector3(), true);
     let pose;
@@ -2867,14 +2847,15 @@ function SceneCamera({
     }
     currentControls.cancel();
     void currentControls.setLookAt(...pose.position, ...pose.target, true);
-  }, [bounds[0], bounds[1], bounds[2], command]);
+  }, [bounds[0], bounds[1], bounds[2], command, walkMode]);
+
+  if (walkMode) return null;
 
   return (
     <CameraControls
       ref={controls}
       key={layout.location.id}
       makeDefault
-      enabled={!walkMode}
       smoothTime={0.22}
       draggingSmoothTime={0.08}
       boundaryFriction={0.18}
