@@ -1045,21 +1045,21 @@ function EntityAsset({
 function ParcelAccents() {
   return (
     <group>
-      <mesh position={[0, 0, 0.515]} castShadow>
-        <boxGeometry args={[0.055, 1.02, 0.024]} />
+      <mesh position={[0, 0.515, 0]} castShadow>
+        <boxGeometry args={[0.055, 0.024, 1.02]} />
         <meshStandardMaterial color="#b99a6e" roughness={0.88} />
       </mesh>
-      <mesh position={[0, 0, 0.52]} castShadow>
-        <boxGeometry args={[1.02, 0.055, 0.024]} />
+      <mesh position={[0, 0.52, 0]} castShadow>
+        <boxGeometry args={[1.02, 0.024, 0.055]} />
         <meshStandardMaterial color="#b99a6e" roughness={0.88} />
       </mesh>
-      <mesh position={[0.14, -0.02, 0.555]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.105, 0.105, 0.038, 18]} />
+      <mesh position={[0.12, 0.552, 0.1]} castShadow>
+        <cylinderGeometry args={[0.085, 0.09, 0.035, 18]} />
         <meshStandardMaterial
-          color="#7c2525"
-          emissive="#371010"
-          emissiveIntensity={0.12}
-          roughness={0.66}
+          color="#7a2929"
+          emissive="#2f0e0e"
+          emissiveIntensity={0.08}
+          roughness={0.72}
         />
       </mesh>
     </group>
@@ -1513,7 +1513,7 @@ function CourtyardCobblestones({
   useEffect(() => {
     if (!mesh.current) return;
     const transform = new THREE.Object3D();
-    const shades = ["#68706c", "#747873", "#5b6562", "#7e7b70"];
+    const shades = ["#e2e1d8", "#cbcfc9", "#b9c1bd", "#e6dfd2"];
     for (let index = 0; index < count; index += 1) {
       const column = index % columns;
       const row = Math.floor(index / columns);
@@ -1536,13 +1536,13 @@ function CourtyardCobblestones({
     <instancedMesh ref={mesh} args={[undefined, undefined, count]} receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial
-        color="#7d817b"
+        color="#ffffff"
         map={stone.color}
         normalMap={stone.normal}
-        normalScale={new THREE.Vector2(0.24, 0.24)}
+        normalScale={new THREE.Vector2(0.18, 0.18)}
         roughnessMap={stone.arm}
-        roughness={0.58}
-        metalness={0.06}
+        roughness={0.68}
+        metalness={0.03}
         vertexColors
       />
     </instancedMesh>
@@ -2371,12 +2371,6 @@ function StoryEffects({
             <boxGeometry args={[portalItem.dimensions[0] + 0.16, 0.06, 0.06]} />
             <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
           </mesh>
-          {portalLocked && portalItem.asset.key === "carriage-gate" && (
-            <mesh position={[0, 0, 0.2]} rotation={[0, 0, -0.12]} castShadow>
-              <boxGeometry args={[portalItem.dimensions[0] * 0.76, 0.09, 0.09]} />
-              <meshStandardMaterial color="#333d3b" roughness={0.5} metalness={0.76} />
-            </mesh>
-          )}
           {portalDestination && onLocationRequest && (
             <Html
               center
