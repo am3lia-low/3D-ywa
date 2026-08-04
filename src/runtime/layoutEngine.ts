@@ -47,11 +47,11 @@ function clampToRoom(
   ];
 }
 
-function overlaps(a: LayoutItem, b: LayoutItem): boolean {
+function overlaps(a: LayoutItem, b: LayoutItem, spacing = SPACING): boolean {
   return (
-    Math.abs(a.position[0] - b.position[0]) < (a.dimensions[0] + b.dimensions[0]) / 2 + SPACING &&
-    Math.abs(a.position[1] - b.position[1]) < (a.dimensions[1] + b.dimensions[1]) / 2 + SPACING / 2 &&
-    Math.abs(a.position[2] - b.position[2]) < (a.dimensions[2] + b.dimensions[2]) / 2 + SPACING
+    Math.abs(a.position[0] - b.position[0]) < (a.dimensions[0] + b.dimensions[0]) / 2 + spacing &&
+    Math.abs(a.position[1] - b.position[1]) < (a.dimensions[1] + b.dimensions[1]) / 2 + spacing / 2 &&
+    Math.abs(a.position[2] - b.position[2]) < (a.dimensions[2] + b.dimensions[2]) / 2 + spacing
   );
 }
 
@@ -206,6 +206,7 @@ function placeWithoutCollision(
   bounds: Vector3Tuple,
   placed: LayoutItem[],
   allowedOverlapIds: ReadonlySet<string> = new Set(),
+  collisionSpacing = SPACING,
 ): LayoutItem {
   const step = Math.max(draft.dimensions[0], draft.dimensions[2], 0.75) + SPACING;
   for (const [offsetX, offsetZ] of candidateOffsets(draft.entity, step)) {
@@ -217,7 +218,9 @@ function placeWithoutCollision(
     const candidate: LayoutItem = { ...draft, position };
     if (
       !placed.some(
-        (other) => !allowedOverlapIds.has(other.entity.id) && overlaps(candidate, other),
+        (other) =>
+          !allowedOverlapIds.has(other.entity.id) &&
+          overlaps(candidate, other, collisionSpacing),
       )
     ) return candidate;
   }
@@ -343,6 +346,21 @@ export function createWorldLayout(
   }
   pending = pending.filter((item) => !item.entity.transform?.position);
 
+  // Place unconstrained anchors before resolving dependants. Previously an
+  // unpositioned table was deferred until after the relation passes, so props
+  // declared "on" that table also fell back to unrelated default positions.
+  const unconstrainedAnchors = pending.filter(
+    (item) => (relationsBySubject.get(item.entity.id) ?? []).length === 0,
+  );
+  for (const draft of unconstrainedAnchors) {
+    const desired = defaultPosition(draft.entity, bounds, draft.dimensions[1]);
+    const item = placeWithoutCollision(draft, desired, bounds, placed);
+    placed.push(item);
+    placedById.set(item.entity.id, item);
+  }
+  const unconstrainedIds = new Set(unconstrainedAnchors.map((item) => item.entity.id));
+  pending = pending.filter((item) => !unconstrainedIds.has(item.entity.id));
+
   // Multiple passes allow relations to entities that were themselves inferred.
   while (pending.length > 0) {
     let progress = false;
@@ -379,6 +397,9 @@ export function createWorldLayout(
         bounds,
         placed,
         supportedBy,
+        resolved.relation.predicate === "on" || resolved.relation.predicate === "inside"
+          ? 0.025
+          : SPACING,
       );
       placed.push(item);
       placedById.set(item.entity.id, item);

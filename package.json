@@ -11,9 +11,12 @@
     "models:generate": "node scripts/generate-models.mjs",
     "assets:import:polyhaven": "node scripts/import-polyhaven-assets.mjs",
     "assets:convert:glb": "node scripts/convert-external-glb.mjs",
+    "assets:support:generate": "node scripts/generate-safe-mesh-support.mjs",
+    "assets:support:check": "node scripts/generate-safe-mesh-support.mjs --check",
     "assets:validate": "node scripts/validate-asset-kits.mjs",
     "assets:report": "node scripts/validate-asset-kits.mjs --write",
     "part1:mock": "node scripts/mock-part1-server.mjs",
+    "scenes:preflight": "vitest run src/integration/scenePreflight.test.ts --reporter=verbose",
     "comfyui:setup": "powershell -ExecutionPolicy Bypass -File scripts/setup-comfyui.ps1",
     "comfyui:serve": "powershell -ExecutionPolicy Bypass -File scripts/run-comfyui.ps1",
     "comfyui:prove": "powershell -ExecutionPolicy Bypass -File scripts/prove-comfyui.ps1",
@@ -23,7 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "verify": "pnpm test && pnpm typecheck && pnpm assets:validate && pnpm build && pnpm bundle:check"
+    "verify": "pnpm test && pnpm typecheck && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

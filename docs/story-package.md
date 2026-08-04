@@ -30,6 +30,9 @@ interface StoryPackage {
   `previousPlanVersion`.
 - Snapshot, patch and visual-plan story/location/entity IDs must join exactly.
 - Every intermediate snapshot must remain valid after its patch is applied.
+- Every compiled moment must pass the spatial composition preflight. Blocking
+  overlap, scale, access, facing-support or surface-support errors reject the
+  package before it mounts in `WorldViewer`.
 
 The loader rejects the entire package before it changes the mounted story. It
 reports structural paths, broken version links and non-canonical visual IDs.

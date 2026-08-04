@@ -26,6 +26,7 @@ export const SafeMeshAssetSchema = z.strictObject({
   label: z.string().min(1),
   sourceSha256: z.string().regex(/^[0-9a-f]{64}$/),
   normalization: z.literal("unit-box-grounded-y"),
+  supportSurfaceY: z.number().min(0).max(1).nullable().optional(),
   meshes: z.array(meshSchema).min(1).max(64),
 }).superRefine((asset, context) => {
   let totalTriangles = 0;

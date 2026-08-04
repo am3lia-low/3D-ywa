@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import * as THREE from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { measureSafeMeshSupportSurfaceY } from "./lib/safe-mesh-support.mjs";
 
 class NodeFileReader {
   result = null;
@@ -207,12 +208,16 @@ function runtimeMeshDocument(safeRoot, label, sourceSha256) {
     });
     geometry.dispose();
   });
-  return {
+  const document = {
     schemaVersion: "1.0",
     label,
     sourceSha256,
     normalization: "unit-box-grounded-y",
     meshes,
+  };
+  return {
+    ...document,
+    supportSurfaceY: measureSafeMeshSupportSurfaceY(document),
   };
 }
 
@@ -277,6 +282,7 @@ const report = {
   outputBytes: (await stat(options.output)).size,
   runtimeMesh: basename(meshOutput),
   runtimeMeshBytes: meshBuffer.byteLength,
+  supportSurfaceY: meshDocument.supportSurfaceY,
   meshes: sanitized.meshes,
   materials: sanitized.materials,
   triangles: sanitized.triangles,

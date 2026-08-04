@@ -1,5 +1,6 @@
 import { z } from "zod";
 import catalogFixture from "../data/asset-kit-catalog.json";
+import safeMeshSupportFixture from "../data/safe-mesh-support.json";
 import type { AssetDefinition } from "./assetRegistry";
 
 const identifierSchema = z.string().trim().min(1);
@@ -107,5 +108,13 @@ export function validateAssetKitCatalog(value: unknown): AssetKitCatalog {
 export const assetKitCatalog = validateAssetKitCatalog(catalogFixture);
 
 export function catalogAssetDefinition(asset: AssetKitCatalogAsset): AssetDefinition {
-  return asset.runtimeAsset as AssetDefinition;
+  const generated = asset.runtimeAsset.safeMeshUrl
+    ? safeMeshSupportFixture.assets[
+        asset.runtimeAsset.safeMeshUrl as keyof typeof safeMeshSupportFixture.assets
+      ]
+    : undefined;
+  return {
+    ...asset.runtimeAsset,
+    supportSurfaceY: asset.runtimeAsset.supportSurfaceY ?? generated?.supportSurfaceY,
+  } as AssetDefinition;
 }

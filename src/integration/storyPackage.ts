@@ -127,6 +127,22 @@ export interface RuntimeStory {
   nextLabels: string[];
 }
 
+export interface StoryPackagePreflightMoment {
+  passageId: string;
+  snapshotVersion: number;
+  planVersion: number;
+  status: "clean" | "review";
+  score: number;
+  warningCount: number;
+}
+
+export interface StoryPackagePreflightReport {
+  packageId: string;
+  storyId: string;
+  status: "ready" | "needs_review";
+  moments: StoryPackagePreflightMoment[];
+}
+
 export class StoryPackageValidationError extends Error {
   readonly issues: readonly string[];
 
@@ -215,7 +231,17 @@ export function validateStoryPackage(value: unknown): StoryPackage {
 
     if (activePlan) {
       try {
-        compileSceneRecipe(snapshot, activePlan);
+        const recipe = compileSceneRecipe(snapshot, activePlan);
+        if (recipe.composition.status === "blocking") {
+          const blockingIssues = Object.values(recipe.composition.locations)
+            .flatMap((location) => location.issues)
+            .filter((candidate) => candidate.severity === "error");
+          for (const blocking of blockingIssues) {
+            issues.push(
+              `moments.${index}.preflight.${blocking.code}: ${blocking.message}`,
+            );
+          }
+        }
       } catch (error) {
         issues.push(`moments.${index}.visualPlan: ${messageFrom(error)}`);
       }
@@ -267,5 +293,35 @@ export function runtimeStoryFromPackage(value: unknown): RuntimeStory {
     nextLabels: storyPackage.moments.slice(1).map((moment) =>
       moment.actionLabel ?? `Apply ${moment.passageId}`,
     ),
+  };
+}
+
+/** Runs the same deterministic composition gate used by imported and built-in stories. */
+export function preflightStoryPackage(value: unknown): StoryPackagePreflightReport {
+  const storyPackage = validateStoryPackage(value);
+  let snapshot = storyPackage.initialSnapshot;
+  let activePlan: VisualScenePlan | undefined;
+  const moments: StoryPackagePreflightMoment[] = [];
+
+  for (const moment of storyPackage.moments) {
+    if (moment.patchFromPrevious) snapshot = applyScenePatch(snapshot, moment.patchFromPrevious);
+    if (moment.visualPlan) activePlan = moment.visualPlan;
+    if (!activePlan) continue;
+    const composition = compileSceneRecipe(snapshot, activePlan).composition;
+    moments.push({
+      passageId: moment.passageId,
+      snapshotVersion: snapshot.version,
+      planVersion: activePlan.planVersion,
+      status: composition.status === "clean" ? "clean" : "review",
+      score: composition.score,
+      warningCount: composition.warningCount,
+    });
+  }
+
+  return {
+    packageId: storyPackage.packageId,
+    storyId: storyPackage.initialSnapshot.storyId,
+    status: moments.some((moment) => moment.status === "review") ? "needs_review" : "ready",
+    moments,
   };
 }

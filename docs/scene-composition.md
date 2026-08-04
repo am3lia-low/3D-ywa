@@ -62,6 +62,17 @@ Errors mark the report `blocking`; warnings mark it `review`; an issue-free
 scene is `clean`. The app exposes the resulting score beside the recipe status.
 This is a quality signal, not narrative truth, and does not modify the snapshot.
 
+`pnpm scenes:preflight` compiles every built-in story moment and fails if any
+composition is blocking. Imported story packages pass through the same gate
+before becoming a `RuntimeStory`, so blocking scenes never mount in the viewer.
+
+Approved safe meshes receive generated center-support measurements in
+`src/data/safe-mesh-support.json`. `pnpm assets:support:generate` refreshes the
+file from mesh triangles, while `pnpm assets:support:check` fails when it is
+stale. Irregular relation targets such as logs, rocks and barrels require a
+measured support height; a missing measurement is itself a blocking preflight
+error.
+
 ## Generalization proof
 
 The rain-washed courtyard fixture is intentionally unlike the two interior

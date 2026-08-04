@@ -14,6 +14,7 @@ export type CompositionIssueCode =
   | "floating_entity"
   | "facing_mismatch"
   | "broken_surface_relation"
+  | "unmeasured_support_surface"
   | "implausible_scale"
   | "underdressed_location";
 
@@ -234,14 +235,24 @@ function auditLocation(
         `The '${relation.predicate}' relation cannot resolve within this location.`,
       ));
     }
-    if (relation.predicate === "on" && subject && target && !restsOnSurface(subject, target)) {
-      issues.push(issue(
-        "broken_surface_relation",
-        "error",
-        locationId,
-        [subject.entity.id, target.entity.id],
-        `${subject.entity.name} does not geometrically rest on ${target.entity.name}.`,
-      ));
+    if (relation.predicate === "on" && subject && target) {
+      if (hasIrregularSupportSurface(target) && target.asset.supportSurfaceY === undefined) {
+        issues.push(issue(
+          "unmeasured_support_surface",
+          "error",
+          locationId,
+          [subject.entity.id, target.entity.id],
+          `${target.entity.name} has an irregular surface but no measured support height.`,
+        ));
+      } else if (!restsOnSurface(subject, target)) {
+        issues.push(issue(
+          "broken_surface_relation",
+          "error",
+          locationId,
+          [subject.entity.id, target.entity.id],
+          `${subject.entity.name} does not geometrically rest on ${target.entity.name}.`,
+        ));
+      }
     }
     if (
       subject?.entity.kind === "furniture" &&

@@ -3,11 +3,15 @@ import snapshotFixture from "../../fixtures/snapshot_1.json";
 import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
 import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
+import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.json";
+import conservatoryPlanFixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
+import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import atticPatch2Fixture from "../../fixtures/patch_2.json";
 import atticPatch3Fixture from "../../fixtures/patch_3.json";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
-import { createWorldLayout } from "./layoutEngine";
+import { createWorldLayout, supportSurfaceWorldY } from "./layoutEngine";
+import { compileSceneRecipe } from "./sceneRecipeCompiler";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
 
@@ -133,8 +137,28 @@ describe("createWorldLayout", () => {
     expect(lantern.position[0]).toBeCloseTo(log.position[0], 4);
     expect(lantern.position[2]).toBeCloseTo(log.position[2], 4);
     expect(lantern.position[1] - lantern.dimensions[1] / 2).toBeCloseTo(
-      log.position[1] - log.dimensions[1] / 2 + log.dimensions[1] * 0.747 + 0.008,
+      supportSurfaceWorldY(log) + 0.008,
       4,
     );
+  });
+
+  it("places unconstrained support furniture before its dependent props", () => {
+    const conservatory = conservatorySnapshotFixture as unknown as WorldSnapshot;
+    const registry = compileSceneRecipe(
+      conservatory,
+      conservatoryPlanFixture as unknown as VisualScenePlan,
+    ).assetRegistry;
+    const layout = createWorldLayout(conservatory, registry);
+    const table = layout.items.find((item) => item.entity.id === "conservatory-worktable-1")!;
+    const orrery = layout.items.find((item) => item.entity.id === "orrery-1")!;
+
+    expect(orrery.position[1] - orrery.dimensions[1] / 2).toBeCloseTo(
+      table.position[1] + table.dimensions[1] / 2 + 0.008,
+      4,
+    );
+    expect(Math.abs(orrery.position[0] - table.position[0]) + orrery.dimensions[0] / 2)
+      .toBeLessThan(table.dimensions[0] / 2);
+    expect(Math.abs(orrery.position[2] - table.position[2]) + orrery.dimensions[2] / 2)
+      .toBeLessThan(table.dimensions[2] / 2);
   });
 });

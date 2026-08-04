@@ -114,6 +114,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Adds soft contact shading to enclosed POV and Walk views while preserving clean overview and outdoor terrain rendering.
 - Renders requested ground mist with transparent camera-facing layers and keeps the skydome centered on the camera so its edge never appears at overview distance.
 
+## Milestone 16
+
+- Generates normalized support-surface measurements directly from approved safe-mesh triangles and rejects stale metadata during verification.
+- Places unconstrained support objects before resolving dependent relations, so `on` and facing constraints cannot silently fall back to unrelated coordinates.
+- Rejects imported story packages whose compiled composition contains blocking scale, overlap, access or support errors.
+- Adds `pnpm scenes:preflight` to validate every moment of every built-in story through the same package and scene-compilation path used by the app.
+
 ## Component contract
 
 ```tsx
