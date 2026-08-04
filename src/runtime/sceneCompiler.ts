@@ -38,7 +38,10 @@ export type SceneDressingModuleId =
   | "dressing:rain-puddles"
   | "dressing:wall-ivy"
   | "dressing:fallen-leaves"
-  | "dressing:courtyard-clutter";
+  | "dressing:courtyard-clutter"
+  | "dressing:broadleaf-trees"
+  | "dressing:hedges"
+  | "dressing:verge-rocks";
 
 export interface SceneModuleSelection<TModuleId extends string> {
   moduleId: TModuleId;
@@ -78,6 +81,9 @@ export interface ScenePresentation {
     wallIvy: boolean;
     fallenLeaves: boolean;
     courtyardClutter: boolean;
+    broadleafTrees: boolean;
+    hedges: boolean;
+    vergeRocks: boolean;
     density: VisualLocationPlan["dressingDensity"];
   };
   atmosphere: {
@@ -120,6 +126,9 @@ const DRESSING_MODULE_RULES: ReadonlyArray<{
   { moduleId: "dressing:wall-ivy", anyTags: ["wall-ivy", "ivy"] },
   { moduleId: "dressing:fallen-leaves", anyTags: ["fallen-leaves", "leaf-litter"] },
   { moduleId: "dressing:courtyard-clutter", anyTags: ["courtyard-clutter", "coaching-yard-clutter"] },
+  { moduleId: "dressing:broadleaf-trees", anyTags: ["broadleaf-trees", "oak-trees", "trees"] },
+  { moduleId: "dressing:hedges", anyTags: ["hedges", "shrubs", "bushes"] },
+  { moduleId: "dressing:verge-rocks", anyTags: ["verge-rocks", "rocks", "boulders"] },
 ];
 
 function selectModules<TModuleId extends string>(
@@ -272,6 +281,9 @@ export function compileScenePresentation(
       wallIvy: dressingTags.has("wall-ivy") || dressingTags.has("ivy"),
       fallenLeaves: dressingTags.has("fallen-leaves") || dressingTags.has("leaf-litter"),
       courtyardClutter: dressingTags.has("courtyard-clutter") || dressingTags.has("coaching-yard-clutter"),
+      broadleafTrees: ["broadleaf-trees", "oak-trees", "trees"].some((tag) => dressingTags.has(tag)),
+      hedges: ["hedges", "shrubs", "bushes"].some((tag) => dressingTags.has(tag)),
+      vergeRocks: ["verge-rocks", "rocks", "boulders"].some((tag) => dressingTags.has(tag)),
       density: location.dressingDensity,
     },
     atmosphere: {
@@ -360,6 +372,9 @@ export function createFallbackScenePresentation(
       wallIvy: false,
       fallenLeaves: false,
       courtyardClutter: false,
+      broadleafTrees: false,
+      hedges: false,
+      vergeRocks: false,
       density: "sparse",
     },
     atmosphere: { dust: false, coolWindowLight: false, rain: false },

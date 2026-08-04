@@ -16,7 +16,15 @@ Visual tags select only registered modules. Current environment families cover:
 
 Dressing modules are presentation-only. Books, storage clusters, planters,
 ivy, puddles, leaf litter and courtyard clutter improve composition but never
-become persistent narrative facts or canonical entity IDs.
+become persistent narrative facts or canonical entity IDs. Approved scenery
+uses the same path: `broadleaf-trees`, `hedges` and `verge-rocks` select the
+catalogued nature assets and deterministic approach slots. Removing a tag from
+the next visual-plan version removes only that decorative set.
+
+Exterior slots deliberately live in the recipe's `approach` placement region,
+outside the canonical location bounds but inside the walkable presentation
+ground. They remain `decorativeOnly`, retain stable IDs across patches, and do
+not mint trees or rocks into `WorldSnapshot`.
 
 ## Composition audit
 
@@ -39,7 +47,8 @@ This is a quality signal, not narrative truth, and does not modify the snapshot.
 The rain-washed courtyard fixture is intentionally unlike the two interior
 fixtures. Its snapshot and patch use the frozen interfaces, while its visual
 plan selects an open-air shell, smaller wet cobbles, plastered masonry arcades,
-ivy, rain, puddles and decorative coaching-yard clusters. Passage two moves the
+ivy, rain, puddles, approved approach vegetation and decorative coaching-yard
+clusters. Passage two moves the
 chair, lights a surface-mounted lantern, unlocks the gate and adds a map without
 rebuilding the environment.
 

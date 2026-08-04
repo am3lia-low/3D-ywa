@@ -18,7 +18,15 @@
       "archetype": "rain-washed coaching courtyard",
       "visualDescription": "An open coaching courtyard enclosed by weathered masonry arcades, rain-dark cobbles and ivy-softened walls, now warmed by a courier lantern.",
       "architectureTags": ["open-air", "cobblestone-courtyard", "courtyard-walls", "stone-arcade", "weathered-masonry"],
-      "dressingTags": ["rain-puddles", "wall-ivy", "fallen-leaves", "courtyard-clutter"],
+      "dressingTags": [
+        "rain-puddles",
+        "wall-ivy",
+        "fallen-leaves",
+        "courtyard-clutter",
+        "broadleaf-trees",
+        "hedges",
+        "verge-rocks"
+      ],
       "dressingDensity": "rich",
       "mood": "expectant, rain-muted and ready for departure",
       "timeOfDay": "overcast late afternoon",
@@ -43,7 +51,7 @@
         "passageIds": ["R1", "R2"],
         "confidence": 0.8,
         "basis": "cross_passage_inference",
-        "note": "Decorative rain, ivy and leaf litter remain presentation-only dressing."
+        "note": "Decorative rain, ivy, leaf litter, approach trees, hedges and rocks remain presentation-only dressing."
       }
     }
   ],

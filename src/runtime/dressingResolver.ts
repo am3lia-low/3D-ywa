@@ -11,6 +11,7 @@ interface ResolvedDressingCommon {
   decorativeOnly: true;
   density: "sparse" | "moderate" | "rich";
   placementStatus: "preferred" | "rerouted";
+  placementRegion: "interior" | "approach";
   position: Vector3Tuple;
   rotation: Vector3Tuple;
   dimensions: Vector3Tuple;
@@ -49,6 +50,7 @@ interface DressingSlotCommon {
   yaw?: number;
   wall?: DressingWall;
   verticalOffset?: number;
+  placementRegion?: "interior" | "approach";
 }
 
 interface AssetDressingSlot extends DressingSlotCommon {
@@ -66,6 +68,7 @@ type DressingSlot = AssetDressingSlot | ModuleDressingSlot;
 interface DressingRule {
   anyTags: string[];
   archetypes?: string[];
+  requiresOpenAir?: boolean;
   slots: DressingSlot[];
 }
 
@@ -74,6 +77,33 @@ const DENSITY_RANK: Readonly<Record<DressingDensity, number>> = {
   moderate: 1,
   rich: 2,
 };
+
+type ApproachSlotSpec = readonly [
+  minimumDensity: DressingDensity,
+  xFactor: number,
+  zFactor: number,
+  width: number,
+  height: number,
+  depth: number,
+  yaw: number,
+];
+
+function approachAssetSlots(
+  prefix: string,
+  searchTags: string[],
+  specs: readonly ApproachSlotSpec[],
+): AssetDressingSlot[] {
+  return specs.map(([minimumDensity, x, z, width, height, depth, yaw], index) => ({
+    renderKind: "asset",
+    searchTags,
+    slotId: `${prefix}-${index + 1}`,
+    minimumDensity,
+    positionFactor: [x, z],
+    dimensions: [width, height, depth],
+    yaw,
+    placementRegion: "approach",
+  }));
+}
 
 /**
  * Presentation-only prop compositions. Slots express visual intent; physical
@@ -199,6 +229,45 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
     ],
   },
+  {
+    anyTags: ["broadleaf-trees", "oak-trees", "trees"],
+    requiresOpenAir: true,
+    slots: approachAssetSlots("approach-tree", ["oak", "tree", "broadleaf"], [
+      ["sparse", -0.43, 0.9, 4.83, 7.36, 4.83, 0.38],
+      ["sparse", 0.39, 1.05, 3.86, 5.89, 3.86, 1.51],
+      ["moderate", -0.58, 1.45, 3.53, 5.38, 3.53, 2.64],
+      ["moderate", 0.56, 1.58, 4.54, 6.91, 4.54, 3.77],
+      ["rich", -0.28, 1.9, 2.94, 4.48, 2.94, 4.9],
+      ["rich", 0.3, 2.05, 3.19, 4.86, 3.19, 6.03],
+    ]),
+  },
+  {
+    anyTags: ["hedges", "shrubs", "bushes"],
+    requiresOpenAir: true,
+    slots: approachAssetSlots(
+      "approach-hedge",
+      ["bush", "hedge", "shrub"],
+      [-1, 1].flatMap((side) => [0.78, 1.1, 1.45, 1.8].map((z, index) => [
+        index === 0 ? "sparse" : index < 3 ? "moderate" : "rich",
+        side * (0.2 + (index % 2) * 0.035),
+        z,
+        2.2 + (index % 2) * 0.35,
+        1.08 + (index % 2) * 0.16,
+        1.65,
+        side * (0.3 + index * 0.41),
+      ] as ApproachSlotSpec)),
+    ),
+  },
+  {
+    anyTags: ["verge-rocks", "rocks", "boulders"],
+    requiresOpenAir: true,
+    slots: approachAssetSlots("approach-rock", ["rock", "stone", "boulder"], [
+      ["moderate", -0.19, 0.74, 1.35, 0.72, 1.1, -0.18],
+      ["moderate", 0.18, 1.22, 1.7, 0.88, 1.1, 0.34],
+      ["rich", -0.21, 1.62, 1.35, 0.72, 1.1, 0.12],
+      ["rich", 0.2, 1.94, 1.7, 0.88, 1.1, -0.3],
+    ]),
+  },
 ];
 
 interface OccupiedVolume {
@@ -296,12 +365,17 @@ function placeSlot(
   const footprint = rotatedDimensions(slot.dimensions, yaw);
   const halfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.18);
   const halfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.18);
-  const desiredX = slot.wall === "west"
+  const exterior = slot.placementRegion === "approach";
+  const desiredX = exterior
+    ? bounds[0] * slot.positionFactor[0]
+    : slot.wall === "west"
     ? -halfX
     : slot.wall === "east"
       ? halfX
       : bounds[0] * slot.positionFactor[0];
-  const desiredZ = slot.wall === "north"
+  const desiredZ = exterior
+    ? bounds[2] * slot.positionFactor[1]
+    : slot.wall === "north"
     ? -halfZ
     : slot.wall === "south"
       ? halfZ
@@ -309,9 +383,9 @@ function placeSlot(
 
   for (const [index, [offsetX, offsetZ]] of candidateOffsets(slot).entries()) {
     const position: Vector3Tuple = [
-      clamp(desiredX + offsetX, -halfX, halfX),
+      exterior ? desiredX + offsetX : clamp(desiredX + offsetX, -halfX, halfX),
       slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
-      clamp(desiredZ + offsetZ, -halfZ, halfZ),
+      exterior ? desiredZ + offsetZ : clamp(desiredZ + offsetZ, -halfZ, halfZ),
     ];
     const candidate: OccupiedVolume = { id: slot.slotId, position, dimensions: footprint };
     if (!occupied.some((other) => overlaps(candidate, other))) {
@@ -333,6 +407,7 @@ export function resolveDressingInstances(
 
   for (const rule of DRESSING_RULES) {
     if (rule.archetypes && !rule.archetypes.includes(presentation.location.archetype)) continue;
+    if (rule.requiresOpenAir && !presentation.architecture.openAir) continue;
     const sourceTag = rule.anyTags.find((tag) => selectedTags.has(tag));
     if (!sourceTag) continue;
     for (const slot of rule.slots) {
@@ -352,6 +427,7 @@ export function resolveDressingInstances(
         decorativeOnly: true,
         density: presentation.dressing.density,
         placementStatus: placed.placementStatus,
+        placementRegion: slot.placementRegion ?? "interior",
         position: placed.position,
         rotation: [0, slot.yaw ?? 0, 0],
         dimensions: slot.dimensions,

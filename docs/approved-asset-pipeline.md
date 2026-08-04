@@ -96,6 +96,13 @@ one deterministic artifact. Architecture and dressing tags are matched against
 a closed renderer module registry; unknown tags cannot execute arbitrary code or
 silently create narrative facts.
 
+For outdoor scenery, Part 1 may emit the generic `dressingTags`
+`broadleaf-trees`, `hedges` and `verge-rocks` (the aliases `trees`, `oak-trees`,
+`shrubs`, `bushes`, `rocks` and `boulders` are also accepted). The recipe then
+selects compatible assets from the active approved style kit and emits stable,
+presentation-only placements. Part 1 does not need to know model URLs or asset
+catalog IDs.
+
 Spatial relations remain factual inputs. The recipe makes their runtime effect
 inspectable as constraints such as `anchor_to_surface`, `face_target`,
 `reserve_access_zone` and `center_in_room`. Unsupported important entities are

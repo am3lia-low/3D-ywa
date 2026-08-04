@@ -1893,20 +1893,6 @@ function CourtyardBeyond({
   const approachCenter = bounds[2] / 2 + approachDepth / 2;
   const roadWidth = Math.max(8, bounds[0] * 0.3);
   const vergeWidth = (bounds[0] * 2.2 - roadWidth) / 2;
-  const treePositions: Array<[number, number, number]> = [
-    [-bounds[0] * 0.43, bounds[2] * 0.9, 1.15],
-    [bounds[0] * 0.39, bounds[2] * 1.05, 0.92],
-    [-bounds[0] * 0.58, bounds[2] * 1.45, 0.84],
-    [bounds[0] * 0.56, bounds[2] * 1.58, 1.08],
-    [-bounds[0] * 0.28, bounds[2] * 1.9, 0.7],
-    [bounds[0] * 0.3, bounds[2] * 2.05, 0.76],
-  ];
-  const rockPositions: Array<[number, number, number]> = [
-    [-roadWidth * 0.72, bounds[2] * 0.74, -0.18],
-    [roadWidth * 0.68, bounds[2] * 1.22, 0.34],
-    [-roadWidth * 0.78, bounds[2] * 1.62, 0.12],
-    [roadWidth * 0.76, bounds[2] * 1.94, -0.3],
-  ];
 
   return (
     <group>
@@ -1935,28 +1921,6 @@ function CourtyardBeyond({
           <meshStandardMaterial color="#26382e" roughness={1} />
         </mesh>
       ))}
-      {[-1, 1].flatMap((side) => [
-        bounds[2] * 0.82,
-        bounds[2] * 1.08,
-        bounds[2] * 1.42,
-        bounds[2] * 1.8,
-      ].map((z, index) => (
-        <group
-          key={`courtyard-approach-hedge-${side}-${index}`}
-          position={[side * (roadWidth / 2 + 1.2 + (index % 2) * 0.55), 0.2, z]}
-        >
-          {[-0.75, 0, 0.78].map((offset, clumpIndex) => (
-            <group
-              key={`hedge-clump-${clumpIndex}`}
-              position={[offset, 0, 0]}
-              scale={[1.8, 1 + (clumpIndex % 2) * 0.14, 1.35 + (clumpIndex % 2) * 0.1]}
-              rotation={[0, clumpIndex * 0.86, 0]}
-            >
-              <SafeMeshModel payload={bushSafeMesh} />
-            </group>
-          ))}
-        </group>
-      )))}
       {[-1, 1].map((side) => (
         <mesh
           key={`courtyard-distant-rise-${side}`}
@@ -1966,26 +1930,6 @@ function CourtyardBeyond({
           <sphereGeometry args={[1, 28, 14]} />
           <meshStandardMaterial color={side < 0 ? "#1d3028" : "#24382d"} roughness={1} />
         </mesh>
-      ))}
-      {treePositions.map(([x, z, scale], index) => (
-        <group
-          key={`courtyard-distant-tree-${index}`}
-          position={[x, 0, z]}
-          rotation={[0, 0.38 + index * 1.13, 0]}
-          scale={[4.2 * scale, 6.4 * scale, 4.2 * scale]}
-        >
-          <SafeMeshModel payload={treeOakSafeMesh} />
-        </group>
-      ))}
-      {rockPositions.map(([x, z, yaw], index) => (
-        <group
-          key={`courtyard-verge-rock-${index}`}
-          position={[x, 0, z]}
-          rotation={[0, yaw, 0]}
-          scale={[1.35 + (index % 2) * 0.35, 0.72 + (index % 2) * 0.16, 1.1]}
-        >
-          <SafeMeshModel payload={rockSafeMesh} />
-        </group>
       ))}
     </group>
   );
@@ -2346,6 +2290,7 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
       dressingId: instance.dressingId,
       decorativeOnly: true,
       placementStatus: instance.placementStatus,
+      placementRegion: instance.placementRegion,
       ...(instance.renderKind === "asset"
         ? { catalogId: instance.catalogId }
         : { moduleKey: instance.moduleKey }),
@@ -2367,7 +2312,13 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
       <group
         key={instance.dressingId}
         name={instance.dressingId}
-        position={instance.position}
+        position={instance.asset.safeMeshUrl
+          ? [
+              instance.position[0],
+              instance.position[1] - instance.dimensions[1] / 2,
+              instance.position[2],
+            ]
+          : instance.position}
         rotation={instance.rotation}
         scale={instance.dimensions}
         userData={userData}

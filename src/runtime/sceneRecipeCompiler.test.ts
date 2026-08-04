@@ -178,8 +178,18 @@ describe("scene recipe compiler", () => {
     expect(openingRecipe.composition.status).toBe("clean");
     const openingDressing = openingRecipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
     const departureDressing = departureRecipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
-    expect(openingDressing).toHaveLength(5);
+    expect(openingDressing).toHaveLength(23);
     expect(openingDressing.every((instance) => instance.decorativeOnly)).toBe(true);
+    const approachDressing = openingDressing.filter(
+      (instance) => instance.placementRegion === "approach",
+    );
+    expect(approachDressing).toHaveLength(18);
+    expect(approachDressing.map((instance) => instance.renderKind === "asset" ? instance.catalogId : "module"))
+      .toEqual(expect.arrayContaining([
+        "kenney:nature-tree-oak-safe",
+        "kenney:nature-bush-safe",
+        "kenney:nature-rock-safe",
+      ]));
     expect(openingDressing.filter((instance) => instance.renderKind === "asset").map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
       "polyhaven:wine_barrel_01",
       "polyhaven:painted_wooden_bench",
@@ -205,8 +215,32 @@ describe("scene recipe compiler", () => {
       planWithoutClutter,
     );
 
-    expect(recipe.locations["coaching-courtyard"]?.dressingInstances).toEqual([]);
+    const remaining = recipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
+    expect(remaining).toHaveLength(18);
+    expect(remaining.every((instance) => instance.placementRegion === "approach")).toBe(true);
+    expect(remaining.some((instance) => instance.sourceTag === "courtyard-clutter")).toBe(false);
     expect(recipe.approvedAssets).toHaveLength(5);
+  });
+
+  it("removes approved exterior scenery when the visual plan drops its tags", () => {
+    const planWithoutScenery = structuredClone(
+      courtyardPlan1Fixture,
+    ) as unknown as VisualScenePlan;
+    const exteriorTags = new Set(["broadleaf-trees", "hedges", "verge-rocks"]);
+    planWithoutScenery.locations[0]!.dressingTags = planWithoutScenery.locations[0]!.dressingTags
+      .filter((tag) => !exteriorTags.has(tag));
+
+    const recipe = compileSceneRecipe(
+      courtyardSnapshotFixture as unknown as WorldSnapshot,
+      planWithoutScenery,
+    );
+
+    const dressing = recipe.locations["coaching-courtyard"]?.dressingInstances ?? [];
+    expect(dressing).toHaveLength(5);
+    expect(dressing.every((instance) => instance.placementRegion === "interior")).toBe(true);
+    expect(dressing.some(
+      (instance) => instance.renderKind === "asset" && instance.registryKey.startsWith("environment-"),
+    )).toBe(false);
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {

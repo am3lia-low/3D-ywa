@@ -36,6 +36,11 @@ export default defineConfig({
               test: /src[\\/]data[\\/]asset-kit-catalog\.json$/,
               priority: 15,
             },
+            {
+              name: "scene-recipe",
+              test: /src[\\/]runtime[\\/](sceneCompiler|sceneRecipeCompiler|dressingResolver)\.ts$/,
+              priority: 16,
+            },
           ],
         },
       },

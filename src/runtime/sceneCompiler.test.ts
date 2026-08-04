@@ -86,7 +86,17 @@ describe("compileScenePresentation", () => {
       wallIvy: true,
       fallenLeaves: true,
       courtyardClutter: true,
+      broadleafTrees: true,
+      hedges: true,
+      vergeRocks: true,
     });
+    expect(scene.modules.dressing.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "dressing:broadleaf-trees",
+        "dressing:hedges",
+        "dressing:verge-rocks",
+      ]),
+    );
     expect(scene.atmosphere.rain).toBe(true);
   });
 
