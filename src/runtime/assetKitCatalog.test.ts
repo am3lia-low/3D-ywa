@@ -30,6 +30,11 @@ describe("asset kit catalog", () => {
     }
   });
 
+  it("carries measured support height for irregular support assets", () => {
+    expect(defaultAssetRegistry["environment-fallen-log"]?.supportSurfaceY)
+      .toBeCloseTo(0.747, 3);
+  });
+
   it("retains complete provenance for vendored CC0 models", () => {
     const crate = assetKitCatalog.assets.find((asset) => asset.registryKey === "crate");
     expect(crate).toMatchObject({

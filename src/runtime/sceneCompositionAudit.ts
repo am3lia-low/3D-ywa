@@ -1,6 +1,11 @@
 import type { SpatialRelation, Vector3Tuple, WorldSnapshot } from "../contracts/world";
 import type { AssetRegistry } from "./assetRegistry";
-import { createWorldLayout, type LayoutItem, type WorldLayout } from "./layoutEngine";
+import {
+  createWorldLayout,
+  supportSurfaceWorldY,
+  type LayoutItem,
+  type WorldLayout,
+} from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
 
 export type CompositionIssueCode =
@@ -76,7 +81,7 @@ function hasIrregularSupportSurface(item: LayoutItem): boolean {
 function restsOnSurface(subject: LayoutItem, target: LayoutItem): boolean {
   const subjectDimensions = effectiveDimensions(subject);
   const targetDimensions = effectiveDimensions(target);
-  const expectedBottom = target.position[1] + targetDimensions[1] / 2 + 0.008;
+  const expectedBottom = supportSurfaceWorldY(target) + 0.008;
   const subjectBottom = subject.position[1] - subjectDimensions[1] / 2;
   if (Math.abs(subjectBottom - expectedBottom) > 0.065) return false;
 

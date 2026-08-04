@@ -562,6 +562,7 @@
         "dimensions": [3.4, 0.75, 1.1],
         "color": "#5c3d29",
         "safeMeshUrl": "/models/converted/nature/fallen-log-safe.mesh.json",
+        "supportSurfaceY": 0.747,
         "roughness": 1
       },
       "qualityGate": {

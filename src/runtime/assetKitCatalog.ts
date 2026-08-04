@@ -12,6 +12,7 @@ const runtimeAssetSchema = z.strictObject({
   safeMeshUrl: z.string().trim().min(1).optional(),
   surfaceTextureUrl: z.string().trim().min(1).optional(),
   surfaceCrop: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+  supportSurfaceY: z.number().min(0).max(1).optional(),
   roughness: z.number().min(0).max(1).optional(),
   metalness: z.number().min(0).max(1).optional(),
 });

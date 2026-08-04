@@ -186,9 +186,10 @@ function relationPosition(
     case "on":
       {
         const [offsetX, offsetZ] = surfaceOffset(item, target);
+        const itemHeight = item.dimensions[1] * item.scale[1];
         return [
           target.position[0] + offsetX,
-          target.position[1] + target.dimensions[1] / 2 + item.dimensions[1] / 2 + 0.008,
+          supportSurfaceWorldY(target) + itemHeight / 2 + 0.008,
           target.position[2] + offsetZ,
         ];
       }
@@ -228,6 +229,15 @@ function defaultPosition(entity: Entity, bounds: Vector3Tuple, height: number): 
   const xRatio = ((hash & 0xffff) / 0xffff) * 2 - 1;
   const zRatio = (((hash >>> 16) & 0xffff) / 0xffff) * 2 - 1;
   return [xRatio * bounds[0] * 0.32, height / 2, zRatio * bounds[2] * 0.32];
+}
+
+/** Returns the real visual support height, not merely the asset bounding-box top. */
+export function supportSurfaceWorldY(item: LayoutItem): number {
+  const height = item.dimensions[1] * item.scale[1];
+  return (
+    item.position[1] - height / 2 +
+    height * (item.asset.supportSurfaceY ?? 1)
+  );
 }
 
 const FACING_RELATIONS = new Set(["left_of", "right_of", "in_front_of", "behind", "near"]);

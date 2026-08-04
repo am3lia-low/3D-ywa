@@ -16,6 +16,8 @@ export interface AssetDefinition {
   surfaceTextureUrl?: string;
   /** Normalized image crop in top-left coordinates: left, top, right, bottom. */
   surfaceCrop?: [number, number, number, number];
+  /** Actual stable support height measured from the asset's normalized bottom (0..1). */
+  supportSurfaceY?: number;
   roughness?: number;
   metalness?: number;
 }

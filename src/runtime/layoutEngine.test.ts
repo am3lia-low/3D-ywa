@@ -133,7 +133,7 @@ describe("createWorldLayout", () => {
     expect(lantern.position[0]).toBeCloseTo(log.position[0], 4);
     expect(lantern.position[2]).toBeCloseTo(log.position[2], 4);
     expect(lantern.position[1] - lantern.dimensions[1] / 2).toBeCloseTo(
-      log.position[1] + log.dimensions[1] / 2 + 0.008,
+      log.position[1] - log.dimensions[1] / 2 + log.dimensions[1] * 0.747 + 0.008,
       4,
     );
   });
