@@ -111,6 +111,46 @@ describe("createWorldLayout", () => {
     expect(map.position[2]).toBeGreaterThan(table.position[2]);
   });
 
+  it("keeps multiple large props on their shared support instead of moving one off it", () => {
+    const crowdedSurface: WorldSnapshot = {
+      storyId: "crowded-surface-test",
+      version: 1,
+      passageId: "P1",
+      locations: [{ id: "workroom", name: "Workroom", bounds: [18, 6, 18] }],
+      entities: [
+        { id: "workbench", name: "Work bench", kind: "furniture", locationId: "workroom", assetKey: "desk" },
+        { id: "large-chart", name: "Large chart", kind: "document", locationId: "workroom", assetKey: "map", dimensions: [1.18, 0.025, 0.78] },
+        { id: "signal-lamp", name: "Signal lamp", kind: "light", locationId: "workroom", assetKey: "lantern" },
+      ],
+      relations: [
+        { id: "chart-on-bench", subjectId: "large-chart", predicate: "on", objectId: "workbench" },
+        { id: "lamp-on-bench", subjectId: "signal-lamp", predicate: "on", objectId: "workbench" },
+      ],
+      conflicts: [],
+    };
+    const layout = createWorldLayout(crowdedSurface);
+    const table = layout.items.find((item) => item.entity.id === "workbench")!;
+    const chart = layout.items.find((item) => item.entity.id === "large-chart")!;
+    const lamp = layout.items.find((item) => item.entity.id === "signal-lamp")!;
+
+    for (const prop of [chart, lamp]) {
+      expect(prop.position[1] - prop.dimensions[1] / 2).toBeCloseTo(
+        supportSurfaceWorldY(table) + 0.008,
+        4,
+      );
+      expect(Math.abs(prop.position[0] - table.position[0]) + prop.dimensions[0] / 2)
+        .toBeLessThan(table.dimensions[0] / 2);
+      expect(Math.abs(prop.position[2] - table.position[2]) + prop.dimensions[2] / 2)
+        .toBeLessThan(table.dimensions[2] / 2);
+    }
+
+    const separatedAlongX = Math.abs(chart.position[0] - lamp.position[0]) >=
+      (chart.dimensions[0] + lamp.dimensions[0]) / 2 + 0.025;
+    const separatedAlongZ = Math.abs(chart.position[2] - lamp.position[2]) >=
+      (chart.dimensions[2] + lamp.dimensions[2]) / 2 + 0.025;
+    expect(separatedAlongX || separatedAlongZ).toBe(true);
+  });
+
   it("keeps the moved courtyard chair facing the gate", () => {
     const departure = applyScenePatch(
       courtyardSnapshotFixture as unknown as WorldSnapshot,

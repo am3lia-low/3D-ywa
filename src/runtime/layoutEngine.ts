@@ -148,6 +148,66 @@ function surfaceOffset(
   ];
 }
 
+function placeOnSupportWithoutCollision(
+  draft: Omit<LayoutItem, "position">,
+  desired: Vector3Tuple,
+  target: LayoutItem,
+  bounds: Vector3Tuple,
+  placed: readonly LayoutItem[],
+): LayoutItem {
+  const targetSemantics = [
+    target.entity.kind,
+    target.entity.name,
+    target.asset.key,
+    ...(target.entity.aliases ?? []),
+  ].join(" ").toLowerCase();
+  const irregularSupport = /\b(log|trunk|stump|rock|boulder|barrel)\b/.test(targetSemantics);
+  const margin = 0.05;
+  const xReach = Math.max(0, (target.dimensions[0] - draft.dimensions[0]) / 2 - margin);
+  const zReach = Math.max(0, (target.dimensions[2] - draft.dimensions[2]) / 2 - margin);
+  const yaw = target.rotation[1];
+  const deltaX = desired[0] - target.position[0];
+  const deltaZ = desired[2] - target.position[2];
+  const desiredLocalX = deltaX * Math.cos(yaw) - deltaZ * Math.sin(yaw);
+  const desiredLocalZ = deltaX * Math.sin(yaw) + deltaZ * Math.cos(yaw);
+  const axisSamples = (reach: number) => [-reach, -reach / 2, 0, reach / 2, reach];
+  const surfaceGrid: Array<[number, number]> = axisSamples(xReach).flatMap((x) =>
+    axisSamples(zReach).map((z): [number, number] => [x, z]),
+  );
+  const localCandidates: Array<[number, number]> = irregularSupport
+    ? [[0, 0]]
+    : [[desiredLocalX, desiredLocalZ], ...surfaceGrid];
+  localCandidates.sort(
+    (left, right) =>
+      Math.hypot(left[0] - desiredLocalX, left[1] - desiredLocalZ) -
+        Math.hypot(right[0] - desiredLocalX, right[1] - desiredLocalZ) ||
+      left[0] - right[0] ||
+      left[1] - right[1],
+  );
+
+  for (const [localX, localZ] of localCandidates) {
+    const position = clampToRoom(
+      [
+        target.position[0] + localX * Math.cos(yaw) + localZ * Math.sin(yaw),
+        desired[1],
+        target.position[2] - localX * Math.sin(yaw) + localZ * Math.cos(yaw),
+      ],
+      draft.dimensions,
+      bounds,
+    );
+    const candidate: LayoutItem = { ...draft, position };
+    if (
+      !placed.some(
+        (other) => other.entity.id !== target.entity.id && overlaps(candidate, other, 0.025),
+      )
+    ) return candidate;
+  }
+
+  // Returning the intended support position keeps the relation truthful; the
+  // composition preflight will reject a genuinely overfull surface.
+  return { ...draft, position: clampToRoom(desired, draft.dimensions, bounds) };
+}
+
 function relationPosition(
   relation: SpatialRelation,
   item: Omit<LayoutItem, "position">,
@@ -391,16 +451,25 @@ export function createWorldLayout(
         resolved.position,
         placedById,
       );
-      const item = placeWithoutCollision(
-        orientedDraft,
-        resolved.position,
-        bounds,
-        placed,
-        supportedBy,
-        resolved.relation.predicate === "on" || resolved.relation.predicate === "inside"
-          ? 0.025
-          : SPACING,
-      );
+      const supportTarget = resolved.relation.objectId
+        ? placedById.get(resolved.relation.objectId)
+        : undefined;
+      const item = resolved.relation.predicate === "on" && supportTarget
+        ? placeOnSupportWithoutCollision(
+            orientedDraft,
+            resolved.position,
+            supportTarget,
+            bounds,
+            placed,
+          )
+        : placeWithoutCollision(
+            orientedDraft,
+            resolved.position,
+            bounds,
+            placed,
+            supportedBy,
+            resolved.relation.predicate === "inside" ? 0.025 : SPACING,
+          );
       placed.push(item);
       placedById.set(item.entity.id, item);
       progress = true;
