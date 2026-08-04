@@ -71,15 +71,26 @@ export function selectStoryStyleKit(plan: VisualScenePlan): StoryStyleKit {
     plan.artDirection.styleLabel,
     plan.artDirection.stylePrompt,
     ...plan.artDirection.materialVocabulary,
-    ...plan.locations.flatMap((location) => [location.archetype, ...location.architectureTags]),
+    ...plan.locations.flatMap((location) => [
+      location.archetype,
+      location.visualDescription,
+      location.mood,
+      location.timeOfDay,
+      ...location.architectureTags,
+      ...location.dressingTags,
+      ...location.lighting.atmosphericEffects,
+    ]),
   ]);
-  return storyStyleKits
+  const ranked = storyStyleKits
     .map((kit) => ({
       kit,
       score: kit.matchTags.reduce((score, tag) => score + (requested.has(tag) ? 1 : 0), 0),
     }))
-    .sort((left, right) => right.score - left.score || left.kit.id.localeCompare(right.kit.id))[0]!
-    .kit;
+    .sort((left, right) => right.score - left.score || left.kit.id.localeCompare(right.kit.id));
+  if ((ranked[0]?.score ?? 0) === 0) {
+    return storyStyleKits.find((kit) => kit.id === "generic-grounded") ?? ranked[0]!.kit;
+  }
+  return ranked[0]!.kit;
 }
 
 function scoreEntry(

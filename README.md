@@ -268,6 +268,19 @@ The renderer chooses registered modules from recipe IDs; it does not branch on
 story IDs. The current attic and conservatory are therefore regression fixtures
 for two different recipes rather than two custom application screens.
 
+## Universal visual quality
+
+Unfamiliar setting language now passes through a semantic art-direction layer
+that resolves broad indoor, courtyard, glasshouse and woodland vocabulary to
+tested environment modules. Every scene receives local image-based lighting;
+unregistered objects receive proportioned category-specific designed fallbacks
+instead of the same placeholder blob. The **Unfamiliar story stress test** demo
+fixture proves this flow without using existing story tags or canonical assets.
+
+The quality ladder, generalization safeguards and honest boundary between
+runtime fallback art and reviewed hero assets are documented in
+`docs/universal-visual-quality.md`.
+
 ## Portable story packages
 
 The **Import story package** control accepts one validated `.json` handoff and

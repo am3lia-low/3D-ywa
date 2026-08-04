@@ -49,6 +49,15 @@ describe("asset registry", () => {
     expect(asset.geometry).toBe("box");
   });
 
+  it("gives unknown semantic objects useful real-world proportions", () => {
+    expect(resolveAsset(entity({ kind: "character", name: "A stranger" })).dimensions).toEqual([
+      0.62,
+      1.75,
+      0.5,
+    ]);
+    expect(resolveAsset(entity({ kind: "document", name: "A letter" })).dimensions[1]).toBe(0.08);
+  });
+
   it("resolves converted safe meshes without exposing their rejected source GLB", () => {
     const asset = resolveAsset(entity({ kind: "tree", assetKey: "environment-tree-oak" }));
 

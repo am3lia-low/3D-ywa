@@ -21,6 +21,7 @@ import {
   type ReactNode,
 } from "react";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import bushSafeMesh from "../data/converted/nature/bush-safe.mesh.json";
 import fallenLogSafeMesh from "../data/converted/nature/fallen-log-safe.mesh.json";
 import grassTuftSafeMesh from "../data/converted/nature/grass-tuft-safe.mesh.json";
@@ -40,6 +41,7 @@ import {
 } from "../contracts/validation";
 import type {
   Conflict,
+  Entity,
   Location,
   ScenePatch,
   Vector3Tuple,
@@ -71,6 +73,7 @@ import {
   renderQualityProfiles,
   type RenderQuality,
 } from "../runtime/renderQuality";
+import { designedFallbackKind } from "../runtime/designedFallback";
 
 const bundledSafeMeshes: Readonly<Record<string, unknown>> = {
   "/models/converted/nature/tree-oak-safe.mesh.json": treeOakSafeMesh,
@@ -952,12 +955,184 @@ class ModelErrorBoundary extends Component<
 }
 
 function DesignedFallbackAsset({
+  entity,
+  active,
   highlighted,
   highlightColor,
 }: {
+  entity: Entity;
+  active: boolean;
   highlighted: boolean;
   highlightColor: string;
 }) {
+  const kind = designedFallbackKind(entity);
+  const glow = highlighted ? highlightColor : "#000000";
+  const glowIntensity = highlighted ? 0.3 : 0;
+
+  if (kind === "light") {
+    return (
+      <StoryLanternAsset
+        lit={active}
+        highlighted={highlighted}
+        highlightColor={highlightColor}
+      />
+    );
+  }
+
+  if (kind === "document") {
+    return (
+      <group>
+        <RoundedBox args={[1, 0.32, 0.98]} radius={0.06} smoothness={3} castShadow receiveShadow>
+          <meshStandardMaterial
+            color="#6f3f2c"
+            emissive={glow}
+            emissiveIntensity={glowIntensity}
+            roughness={0.8}
+          />
+        </RoundedBox>
+        <RoundedBox
+          args={[0.9, 0.18, 0.88]}
+          radius={0.035}
+          smoothness={2}
+          position={[0.02, 0.2, 0]}
+          castShadow
+          receiveShadow
+        >
+          <meshStandardMaterial color="#d2b983" roughness={0.98} />
+        </RoundedBox>
+        <mesh position={[-0.38, 0.31, 0]} castShadow>
+          <boxGeometry args={[0.065, 0.08, 0.9]} />
+          <meshStandardMaterial color="#b58a4a" roughness={0.54} metalness={0.26} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (kind === "table") {
+    return (
+      <group>
+        <RoundedBox args={[1, 0.16, 0.82]} radius={0.035} smoothness={3} position={[0, 0.39, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#765039" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.76} />
+        </RoundedBox>
+        {([-0.4, 0.4] as const).flatMap((x) => ([-0.3, 0.3] as const).map((z) => (
+          <mesh key={`${x}:${z}`} position={[x, -0.06, z]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.055, 0.075, 0.78, 10]} />
+            <meshStandardMaterial color="#4b3228" roughness={0.84} />
+          </mesh>
+        )))}
+        <mesh position={[0, 0.22, 0.34]} castShadow>
+          <boxGeometry args={[0.7, 0.16, 0.06]} />
+          <meshStandardMaterial color="#5b3b2c" roughness={0.82} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (kind === "seat") {
+    return (
+      <group>
+        <RoundedBox args={[0.78, 0.13, 0.76]} radius={0.045} smoothness={3} position={[0, -0.03, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#765039" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.78} />
+        </RoundedBox>
+        <RoundedBox args={[0.72, 0.7, 0.12]} radius={0.045} smoothness={3} position={[0, 0.28, 0.33]} castShadow receiveShadow>
+          <meshStandardMaterial color="#5b3a2c" roughness={0.82} />
+        </RoundedBox>
+        {([-0.3, 0.3] as const).flatMap((x) => ([-0.28, 0.28] as const).map((z) => (
+          <mesh key={`${x}:${z}`} position={[x, -0.3, z]} castShadow>
+            <cylinderGeometry args={[0.035, 0.05, 0.5, 9]} />
+            <meshStandardMaterial color="#3d2922" roughness={0.86} />
+          </mesh>
+        )))}
+      </group>
+    );
+  }
+
+  if (kind === "container") {
+    return (
+      <group>
+        <RoundedBox args={[0.96, 0.68, 0.9]} radius={0.055} smoothness={3} position={[0, -0.12, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#745039" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.82} />
+        </RoundedBox>
+        <RoundedBox args={[1, 0.18, 0.94]} radius={0.055} smoothness={3} position={[0, 0.32, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#8a6243" roughness={0.76} />
+        </RoundedBox>
+        {[-0.34, 0.34].map((x) => (
+          <mesh key={x} position={[x, 0, 0]} castShadow>
+            <boxGeometry args={[0.07, 0.92, 0.94]} />
+            <meshStandardMaterial color="#8c6b3b" roughness={0.5} metalness={0.46} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.08, 0.48]} castShadow>
+          <boxGeometry args={[0.15, 0.22, 0.05]} />
+          <meshStandardMaterial color="#b28a47" roughness={0.42} metalness={0.68} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (kind === "portal") {
+    return (
+      <group>
+        <RoundedBox args={[0.94, 1, 0.5]} radius={0.045} smoothness={3} castShadow receiveShadow>
+          <meshStandardMaterial color="#624331" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.79} />
+        </RoundedBox>
+        {[-0.26, 0.26].flatMap((x) => [-0.25, 0.24].map((y) => (
+          <RoundedBox key={`${x}:${y}`} args={[0.38, 0.36, 0.06]} radius={0.02} smoothness={2} position={[x, y, 0.28]} castShadow>
+            <meshStandardMaterial color="#79543b" roughness={0.76} />
+          </RoundedBox>
+        )))}
+        <mesh position={[0.34, 0, 0.34]} castShadow>
+          <sphereGeometry args={[0.055, 14, 10]} />
+          <meshStandardMaterial color="#c49a4f" roughness={0.34} metalness={0.78} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (kind === "person") {
+    return (
+      <group>
+        {[-0.16, 0.16].map((x) => (
+          <mesh key={x} position={[x, -0.33, 0]} castShadow>
+            <capsuleGeometry args={[0.09, 0.34, 6, 10]} />
+            <meshStandardMaterial color="#273b3c" roughness={0.88} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
+          <capsuleGeometry args={[0.25, 0.44, 8, 14]} />
+          <meshStandardMaterial color="#496064" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.72} />
+        </mesh>
+        <mesh position={[0, 0.41, 0]} castShadow>
+          <sphereGeometry args={[0.16, 20, 14]} />
+          <meshStandardMaterial color="#a98a70" roughness={0.8} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (kind === "plant") {
+    return <BotanicalPlanter position={[0, -0.5, 0]} scale={0.72} variant={2} />;
+  }
+
+  if (kind === "vessel") {
+    return (
+      <group>
+        <mesh position={[0, -0.12, 0]} castShadow receiveShadow>
+          <sphereGeometry args={[0.4, 24, 18]} />
+          <meshStandardMaterial color="#6d7770" emissive={glow} emissiveIntensity={glowIntensity} roughness={0.68} metalness={0.12} />
+        </mesh>
+        <mesh position={[0, 0.27, 0]} castShadow>
+          <cylinderGeometry args={[0.17, 0.26, 0.34, 22]} />
+          <meshStandardMaterial color="#7f8a81" roughness={0.66} metalness={0.1} />
+        </mesh>
+        <mesh position={[0, 0.45, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <torusGeometry args={[0.18, 0.035, 8, 24]} />
+          <meshStandardMaterial color="#b18b54" roughness={0.48} metalness={0.5} />
+        </mesh>
+      </group>
+    );
+  }
+
   return (
     <group>
       <mesh position={[0, -0.43, 0]} castShadow receiveShadow>
@@ -1206,11 +1381,13 @@ function StoryLanternAsset({
 
 function EntityAsset({
   asset,
+  entity,
   active = false,
   highlighted,
   highlightColor,
 }: {
   asset: AssetDefinition;
+  entity?: Entity;
   active?: boolean;
   highlighted: boolean;
   highlightColor: string;
@@ -1234,7 +1411,20 @@ function EntityAsset({
   }
 
   if (asset.key.startsWith("fallback:")) {
-    return <DesignedFallbackAsset highlighted={highlighted} highlightColor={highlightColor} />;
+    const fallbackEntity = entity ?? {
+      id: asset.key,
+      name: asset.key.replace(/^fallback:/, ""),
+      kind: asset.key.replace(/^fallback:/, ""),
+      locationId: "presentation-only",
+    };
+    return (
+      <DesignedFallbackAsset
+        entity={fallbackEntity}
+        active={active}
+        highlighted={highlighted}
+        highlightColor={highlightColor}
+      />
+    );
   }
 
   if (asset.key === "rug") {
@@ -1498,6 +1688,7 @@ function WorldEntity({
       ) : (
         <EntityAsset
           asset={item.asset}
+          entity={item.entity}
           active={item.entity.state?.active === true || item.entity.state?.lit === true}
           highlighted={highlighted}
           highlightColor={emissive}
@@ -2081,6 +2272,16 @@ function CourtyardKit({
     "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
     [2.8, 1.45],
   );
+  const genericGround = useMemo(() => {
+    const base = new THREE.Color(presentation.palette.floor);
+    const dark = base.clone().offsetHSL(-0.02, 0.02, -0.1).getStyle();
+    const light = base.clone().offsetHSL(0.02, -0.02, 0.1).getStyle();
+    const accent = base.clone().offsetHSL(0.08, 0.04, -0.04).getStyle();
+    const texture = paintedGroundTexture(base.getStyle(), [dark, light, accent], 71237);
+    texture.repeat.set(9, 9);
+    return texture;
+  }, [presentation.palette.floor]);
+  useEffect(() => () => genericGround.dispose(), [genericGround]);
   const arcadeCenters = [-bounds[0] * 0.36, -bounds[0] * 0.18, bounds[0] * 0.18, bounds[0] * 0.36];
   const wallHeight = bounds[1] * 0.8;
   const wallSections: Array<[Vector3Tuple, Vector3Tuple, string]> = [
@@ -2094,6 +2295,26 @@ function CourtyardKit({
 
   return (
     <group>
+      {!presentation.architecture.cobblestone && (
+        <>
+          <mesh position={[0, 0.018, 0]} receiveShadow>
+            <boxGeometry args={[bounds[0], 0.08, bounds[2]]} />
+            <meshStandardMaterial
+              color="#d3d6cb"
+              map={genericGround}
+              roughness={0.98}
+            />
+          </mesh>
+          <mesh position={[0, -0.09, 0]} receiveShadow>
+            <boxGeometry args={[bounds[0] * 4, 0.12, bounds[2] * 4]} />
+            <meshStandardMaterial
+              color="#8f998c"
+              map={genericGround}
+              roughness={1}
+            />
+          </mesh>
+        </>
+      )}
       {presentation.architecture.cobblestone && (
         <>
           <CourtyardCobblestones bounds={bounds} pavement={pavement} />
@@ -2504,6 +2725,8 @@ function Room({
   const usesConservatoryKit = environmentModules.has("shell:glasshouse");
   const usesWoodlandKit = environmentModules.has("surface:forest-floor");
   const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit;
+  const usesGenericKit = !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit;
+  const texturedGenericFloor = usesGenericKit && presentation.architecture.floorboards;
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const load = (path: string, repeat: [number, number], color = false) => {
@@ -2589,9 +2812,16 @@ function Room({
         receiveShadow
       >
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
-        <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
+        <meshStandardMaterial
+          color={presentation.palette.floor}
+          map={texturedGenericFloor ? roomTextures.floorColor : undefined}
+          normalMap={texturedGenericFloor ? roomTextures.floorNormal : undefined}
+          normalScale={new THREE.Vector2(0.5, 0.5)}
+          roughnessMap={texturedGenericFloor ? roomTextures.floorArm : undefined}
+          roughness={0.96}
+        />
       </mesh>
-      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
+      {usesGenericKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2602,7 +2832,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+      {usesGenericKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2613,7 +2843,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!overview && !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && (
+      {!overview && usesGenericKit && (
         <>
           <mesh position={[0, bounds[1] / 2, bounds[2] / 2]} receiveShadow>
             <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
@@ -2640,12 +2870,40 @@ function Room({
           <mesh position={[0, bounds[1] - wallThickness / 2, 0]} receiveShadow>
             <boxGeometry args={[bounds[0], wallThickness, bounds[2]]} />
             <meshStandardMaterial
-              color={presentation.palette.wall}
-              roughness={1}
+              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
+              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
+              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+              normalScale={new THREE.Vector2(0.36, 0.36)}
+              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              roughness={0.98}
               side={THREE.DoubleSide}
             />
           </mesh>
         </>
+      )}
+      {usesGenericKit && (
+        <group>
+          <mesh position={[0, 0.12, -bounds[2] / 2 + 0.09]} castShadow receiveShadow>
+            <boxGeometry args={[bounds[0] - 0.18, 0.24, 0.12]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
+          </mesh>
+          <mesh position={[-bounds[0] / 2 + 0.09, 0.12, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.12, 0.24, bounds[2] - 0.18]} />
+            <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
+          </mesh>
+          {!overview && (
+            <>
+              <mesh position={[0, 0.12, bounds[2] / 2 - 0.09]} castShadow receiveShadow>
+                <boxGeometry args={[bounds[0] - 0.18, 0.24, 0.12]} />
+                <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
+              </mesh>
+              <mesh position={[bounds[0] / 2 - 0.09, 0.12, 0]} castShadow receiveShadow>
+                <boxGeometry args={[0.12, 0.24, bounds[2] - 0.18]} />
+                <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
+              </mesh>
+            </>
+          )}
+        </group>
       )}
       {usesAtticKit ? (
         <>
@@ -3047,6 +3305,34 @@ function SceneToneMapping({ exposure }: { exposure: number }) {
   useEffect(() => {
     gl.toneMappingExposure = exposure;
   }, [exposure, gl]);
+  return null;
+}
+
+/** Adds a local, network-free reflection/light probe for every PBR material. */
+function SceneImageLighting({ intensity }: { intensity: number }) {
+  const { gl, scene } = useThree();
+
+  useEffect(() => {
+    const previousEnvironment = scene.environment;
+    const previousIntensity = scene.environmentIntensity;
+    const generator = new THREE.PMREMGenerator(gl);
+    const environment = new RoomEnvironment();
+    const target = generator.fromScene(environment, 0.04);
+    scene.environment = target.texture;
+
+    return () => {
+      if (scene.environment === target.texture) scene.environment = previousEnvironment;
+      scene.environmentIntensity = previousIntensity;
+      target.dispose();
+      environment.dispose();
+      generator.dispose();
+    };
+  }, [gl, scene]);
+
+  useEffect(() => {
+    scene.environmentIntensity = intensity;
+  }, [intensity, scene]);
+
   return null;
 }
 
@@ -3631,6 +3917,7 @@ function WorldScene({
     <>
       <color attach="background" args={[presentation.palette.background]} />
       <SceneToneMapping exposure={atmosphereProfile.exposure} />
+      <SceneImageLighting intensity={atmosphereProfile.environmentIntensity} />
       {(atmosphereProfile.openAir || isGlasshouse) && (
         <WeatherSky bounds={bounds} profile={atmosphereProfile} />
       )}

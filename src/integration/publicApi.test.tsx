@@ -5,6 +5,7 @@ import snapshotInput from "../../fixtures/snapshot_1.json";
 import patchInput from "../../fixtures/patch_2.json";
 import visualPlanInput from "../../fixtures/visual_scene_plan_1.json";
 import storyPackageInput from "../../fixtures/story_package_import_demo.json";
+import unfamiliarStoryPackageInput from "../../fixtures/story_package_unfamiliar_demo.json";
 import {
   OrderedWorldStream,
   applyScenePatch,
@@ -26,6 +27,27 @@ describe("public spatial-runtime handoff", () => {
     expect(report.status).toBe("ready");
     expect(report.moments).toHaveLength(1);
     expect(report.moments[0]?.status).toBe("clean");
+  });
+
+  it("compiles an unfamiliar story into a coherent reusable environment", () => {
+    const story = runtimeStoryFromPackage(unfamiliarStoryPackageInput);
+    const plan = story.visualPlans[0];
+    if (!plan) throw new Error("Stress-test package must include an opening visual plan.");
+    const recipe = compileSceneRecipe(story.snapshot, plan);
+    const location = recipe.locations["stormwatch-pass"];
+
+    expect(location?.environmentModules.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "shell:open-air",
+        "surface:forest-floor",
+        "path:earth-trail",
+        "boundary:woodland-edge",
+      ]),
+    );
+    expect(recipe.coverage.designedFallback).toBeGreaterThan(0);
+    expect(recipe.styleKit.id).toBe("woodland-storybook");
+    expect(location?.dressingInstances.length).toBeGreaterThan(12);
+    expect(recipe.composition.status).not.toBe("blocking");
   });
 
   it("orders, applies, and acknowledges a patch using only public exports", () => {

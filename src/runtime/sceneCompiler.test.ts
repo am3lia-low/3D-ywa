@@ -15,6 +15,7 @@ import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
 import {
   compileScenePresentation,
+  createFallbackScenePresentation,
   ScenePlanError,
   visualAssetPrompt,
 } from "./sceneCompiler";
@@ -136,6 +137,80 @@ describe("compileScenePresentation", () => {
       courtyardWalls: false,
     });
     expect(scene.atmosphere.groundMist).toBe(true);
+  });
+
+  it("maps unfamiliar natural-language setting terms onto the reusable woodland kit", () => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const unexpectedPlan: VisualScenePlan = {
+      ...plan1,
+      locations: [{
+        ...sourceLocation,
+        archetype: "remote highland crossing",
+        visualDescription: "A misty conifer forest trail climbing through wet boulders and fallen logs.",
+        architectureTags: ["wilderness", "mountain crossing"],
+        dressingTags: ["spruce", "fungi", "deadwood"],
+        lighting: {
+          ...sourceLocation.lighting,
+          atmosphericEffects: ["low fog"],
+        },
+      }],
+    };
+
+    const scene = compileScenePresentation(unexpectedPlan, snapshot, "attic-study");
+    const modules = scene.modules.environment.map((module) => module.moduleId);
+    expect(modules).toEqual(expect.arrayContaining([
+      "shell:open-air",
+      "surface:forest-floor",
+      "path:earth-trail",
+      "boundary:woodland-edge",
+    ]));
+    expect(scene.modules.dressing.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "dressing:pine-trees",
+        "dressing:wild-mushrooms",
+        "dressing:fallen-logs",
+      ]),
+    );
+    expect(scene.atmosphere.groundMist).toBe(true);
+  });
+
+  it("keeps unfamiliar indoor genres enclosed instead of guessing an exterior", () => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const laboratoryPlan: VisualScenePlan = {
+      ...plan1,
+      locations: [{
+        ...sourceLocation,
+        archetype: "orbital research laboratory",
+        visualDescription: "A sterile interior laboratory chamber with brushed metal consoles.",
+        architectureTags: ["modular bulkheads"],
+        dressingTags: ["scientific instruments"],
+      }],
+    };
+
+    const scene = compileScenePresentation(laboratoryPlan, snapshot, "attic-study");
+    expect(scene.modules.environment.map((module) => module.moduleId)).toContain("shell:solid-room");
+    expect(scene.architecture.openAir).toBe(false);
+    expect(scene.architecture.floorboards).toBe(false);
+  });
+
+  it("creates an atmospheric semantic fallback when no visual plan is available", () => {
+    const forestSnapshot: WorldSnapshot = {
+      ...snapshot,
+      locations: snapshot.locations.map((location, index) =>
+        index === 0 ? { ...location, name: "Whispering forest path" } : location,
+      ),
+    };
+    const scene = createFallbackScenePresentation(forestSnapshot, "attic-study");
+
+    expect(scene.styleLabel).toBe("polished storybook fallback");
+    expect(scene.architecture).toMatchObject({
+      openAir: true,
+      forestFloor: true,
+      earthTrail: true,
+      woodlandEdge: true,
+    });
   });
 
   it("emits an asset request for a supporting object without a registered asset key", () => {

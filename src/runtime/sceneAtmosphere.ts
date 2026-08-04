@@ -21,6 +21,7 @@ export interface SceneAtmosphereProfile {
   keyScale: number;
   fillPosition: Vector3Tuple;
   fillIntensity: number;
+  environmentIntensity: number;
   exposure: number;
   contactShadow: {
     opacity: number;
@@ -92,6 +93,9 @@ export function createSceneAtmosphereProfile(
     keyScale: family === "woodland" ? 0.92 : family === "courtyard" ? 0.84 : 1,
     fillPosition,
     fillIntensity: presentation.location.lighting.keyIntensity * (night ? 0.16 : 0.11),
+    environmentIntensity: (
+      family === "glasshouse" ? 0.5 : family === "interior" ? 0.44 : family === "courtyard" ? 0.38 : 0.32
+    ) * (night ? 0.78 : 1) * (highContrast ? 0.9 : 1),
     exposure: night ? (highContrast ? 1.12 : 1.08) : rainy ? 1.03 : 1.08,
     contactShadow: {
       opacity: family === "woodland" ? 0.34 : family === "courtyard" ? 0.4 : 0.48,

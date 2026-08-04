@@ -1,5 +1,6 @@
 import type { Entity, Vector3Tuple } from "../contracts/world";
 import { assetKitCatalog, catalogAssetDefinition } from "./assetKitCatalog";
+import { designedFallbackDimensions } from "./designedFallback";
 
 export type PrimitiveGeometry = "box" | "cylinder" | "sphere";
 
@@ -52,6 +53,6 @@ export function resolveAsset(
   return {
     ...fallback,
     key: `fallback:${requested}`,
-    dimensions: entity.dimensions ?? fallback.dimensions,
+    dimensions: entity.dimensions ?? designedFallbackDimensions(entity),
   };
 }

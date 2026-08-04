@@ -153,6 +153,113 @@ const DRESSING_MODULE_RULES: ReadonlyArray<{
   { moduleId: "dressing:forest-rocks", anyTags: ["forest-rocks", "mossy-rocks"] },
 ];
 
+function semanticText(values: readonly string[]): string {
+  return values
+    .join(" ")
+    .toLowerCase()
+    .replace(/[_/]+/g, "-")
+    .replace(/[^a-z0-9-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hasSemantic(text: string, pattern: RegExp): boolean {
+  pattern.lastIndex = 0;
+  return pattern.test(text);
+}
+
+/**
+ * Maps unfamiliar but descriptive Part 1 vocabulary onto the finite renderer
+ * kit. These are presentation defaults only: they never create story entities
+ * or factual relations.
+ */
+function expandSemanticTags(location: VisualLocationPlan): {
+  architecture: Set<string>;
+  dressing: Set<string>;
+  atmosphereText: string;
+} {
+  const architecture = new Set(location.architectureTags.map((tag) => tag.toLowerCase()));
+  const dressing = new Set(location.dressingTags.map((tag) => tag.toLowerCase()));
+  const atmosphereText = semanticText([
+    location.archetype,
+    location.visualDescription,
+    location.mood,
+    location.timeOfDay,
+    ...location.architectureTags,
+    ...location.dressingTags,
+    ...location.lighting.atmosphericEffects,
+  ]);
+  const hasExplicitIndoorShell = hasSemantic(
+    atmosphereText,
+    /\b(?:indoor|interior|room|chamber|hall|attic|archive|library|study|bedroom|kitchen|laboratory|workshop|cabin|vault)\b/,
+  );
+  const hasExplicitOpenShell = hasSemantic(
+    atmosphereText,
+    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley)\b/,
+  );
+
+  if (hasExplicitOpenShell && !hasExplicitIndoorShell) architecture.add("open-air");
+  if (hasSemantic(atmosphereText, /\b(?:conservatory|glasshouse|greenhouse|winter-garden)\b/)) {
+    architecture.add("glasshouse-panels");
+    architecture.add("iron-frame");
+    architecture.add("stone-tile-floor");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:forest|woodland|woods|grove|mossy|understory)\b/)) {
+    architecture.add("open-air");
+    architecture.add("forest-floor");
+    architecture.add("woodland-edge");
+    dressing.add("forest-undergrowth");
+    dressing.add("grass-tufts");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:path|trail|track|woodland-road)\b/)) {
+    architecture.add("earth-trail");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:courtyard|cloister|quadrangle)\b/)) {
+    architecture.add("open-courtyard");
+    architecture.add("courtyard-walls");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:arcade|cloister|colonnade|stone-arches?)\b/)) {
+    architecture.add("stone-arcade");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:cobble|cobblestone|stone-paved|paving-stone)\b/)) {
+    architecture.add("cobblestone");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:wooden-floor|wood-floor|floorboard|plank-floor)\b/)) {
+    architecture.add("wood-floorboards");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:stone-tile|tiled-stone|flagstone-floor|marble-floor)\b/)) {
+    architecture.add("stone-tile-floor");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:plaster|stucco|limewash)\b/)) architecture.add("aged-plaster");
+  if (hasSemantic(atmosphereText, /\b(?:timber-frame|exposed-beam|half-timber)\b/)) architecture.add("timber-frame");
+  if (hasSemantic(atmosphereText, /\b(?:archive|library|book-lined|bookshel)\w*\b/)) {
+    architecture.add("archive-shelving");
+    dressing.add("books");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:window|moonbeam|sunbeam)\b/)) architecture.add("small-window");
+
+  if (hasSemantic(atmosphereText, /\b(?:book|folio|manuscript|scroll)\w*\b/)) dressing.add("books");
+  if (hasSemantic(atmosphereText, /\b(?:crate|box|storage)\w*\b/)) dressing.add("storage-crates");
+  if (hasSemantic(atmosphereText, /\b(?:chest|trunk|luggage)\w*\b/)) dressing.add("travel-chest");
+  if (hasSemantic(atmosphereText, /\b(?:planter|flowerpot|potted-plant|ceramic-pot)\w*\b/)) dressing.add("planters");
+  if (hasSemantic(atmosphereText, /\b(?:vine|creeper|climbing-plant)\w*\b/)) dressing.add("climbing-vines");
+  if (hasSemantic(atmosphereText, /\b(?:ivy|wall-vine)\w*\b/)) dressing.add("wall-ivy");
+  if (hasSemantic(atmosphereText, /\b(?:puddle|wet-stone|rain-soaked)\w*\b/)) dressing.add("rain-puddles");
+  if (hasSemantic(atmosphereText, /\b(?:fallen-lea|leaf-litter|autumn-lea)\w*\b/)) dressing.add("fallen-leaves");
+  if (hasSemantic(atmosphereText, /\b(?:oak|broadleaf|deciduous)\w*\b/)) dressing.add("broadleaf-trees");
+  if (hasSemantic(atmosphereText, /\b(?:pine|conifer|fir-tree|spruce)\w*\b/)) dressing.add("pine-trees");
+  if (hasSemantic(atmosphereText, /\b(?:hedge|shrub|bush)\w*\b/)) {
+    dressing.add(architecture.has("forest-floor") ? "forest-undergrowth" : "hedges");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:boulder|rock|stone-outcrop)\w*\b/)) {
+    dressing.add(architecture.has("forest-floor") ? "forest-rocks" : "verge-rocks");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:mushroom|fungi|toadstool)\w*\b/)) dressing.add("wild-mushrooms");
+  if (hasSemantic(atmosphereText, /\b(?:fallen-log|deadwood|tree-trunk)\w*\b/)) dressing.add("fallen-logs");
+
+  return { architecture, dressing, atmosphereText };
+}
+
 function selectModules<TModuleId extends string>(
   tags: ReadonlySet<string>,
   rules: ReadonlyArray<{ moduleId: TModuleId; anyTags: string[] }>,
@@ -262,18 +369,24 @@ export function compileScenePresentation(
     throw new ScenePlanError(`No visual plan exists for location '${locationId}'.`);
   }
 
-  const architectureTags = new Set(location.architectureTags);
-  const dressingTags = new Set(location.dressingTags);
+  const semanticTags = expandSemanticTags(location);
+  const architectureTags = semanticTags.architecture;
+  const dressingTags = semanticTags.dressing;
   const connection = plan.presentationConnections.find(
     (candidate) => candidate.fromLocationId === locationId,
   );
   const selectedEnvironmentModules = environmentModules(architectureTags);
   const selectedDressingModules = selectModules(dressingTags, DRESSING_MODULE_RULES);
+  const resolvedLocation: VisualLocationPlan = {
+    ...location,
+    architectureTags: [...architectureTags],
+    dressingTags: [...dressingTags],
+  };
 
   return {
     planVersion: plan.planVersion,
     styleLabel: plan.artDirection.styleLabel,
-    location,
+    location: resolvedLocation,
     palette: location.palette,
     modules: {
       environment: selectedEnvironmentModules,
@@ -312,10 +425,14 @@ export function compileScenePresentation(
       density: location.dressingDensity,
     },
     atmosphere: {
-      dust: location.lighting.atmosphericEffects.includes("dust-motes"),
-      coolWindowLight: location.lighting.atmosphericEffects.includes("window-shaft"),
-      rain: location.lighting.atmosphericEffects.includes("rain-streaks"),
-      groundMist: location.lighting.atmosphericEffects.includes("ground-mist"),
+      dust: location.lighting.atmosphericEffects.includes("dust-motes") ||
+        hasSemantic(semanticTags.atmosphereText, /\b(?:dusty|dust-motes|floating-dust)\b/),
+      coolWindowLight: location.lighting.atmosphericEffects.includes("window-shaft") ||
+        hasSemantic(semanticTags.atmosphereText, /\b(?:moonbeam|moonlight|window-shaft)\b/),
+      rain: location.lighting.atmosphericEffects.includes("rain-streaks") ||
+        hasSemantic(semanticTags.atmosphereText, /\b(?:rain|rainy|storm|drizzle|downpour)\w*\b/),
+      groundMist: location.lighting.atmosphericEffects.includes("ground-mist") ||
+        hasSemantic(semanticTags.atmosphereText, /\b(?:mist|misty|fog|foggy|ground-haze)\w*\b/),
     },
     portalTargetLocationId: connection?.targetLocationId,
     assetRequests: createAssetRequests(plan.entities, snapshot),
@@ -329,24 +446,29 @@ export function createFallbackScenePresentation(
 ): ScenePresentation {
   const location = snapshot.locations.find((candidate) => candidate.id === locationId);
   if (!location) throw new ScenePlanError(`Cannot create fallback for '${locationId}'.`);
+  const fallbackContext = semanticText([location.name]);
+  const appearsExterior = hasSemantic(
+    fallbackContext,
+    /\b(?:courtyard|plaza|square|street|road|alley|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley)\b/,
+  );
   const palette: ScenePalette = {
-    background: "#171b20",
-    fog: "#20262a",
-    floor: location.environment?.floorColor ?? "#3c3935",
+    background: appearsExterior ? "#162326" : "#171b20",
+    fog: appearsExterior ? "#293b3a" : "#20262a",
+    floor: location.environment?.floorColor ?? (appearsExterior ? "#39453a" : "#453b34"),
     wall: location.environment?.wallColor ?? "#b7aa98",
     timber: "#44372f",
     ambient: location.environment?.ambientColor ?? "#d9d2c5",
-    keyLight: "#dbe7e5",
-    practical: "#ff9a52",
+    keyLight: appearsExterior ? "#d3e3df" : "#f0dfc7",
+    practical: "#f2a45d",
   };
   const visualLocation: VisualLocationPlan = {
     locationId,
-    archetype: "generic-interior",
+    archetype: appearsExterior ? "generic-exterior" : "generic-interior",
     visualDescription: location.name,
-    architectureTags: [],
+    architectureTags: appearsExterior ? [] : ["aged-plaster", "wood-floorboards"],
     dressingTags: [],
-    dressingDensity: "sparse",
-    mood: "neutral",
+    dressingDensity: "moderate",
+    mood: "quiet storybook atmosphere",
     timeOfDay: "unspecified",
     palette,
     lighting: {
@@ -362,51 +484,22 @@ export function createFallbackScenePresentation(
       basis: "art_direction_default",
     },
   };
-  return {
+  return compileScenePresentation({
+    schemaVersion: "1.0",
+    storyId: snapshot.storyId,
+    segmentId: `${snapshot.passageId}:fallback`,
+    sourcePassageIds: [snapshot.passageId],
+    snapshotVersion: snapshot.version,
     planVersion: 0,
-    styleLabel: "generic fallback",
-    location: visualLocation,
-    palette,
-    modules: {
-      environment: [
-        { moduleId: "shell:solid-room", sourceTags: [] },
-        { moduleId: "surface:neutral-floor", sourceTags: [] },
-      ],
-      dressing: [],
+    artDirection: {
+      styleLabel: "polished storybook fallback",
+      stylePrompt: "A cohesive, atmospheric, readable story environment.",
+      negativePrompt: ["empty room", "flat lighting", "placeholder geometry"],
+      materialVocabulary: ["natural materials", "subtle wear", "layered surfaces"],
     },
-    architecture: {
-      floorboards: false,
-      plasterWalls: false,
-      timberFrame: false,
-      window: false,
-      archiveShelves: false,
-      glasshousePanels: false,
-      ironFrame: false,
-      stoneTileFloor: false,
-      openAir: false,
-      cobblestone: false,
-      forestFloor: false,
-      earthTrail: false,
-      stoneArcade: false,
-      courtyardWalls: false,
-      woodlandEdge: false,
-    },
-    dressing: {
-      books: false,
-      storageCrates: false,
-      travelChest: false,
-      planters: false,
-      climbingVines: false,
-      rainPuddles: false,
-      wallIvy: false,
-      fallenLeaves: false,
-      courtyardClutter: false,
-      broadleafTrees: false,
-      hedges: false,
-      vergeRocks: false,
-      density: "sparse",
-    },
-    atmosphere: { dust: false, coolWindowLight: false, rain: false, groundMist: false },
-    assetRequests: [],
-  };
+    locations: [visualLocation],
+    entities: [],
+    presentationConnections: [],
+    unresolvedQuestions: ["No VisualScenePlan was supplied; presentation uses labeled defaults."],
+  }, snapshot, locationId);
 }

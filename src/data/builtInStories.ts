@@ -13,6 +13,7 @@ import courtyardPlan1Fixture from "../../fixtures/visual_scene_plan_courtyard_1.
 import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.json";
 import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import woodlandPlan1Fixture from "../../fixtures/visual_scene_plan_woodland_1.json";
+import unfamiliarStoryPackageFixture from "../../fixtures/story_package_unfamiliar_demo.json";
 import {
   runtimeStoryFromPackage,
   type RuntimeStory,
@@ -98,6 +99,7 @@ export const builtInStoryPackages = [
       },
     ],
   },
+  unfamiliarStoryPackageFixture,
 ] as const;
 
 export const builtInStories: readonly RuntimeStory[] = builtInStoryPackages.map(
