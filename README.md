@@ -107,6 +107,13 @@ Member 2's fixture-driven React Three Fiber runtime for turning versioned world-
 - Reuses approved furniture semantically while rendering the unique celestial orrery as a deliberate designed fallback.
 - Applies a second-story patch without changing the environment or approved identities.
 
+## Milestone 15
+
+- Compiles time of day, weather, palette, warmth and contrast into one deterministic atmosphere profile shared by every environment family.
+- Adds cinematic key/fill lighting, adaptive exposure and bounded fog without requiring story-specific renderer branches.
+- Adds soft contact shading to enclosed POV and Walk views while preserving clean overview and outdoor terrain rendering.
+- Renders requested ground mist with transparent camera-facing layers and keeps the skydome centered on the camera so its edge never appears at overview distance.
+
 ## Component contract
 
 ```tsx

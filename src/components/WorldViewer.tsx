@@ -87,6 +87,10 @@ import {
   createFallbackScenePresentation,
   type ScenePresentation,
 } from "../runtime/sceneCompiler";
+import {
+  createSceneAtmosphereProfile,
+  type SceneAtmosphereProfile,
+} from "../runtime/sceneAtmosphere";
 import type { CompiledSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import {
   resolveDressingInstances,
@@ -2917,26 +2921,27 @@ function Room({
 
 function WeatherSky({
   bounds,
-  presentation,
+  profile,
 }: {
   bounds: Vector3Tuple;
-  presentation: ScenePresentation;
+  profile: SceneAtmosphereProfile;
 }) {
-  const rainy = presentation.atmosphere.rain;
-  const night = /\b(?:night|moon|midnight|dusk)\b/i.test(presentation.location.timeOfDay);
-  const topColor = rainy ? "#14242b" : night ? "#071a24" : presentation.palette.background;
-  const horizonColor = rainy ? "#53666a" : night ? "#21464c" : presentation.palette.fog;
-  const cloudColor = rainy ? "#859397" : night ? "#36565c" : "#d6dddc";
+  const sky = useRef<THREE.Mesh>(null);
+  const { topColor, horizonColor, cloudColor, cloudiness } = profile.sky;
   const uniforms = useMemo(() => ({
     topColor: { value: new THREE.Color(topColor) },
     horizonColor: { value: new THREE.Color(horizonColor) },
     cloudColor: { value: new THREE.Color(cloudColor) },
-    cloudiness: { value: rainy ? 0.9 : night ? 0.16 : 0.3 },
-  }), [cloudColor, horizonColor, night, rainy, topColor]);
+    cloudiness: { value: cloudiness },
+  }), [cloudColor, cloudiness, horizonColor, topColor]);
   const radius = Math.min(80, Math.max(bounds[0], bounds[2]) * 2.1);
 
+  useFrame(({ camera }) => {
+    sky.current?.position.copy(camera.position);
+  });
+
   return (
-    <mesh position={[0, bounds[1] * 0.22, 0]} renderOrder={-100}>
+    <mesh ref={sky} renderOrder={-100} frustumCulled={false}>
       <sphereGeometry args={[radius, 48, 24]} />
       <shaderMaterial
         side={THREE.BackSide}
@@ -2972,6 +2977,133 @@ function WeatherSky({
       />
     </mesh>
   );
+}
+
+function GroundMist({ bounds, color }: { bounds: Vector3Tuple; color: string }) {
+  const group = useRef<THREE.Group>(null);
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas 2D context is unavailable.");
+    const gradient = context.createRadialGradient(64, 64, 4, 64, 64, 62);
+    gradient.addColorStop(0, "rgba(255,255,255,0.72)");
+    gradient.addColorStop(0.42, "rgba(255,255,255,0.34)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    const result = new THREE.CanvasTexture(canvas);
+    result.colorSpace = THREE.SRGBColorSpace;
+    return result;
+  }, []);
+  const patches = useMemo(
+    () => Array.from({ length: 12 }, (_, index) => {
+      const seed = index + 1;
+      return {
+        position: [
+          Math.sin(seed * 12.17) * bounds[0] * 0.42,
+          0.5 + (index % 4) * 0.14,
+          Math.cos(seed * 8.73) * bounds[2] * 0.43,
+        ] as Vector3Tuple,
+        scale: [
+          6.8 + (index % 5) * 1.25,
+          1.15 + (index % 3) * 0.28,
+          1,
+        ] as Vector3Tuple,
+        opacity: 0.075 + (index % 4) * 0.018,
+      };
+    }),
+    [bounds],
+  );
+
+  useEffect(() => () => texture.dispose(), [texture]);
+  useFrame((state) => {
+    if (!group.current) return;
+    group.current.position.x = Math.sin(state.clock.elapsedTime * 0.035) * 0.45;
+    group.current.position.z = Math.cos(state.clock.elapsedTime * 0.028) * 0.32;
+  });
+
+  return (
+    <group ref={group} renderOrder={-2}>
+      {patches.map((patch, index) => (
+        <sprite key={`ground-mist-${index}`} position={patch.position} scale={patch.scale}>
+          <spriteMaterial
+            map={texture}
+            color={color}
+            transparent
+            opacity={patch.opacity}
+            depthWrite={false}
+            fog
+          />
+        </sprite>
+      ))}
+    </group>
+  );
+}
+
+function SceneToneMapping({ exposure }: { exposure: number }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    gl.toneMappingExposure = exposure;
+  }, [exposure, gl]);
+  return null;
+}
+
+function ObjectContactShadows({
+  layout,
+  color,
+  opacity,
+}: {
+  layout: WorldLayout;
+  color: string;
+  opacity: number;
+}) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 96;
+    canvas.height = 96;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas 2D context is unavailable.");
+    const gradient = context.createRadialGradient(48, 48, 2, 48, 48, 46);
+    gradient.addColorStop(0, "rgba(255,255,255,0.82)");
+    gradient.addColorStop(0.58, "rgba(255,255,255,0.38)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 96, 96);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+  const groundedItems = layout.items.filter((item) => {
+    const bottom = item.position[1] - item.dimensions[1] / 2;
+    return Math.abs(bottom) < 0.13 && item.dimensions[1] >= 0.14;
+  });
+
+  useEffect(() => () => texture.dispose(), [texture]);
+
+  return groundedItems.map((item) => (
+    <mesh
+      key={`contact-shadow-${item.entity.id}`}
+      position={[item.position[0], 0.026, item.position[2]]}
+      rotation={[-Math.PI / 2, 0, item.rotation[1]]}
+      scale={[
+        Math.max(0.42, item.dimensions[0] * 1.08),
+        Math.max(0.38, item.dimensions[2] * 1.08),
+        1,
+      ]}
+      renderOrder={1}
+    >
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial
+        map={texture}
+        color={color}
+        transparent
+        opacity={opacity}
+        depthWrite={false}
+        polygonOffset
+        polygonOffsetFactor={-1}
+      />
+    </mesh>
+  ));
 }
 
 function MoonlightShafts({ bounds }: { bounds: Vector3Tuple }) {
@@ -3490,56 +3622,52 @@ function WorldScene({
   const isGlasshouse = presentation.modules.environment.some(
     (module) => module.moduleId === "shell:glasshouse",
   );
-  const isCourtyard = presentation.modules.environment.some(
-    (module) => module.moduleId === "shell:open-air",
+  const atmosphereProfile = useMemo(
+    () => createSceneAtmosphereProfile(presentation, bounds),
+    [bounds, presentation],
   );
-  const roomSpan = Math.max(bounds[0], bounds[2]);
 
   return (
     <>
       <color attach="background" args={[presentation.palette.background]} />
-      {(isCourtyard || isGlasshouse) && (
-        <WeatherSky bounds={bounds} presentation={presentation} />
+      <SceneToneMapping exposure={atmosphereProfile.exposure} />
+      {(atmosphereProfile.openAir || isGlasshouse) && (
+        <WeatherSky bounds={bounds} profile={atmosphereProfile} />
       )}
       <fog
         attach="fog"
         args={[
           presentation.palette.fog,
-          Math.max(isCourtyard ? 7.5 : 10, roomSpan * (isCourtyard ? 0.34 : 0.42)),
-          Math.max(isCourtyard ? 24 : 29, roomSpan * 1.7),
+          atmosphereProfile.fogNear,
+          atmosphereProfile.fogFar,
         ]}
       />
       <hemisphereLight
         color={presentation.palette.keyLight}
         groundColor={presentation.palette.timber}
-        intensity={
-          isGlasshouse
-            ? 0.48
-            : isCourtyard
-              ? 0.68
-              : presentation.location.lighting.contrast === "high"
-                ? 0.78
-                : 0.95
-        }
+        intensity={atmosphereProfile.hemisphereIntensity}
       />
       <ambientLight
         color={presentation.palette.ambient}
         intensity={
           presentation.location.lighting.ambientIntensity *
-          (isGlasshouse ? 0.72 : isCourtyard ? 0.82 : 1)
+          atmosphereProfile.ambientScale
         }
       />
       <directionalLight
         castShadow={enableShadows}
         color={presentation.palette.keyLight}
-        position={
-          isGlasshouse ? [3.8, 8.5, -3.4] : isCourtyard ? [-4.5, 8, 2.5] : [5, 8, 4]
-        }
-        intensity={presentation.location.lighting.keyIntensity * (isCourtyard ? 0.84 : 1)}
+        position={atmosphereProfile.keyPosition}
+        intensity={presentation.location.lighting.keyIntensity * atmosphereProfile.keyScale}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-bias={-0.0004}
-        shadow-radius={isCourtyard ? 3 : 1}
+        shadow-radius={atmosphereProfile.openAir ? 3 : 1}
+      />
+      <directionalLight
+        color={presentation.palette.ambient}
+        position={atmosphereProfile.fillPosition}
+        intensity={atmosphereProfile.fillIntensity}
       />
       {presentation.atmosphere.coolWindowLight && (
         <>
@@ -3581,6 +3709,9 @@ function WorldScene({
         <DustMotes bounds={bounds} color={isGlasshouse ? "#b6e4dc" : "#f1d5ad"} />
       )}
       {presentation.atmosphere.rain && <RainStreaks bounds={bounds} />}
+      {presentation.atmosphere.groundMist && cameraView !== "overview" && (
+        <GroundMist bounds={bounds} color={presentation.palette.fog} />
+      )}
       <StoryEffects
         layout={layout}
         portalDestination={portalDestination}
@@ -3614,6 +3745,13 @@ function WorldScene({
           change="removed"
         />
       ))}
+      {enableShadows && (
+        <ObjectContactShadows
+          layout={layout}
+          color={presentation.palette.background}
+          opacity={atmosphereProfile.contactShadow.opacity * 0.52}
+        />
+      )}
       <RelationAwareness edges={relationEdges} />
       <ConflictMarkers layout={layout} conflicts={openConflicts} />
       {cameraCommand?.kind === "travel" && (
@@ -3629,7 +3767,7 @@ function WorldScene({
         layout={layout}
         command={cameraCommand}
         walkMode={walkMode}
-        openAir={isCourtyard}
+        openAir={atmosphereProfile.openAir}
       />
     </>
   );

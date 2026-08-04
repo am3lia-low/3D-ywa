@@ -32,6 +32,20 @@ Woodland recipes use the bounded `woodland` placement region. Semantic tags for
 pine trees, undergrowth, grass, fungi, deadwood and forest rocks resolve to the
 active approved style kit. The renderer never receives model URLs from Part 1.
 
+## Atmosphere and lighting
+
+`createSceneAtmosphereProfile(presentation, bounds)` converts the visual plan's
+time of day, palette, weather effects, warmth and contrast into a deterministic
+renderer-owned light rig. The profile classifies the compiled module set as an
+interior, glasshouse, courtyard or woodland and selects bounded fog, exposure,
+key/fill direction and ground-contact treatment for that family.
+
+Open environments use a camera-following skydome, so overview and extended
+walking views cannot reveal a finite sky boundary. Ground mist is a POV/Walk
+effect and remains hidden from the authorial overview, while enclosed scenes use
+soft contact shadows to keep furniture visually planted without projecting a
+shadow plane across exterior terrain.
+
 ## Composition audit
 
 Every compiled recipe now includes a deterministic `composition` report. The
