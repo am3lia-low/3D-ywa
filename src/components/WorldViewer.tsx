@@ -197,55 +197,24 @@ function PrimitiveAsset({
 
 function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenerated?: boolean }) {
   const model = useGLTF(url);
-  const treatLanternGlass = url.endsWith("/lantern.glb");
   const renderedScene = useMemo(() => {
-    if (!draftGenerated && !treatLanternGlass) return model.scene;
+    if (!draftGenerated) return model.scene;
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
-      if (treatLanternGlass && /dark empty chamber/i.test(object.name)) {
-        object.visible = false;
-        return;
-      }
-      if (draftGenerated) {
-        const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
-        object.material = new THREE.MeshBasicMaterial({
-          color: hasVertexColors ? "#ffffff" : "#a77a55",
-          vertexColors: hasVertexColors,
-          side: THREE.DoubleSide,
-        });
-      } else {
-        const sourceMaterials = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-        const treatedMaterials = sourceMaterials.map((source) => {
-          const material = source.clone();
-          if (
-            /glass/i.test(material.name) &&
-            material instanceof THREE.MeshStandardMaterial
-          ) {
-            material.color.set("#b7cbc5");
-            material.metalness = 0;
-            material.roughness = 0.16;
-            material.transparent = true;
-            material.opacity = 0.14;
-            material.depthWrite = false;
-            material.side = THREE.DoubleSide;
-            material.needsUpdate = true;
-          }
-          return material;
-        });
-        object.material = Array.isArray(object.material)
-          ? treatedMaterials
-          : treatedMaterials[0]!;
-      }
+      const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
+      object.material = new THREE.MeshBasicMaterial({
+        color: hasVertexColors ? "#ffffff" : "#a77a55",
+        vertexColors: hasVertexColors,
+        side: THREE.DoubleSide,
+      });
       object.castShadow = true;
       object.receiveShadow = true;
     });
     return clone;
-  }, [draftGenerated, model.scene, treatLanternGlass]);
+  }, [draftGenerated, model.scene]);
   useEffect(() => {
-    if (!draftGenerated && !treatLanternGlass) return;
+    if (!draftGenerated) return;
     return () => {
       renderedScene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
@@ -275,7 +244,7 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
         <primitive object={renderedScene} position={normalization.offset} />
       ) : (
         <Clone
-          object={renderedScene}
+          object={model.scene}
           position={normalization.offset}
           castShadow
           receiveShadow
@@ -1017,6 +986,108 @@ function CelestialOrreryAsset({
   );
 }
 
+function StoryLanternAsset({
+  lit,
+  highlighted,
+  highlightColor,
+}: {
+  lit: boolean;
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const brassEmissive = highlighted ? highlightColor : lit ? "#5b3216" : "#000000";
+  const brassIntensity = highlighted ? 0.24 : lit ? 0.08 : 0;
+  const glassMaterial = (
+    <meshStandardMaterial
+      color="#c2d5cf"
+      emissive={lit ? "#8b542c" : "#17211f"}
+      emissiveIntensity={lit ? 0.16 : 0.025}
+      roughness={0.14}
+      metalness={0}
+      transparent
+      opacity={0.09}
+      depthWrite={false}
+      side={THREE.DoubleSide}
+    />
+  );
+
+  return (
+    <group>
+      <mesh position={[0, -0.43, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.34, 0.41, 0.12, 16]} />
+        <meshStandardMaterial
+          color="#8d642d"
+          emissive={brassEmissive}
+          emissiveIntensity={brassIntensity}
+          roughness={0.48}
+          metalness={0.68}
+        />
+      </mesh>
+      <mesh position={[0, -0.345, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[0.31, 0.028, 7, 30]} />
+        <meshStandardMaterial color="#b5873d" roughness={0.42} metalness={0.74} />
+      </mesh>
+      {([[-0.29, -0.29], [-0.29, 0.29], [0.29, -0.29], [0.29, 0.29]] as const).map(
+        ([x, z]) => (
+          <mesh key={`lantern-post-${x}-${z}`} position={[x, -0.03, z]} castShadow>
+            <boxGeometry args={[0.045, 0.59, 0.045]} />
+            <meshStandardMaterial
+              color="#a97935"
+              emissive={brassEmissive}
+              emissiveIntensity={brassIntensity}
+              roughness={0.43}
+              metalness={0.76}
+            />
+          </mesh>
+        ),
+      )}
+      {[-0.272, 0.272].map((z) => (
+        <mesh key={`lantern-glass-z-${z}`} position={[0, -0.03, z]} renderOrder={3}>
+          <planeGeometry args={[0.53, 0.52]} />
+          {glassMaterial}
+        </mesh>
+      ))}
+      {[-0.272, 0.272].map((x) => (
+        <mesh
+          key={`lantern-glass-x-${x}`}
+          position={[x, -0.03, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          renderOrder={3}
+        >
+          <planeGeometry args={[0.53, 0.52]} />
+          {glassMaterial}
+        </mesh>
+      ))}
+      <mesh position={[0, -0.12, 0]} castShadow>
+        <cylinderGeometry args={[0.12, 0.15, 0.05, 18]} />
+        <meshStandardMaterial color="#5d4426" roughness={0.6} metalness={0.46} />
+      </mesh>
+      <mesh position={[0, -0.07, 0]}>
+        <cylinderGeometry args={[0.018, 0.025, 0.07, 8]} />
+        <meshStandardMaterial color="#2c2118" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.3, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+        <cylinderGeometry args={[0.3, 0.39, 0.13, 4]} />
+        <meshStandardMaterial
+          color="#a87832"
+          emissive={brassEmissive}
+          emissiveIntensity={brassIntensity}
+          roughness={0.44}
+          metalness={0.73}
+        />
+      </mesh>
+      <mesh position={[0, 0.405, 0]} castShadow>
+        <cylinderGeometry args={[0.105, 0.145, 0.1, 12]} />
+        <meshStandardMaterial color="#765126" roughness={0.5} metalness={0.64} />
+      </mesh>
+      <mesh position={[0, 0.43, 0]}>
+        <torusGeometry args={[0.27, 0.025, 8, 32, Math.PI]} />
+        <meshStandardMaterial color="#a97a36" roughness={0.44} metalness={0.72} />
+      </mesh>
+    </group>
+  );
+}
+
 function EntityAsset({
   asset,
   active = false,
@@ -1060,6 +1131,16 @@ function EntityAsset({
 
   if (asset.key === "map") {
     return <StoryMap highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+
+  if (asset.key === "lantern") {
+    return (
+      <StoryLanternAsset
+        lit={active}
+        highlighted={highlighted}
+        highlightColor={highlightColor}
+      />
+    );
   }
 
   if (asset.surfaceTextureUrl) {
@@ -1291,7 +1372,7 @@ function WorldEntity({
       ) : (
         <EntityAsset
           asset={item.asset}
-          active={item.entity.state?.active === true}
+          active={item.entity.state?.active === true || item.entity.state?.lit === true}
           highlighted={highlighted}
           highlightColor={emissive}
         />
