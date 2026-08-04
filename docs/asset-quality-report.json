@@ -2,11 +2,11 @@
   "schemaVersion": "1.0",
   "catalogSchemaVersion": "1.0",
   "summary": {
-    "kits": 4,
-    "completeKits": 4,
-    "assets": 26,
-    "passed": 26,
-    "warnings": 0,
+    "kits": 5,
+    "completeKits": 5,
+    "assets": 47,
+    "passed": 41,
+    "warnings": 6,
     "environmentAssets": 15,
     "failed": 0
   },
@@ -51,6 +51,12 @@
         "forest-groundcover",
         "forest-floor-detail"
       ],
+      "missingRoles": [],
+      "complete": true
+    },
+    {
+      "id": "speculative-storybook",
+      "requiredRoles": [],
       "missingRoles": [],
       "complete": true
     },
@@ -756,6 +762,647 @@
         1
       ],
       "aspectDistortion": 1.1,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "polyhaven:gothic-cabinet-01-optimized",
+      "registryKey": "gothic-story-cabinet",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb"
+      ],
+      "totalBytes": 1010984,
+      "triangles": 12170,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.7191,
+        2.8096,
+        1.0156
+      ],
+      "aspectDistortion": 1.32,
+      "warnings": [
+        "LOD0 normalization distortion is 1.32x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.52:2.09:1 aspect.",
+        "LOD1 normalization distortion is 1.32x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.52:2.09:1 aspect.",
+        "LOD2 normalization distortion is 1.32x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.52:2.09:1 aspect.",
+        "Runtime normalization distortion is 1.32x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.52:2.09:1 aspect."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
+          "totalBytes": 1010984,
+          "triangles": 12170,
+          "sourceBounds": [
+            1.7191,
+            2.8096,
+            1.0156
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod1.glb",
+          "totalBytes": 818296,
+          "triangles": 6691,
+          "sourceBounds": [
+            1.7191,
+            2.8096,
+            1.0156
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod2.glb",
+          "totalBytes": 672304,
+          "triangles": 2986,
+          "sourceBounds": [
+            1.7144,
+            2.8096,
+            1.0156
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:classic-console-01-optimized",
+      "registryKey": "victorian-console-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb"
+      ],
+      "totalBytes": 739796,
+      "triangles": 7566,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.543,
+        0.9491,
+        0.5893
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb",
+          "totalBytes": 739796,
+          "triangles": 7566,
+          "sourceBounds": [
+            1.543,
+            0.9491,
+            0.5893
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod1.glb",
+          "totalBytes": 647392,
+          "triangles": 4160,
+          "sourceBounds": [
+            1.543,
+            0.9491,
+            0.5893
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod2.glb",
+          "totalBytes": 581624,
+          "triangles": 1887,
+          "sourceBounds": [
+            1.5372,
+            0.9491,
+            0.5839
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:arm-chair-01-optimized",
+      "registryKey": "victorian-armchair",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb"
+      ],
+      "totalBytes": 768268,
+      "triangles": 5626,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8484,
+        1.0651,
+        0.7658
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb",
+          "totalBytes": 768268,
+          "triangles": 5626,
+          "sourceBounds": [
+            0.8484,
+            1.0651,
+            0.7658
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod1.glb",
+          "totalBytes": 703216,
+          "triangles": 3094,
+          "sourceBounds": [
+            0.8482,
+            1.065,
+            0.7655
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod2.glb",
+          "totalBytes": 658716,
+          "triangles": 1406,
+          "sourceBounds": [
+            0.8482,
+            1.065,
+            0.7552
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:lantern-chandelier-01-optimized",
+      "registryKey": "victorian-chandelier",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb"
+      ],
+      "totalBytes": 1429244,
+      "triangles": 5971,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.8441,
+        1.2791,
+        0.8375
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [
+        "Primitive 2 has no base-color texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "Primitive 2 has no normal texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD0: Primitive 2 has no base-color texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD0: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD0: Primitive 2 has no normal texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD1: Primitive 2 has no base-color texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD1: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD1: Primitive 2 has no normal texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD2: Primitive 2 has no base-color texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD2: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set.",
+        "LOD2: Primitive 2 has no normal texture. Waiver: The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb",
+          "totalBytes": 1429244,
+          "triangles": 5971,
+          "sourceBounds": [
+            0.8441,
+            1.2791,
+            0.8375
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod1.glb",
+          "totalBytes": 1335568,
+          "triangles": 3287,
+          "sourceBounds": [
+            0.8441,
+            1.2791,
+            0.8375
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod2.glb",
+          "totalBytes": 1271452,
+          "triangles": 1498,
+          "sourceBounds": [
+            0.8383,
+            1.2651,
+            0.8288
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
+      "registryKey": "painted-archive-cabinet",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb"
+      ],
+      "totalBytes": 1593312,
+      "triangles": 966,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.068,
+        3.0043,
+        0.6544
+      ],
+      "aspectDistortion": 1.29,
+      "warnings": [
+        "LOD0 normalization distortion is 1.29x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.37:3.52:1 aspect.",
+        "LOD1 normalization distortion is 1.29x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.37:3.52:1 aspect.",
+        "LOD2 normalization distortion is 1.31x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.37:3.52:1 aspect.",
+        "Runtime normalization distortion is 1.29x; limit is 1.15x. Waiver: Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.37:3.52:1 aspect."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb",
+          "totalBytes": 1593312,
+          "triangles": 966,
+          "sourceBounds": [
+            1.068,
+            3.0043,
+            0.6544
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod1.glb",
+          "totalBytes": 1578840,
+          "triangles": 528,
+          "sourceBounds": [
+            1.068,
+            3.0043,
+            0.6544
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod2.glb",
+          "totalBytes": 1569372,
+          "triangles": 284,
+          "sourceBounds": [
+            1.068,
+            3.0043,
+            0.6443
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-bookshelf-worn-optimized",
+      "registryKey": "worn-story-bookshelf",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb"
+      ],
+      "totalBytes": 2776196,
+      "triangles": 10106,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.374,
+        2.0634,
+        0.5813
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb",
+          "totalBytes": 2776196,
+          "triangles": 10106,
+          "sourceBounds": [
+            1.374,
+            2.0634,
+            0.5813
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb",
+          "totalBytes": 2668556,
+          "triangles": 5558,
+          "sourceBounds": [
+            1.374,
+            2.0634,
+            0.5813
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod2.glb",
+          "totalBytes": 2594072,
+          "triangles": 2525,
+          "sourceBounds": [
+            1.374,
+            2.0634,
+            0.5813
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "kenney:furniture-doorway-front",
+      "registryKey": "story-door",
+      "status": "warning",
+      "files": [
+        "public/models/kenney/furniture/doorwayFront.glb"
+      ],
+      "totalBytes": 13016,
+      "triangles": 156,
+      "materialCount": 4,
+      "sourceBounds": [
+        0.486,
+        1.0095,
+        0.1458
+      ],
+      "aspectDistortion": 1.3,
+      "warnings": [
+        "Runtime normalization distortion is 1.30x; limit is 1.15x. Waiver: Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      ],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-bookcase-open",
+      "registryKey": "storybook-bookcase",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/bookcaseOpen.glb"
+      ],
+      "totalBytes": 18020,
+      "triangles": 320,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.4,
+        0.88,
+        0.25
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-bookcase-wide",
+      "registryKey": "storybook-bookcase-wide",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/bookcaseClosedWide.glb"
+      ],
+      "totalBytes": 23140,
+      "triangles": 372,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8,
+        0.79,
+        0.25
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-books",
+      "registryKey": "storybook-books",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/books.glb"
+      ],
+      "totalBytes": 6864,
+      "triangles": 62,
+      "materialCount": 4,
+      "sourceBounds": [
+        0.1504,
+        0.1039,
+        0.0945
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-side-table",
+      "registryKey": "storybook-side-table",
+      "status": "warning",
+      "files": [
+        "public/models/kenney/furniture/sideTableDrawers.glb"
+      ],
+      "totalBytes": 19072,
+      "triangles": 238,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.5345,
+        0.3844,
+        0.3863
+      ],
+      "aspectDistortion": 1.72,
+      "warnings": [
+        "Runtime normalization distortion is 1.72x; limit is 1.15x. Waiver: Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      ],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-floor-lamp",
+      "registryKey": "storybook-floor-lamp",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/lampRoundFloor.glb"
+      ],
+      "totalBytes": 6600,
+      "triangles": 76,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.152,
+        0.86,
+        0.1756
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-table-lamp",
+      "registryKey": "storybook-table-lamp",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/lampRoundTable.glb"
+      ],
+      "totalBytes": 6604,
+      "triangles": 76,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.152,
+        0.3142,
+        0.1756
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-lounge-chair",
+      "registryKey": "storybook-lounge-chair",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/loungeChair.glb"
+      ],
+      "totalBytes": 9648,
+      "triangles": 128,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.49,
+        0.46,
+        0.41
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-potted-plant",
+      "registryKey": "storybook-potted-plant",
+      "status": "warning",
+      "files": [
+        "public/models/kenney/furniture/pottedPlant.glb"
+      ],
+      "totalBytes": 7576,
+      "triangles": 60,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.255,
+        0.5358,
+        0.291
+      ],
+      "aspectDistortion": 1.47,
+      "warnings": [
+        "Runtime normalization distortion is 1.47x; limit is 1.15x. Waiver: Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      ],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "kenney:furniture-coat-rack",
+      "registryKey": "storybook-coat-rack",
+      "status": "pass",
+      "files": [
+        "public/models/kenney/furniture/coatRackStanding.glb"
+      ],
+      "totalBytes": 13288,
+      "triangles": 190,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.2728,
+        0.77,
+        0.2728
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:storybook-portrait",
+      "registryKey": "storybook-portrait",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:storybook-bay-window",
+      "registryKey": "storybook-bay-window",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:silver-key",
+      "registryKey": "silver-key",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:amber-pendant",
+      "registryKey": "amber-pendant",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:storybook-canal",
+      "registryKey": "storybook-canal",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
       "warnings": [],
       "errors": [],
       "lods": []

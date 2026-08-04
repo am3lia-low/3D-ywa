@@ -17,6 +17,7 @@ const runtimeAssetSchema = z.strictObject({
   safeMeshUrl: z.string().trim().min(1).optional(),
   surfaceTextureUrl: z.string().trim().min(1).optional(),
   surfaceCrop: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+  proceduralModel: z.enum(["portrait", "bay-window", "silver-key", "amber-pendant", "canal"]).optional(),
   supportSurfaceY: z.number().min(0).max(1).optional(),
   roughness: z.number().min(0).max(1).optional(),
   metalness: z.number().min(0).max(1).optional(),
@@ -85,7 +86,7 @@ export const AssetKitCatalogSchema = z.strictObject({
     if (asset.source === "cc0" && !asset.sourceUrl) {
       context.addIssue({ code: "custom", path: ["assets", index, "sourceUrl"], message: "CC0 assets require a source URL." });
     }
-    if (!asset.runtimeAsset.modelUrl && !asset.runtimeAsset.safeMeshUrl && !asset.runtimeAsset.surfaceTextureUrl) {
+    if (!asset.runtimeAsset.modelUrl && !asset.runtimeAsset.safeMeshUrl && !asset.runtimeAsset.surfaceTextureUrl && !asset.runtimeAsset.proceduralModel) {
       context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset"], message: "An asset requires a model or controlled surface texture." });
     }
     if (asset.runtimeAsset.lods) {

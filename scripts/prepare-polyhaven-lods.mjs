@@ -48,6 +48,60 @@ const reviewedAssets = {
       { level: 2, ratio: 0.25, error: 0.03 },
     ],
   },
+  GothicCabinet_01: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/GothicCabinet_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  ClassicConsole_01: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/ClassicConsole_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  ArmChair_01: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/ArmChair_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  lantern_chandelier_01: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/lantern_chandelier_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  painted_wooden_cabinet_02: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/painted_wooden_cabinet_02",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  wooden_bookshelf_worn: {
+    author: "Ulan Cabanilla",
+    sourceUrl: "https://polyhaven.com/a/wooden_bookshelf_worn",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);

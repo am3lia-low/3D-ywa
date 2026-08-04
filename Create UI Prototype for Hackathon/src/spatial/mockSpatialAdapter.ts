@@ -33,11 +33,17 @@ function entityKind(entity: WorldEntity): EntityKind {
 
 function assetKey(entity: WorldEntity): string | undefined {
   const text = `${entity.id} ${entity.name}`.toLowerCase()
+  if (/canal|waterway|channel/.test(text)) return 'storybook-canal'
+  if (/amber.*pendant|pendant|necklace/.test(text)) return 'amber-pendant'
+  if (/portrait|painting/.test(text)) return 'storybook-portrait'
+  if (/window/.test(text)) return 'storybook-bay-window'
+  if (/silver.*key|\bkey\b/.test(text)) return 'silver-key'
   if (/fireplace|hearth/.test(text)) return 'fireplace'
-  if (/armchair|chair|seat/.test(text)) return 'chair'
+  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return 'storybook-lounge-chair'
+  if (/chair|seat/.test(text)) return 'chair'
   if (/desk|table/.test(text)) return 'desk'
   if (/hidden.*door|doorway/.test(text)) return 'hidden-door'
-  if (/door/.test(text)) return 'door'
+  if (/door/.test(text)) return 'story-door'
   if (/lantern|lamp/.test(text)) return 'lantern'
   if (/map|chart|document/.test(text)) return 'map'
   if (/crate|box|chest/.test(text)) return 'crate'
@@ -46,13 +52,17 @@ function assetKey(entity: WorldEntity): string | undefined {
 
 function dimensions(entity: WorldEntity): [number, number, number] {
   const text = `${entity.id} ${entity.name}`.toLowerCase()
-  if (/fireplace|hearth/.test(text)) return [2.5, 2.45, 0.7]
-  if (/window/.test(text)) return [2.3, 1.7, 0.18]
-  if (/portrait|painting/.test(text)) return [1.15, 1.5, 0.12]
-  if (/door/.test(text)) return [1.2, 2.4, 0.2]
-  if (/armchair|chair|seat/.test(text)) return [0.95, 1.2, 0.95]
-  if (/desk|table/.test(text)) return [2.6, 1.05, 1.35]
-  if (/key|pendant/.test(text)) return [0.25, 0.08, 0.16]
+  if (/canal|waterway|channel/.test(text)) return [5, 0.35, 18]
+  if (/amber.*pendant|pendant|necklace/.test(text)) return [0.22, 0.38, 0.08]
+  if (/fireplace|hearth/.test(text)) return [2.2, 2.2, 0.65]
+  if (/window/.test(text)) return [2.5, 2.1, 0.25]
+  if (/portrait|painting/.test(text)) return [1.4, 1.8, 0.14]
+  if (/hidden.*door|doorway/.test(text)) return [1.8, 2.9, 0.25]
+  if (/door/.test(text)) return [1.3, 2.7, 0.3]
+  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return [1, 0.94, 0.84]
+  if (/chair|seat/.test(text)) return [0.95, 1.55, 0.95]
+  if (/desk|table/.test(text)) return [2.4, 1.2, 1.1]
+  if (/\bkey\b/.test(text)) return [0.3, 0.08, 0.12]
   return [0.9, 0.9, 0.9]
 }
 
@@ -61,12 +71,20 @@ function semanticPlacementText(entity: WorldEntity): string {
 }
 
 function wallFor(entity: WorldEntity): 'north' | 'south' | 'east' | 'west' | undefined {
-  const text = `${entity.currentLocation ?? ''} ${entity.sourceSentence ?? ''}`.toLowerCase()
-  if (/\bnorth(?:ern)?\b/.test(text)) return 'north'
-  if (/\bsouth(?:ern)?\b/.test(text)) return 'south'
-  if (/\beast(?:ern)?\b/.test(text)) return 'east'
-  if (/\bwest(?:ern)?\b/.test(text)) return 'west'
-  return undefined
+  const resolve = (text: string) => {
+    if (/\bnorth(?:ern)?\b/.test(text)) return 'north' as const
+    if (/\bsouth(?:ern)?\b/.test(text)) return 'south' as const
+    if (/\beast(?:ern)?\b/.test(text)) return 'east' as const
+    if (/\bwest(?:ern)?\b/.test(text)) return 'west' as const
+    return undefined
+  }
+  return resolve((entity.currentLocation ?? '').toLowerCase())
+    ?? resolve((entity.sourceSentence ?? '').toLowerCase())
+}
+
+function anchorsToWall(entity: WorldEntity): boolean {
+  const text = semanticPlacementText(entity)
+  return entityKind(entity) === 'architecture' || /\b(wall|entrance|door|window|fireplace|hearth)\b/.test(text)
 }
 
 function namedTarget(entity: WorldEntity, entities: readonly WorldEntity[]): WorldEntity | undefined {
@@ -80,8 +98,8 @@ function namedTarget(entity: WorldEntity, entities: readonly WorldEntity[]): Wor
 function wallAxisPosition(entity: WorldEntity, wall: 'north' | 'south' | 'east' | 'west'): number {
   const text = semanticPlacementText(entity)
   const extent = wall === 'north' || wall === 'south' ? BOUNDS[0] : BOUNDS[2]
-  if (/\b(left|western?)\b/.test(text)) return -extent * 0.27
-  if (/\b(right|eastern?)\b/.test(text)) return extent * 0.27
+  if (/\b(left|west(?:ern)?)\b/.test(text)) return -extent * 0.27
+  if (/\b(right|east(?:ern)?)\b/.test(text)) return extent * 0.27
   return 0
 }
 
@@ -105,7 +123,10 @@ function fallbackFloorPosition(entity: WorldEntity, size: Vector3Tuple): Vector3
     : /\b(left|west) side\b/.test(text)
       ? -BOUNDS[0] * 0.24
       : fallbackX
-  return [x, size[1] / 2, fallbackZ]
+  const z = /\b(right|east|left|west) side\b/.test(text)
+    ? BOUNDS[2] * 0.04
+    : fallbackZ
+  return [x, size[1] / 2, z]
 }
 
 function plannedPosition(
@@ -138,8 +159,18 @@ function plannedPosition(
     return [targetPosition[0] + targetSize[0] * 0.22, size[1] / 2, targetPosition[2] + targetSize[2] * 0.22]
   }
 
+  if (/\bshelf\b/.test(text)) {
+    const x = /\b(east|right)\b/.test(text)
+      ? BOUNDS[0] * 0.28
+      : /\b(west|left)\b/.test(text)
+        ? -BOUNDS[0] * 0.28
+        : 0
+    const shelfLevel = /\b(?:third|3rd)\b/.test(text) ? 1.9 : /\b(?:fourth|4th)\b/.test(text) ? 2.55 : 1.22
+    return [x, shelfLevel + size[1] / 2 + 0.05, -BOUNDS[2] / 2 + 0.62]
+  }
+
   const wall = wallFor(entity)
-  if (wall) return wallPosition(entity, size, wall)
+  if (wall && anchorsToWall(entity)) return wallPosition(entity, size, wall)
 
   // Relation-driven objects remain unpositioned so the layout engine can
   // ground them, avoid overlaps, and orient furniture toward their targets.
@@ -155,7 +186,7 @@ function spatialRelations(entities: readonly WorldEntity[]): SpatialRelation[] {
     const wall = wallFor(entity)
     const target = namedTarget(entity, entities)
 
-    if (wall && !/\babove\b/.test(text)) {
+    if (wall && anchorsToWall(entity) && !/\babove\b/.test(text)) {
       relations.push({
         id: `${entity.id}:against-${wall}-wall`,
         subjectId: entity.id,
@@ -186,7 +217,7 @@ function environment(text: string): {
         archetype: 'storybook city quarter',
         visualDescription: 'A weathered old-city street with layered facades, stone paving and atmospheric depth.',
         architectureTags: ['open-air', 'urban-paving', 'urban-skyline'],
-        dressingTags: ['courtyard-clutter', 'storage-crates', 'street-lamps'],
+        dressingTags: ['courtyard-clutter', 'storage-crates', 'street-lamps', 'market clutter'],
         dressingDensity: 'rich',
         mood: 'mysterious, lived-in and quietly magical',
         timeOfDay: 'blue hour',
@@ -203,7 +234,7 @@ function environment(text: string): {
         archetype: 'old archive gallery',
         visualDescription: 'A tall archival chamber with stone floors, shadowed shelving and pools of warm reading light.',
         architectureTags: ['archive-shelving', 'stone-tile-floor', 'aged-plaster'],
-        dressingTags: ['books', 'storage-crates'],
+        dressingTags: ['books', 'storage-crates', 'archive-clutter', 'interior-rugs', 'interior-lighting'],
         dressingDensity: 'rich',
         mood: 'hushed, uncanny and scholarly',
         timeOfDay: 'windowless interior',
@@ -219,8 +250,8 @@ function environment(text: string): {
       archetype: 'weathered country-estate hall',
       visualDescription: 'A spacious old hall with aged plaster, dark wood floors, a cold hearth and cool window light.',
       architectureTags: ['aged-plaster', 'wood-floorboards', 'small-window'],
-      dressingTags: ['books', 'storage-crates'],
-      dressingDensity: 'moderate',
+      dressingTags: ['books', 'storage-crates', 'estate-furnishings', 'interior-rugs', 'interior-lighting'],
+      dressingDensity: 'rich',
       mood: 'elegant, secretive and melancholy',
       timeOfDay: 'moonlit evening',
       palette: { background: '#10151a', fog: '#293238', floor: '#44362f', wall: '#a79b89', timber: '#382b25', ambient: '#b5b1a8', keyLight: '#c8d9e4', practical: '#efa45b' },

@@ -120,7 +120,7 @@ const ASHWOOD_ENTITIES_CH1: WorldEntity[] = [
 
 const ASHWOOD_ENTITIES_CH2: WorldEntity[] = [
   {
-    ...ASHWOOD_ENTITIES_CH1[0], // fireplace — unchanged
+    ...ASHWOOD_ENTITIES_CH1[0]!, // fireplace — unchanged
   },
   {
     id: 'armchair', name: 'Red Armchair', status: 'moved',
@@ -131,7 +131,7 @@ const ASHWOOD_ENTITIES_CH2: WorldEntity[] = [
     sourceSentence: 'He had pulled the red armchair towards the window.',
     evidenceType: 'Explicit',
   },
-  { ...ASHWOOD_ENTITIES_CH1[2] }, // desk — unchanged
+  { ...ASHWOOD_ENTITIES_CH1[2]! }, // desk — unchanged
   {
     id: 'portrait', name: 'Portrait', status: 'updated',
     position: { x: 682, y: 182 }, radius: 18,
@@ -140,8 +140,8 @@ const ASHWOOD_ENTITIES_CH2: WorldEntity[] = [
     sourceSentence: '...was hanging slightly crooked — tilted perhaps three degrees to the right.',
     evidenceType: 'Explicit',
   },
-  { ...ASHWOOD_ENTITIES_CH1[4] }, // window — unchanged
-  { ...ASHWOOD_ENTITIES_CH1[5] }, // door — unchanged
+  { ...ASHWOOD_ENTITIES_CH1[4]! }, // window — unchanged
+  { ...ASHWOOD_ENTITIES_CH1[5]! }, // door — unchanged
   {
     id: 'doorway', name: 'Hidden Doorway', status: 'added',
     position: { x: 920, y: 432 }, radius: 20,

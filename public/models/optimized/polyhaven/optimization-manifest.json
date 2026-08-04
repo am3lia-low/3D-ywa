@@ -136,6 +136,204 @@
           "sha256": "f3b104fac29a934fe25affa7f7e45e8949d4392ac9eb930b22881d14338bb47b"
         }
       ]
+    },
+    {
+      "slug": "GothicCabinet_01",
+      "author": "Kirill Sannikov",
+      "sourceUrl": "https://polyhaven.com/a/GothicCabinet_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 1015446,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
+          "bytes": 1010984,
+          "sha256": "e3abceda2c8cdf045d7993104c95dca13f1a08c609f63bdec7d72fa86c507350"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod1.glb",
+          "bytes": 818296,
+          "sha256": "71a7fddd13ee0c405ca2cf8e83b58187e3a386f182958eefe0992bf7e2723553"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod2.glb",
+          "bytes": 672304,
+          "sha256": "24a75ebbded2299898145c06c43f7d1740e0f49ee6e5e55d822ce9b18898eaee"
+        }
+      ]
+    },
+    {
+      "slug": "ClassicConsole_01",
+      "author": "Kirill Sannikov",
+      "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 740693,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb",
+          "bytes": 739796,
+          "sha256": "ddbfc8e248da5ee877f90cd1fc5c78e6ae6275d77bbb4629ba99d57df01a1149"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod1.glb",
+          "bytes": 647392,
+          "sha256": "45b04fea91dfcce803614b71716b82a58e89d3417c87c23cb4767973f9cdc40f"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod2.glb",
+          "bytes": 581624,
+          "sha256": "cc628d1dc36358f2c5c9f3eee35ede1bb583e4f90de27549fe3dfc7d9c80f5de"
+        }
+      ]
+    },
+    {
+      "slug": "ArmChair_01",
+      "author": "Kirill Sannikov",
+      "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 769144,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb",
+          "bytes": 768268,
+          "sha256": "602e19a5f6d3deafbb7da6c9c7419a1d649507d35811c037fcc16e7209c71dc7"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod1.glb",
+          "bytes": 703216,
+          "sha256": "5c0dad509f2a0e8412f5d828d3863750f50533b69776af26eeec99b99c4105a9"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod2.glb",
+          "bytes": 658716,
+          "sha256": "80db1cdd8f870c5b1bf2aa120e0dd7a5d9adc3b5aef3e7b1ea03234b448db7ec"
+        }
+      ]
+    },
+    {
+      "slug": "lantern_chandelier_01",
+      "author": "Kirill Sannikov",
+      "sourceUrl": "https://polyhaven.com/a/lantern_chandelier_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 1480125,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb",
+          "bytes": 1429244,
+          "sha256": "43af96cea14febd1ee247fdf0407fd57e1c8c88ff8be6e71ffdb90853309888c"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod1.glb",
+          "bytes": 1335568,
+          "sha256": "2c730b5fa0e71757ee529fd85c7070459d6b045649564f4dafb1221fbbde485c"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod2.glb",
+          "bytes": 1271452,
+          "sha256": "998cc9b524ae10d325912ecfeedce010500067b523f278c0a9bf2ec1cd11eb3d"
+        }
+      ]
+    },
+    {
+      "slug": "painted_wooden_cabinet_02",
+      "author": "Kirill Sannikov",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+      "sourceResolution": "1k",
+      "sourceBytes": 1596230,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb",
+          "bytes": 1593312,
+          "sha256": "43c83543ba712d21a031288b461dce1375656cb3379d099a1511b7c10e28a9dd"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod1.glb",
+          "bytes": 1578840,
+          "sha256": "3a4ee14d14ddf55f385d5e1ec37c0d3b7642b9a6b15aa9bd4c2df74454fba3ba"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod2.glb",
+          "bytes": 1569372,
+          "sha256": "dee7a391e8c7bcc20690aaf8ca65ed001d39bb32ec9c4a922cd07db1aeb6d5d2"
+        }
+      ]
+    },
+    {
+      "slug": "wooden_bookshelf_worn",
+      "author": "Ulan Cabanilla",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "sourceResolution": "1k",
+      "sourceBytes": 2777194,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb",
+          "bytes": 2776196,
+          "sha256": "77eabe480c1ff0ef6ce86b4c5a32466f14851894743ed27cd4232e0bd06ca4da"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb",
+          "bytes": 2668556,
+          "sha256": "d4def85b9ff5e85ffcde9add89ff0af76ceea1671ce63c6bae6711992ebbc168"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod2.glb",
+          "bytes": 2594072,
+          "sha256": "059358fb483edb822015827aba6c254b5be2cf6c21dd733999fb9c203451fb34"
+        }
+      ]
     }
   ]
 }

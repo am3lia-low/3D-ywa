@@ -402,6 +402,27 @@ const assetCatalog = JSON.parse(await readFile(
   resolve(rootDirectory, "src", "data", "asset-kit-catalog.json"),
   "utf8",
 ));
+const recordedUrls = new Set(manifest.map((asset) => asset.url));
+for (const entry of assetCatalog.assets) {
+  const urls = [
+    entry.runtimeAsset.modelUrl,
+    entry.runtimeAsset.surfaceTextureUrl,
+    ...(entry.runtimeAsset.lods?.map((lod) => lod.modelUrl) ?? []),
+  ].filter(Boolean);
+  for (const url of urls) {
+    if (recordedUrls.has(url)) continue;
+    manifest.push({
+      key: entry.registryKey,
+      url,
+      format: url.endsWith(".glb") ? "glTF 2.0 binary" : url.endsWith(".gltf") ? "glTF 2.0" : "runtime surface texture",
+      author: entry.author,
+      license: entry.license,
+      sourceUrl: entry.sourceUrl,
+      bytes: (await stat(resolve(rootDirectory, "public", url.replace(/^\//, "")))).size,
+    });
+    recordedUrls.add(url);
+  }
+}
 for (const entry of assetCatalog.assets.filter((asset) => asset.runtimeAsset.safeMeshUrl)) {
   const url = entry.runtimeAsset.safeMeshUrl;
   manifest.push({

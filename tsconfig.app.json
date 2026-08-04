@@ -12,6 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@spatial-runtime": ["./src/index.ts"]
+    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -21,4 +24,3 @@
   },
   "include": ["src", "fixtures"]
 }
-

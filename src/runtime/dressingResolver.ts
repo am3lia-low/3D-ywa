@@ -123,6 +123,97 @@ function woodlandAssetSlots(
  */
 const DRESSING_RULES: readonly DressingRule[] = [
   {
+    anyTags: ["estate-furnishings", "period-interior"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["gothic", "ornate", "cabinet", "library"], slotId: "west-bookcase",
+        minimumDensity: "sparse", positionFactor: [-0.47, -0.2], dimensions: [1.6, 2.2, 1.05],
+        yaw: Math.PI / 2, wall: "west",
+      },
+      {
+        renderKind: "asset", searchTags: ["worn", "weathered", "wooden", "bookshelf", "library"], slotId: "north-bookcase",
+        minimumDensity: "rich", positionFactor: [0.28, -0.47], dimensions: [1.46, 2.2, 0.62], wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["gothic", "ornate", "cabinet", "library"], slotId: "east-bookcase",
+        minimumDensity: "rich", positionFactor: [0.47, -0.24], dimensions: [1.6, 2.2, 1.05],
+        yaw: -Math.PI / 2, wall: "east",
+      },
+      {
+        renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "east-side-table",
+        minimumDensity: "sparse", positionFactor: [0.4, 0.08], dimensions: [1.55, 0.95, 0.59], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["coat", "rack", "hall"], slotId: "entry-coat-rack",
+        minimumDensity: "moderate", positionFactor: [-0.38, 0.34], dimensions: [0.64, 1.8, 0.64], yaw: 0.24,
+      },
+      {
+        renderKind: "asset", searchTags: ["potted", "plant", "interior"], slotId: "southwest-plant",
+        minimumDensity: "rich", positionFactor: [-0.38, 0.35], dimensions: [0.44, 1.35, 0.5], yaw: -0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["potted", "plant", "interior"], slotId: "northeast-plant",
+        minimumDensity: "rich", positionFactor: [0.38, -0.34], dimensions: [0.44, 1.35, 0.5], yaw: 0.28,
+      },
+      {
+        renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "reading-lounge-chair",
+        minimumDensity: "rich", positionFactor: [-0.18, 0.16], dimensions: [0.85, 1.07, 0.77], yaw: 2.45,
+      },
+    ],
+  },
+  {
+    anyTags: ["interior-rugs"],
+    slots: [{
+      renderKind: "asset", searchTags: ["rug", "red", "woven"], slotId: "central-room-rug",
+      minimumDensity: "sparse", positionFactor: [0, 0.04], dimensions: [5.6, 0.12, 3.83], yaw: -0.035,
+    }],
+  },
+  {
+    anyTags: ["interior-lighting"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["victorian", "lantern", "chandelier", "ceiling"], slotId: "central-chandelier",
+        minimumDensity: "moderate", positionFactor: [0, -0.08], dimensions: [0.7, 1.06, 0.7],
+        verticalOffset: 6.55,
+      },
+      {
+        renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "west-floor-lamp",
+        minimumDensity: "sparse", positionFactor: [-0.34, -0.25], dimensions: [0.32, 1.8, 0.37], yaw: 0.12,
+      },
+      {
+        renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "east-floor-lamp",
+        minimumDensity: "rich", positionFactor: [0.34, 0.23], dimensions: [0.32, 1.8, 0.37], yaw: -0.18,
+      },
+    ],
+  },
+  {
+    anyTags: ["archive-clutter"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["painted", "archive", "cabinet", "worn"], slotId: "west-archive-cabinet",
+        minimumDensity: "sparse", positionFactor: [-0.47, 0.06], dimensions: [0.85, 2.2, 0.62],
+        yaw: Math.PI / 2, wall: "west",
+      },
+      {
+        renderKind: "asset", searchTags: ["worn", "wooden", "bookshelf", "archive"], slotId: "east-archive-cabinet",
+        minimumDensity: "rich", positionFactor: [0.47, -0.12], dimensions: [1.46, 2.2, 0.62],
+        yaw: -Math.PI / 2, wall: "east",
+      },
+      {
+        renderKind: "asset", searchTags: ["desk", "writing", "table", "oak"], slotId: "archive-reading-table",
+        minimumDensity: "sparse", positionFactor: [0, 0.08], dimensions: [2.4, 1.2, 1.1], yaw: 0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-reading-chair",
+        minimumDensity: "moderate", positionFactor: [0, 0.18], dimensions: [0.95, 1.55, 0.95], yaw: Math.PI,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "archive-crate",
+        minimumDensity: "rich", positionFactor: [-0.34, 0.34], dimensions: [1.05, 0.72, 0.78], yaw: 0.18,
+      },
+    ],
+  },
+  {
     anyTags: ["books"],
     archetypes: ["timber-attic"],
     slots: [{
@@ -227,7 +318,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "west-crate",
-        minimumDensity: "moderate", positionFactor: [-0.36, 0.31], dimensions: [0.84, 0.7, 0.78], yaw: 0.22,
+        minimumDensity: "moderate", positionFactor: [-0.36, 0.31], dimensions: [0.89, 0.61, 0.66], yaw: 0.22,
       },
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "east-crate-large",
@@ -236,7 +327,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "east-crate-small",
-        minimumDensity: "rich", positionFactor: [0.34, -0.18], dimensions: [0.72, 0.58, 0.66], yaw: 0.14,
+        minimumDensity: "rich", positionFactor: [0.34, -0.18], dimensions: [0.74, 0.51, 0.55], yaw: 0.14,
       },
     ],
   },
@@ -246,19 +337,19 @@ const DRESSING_RULES: readonly DressingRule[] = [
     slots: [
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-near",
-        minimumDensity: "sparse", positionFactor: [-0.25, -0.38], dimensions: [0.62, 3.4, 0.34], yaw: 0.15,
+        minimumDensity: "sparse", positionFactor: [-0.43, 0.02], dimensions: [0.5, 2.85, 0.3], yaw: 0.15,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-near",
-        minimumDensity: "moderate", positionFactor: [0.25, -0.12], dimensions: [0.62, 3.4, 0.34], yaw: -0.18,
+        minimumDensity: "moderate", positionFactor: [0.43, 0.18], dimensions: [0.5, 2.85, 0.3], yaw: -0.18,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-far",
-        minimumDensity: "rich", positionFactor: [-0.25, 0.15], dimensions: [0.62, 3.4, 0.34], yaw: 0.2,
+        minimumDensity: "rich", positionFactor: [-0.43, 0.34], dimensions: [0.5, 2.85, 0.3], yaw: 0.2,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-far",
-        minimumDensity: "rich", positionFactor: [0.25, 0.4], dimensions: [0.62, 3.4, 0.34], yaw: -0.12,
+        minimumDensity: "rich", positionFactor: [0.43, 0.48], dimensions: [0.5, 2.85, 0.3], yaw: -0.12,
       },
     ],
   },

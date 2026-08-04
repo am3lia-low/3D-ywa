@@ -893,6 +893,675 @@
         "expectedUpAxis": "Y",
         "expectedForwardAxis": "+Z"
       }
+    },
+    {
+      "catalogId": "polyhaven:gothic-cabinet-01-optimized",
+      "registryKey": "gothic-story-cabinet",
+      "roles": ["storage", "library-dressing", "hero-furniture"],
+      "assetKeys": ["gothic-story-cabinet", "gothic-cabinet", "ornate-bookcase"],
+      "semanticKinds": ["cabinet", "bookcase", "shelf"],
+      "tags": ["gothic", "cabinet", "ornate", "victorian", "books", "library", "archive", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/GothicCabinet_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "gothic-story-cabinet",
+        "geometry": "box",
+        "dimensions": [1.6, 2.2, 1.05],
+        "color": "#5d4030",
+        "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.78
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1100000, "maxTriangles": 18000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.52:2.09:1 aspect."
+      }
+    },
+    {
+      "catalogId": "polyhaven:classic-console-01-optimized",
+      "registryKey": "victorian-console-table",
+      "roles": ["accent-table", "hero-furniture"],
+      "assetKeys": ["victorian-console-table", "classic-console", "hall-table"],
+      "semanticKinds": ["console-table", "table"],
+      "tags": ["classic", "console", "table", "gothic", "victorian", "ornate", "wood", "historical", "hall"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-console-table", "geometry": "box", "dimensions": [1.55, 0.95, 0.59],
+        "color": "#6a4734", "supportSurfaceY": 1,
+        "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.76
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 800000, "maxTriangles": 14000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:arm-chair-01-optimized",
+      "registryKey": "victorian-armchair",
+      "roles": ["seat", "hero-furniture"],
+      "assetKeys": ["victorian-armchair", "period-armchair", "gothic-chair"],
+      "semanticKinds": ["chair", "armchair", "seat"],
+      "tags": ["armchair", "chair", "gothic", "victorian", "upholstered", "classic", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-armchair", "geometry": "box", "dimensions": [0.85, 1.07, 0.77],
+        "color": "#744843",
+        "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.72
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 850000, "maxTriangles": 12000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:lantern-chandelier-01-optimized",
+      "registryKey": "victorian-chandelier",
+      "roles": ["practical-light", "ceiling-light", "hero-light"],
+      "assetKeys": ["victorian-chandelier", "lantern-chandelier", "ceiling-lantern"],
+      "semanticKinds": ["chandelier", "lamp", "light"],
+      "tags": ["lantern", "chandelier", "ceiling", "light", "victorian", "ornate", "brass", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "free",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/lantern_chandelier_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-chandelier", "geometry": "cylinder", "dimensions": [0.7, 1.06, 0.7],
+        "color": "#9c7443",
+        "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.46, "metalness": 0.55
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1500000, "maxTriangles": 12000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The transparent glass primitive intentionally uses physical material constants; the brass body retains its 1K PBR texture set."
+      }
+    },
+    {
+      "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
+      "registryKey": "painted-archive-cabinet",
+      "roles": ["storage", "archive-dressing"],
+      "assetKeys": ["painted-archive-cabinet", "painted-cabinet", "archive-cabinet"],
+      "semanticKinds": ["cabinet", "bookcase", "shelf"],
+      "tags": ["painted", "cabinet", "archive", "shelf", "rustic", "worn", "blue", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "painted-archive-cabinet", "geometry": "box", "dimensions": [0.85, 2.2, 0.62],
+        "color": "#66716d",
+        "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.88
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1700000, "maxTriangles": 5000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit authored node transforms; runtime scene bounds were measured and the semantic dimensions preserve the 1.37:3.52:1 aspect."
+      }
+    },
+    {
+      "catalogId": "polyhaven:wooden-bookshelf-worn-optimized",
+      "registryKey": "worn-story-bookshelf",
+      "roles": ["storage", "library-dressing", "archive-dressing"],
+      "assetKeys": ["worn-story-bookshelf", "worn-bookshelf", "bookcase"],
+      "semanticKinds": ["bookcase", "bookshelf", "shelf"],
+      "tags": ["worn", "wooden", "bookshelf", "bookcase", "library", "archive", "rustic", "weathered"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "worn-story-bookshelf", "geometry": "box", "dimensions": [1.46, 2.2, 0.62],
+        "color": "#6a4b35",
+        "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2900000, "maxTriangles": 16000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-doorway-front",
+      "registryKey": "story-door",
+      "roles": ["portal"],
+      "assetKeys": ["story-door", "main-door", "front-door", "interior-door"],
+      "semanticKinds": ["door", "portal"],
+      "tags": ["door", "wood", "panelled", "entry", "historical", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "story-door",
+        "geometry": "box",
+        "dimensions": [1.3, 2.7, 0.3],
+        "color": "#6d4935",
+        "modelUrl": "/models/kenney/furniture/doorwayFront.glb",
+        "roughness": 0.86
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 5000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-bookcase-open",
+      "registryKey": "storybook-bookcase",
+      "roles": ["storage", "library-dressing"],
+      "assetKeys": ["storybook-bookcase", "bookcase", "bookshelf", "shelves"],
+      "semanticKinds": ["bookcase", "shelf"],
+      "tags": ["bookcase", "bookshelf", "books", "library", "archive", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-bookcase",
+        "geometry": "box",
+        "dimensions": [1.05, 2.3, 0.65],
+        "color": "#604631",
+        "modelUrl": "/models/kenney/furniture/bookcaseOpen.glb",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 5000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-bookcase-wide",
+      "registryKey": "storybook-bookcase-wide",
+      "roles": ["storage", "library-dressing"],
+      "assetKeys": ["storybook-bookcase-wide", "wide-bookcase", "archive-cabinet"],
+      "semanticKinds": ["bookcase", "shelf"],
+      "tags": ["bookcase", "cabinet", "books", "library", "archive", "wide", "wood"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-bookcase-wide",
+        "geometry": "box",
+        "dimensions": [2.12, 2.1, 0.66],
+        "color": "#59412f",
+        "modelUrl": "/models/kenney/furniture/bookcaseClosedWide.glb",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 5000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-books",
+      "registryKey": "storybook-books",
+      "roles": ["surface-document", "library-dressing"],
+      "assetKeys": ["storybook-books", "book-stack", "books"],
+      "semanticKinds": ["book", "document"],
+      "tags": ["books", "stack", "library", "archive", "reading", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-books",
+        "geometry": "box",
+        "dimensions": [0.45, 0.31, 0.28],
+        "color": "#77514a",
+        "modelUrl": "/models/kenney/furniture/books.glb",
+        "roughness": 0.94
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 25000,
+        "maxTriangles": 3000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-side-table",
+      "registryKey": "storybook-side-table",
+      "roles": ["accent-table"],
+      "assetKeys": ["storybook-side-table", "side-table", "bedside-table"],
+      "semanticKinds": ["side-table", "accent-table"],
+      "tags": ["side", "table", "drawers", "wood", "interior", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-side-table",
+        "geometry": "box",
+        "dimensions": [0.95, 0.68, 0.4],
+        "color": "#654834",
+        "modelUrl": "/models/kenney/furniture/sideTableDrawers.glb",
+        "supportSurfaceY": 1,
+        "roughness": 0.88
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 5000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-floor-lamp",
+      "registryKey": "storybook-floor-lamp",
+      "roles": ["practical-light", "interior-light"],
+      "assetKeys": ["storybook-floor-lamp", "floor-lamp"],
+      "semanticKinds": ["lamp", "light"],
+      "tags": ["lamp", "floor", "light", "interior", "warm", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-floor-lamp",
+        "geometry": "cylinder",
+        "dimensions": [0.32, 1.8, 0.37],
+        "color": "#d5a454",
+        "modelUrl": "/models/kenney/furniture/lampRoundFloor.glb",
+        "roughness": 0.6,
+        "metalness": 0.25
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 25000,
+        "maxTriangles": 3000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-table-lamp",
+      "registryKey": "storybook-table-lamp",
+      "roles": ["practical-light", "interior-light"],
+      "assetKeys": ["storybook-table-lamp", "table-lamp", "reading-lamp"],
+      "semanticKinds": ["lamp", "light"],
+      "tags": ["lamp", "table", "reading", "light", "interior", "warm"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-table-lamp",
+        "geometry": "cylinder",
+        "dimensions": [0.27, 0.56, 0.31],
+        "color": "#d6a75d",
+        "modelUrl": "/models/kenney/furniture/lampRoundTable.glb",
+        "roughness": 0.58,
+        "metalness": 0.2
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 25000,
+        "maxTriangles": 3000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-lounge-chair",
+      "registryKey": "storybook-lounge-chair",
+      "roles": ["seat"],
+      "assetKeys": ["storybook-lounge-chair", "lounge-chair", "armchair", "easy-chair"],
+      "semanticKinds": ["chair", "seat"],
+      "tags": ["armchair", "chair", "cushioned", "lounge", "red", "interior", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-lounge-chair",
+        "geometry": "box",
+        "dimensions": [1, 0.94, 0.84],
+        "color": "#9a4743",
+        "modelUrl": "/models/kenney/furniture/loungeChair.glb",
+        "roughness": 0.82
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 30000,
+        "maxTriangles": 4000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-potted-plant",
+      "registryKey": "storybook-potted-plant",
+      "roles": ["interior-plant"],
+      "assetKeys": ["storybook-potted-plant", "potted-plant", "houseplant"],
+      "semanticKinds": ["plant", "vegetation"],
+      "tags": ["plant", "potted", "foliage", "interior", "green", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-potted-plant",
+        "geometry": "cylinder",
+        "dimensions": [0.44, 1.35, 0.5],
+        "color": "#526d49",
+        "modelUrl": "/models/kenney/furniture/pottedPlant.glb",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 30000,
+        "maxTriangles": 4000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+      }
+    },
+    {
+      "catalogId": "kenney:furniture-coat-rack",
+      "registryKey": "storybook-coat-rack",
+      "roles": ["interior-detail"],
+      "assetKeys": ["storybook-coat-rack", "coat-rack", "hall-stand"],
+      "semanticKinds": ["coat-rack", "hall-stand"],
+      "tags": ["coat", "rack", "hall", "entry", "wood", "interior", "storybook"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "storybook-coat-rack",
+        "geometry": "cylinder",
+        "dimensions": [0.64, 1.8, 0.64],
+        "color": "#5a4030",
+        "modelUrl": "/models/kenney/furniture/coatRackStanding.glb",
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 30000,
+        "maxTriangles": 4000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.15,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:storybook-portrait",
+      "registryKey": "storybook-portrait",
+      "roles": ["wall-art"],
+      "assetKeys": ["storybook-portrait", "portrait", "painting", "framed-art"],
+      "semanticKinds": ["portrait", "painting"],
+      "tags": ["portrait", "painting", "framed", "art", "historical", "wall"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-portrait",
+        "geometry": "box",
+        "dimensions": [1.4, 1.8, 0.14],
+        "color": "#6b4a33",
+        "proceduralModel": "portrait",
+        "roughness": 0.82
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 8000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:storybook-bay-window",
+      "registryKey": "storybook-bay-window",
+      "roles": ["window", "architectural-opening"],
+      "assetKeys": ["storybook-bay-window", "bay-window", "window"],
+      "semanticKinds": ["window"],
+      "tags": ["window", "bay", "glass", "moonlight", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-bay-window",
+        "geometry": "box",
+        "dimensions": [2.5, 2.1, 0.25],
+        "color": "#5f4938",
+        "proceduralModel": "bay-window",
+        "roughness": 0.84
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 10000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:silver-key",
+      "registryKey": "silver-key",
+      "roles": ["small-story-prop"],
+      "assetKeys": ["silver-key", "key"],
+      "semanticKinds": ["key", "artifact"],
+      "tags": ["key", "silver", "tarnished", "metal", "small", "story-prop"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "silver-key",
+        "geometry": "box",
+        "dimensions": [0.3, 0.08, 0.12],
+        "color": "#aeb8b6",
+        "proceduralModel": "silver-key",
+        "roughness": 0.38,
+        "metalness": 0.82
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 5000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:amber-pendant",
+      "registryKey": "amber-pendant",
+      "roles": ["small-story-prop", "jewellery"],
+      "assetKeys": ["amber-pendant", "pendant", "necklace", "jewel"],
+      "semanticKinds": ["pendant", "jewellery", "artifact"],
+      "tags": ["amber", "pendant", "jewellery", "gold", "translucent", "archive"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "amber-pendant",
+        "geometry": "sphere",
+        "dimensions": [0.22, 0.38, 0.08],
+        "color": "#c67b22",
+        "proceduralModel": "amber-pendant",
+        "roughness": 0.22,
+        "metalness": 0.52
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 50000,
+        "maxTriangles": 7000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:storybook-canal",
+      "registryKey": "storybook-canal",
+      "roles": ["urban-waterway", "environment-feature"],
+      "assetKeys": ["storybook-canal", "canal", "waterway", "channel"],
+      "semanticKinds": ["canal", "water", "natural-feature"],
+      "tags": ["canal", "water", "urban", "stone", "reflective", "mysterious"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-canal",
+        "geometry": "box",
+        "dimensions": [5, 0.35, 18],
+        "color": "#315f68",
+        "proceduralModel": "canal",
+        "roughness": 0.18,
+        "metalness": 0.12
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 12000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
     }
   ]
 }

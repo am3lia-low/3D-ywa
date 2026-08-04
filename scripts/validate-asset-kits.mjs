@@ -178,7 +178,11 @@ async function inspectAsset(asset) {
       materialCount = model.materialCount;
       sourceBounds = model.sourceBounds;
       aspectDistortion = distortion(asset.runtimeAsset.dimensions, sourceBounds);
-      if (asset.qualityGate.requirePbrTextures) errors.push(...pbrProblems(model.document, model.primitives));
+      if (asset.qualityGate.requirePbrTextures) {
+        const problems = pbrProblems(model.document, model.primitives);
+        if (asset.qualityGate.waiver) warnings.push(...problems.map((problem) => `${problem} Waiver: ${asset.qualityGate.waiver}`));
+        else errors.push(...problems);
+      }
       if (!sourceBounds) errors.push("Model POSITION accessors do not declare source bounds.");
     } else if (asset.runtimeAsset.safeMeshUrl) {
       const safeMesh = await inspectSafeMesh(asset.runtimeAsset.safeMeshUrl);
@@ -201,7 +205,9 @@ async function inspectAsset(asset) {
         const lodDistortion = distortion(asset.runtimeAsset.dimensions, inspected.sourceBounds);
         const prefix = `LOD${index}`;
         if (asset.qualityGate.requirePbrTextures) {
-          errors.push(...pbrProblems(inspected.document, inspected.primitives).map((problem) => `${prefix}: ${problem}`));
+          const problems = pbrProblems(inspected.document, inspected.primitives).map((problem) => `${prefix}: ${problem}`);
+          if (asset.qualityGate.waiver) warnings.push(...problems.map((problem) => `${problem} Waiver: ${asset.qualityGate.waiver}`));
+          else errors.push(...problems);
         }
         if (bytes > asset.qualityGate.maxTotalBytes) {
           errors.push(`${prefix} bundle is ${bytes} bytes; budget is ${asset.qualityGate.maxTotalBytes}.`);
@@ -213,7 +219,9 @@ async function inspectAsset(asset) {
           errors.push(`${prefix} must contain fewer triangles than the previous level.`);
         }
         if (lodDistortion !== null && lodDistortion > asset.qualityGate.maxAspectDistortion) {
-          errors.push(`${prefix} normalization distortion is ${lodDistortion.toFixed(2)}x; limit is ${asset.qualityGate.maxAspectDistortion}x.`);
+          const message = `${prefix} normalization distortion is ${lodDistortion.toFixed(2)}x; limit is ${asset.qualityGate.maxAspectDistortion}x.`;
+          if (asset.qualityGate.waiver) warnings.push(`${message} Waiver: ${asset.qualityGate.waiver}`);
+          else errors.push(message);
         }
         previousTriangles = inspected.triangles;
         lods.push({
@@ -286,7 +294,7 @@ function validateCatalog(catalog) {
     if (registryKeys.has(asset.registryKey)) errors.push(`Duplicate registry key '${asset.registryKey}'.`);
     catalogIds.add(asset.catalogId);
     registryKeys.add(asset.registryKey);
-    if (!asset.runtimeAsset?.modelUrl && !asset.runtimeAsset?.safeMeshUrl && !asset.runtimeAsset?.surfaceTextureUrl) {
+    if (!asset.runtimeAsset?.modelUrl && !asset.runtimeAsset?.safeMeshUrl && !asset.runtimeAsset?.surfaceTextureUrl && !asset.runtimeAsset?.proceduralModel) {
       errors.push(`Asset '${asset.catalogId}' has neither a model, safe mesh nor a controlled surface.`);
     }
     if (asset.source === "cc0" && !asset.sourceUrl) errors.push(`CC0 asset '${asset.catalogId}' lacks provenance.`);

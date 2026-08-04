@@ -1,8 +1,10 @@
 # StoryWorld low-poly models
 
 The root GLB files are original project assets generated from geometric primitives by
-`scripts/generate-models.mjs`. The `polyhaven/` directory contains separately
-documented CC0 glTF assets used for the visual-quality path.
+`scripts/generate-models.mjs`. The `polyhaven/` and `optimized/polyhaven/`
+directories contain separately documented CC0 PBR assets used for the
+visual-quality path. `kenney/furniture/` contains a curated CC0 fallback subset
+from Kenney's Furniture Kit; its license is retained in `docs/licenses/`.
 
 Regenerate them with:
 

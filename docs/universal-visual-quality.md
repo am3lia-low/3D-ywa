@@ -6,7 +6,11 @@ The web runtime is the delivery target, not the source-asset ceiling. Reviewed
 high-quality models are prepared offline into distance-selected levels of
 detail. The quality packs add photoreal fern clusters, weathered rock formations,
 ornate street lamps and modular industrial pipes while preserving deterministic
-semantic recipes and canonical story identities. Woodland scenes now use a
+semantic recipes and canonical story identities. Period interiors now use
+browser-optimized CC0 PBR Gothic cabinets, worn bookshelves, a Victorian console,
+an upholstered armchair and an antique lantern chandelier for hero furniture;
+the lightweight Kenney Furniture Kit remains the fast fallback layer for distant
+or unexpected dressing. Woodland scenes now use a
 cohesive CC0 Quaternius Stylized Nature MegaKit subset: six tree variants, a hero
 tree, shrubs, ferns, flowers, grass, mushrooms and rocks with shared 512px
 textures. This replaces the former procedural-conifer backdrop.
@@ -88,6 +92,9 @@ as **Universal world families** and is preflighted with every build.
 - If Part 1 omits the visual plan entirely, the renderer provides a labeled
   polished storybook fallback and infers only broad indoor/outdoor presentation.
 - All decisions are deterministic for the same input package.
+- Prepared-scene regression checks reject severe non-uniform asset scaling,
+  out-of-bounds canonical placement, unresolved hero assets and below-floor
+  dressing before Member 3 integration can ship.
 
 ## Stress-test fixture
 

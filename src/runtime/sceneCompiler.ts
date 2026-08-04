@@ -387,6 +387,18 @@ function expandSemanticTags(location: VisualLocationPlan): {
     /\b(?:ruin|ruined|crumbling|collapsed|roofless|open[ -]ruin|broken[ -]monument)\w*\b/,
   );
   const permitsTerrain = !hasExplicitIndoorShell || hasStrongExteriorShell || isExposedRuin;
+  const hasIndustrialInterior = hasExplicitIndoorShell && hasSemantic(
+    atmosphereText,
+    /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop|retrofuturist|mechanical|machinery|metallic|riveted|control-bay|generator)\w*\b/,
+  );
+  const hasSpecializedInterior = architecture.has("timber-frame") ||
+    architecture.has("glasshouse-panels") ||
+    architecture.has("archive-shelving") ||
+    hasSemantic(atmosphereText, /\b(?:attic|archive|library|conservatory|glasshouse|greenhouse)\b/);
+  const hasGroundedInterior = hasExplicitIndoorShell && !hasIndustrialInterior && !hasSpecializedInterior && hasSemantic(
+    atmosphereText,
+    /\b(?:house|home|room|hall|chamber|manor|estate|parlour|parlor|gallery|archive|library|study|bedroom|inn|tavern|office|school|palace|castle)\w*\b/,
+  );
 
   if (hasExplicitOpenShell && !hasExplicitIndoorShell) architecture.add("open-air");
   if (hasSemantic(atmosphereText, /\b(?:conservatory|glasshouse|greenhouse|winter-garden)\b/)) {
@@ -466,11 +478,19 @@ function expandSemanticTags(location: VisualLocationPlan): {
     dressing.add("storage-crates");
     dressing.add("street-lamps");
   }
-  if (hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop|retrofuturist|mechanical|machinery|metal|metallic|riveted|control-bay|generator)\w*\b/)) {
+  if (hasIndustrialInterior) {
     architecture.add("industrial-shell");
     architecture.add("industrial-floor");
     dressing.add("storage-crates");
     dressing.add("industrial-pipes");
+  }
+  if (hasGroundedInterior) {
+    dressing.add("period-interior");
+    dressing.add("interior-rugs");
+    dressing.add("interior-lighting");
+  }
+  if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:storybook|historical|historic|antique|victorian|gothic|manor|estate|old-world|period)\w*\b/)) {
+    architecture.add("estate-paneling");
   }
   if (hasSemantic(atmosphereText, /\b(?:path|trail|track|woodland-road)\b/)) {
     architecture.add("earth-trail");
@@ -496,6 +516,9 @@ function expandSemanticTags(location: VisualLocationPlan): {
   if (hasSemantic(atmosphereText, /\b(?:archive|library|book-lined|bookshel)\w*\b/)) {
     architecture.add("archive-shelving");
     dressing.add("books");
+    dressing.add("archive-clutter");
+    dressing.add("interior-rugs");
+    dressing.add("interior-lighting");
   }
   if (hasSemantic(atmosphereText, /\b(?:window|moonbeam|sunbeam)\b/)) architecture.add("small-window");
 

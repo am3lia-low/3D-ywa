@@ -113,15 +113,26 @@ function scoreEntry(
     ...(visual?.colors ?? []),
     ...(visual?.assetSearchTags ?? []),
   ]);
+  const identity = tokens([
+    entity.kind,
+    entity.name,
+    ...(entity.aliases ?? []),
+    ...(visual?.assetSearchTags ?? []),
+  ]);
   const available = tokens([...entry.assetKeys, ...entry.semanticKinds, ...entry.tags]);
   const kindMatch = entry.semanticKinds.includes(entity.kind.toLowerCase());
   let overlap = 0;
   for (const token of requested) if (available.has(token)) overlap += 1;
+  let identityOverlap = 0;
+  for (const token of identity) if (available.has(token)) identityOverlap += 1;
   let score = exact ? 1_000 : 0;
   if (entry.styleKitIds.includes(styleKitId)) score += 25;
   if (kindMatch) score += 20;
   score += overlap * 2;
-  return { score, exact, eligible: exact || kindMatch || overlap >= 2 };
+  // Materials and palette words are useful ranking signals, but are too broad
+  // to establish identity by themselves (for example, a blue painted orrery
+  // must never silently resolve to a blue painted cabinet).
+  return { score, exact, eligible: exact || kindMatch || identityOverlap >= 2 };
 }
 
 /** Selects only pre-approved assets and installs them under canonical entity IDs. */
