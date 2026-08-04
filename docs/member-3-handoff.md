@@ -177,3 +177,28 @@ registry and deployment.
 - Wire passage advance and location requests so they also work in fullscreen walk mode.
 - Show runtime errors in the product shell and offer retry/resynchronization.
 - Before release, run the complete `pnpm verify` gate.
+
+## Integrated prototype on `wl`
+
+The `wl` branch contains Member 3's application under
+`Create UI Prototype for Hackathon/`, connected to Part 2 through the
+`@spatial-runtime` alias. Run it with:
+
+```powershell
+cd "Create UI Prototype for Hackathon"
+pnpm install
+pnpm dev
+```
+
+Then open `http://127.0.0.1:8443/`. The prepared-story mock service emits both
+Member 3's inspector view model and the canonical spatial snapshot/visual plan.
+`src/spatial/mockSpatialAdapter.ts` is development scaffolding only; a real
+Member 1 response should populate `spatialSnapshot`, `spatialPatch`, and
+`visualPlan` directly without passing through that adapter.
+
+The integration boundary is implemented in:
+
+- `Create UI Prototype for Hackathon/src/components/WorldViewer.tsx`
+- `Create UI Prototype for Hackathon/src/spatial/mockSpatialAdapter.ts`
+- `Create UI Prototype for Hackathon/src/types.ts`
+- `Create UI Prototype for Hackathon/src/api/mockApi.ts`
