@@ -120,6 +120,30 @@
       "author": "James Ray Cock",
       "license": "CC0 1.0 Universal",
       "bytes": 924683
+    },
+    {
+      "key": "environment-tree-oak-safe",
+      "url": "/models/converted/nature/tree-oak-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 67361
+    },
+    {
+      "key": "environment-bush-safe",
+      "url": "/models/converted/nature/bush-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 23958
+    },
+    {
+      "key": "environment-rock-safe",
+      "url": "/models/converted/nature/rock-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 46306
     }
   ]
 }

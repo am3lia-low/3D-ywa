@@ -214,7 +214,7 @@ function tokens(values: readonly string[]): Set<string> {
 function chooseAsset(searchTags: readonly string[], styleKitId: string): AssetKitCatalogAsset | undefined {
   const requested = tokens(searchTags);
   return assetKitCatalog.assets
-    .filter((asset) => asset.styleKitIds.includes(styleKitId) && Boolean(asset.runtimeAsset.modelUrl))
+    .filter((asset) => asset.styleKitIds.includes(styleKitId) && Boolean(asset.runtimeAsset.modelUrl || asset.runtimeAsset.safeMeshUrl))
     .map((asset) => {
       const available = tokens([...asset.roles, ...asset.assetKeys, ...asset.semanticKinds, ...asset.tags]);
       let score = 0;

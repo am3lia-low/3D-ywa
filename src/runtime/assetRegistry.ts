@@ -10,6 +10,8 @@ export interface AssetDefinition {
   color: string;
   /** Public URL for the preferred normalized glTF 2.0 binary asset. */
   modelUrl?: string;
+  /** Public URL identifying an approved mesh package bundled into the runtime. */
+  safeMeshUrl?: string;
   /** Public image projected onto controlled geometry for planar assets. */
   surfaceTextureUrl?: string;
   /** Normalized image crop in top-left coordinates: left, top, right, bottom. */

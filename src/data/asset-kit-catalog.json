@@ -374,6 +374,102 @@
         "expectedUpAxis": "Y",
         "expectedForwardAxis": "+Z"
       }
+    },
+    {
+      "catalogId": "kenney:nature-tree-oak-safe",
+      "registryKey": "environment-tree-oak",
+      "roles": ["environment-tree"],
+      "assetKeys": ["oak-tree", "broadleaf-tree", "deciduous-tree"],
+      "semanticKinds": ["tree", "vegetation", "environment-dressing"],
+      "tags": ["tree", "oak", "broadleaf", "woodland", "historical", "storybook"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "environment-tree-oak",
+        "geometry": "cylinder",
+        "dimensions": [4.2, 6.4, 4.2],
+        "color": "#35543c",
+        "safeMeshUrl": "/models/converted/nature/tree-oak-safe.mesh.json",
+        "roughness": 0.95
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 1000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:nature-bush-safe",
+      "registryKey": "environment-bush",
+      "roles": ["environment-shrub"],
+      "assetKeys": ["bush", "hedge", "shrub"],
+      "semanticKinds": ["bush", "vegetation", "environment-dressing"],
+      "tags": ["bush", "hedge", "shrub", "green", "woodland", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "environment-bush",
+        "geometry": "sphere",
+        "dimensions": [1.8, 1, 1.35],
+        "color": "#35543c",
+        "safeMeshUrl": "/models/converted/nature/bush-safe.mesh.json",
+        "roughness": 0.95
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 1000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "kenney:nature-rock-safe",
+      "registryKey": "environment-rock",
+      "roles": ["environment-rock"],
+      "assetKeys": ["large-rock", "verge-rock", "boulder"],
+      "semanticKinds": ["rock", "terrain", "environment-dressing"],
+      "tags": ["rock", "stone", "boulder", "verge", "woodland", "storybook"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "environment-rock",
+        "geometry": "sphere",
+        "dimensions": [1.5, 0.8, 1.1],
+        "color": "#69716b",
+        "safeMeshUrl": "/models/converted/nature/rock-safe.mesh.json",
+        "roughness": 1
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 100000,
+        "maxTriangles": 1000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
     }
   ]
 }

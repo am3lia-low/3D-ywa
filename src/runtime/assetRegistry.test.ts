@@ -18,11 +18,11 @@ describe("asset registry", () => {
   it("keeps every registered runtime asset URL synchronized with the generated manifest", () => {
     const manifestUrls = new Set(modelManifest.assets.map((asset) => asset.url));
     const registeredUrls = Object.values(defaultAssetRegistry).flatMap((asset) =>
-      [asset.modelUrl, asset.surfaceTextureUrl].filter((url): url is string => Boolean(url)),
+      [asset.modelUrl, asset.safeMeshUrl, asset.surfaceTextureUrl].filter((url): url is string => Boolean(url)),
     );
 
     const catalogUrls = assetKitCatalog.assets.flatMap((asset) =>
-      [asset.runtimeAsset.modelUrl, asset.runtimeAsset.surfaceTextureUrl]
+      [asset.runtimeAsset.modelUrl, asset.runtimeAsset.safeMeshUrl, asset.runtimeAsset.surfaceTextureUrl]
         .filter((url): url is string => Boolean(url)),
     );
 
@@ -47,5 +47,12 @@ describe("asset registry", () => {
     expect(asset.key).toBe("fallback:mysterious-relic");
     expect(asset.modelUrl).toBeUndefined();
     expect(asset.geometry).toBe("box");
+  });
+
+  it("resolves converted safe meshes without exposing their rejected source GLB", () => {
+    const asset = resolveAsset(entity({ kind: "tree", assetKey: "environment-tree-oak" }));
+
+    expect(asset.safeMeshUrl).toBe("/models/converted/nature/tree-oak-safe.mesh.json");
+    expect(asset.modelUrl).toBeUndefined();
   });
 });

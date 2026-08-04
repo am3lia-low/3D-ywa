@@ -103,6 +103,40 @@ async function inspectModel(modelUrl) {
   return { document, files, ...inspected };
 }
 
+async function inspectSafeMesh(safeMeshUrl) {
+  const safeMeshFile = publicFile(safeMeshUrl);
+  const document = JSON.parse(await readFile(safeMeshFile, "utf8"));
+  if (document.schemaVersion !== "1.0" || document.normalization !== "unit-box-grounded-y") {
+    throw new Error("Unsupported safe mesh schema or normalization.");
+  }
+  if (!Array.isArray(document.meshes) || document.meshes.length === 0) {
+    throw new Error("Safe mesh contains no geometry.");
+  }
+  let triangles = 0;
+  let materialCount = 0;
+  const positions = [];
+  for (const [meshIndex, mesh] of document.meshes.entries()) {
+    if (!Array.isArray(mesh.positions) || mesh.positions.length < 9 || mesh.positions.length % 3 !== 0) {
+      throw new Error(`Safe mesh ${meshIndex} has malformed positions.`);
+    }
+    if (!mesh.positions.every(Number.isFinite)) throw new Error(`Safe mesh ${meshIndex} has non-finite positions.`);
+    const vertexCount = mesh.positions.length / 3;
+    const elements = mesh.indices ?? Array.from({ length: vertexCount }, (_, index) => index);
+    if (!elements.every((index) => Number.isInteger(index) && index >= 0 && index < vertexCount)) {
+      throw new Error(`Safe mesh ${meshIndex} has an invalid index.`);
+    }
+    triangles += Math.floor(elements.length / 3);
+    materialCount += mesh.materials?.length ?? 0;
+    positions.push(...mesh.positions);
+  }
+  const sourceBounds = [0, 1, 2].map((axis) => {
+    const values = [];
+    for (let index = axis; index < positions.length; index += 3) values.push(positions[index]);
+    return Math.max(...values) - Math.min(...values);
+  });
+  return { files: new Set([safeMeshFile]), triangles, materialCount, sourceBounds };
+}
+
 async function totalBytes(files) {
   let bytes = 0;
   for (const file of files) bytes += (await stat(file)).size;
@@ -118,8 +152,11 @@ function distortion(runtimeDimensions, sourceBounds) {
 async function inspectAsset(asset) {
   const errors = [];
   const warnings = [];
-  let triangles = asset.runtimeAsset.surfaceTextureUrl && !asset.runtimeAsset.modelUrl ? 2 : 0;
-  let materialCount = asset.runtimeAsset.surfaceTextureUrl && !asset.runtimeAsset.modelUrl ? 1 : 0;
+  const surfaceOnly = asset.runtimeAsset.surfaceTextureUrl
+    && !asset.runtimeAsset.modelUrl
+    && !asset.runtimeAsset.safeMeshUrl;
+  let triangles = surfaceOnly ? 2 : 0;
+  let materialCount = surfaceOnly ? 1 : 0;
   let sourceBounds = null;
   let aspectDistortion = null;
   const files = new Set();
@@ -134,6 +171,13 @@ async function inspectAsset(asset) {
       aspectDistortion = distortion(asset.runtimeAsset.dimensions, sourceBounds);
       if (asset.qualityGate.requirePbrTextures) errors.push(...pbrProblems(model.document, model.primitives));
       if (!sourceBounds) errors.push("Model POSITION accessors do not declare source bounds.");
+    } else if (asset.runtimeAsset.safeMeshUrl) {
+      const safeMesh = await inspectSafeMesh(asset.runtimeAsset.safeMeshUrl);
+      safeMesh.files.forEach((file) => files.add(file));
+      triangles = safeMesh.triangles;
+      materialCount = safeMesh.materialCount;
+      sourceBounds = safeMesh.sourceBounds;
+      aspectDistortion = distortion(asset.runtimeAsset.dimensions, sourceBounds);
     }
     if (asset.runtimeAsset.surfaceTextureUrl) {
       const texture = publicFile(asset.runtimeAsset.surfaceTextureUrl);
@@ -198,8 +242,8 @@ function validateCatalog(catalog) {
     if (registryKeys.has(asset.registryKey)) errors.push(`Duplicate registry key '${asset.registryKey}'.`);
     catalogIds.add(asset.catalogId);
     registryKeys.add(asset.registryKey);
-    if (!asset.runtimeAsset?.modelUrl && !asset.runtimeAsset?.surfaceTextureUrl) {
-      errors.push(`Asset '${asset.catalogId}' has neither a model nor a controlled surface.`);
+    if (!asset.runtimeAsset?.modelUrl && !asset.runtimeAsset?.safeMeshUrl && !asset.runtimeAsset?.surfaceTextureUrl) {
+      errors.push(`Asset '${asset.catalogId}' has neither a model, safe mesh nor a controlled surface.`);
     }
     if (asset.source === "cc0" && !asset.sourceUrl) errors.push(`CC0 asset '${asset.catalogId}' lacks provenance.`);
     for (const kitId of asset.styleKitIds ?? []) {

@@ -21,6 +21,10 @@ import {
   type ReactNode,
 } from "react";
 import * as THREE from "three";
+import bushSafeMesh from "../data/converted/nature/bush-safe.mesh.json";
+import rockSafeMesh from "../data/converted/nature/rock-safe.mesh.json";
+import treeOakSafeMesh from "../data/converted/nature/tree-oak-safe.mesh.json";
+import { validateSafeMeshAsset } from "../runtime/safeMeshAsset";
 import {
   ContractValidationError,
   validateScenePatch,
@@ -59,6 +63,12 @@ import {
   renderQualityProfiles,
   type RenderQuality,
 } from "../runtime/renderQuality";
+
+const bundledSafeMeshes: Readonly<Record<string, unknown>> = {
+  "/models/converted/nature/tree-oak-safe.mesh.json": treeOakSafeMesh,
+  "/models/converted/nature/bush-safe.mesh.json": bushSafeMesh,
+  "/models/converted/nature/rock-safe.mesh.json": rockSafeMesh,
+};
 import {
   compileScenePresentation,
   createFallbackScenePresentation,
@@ -263,6 +273,51 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
       )}
     </group>
   );
+}
+
+const safeMeshTemplates = new WeakMap<object, THREE.Group>();
+
+function safeMeshTemplate(payload: unknown): THREE.Group {
+  if (!payload || typeof payload !== "object") throw new Error("Safe mesh payload must be an object.");
+  const cached = safeMeshTemplates.get(payload);
+  if (cached) return cached;
+  const asset = validateSafeMeshAsset(payload);
+  const template = new THREE.Group();
+  template.name = asset.label;
+  template.userData = { sourceSha256: asset.sourceSha256, safeMesh: true };
+  asset.meshes.forEach((entry) => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(entry.positions, 3));
+    if (entry.normals.length) {
+      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(entry.normals, 3));
+    } else {
+      geometry.computeVertexNormals();
+    }
+    if (entry.indices) geometry.setIndex(entry.indices);
+    geometry.clearGroups();
+    entry.groups.forEach((group) => geometry.addGroup(group.start, group.count, group.materialIndex));
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+    const materials = entry.materials.map((material) => new THREE.MeshStandardMaterial({
+      color: material.color,
+      roughness: material.roughness,
+      metalness: material.metalness,
+      side: material.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
+    }));
+    const mesh = new THREE.Mesh(geometry, materials.length === 1 ? materials[0] : materials);
+    mesh.name = entry.name;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    template.add(mesh);
+  });
+  safeMeshTemplates.set(payload, template);
+  return template;
+}
+
+function SafeMeshModel({ payload }: { payload: unknown }) {
+  const template = useMemo(() => safeMeshTemplate(payload), [payload]);
+
+  return <Clone object={template} castShadow receiveShadow />;
 }
 
 function usePbrSurface(
@@ -1193,6 +1248,16 @@ function EntityAsset({
     );
   }
 
+  if (asset.safeMeshUrl) {
+    const payload = bundledSafeMeshes[asset.safeMeshUrl];
+    if (!payload) return fallback;
+    return (
+      <ModelErrorBoundary key={asset.safeMeshUrl} fallback={fallback}>
+        <SafeMeshModel payload={payload} />
+      </ModelErrorBoundary>
+    );
+  }
+
   if (!asset.modelUrl) return fallback;
 
   return (
@@ -1836,6 +1901,12 @@ function CourtyardBeyond({
     [-bounds[0] * 0.28, bounds[2] * 1.9, 0.7],
     [bounds[0] * 0.3, bounds[2] * 2.05, 0.76],
   ];
+  const rockPositions: Array<[number, number, number]> = [
+    [-roadWidth * 0.72, bounds[2] * 0.74, -0.18],
+    [roadWidth * 0.68, bounds[2] * 1.22, 0.34],
+    [-roadWidth * 0.78, bounds[2] * 1.62, 0.12],
+    [roadWidth * 0.76, bounds[2] * 1.94, -0.3],
+  ];
 
   return (
     <group>
@@ -1875,19 +1946,14 @@ function CourtyardBeyond({
           position={[side * (roadWidth / 2 + 1.2 + (index % 2) * 0.55), 0.2, z]}
         >
           {[-0.75, 0, 0.78].map((offset, clumpIndex) => (
-            <mesh
+            <group
               key={`hedge-clump-${clumpIndex}`}
-              position={[offset, 0.28 + (clumpIndex % 2) * 0.08, 0]}
-              scale={[1.8, 1 + (clumpIndex % 2) * 0.14, 1.35]}
+              position={[offset, 0, 0]}
+              scale={[1.8, 1 + (clumpIndex % 2) * 0.14, 1.35 + (clumpIndex % 2) * 0.1]}
               rotation={[0, clumpIndex * 0.86, 0]}
-              castShadow
             >
-              <dodecahedronGeometry args={[0.52, 1]} />
-              <meshStandardMaterial
-                color={["#283c30", "#314936", "#22372c"][clumpIndex]}
-                roughness={1}
-              />
-            </mesh>
+              <SafeMeshModel payload={bushSafeMesh} />
+            </group>
           ))}
         </group>
       )))}
@@ -1902,29 +1968,23 @@ function CourtyardBeyond({
         </mesh>
       ))}
       {treePositions.map(([x, z, scale], index) => (
-        <group key={`courtyard-distant-tree-${index}`} position={[x, 0, z]} scale={scale}>
-          <mesh position={[0, 1.35, 0]} castShadow>
-            <cylinderGeometry args={[0.16, 0.24, 2.7, 9]} />
-            <meshStandardMaterial color="#30271f" roughness={1} />
-          </mesh>
-          {([
-            [-0.58, 2.75, 0, 1.25, 0.9, 1],
-            [0.5, 2.9, 0.08, 1.18, 1.02, 0.92],
-            [0, 3.65, -0.04, 1.35, 1.18, 1.05],
-          ] as Array<[number, number, number, number, number, number]>).map(([crownX, crownY, crownZ, scaleX, scaleY, scaleZ], crownIndex) => (
-            <mesh
-              key={`crown-${crownIndex}`}
-              position={[crownX, crownY, crownZ]}
-              scale={[scaleX, scaleY, scaleZ]}
-              castShadow
-            >
-              <dodecahedronGeometry args={[1, 1]} />
-              <meshStandardMaterial
-                color={["#1d3027", "#294033", "#314a39"][crownIndex]}
-                roughness={1}
-              />
-            </mesh>
-          ))}
+        <group
+          key={`courtyard-distant-tree-${index}`}
+          position={[x, 0, z]}
+          rotation={[0, 0.38 + index * 1.13, 0]}
+          scale={[4.2 * scale, 6.4 * scale, 4.2 * scale]}
+        >
+          <SafeMeshModel payload={treeOakSafeMesh} />
+        </group>
+      ))}
+      {rockPositions.map(([x, z, yaw], index) => (
+        <group
+          key={`courtyard-verge-rock-${index}`}
+          position={[x, 0, z]}
+          rotation={[0, yaw, 0]}
+          scale={[1.35 + (index % 2) * 0.35, 0.72 + (index % 2) * 0.16, 1.1]}
+        >
+          <SafeMeshModel payload={rockSafeMesh} />
         </group>
       ))}
     </group>

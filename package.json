@@ -10,6 +10,7 @@
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
     "models:generate": "node scripts/generate-models.mjs",
     "assets:import:polyhaven": "node scripts/import-polyhaven-assets.mjs",
+    "assets:convert:glb": "node scripts/convert-external-glb.mjs",
     "assets:validate": "node scripts/validate-asset-kits.mjs",
     "assets:report": "node scripts/validate-asset-kits.mjs --write",
     "part1:mock": "node scripts/mock-part1-server.mjs",

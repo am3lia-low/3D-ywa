@@ -111,6 +111,7 @@ function sameAssetDefinition(left: AssetDefinition, right: AssetDefinition): boo
     left.key === right.key &&
     left.geometry === right.geometry &&
     left.modelUrl === right.modelUrl &&
+    left.safeMeshUrl === right.safeMeshUrl &&
     left.color === right.color &&
     left.roughness === right.roughness &&
     left.metalness === right.metalness &&
