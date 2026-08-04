@@ -2062,28 +2062,6 @@ function CourtyardKit({
           ))}
           {[-1, 1].map((side) => (
             <group
-              key={`courtyard-entrance-pier-${side}`}
-              position={[side * (bounds[0] / 2 - 0.28), 0, bounds[2] / 2 - 0.28]}
-            >
-              <mesh position={[0, wallHeight * 0.44, 0]} castShadow receiveShadow>
-                <boxGeometry args={[0.82, wallHeight * 0.88, 0.82]} />
-                <meshStandardMaterial
-                  color="#aaa28f"
-                  map={wall.color}
-                  normalMap={wall.normal}
-                  normalScale={new THREE.Vector2(0.34, 0.34)}
-                  roughnessMap={wall.arm}
-                  roughness={0.98}
-                />
-              </mesh>
-              <mesh position={[0, wallHeight * 0.9, 0]} castShadow>
-                <boxGeometry args={[1.02, 0.18, 1.02]} />
-                <meshStandardMaterial color="#858279" roughness={0.96} />
-              </mesh>
-            </group>
-          ))}
-          {[-1, 1].map((side) => (
-            <group
               key={`courtyard-drainpipe-${side}`}
               position={[side * bounds[0] * 0.43, wallHeight * 0.5, -bounds[2] / 2 + 0.34]}
             >
