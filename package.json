@@ -17,6 +17,7 @@
     "assets:report": "node scripts/validate-asset-kits.mjs --write",
     "part1:mock": "node scripts/mock-part1-server.mjs",
     "scenes:preflight": "vitest run src/integration/scenePreflight.test.ts --reporter=verbose",
+    "handoff:check": "vitest run src/integration/publicApi.test.tsx --reporter=verbose",
     "comfyui:setup": "powershell -ExecutionPolicy Bypass -File scripts/setup-comfyui.ps1",
     "comfyui:serve": "powershell -ExecutionPolicy Bypass -File scripts/run-comfyui.ps1",
     "comfyui:prove": "powershell -ExecutionPolicy Bypass -File scripts/prove-comfyui.ps1",

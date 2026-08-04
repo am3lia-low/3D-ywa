@@ -368,4 +368,8 @@ pnpm bundle:check
 pnpm verify
 ```
 
-The public integration surface is exported from `src/index.ts`. Fixture JSON lives in `fixtures/` and does not depend on Member 1's extraction service.
+The public integration surface is exported from `src/index.ts`. The exact Member
+3 import boundary, callback ownership, deployment assets and acceptance checklist
+are in `docs/member-3-handoff.md`; `pnpm handoff:check` verifies the contract from
+a consumer's point of view. Fixture JSON lives in `fixtures/` and does not depend
+on Member 1's extraction service.
