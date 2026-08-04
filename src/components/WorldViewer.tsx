@@ -2417,7 +2417,7 @@ function Firelight({ item }: { item: LayoutItem }) {
       Math.sin(state.clock.elapsedTime * 9.1) * 0.08 +
       Math.sin(state.clock.elapsedTime * 15.7) * 0.04;
     if (light.current) light.current.intensity = 3.5 * flicker;
-    if (flame.current) flame.current.scale.y = flicker;
+    if (flame.current) flame.current.scale.y = outerFlameScale[1] * flicker;
   });
 
   return (
