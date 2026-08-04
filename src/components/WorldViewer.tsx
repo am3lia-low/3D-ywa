@@ -1878,10 +1878,11 @@ function CourtyardBeyond({
             <mesh
               key={`hedge-clump-${clumpIndex}`}
               position={[offset, 0.28 + (clumpIndex % 2) * 0.08, 0]}
-              scale={[1.05, 0.46, 0.72]}
+              scale={[1.8, 1 + (clumpIndex % 2) * 0.14, 1.35]}
+              rotation={[0, clumpIndex * 0.86, 0]}
               castShadow
             >
-              <dodecahedronGeometry args={[0.82, 0]} />
+              <dodecahedronGeometry args={[0.52, 1]} />
               <meshStandardMaterial
                 color={["#283c30", "#314936", "#22372c"][clumpIndex]}
                 roughness={1}
@@ -2110,21 +2111,6 @@ function CourtyardKit({
                 roughness={0.94}
               />
             </mesh>
-          ))}
-          {[-1, 1].map((side) => (
-            <group
-              key={`courtyard-drainpipe-${side}`}
-              position={[side * bounds[0] * 0.43, wallHeight * 0.5, -bounds[2] / 2 + 0.34]}
-            >
-              <mesh castShadow>
-                <cylinderGeometry args={[0.045, 0.055, wallHeight * 0.86, 10]} />
-                <meshStandardMaterial color="#3e4b48" roughness={0.52} metalness={0.72} />
-              </mesh>
-              <mesh position={[side * 0.13, -wallHeight * 0.42, 0.02]} rotation={[0, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[0.05, 0.05, 0.28, 10]} />
-                <meshStandardMaterial color="#3e4b48" roughness={0.52} metalness={0.72} />
-              </mesh>
-            </group>
           ))}
         </>
       )}
