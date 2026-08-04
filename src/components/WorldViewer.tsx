@@ -1058,13 +1058,23 @@ function StoryLanternAsset({
           {glassMaterial}
         </mesh>
       ))}
-      <mesh position={[0, -0.12, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.15, 0.05, 18]} />
-        <meshStandardMaterial color="#5d4426" roughness={0.6} metalness={0.46} />
+      <mesh position={[0, -0.275, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.19, 0.24, 0.16, 18]} />
+        <meshStandardMaterial
+          color="#93672d"
+          emissive={lit ? "#402511" : "#000000"}
+          emissiveIntensity={lit ? 0.1 : 0}
+          roughness={0.5}
+          metalness={0.62}
+        />
       </mesh>
-      <mesh position={[0, -0.07, 0]}>
-        <cylinderGeometry args={[0.018, 0.025, 0.07, 8]} />
-        <meshStandardMaterial color="#2c2118" roughness={0.95} />
+      <mesh position={[0, -0.13, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.105, 0.16, 14]} />
+        <meshStandardMaterial color="#b17e35" roughness={0.44} metalness={0.7} />
+      </mesh>
+      <mesh position={[0, -0.035, 0]}>
+        <cylinderGeometry args={[0.019, 0.026, 0.08, 8]} />
+        <meshStandardMaterial color="#2c2118" roughness={0.96} />
       </mesh>
       <mesh position={[0, 0.3, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
         <cylinderGeometry args={[0.3, 0.39, 0.13, 4]} />
@@ -1080,8 +1090,14 @@ function StoryLanternAsset({
         <cylinderGeometry args={[0.105, 0.145, 0.1, 12]} />
         <meshStandardMaterial color="#765126" roughness={0.5} metalness={0.64} />
       </mesh>
-      <mesh position={[0, 0.43, 0]}>
-        <torusGeometry args={[0.27, 0.025, 8, 32, Math.PI]} />
+      {[-0.19, 0.19].map((x) => (
+        <mesh key={`lantern-handle-lug-${x}`} position={[x, 0.35, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.042, 0.042, 0.07, 12]} />
+          <meshStandardMaterial color="#8e622b" roughness={0.46} metalness={0.7} />
+        </mesh>
+      ))}
+      <mesh position={[0, 0.35, 0]}>
+        <torusGeometry args={[0.19, 0.022, 8, 30, Math.PI]} />
         <meshStandardMaterial color="#a97a36" roughness={0.44} metalness={0.72} />
       </mesh>
     </group>
@@ -2520,8 +2536,8 @@ function Firelight({ item }: { item: LayoutItem }) {
   const isFireplace = item.asset.key === "fireplace";
   const frontOffset = isFireplace ? 0.38 : 0;
   const height = isFireplace ? 0.58 : item.position[1];
-  const outerFlameScale: Vector3Tuple = isFireplace ? [0.17, 0.34, 0.12] : [0.045, 0.11, 0.04];
-  const innerFlameScale: Vector3Tuple = isFireplace ? [0.075, 0.22, 0.065] : [0.022, 0.065, 0.018];
+  const outerFlameScale: Vector3Tuple = isFireplace ? [0.17, 0.34, 0.12] : [0.042, 0.08, 0.038];
+  const innerFlameScale: Vector3Tuple = isFireplace ? [0.075, 0.22, 0.065] : [0.02, 0.048, 0.016];
 
   useFrame((state) => {
     const flicker =
@@ -2542,11 +2558,11 @@ function Firelight({ item }: { item: LayoutItem }) {
         decay={1.7}
         castShadow={false}
       />
-      <mesh ref={flame} position={[0, isFireplace ? 0.04 : 0, 0]} scale={outerFlameScale}>
+      <mesh ref={flame} position={[0, isFireplace ? 0.04 : -0.015, 0]} scale={outerFlameScale}>
         <sphereGeometry args={[1, 16, 12]} />
         <meshBasicMaterial color="#ffb052" transparent opacity={0.9} />
       </mesh>
-      <mesh position={[0, isFireplace ? 0.09 : 0.015, 0]} scale={innerFlameScale}>
+      <mesh position={[0, isFireplace ? 0.09 : -0.005, 0]} scale={innerFlameScale}>
         <sphereGeometry args={[1, 12, 8]} />
         <meshBasicMaterial color="#fff1b0" />
       </mesh>
