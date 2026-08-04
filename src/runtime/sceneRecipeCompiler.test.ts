@@ -264,8 +264,9 @@ describe("scene recipe compiler", () => {
     expect(instances.flatMap(
       (instance) => instance.renderKind === "asset" ? [instance.catalogId] : [],
     )).toEqual(expect.arrayContaining([
-      "kenney:nature-pine-tall-safe",
-      "kenney:nature-pine-round-safe",
+      "project:storybook-pine-tall-v1",
+      "project:storybook-pine-layered-v1",
+      "quaternius:birch-tree-01",
       "polyhaven:fern_02-optimized",
       "kenney:nature-grass-tuft-safe",
       "kenney:nature-red-mushrooms-safe",

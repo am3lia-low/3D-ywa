@@ -50,6 +50,22 @@
       "bytes": 18616
     },
     {
+      "key": "storybook-pine-tall",
+      "url": "/models/storybook-pine-tall.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 628000
+    },
+    {
+      "key": "storybook-pine-layered",
+      "url": "/models/storybook-pine-layered.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 503588
+    },
+    {
       "key": "hidden-door-generated-surface",
       "url": "/generated/hidden-door-1-v1.png",
       "format": "PNG projected onto controlled architectural geometry",
@@ -120,6 +136,15 @@
       "author": "James Ray Cock",
       "license": "CC0 1.0 Universal",
       "bytes": 924683
+    },
+    {
+      "key": "authored-birch-tree",
+      "url": "/models/optimized/quaternius/birch-tree-01.glb",
+      "format": "Optimized glTF 2.0 binary with authored color textures",
+      "author": "Quaternius",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://quaternius.com/packs/ultimatestylizednature.html",
+      "bytes": 1297304
     },
     {
       "key": "fern_02-lod0",

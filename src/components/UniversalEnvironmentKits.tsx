@@ -333,6 +333,8 @@ function Building({
 }) {
   const columns = Math.max(2, Math.floor(size[0] / 0.8));
   const rows = Math.max(2, Math.floor(size[1] / 0.9));
+  const trimColor = seed % 3 === 0 ? "#485856" : seed % 3 === 1 ? "#5f4438" : "#4e4840";
+  const awningColor = seed % 3 === 0 ? "#9f5747" : seed % 3 === 1 ? "#c18a51" : "#53726c";
   return (
     <group position={position}>
       <mesh castShadow receiveShadow>
@@ -343,27 +345,74 @@ function Building({
           normalMap={surface.normal}
           normalScale={new THREE.Vector2(0.34, 0.34)}
           roughnessMap={surface.arm}
-          roughness={0.94}
+          roughness={0.88}
+          emissive={color}
+          emissiveIntensity={0.035}
         />
       </mesh>
-      <mesh position={[0, size[1] / 2 - 0.08, 0]} castShadow>
-        <boxGeometry args={[size[0] + 0.08, 0.18, size[2] + 0.08]} />
-        <meshStandardMaterial color="#403b37" roughness={0.82} />
+      <mesh position={[0, size[1] / 2 - 0.08, 0]} castShadow receiveShadow>
+        <boxGeometry args={[size[0] + 0.22, 0.2, size[2] + 0.18]} />
+        <meshStandardMaterial color="#55463d" roughness={0.82} />
       </mesh>
-      <mesh position={[0, -size[1] / 2 + 0.34, size[2] / 2 + 0.025]} castShadow>
-        <boxGeometry args={[size[0] * 0.88, 0.58, 0.055]} />
-        <meshStandardMaterial color={(seed % 2) === 0 ? "#4e3b32" : "#34494a"} roughness={0.8} />
+      {[-1, 1].map((side) => (
+        <mesh
+          key={`roof:${side}`}
+          position={[side * size[0] * 0.22, size[1] / 2 + 0.22, 0]}
+          rotation={[0, 0, side * 0.62]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[size[0] * 0.72, 0.11, size[2] + 0.28]} />
+          <meshStandardMaterial color={seed % 2 ? "#51403a" : "#3e5050"} roughness={0.74} metalness={0.04} />
+        </mesh>
+      ))}
+      <mesh position={[0, -size[1] / 2 + 0.43, size[2] / 2 + 0.055]} castShadow>
+        <boxGeometry args={[size[0] * 0.94, 0.82, 0.11]} />
+        <meshStandardMaterial color={trimColor} roughness={0.8} />
       </mesh>
+      <group position={[size[0] * (seed % 2 ? -0.26 : 0.26), -size[1] / 2 + 0.72, size[2] / 2 + 0.13]}>
+        <mesh castShadow><boxGeometry args={[0.52, 1.32, 0.12]} /><meshStandardMaterial color="#3a302b" roughness={0.76} /></mesh>
+        <mesh position={[0, 0.02, 0.066]}><planeGeometry args={[0.38, 1.12]} /><meshStandardMaterial color="#72513e" roughness={0.84} /></mesh>
+        <mesh position={[0.12, -0.02, 0.075]}><sphereGeometry args={[0.035, 10, 8]} /><meshStandardMaterial color="#c19859" metalness={0.72} roughness={0.34} /></mesh>
+      </group>
+      <group position={[0, -size[1] / 2 + 1.32, size[2] / 2 + 0.27]} rotation={[0.16, 0, 0]}>
+        <mesh castShadow receiveShadow><boxGeometry args={[size[0] * 0.82, 0.07, 0.88]} /><meshStandardMaterial color={awningColor} roughness={0.88} /></mesh>
+        {Array.from({ length: 5 }, (_, stripe) => (
+          <mesh key={stripe} position={[-size[0] * 0.32 + stripe * size[0] * 0.16, -0.045, 0.02]}>
+            <boxGeometry args={[size[0] * 0.075, 0.02, 0.87]} />
+            <meshStandardMaterial color={stripe % 2 ? awningColor : "#d4b781"} roughness={0.88} />
+          </mesh>
+        ))}
+      </group>
+      {seed % 2 === 0 && (
+        <group position={[0, -size[1] / 2 + 2.35, size[2] / 2 + 0.18]}>
+          <mesh castShadow><boxGeometry args={[size[0] * 0.72, 0.08, 0.34]} /><meshStandardMaterial color="#403630" roughness={0.78} /></mesh>
+          {[-0.28, 0, 0.28].map((factor) => <mesh key={factor} position={[size[0] * factor, 0.3, 0.12]}><boxGeometry args={[0.045, 0.62, 0.045]} /><meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} /></mesh>)}
+          <mesh position={[0, 0.3, 0.12]}><boxGeometry args={[size[0] * 0.68, 0.04, 0.04]} /><meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} /></mesh>
+        </group>
+      )}
       {Array.from({ length: columns * rows }, (_, index) => {
         const column = index % columns;
         const row = Math.floor(index / columns);
         return (
-          <mesh key={index} position={[-size[0] / 2 + (column + 0.5) * size[0] / columns, -size[1] / 2 + 0.62 + row * 0.82, size[2] / 2 + 0.011]}>
-            <planeGeometry args={[0.34, 0.46]} />
-            <meshStandardMaterial color={(index + seed) % 5 === 0 ? "#d7b56a" : "#28444c"} emissive={(index + seed) % 5 === 0 ? "#765229" : "#102126"} emissiveIntensity={0.28} roughness={0.36} />
-          </mesh>
+          <group key={index} position={[-size[0] / 2 + (column + 0.5) * size[0] / columns, -size[1] / 2 + 0.62 + row * 0.82, size[2] / 2 + 0.035]}>
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[0.48, 0.6, 0.09]} />
+              <meshStandardMaterial color={trimColor} roughness={0.72} metalness={0.08} />
+            </mesh>
+            <mesh position={[0, 0, 0.032]}>
+              <planeGeometry args={[0.31, 0.43]} />
+              <meshStandardMaterial color={(index + seed) % 5 === 0 ? "#d7b56a" : "#28444c"} emissive={(index + seed) % 5 === 0 ? "#d49748" : "#102126"} emissiveIntensity={(index + seed) % 5 === 0 ? 0.72 : 0.22} roughness={0.32} />
+            </mesh>
+            <mesh position={[0, 0, 0.04]}><boxGeometry args={[0.025, 0.43, 0.02]} /><meshStandardMaterial color="#35302c" roughness={0.78} /></mesh>
+            <mesh position={[0, -0.34, 0.055]} castShadow><boxGeometry args={[0.55, 0.08, 0.16]} /><meshStandardMaterial color="#6c5d4c" roughness={0.86} /></mesh>
+          </group>
         );
       })}
+      <group position={[size[0] * (seed % 2 ? 0.32 : -0.3), size[1] / 2 + 0.52, 0]}>
+        <mesh castShadow><boxGeometry args={[0.28, 1.05, 0.34]} /><meshStandardMaterial color="#5f5146" roughness={0.9} /></mesh>
+        <mesh position={[0, 0.55, 0]} castShadow><boxGeometry args={[0.4, 0.12, 0.46]} /><meshStandardMaterial color="#463b35" roughness={0.86} /></mesh>
+      </group>
     </group>
   );
 }
@@ -400,11 +449,12 @@ export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple;
   const facades = useMemo(() => [-1, 1].flatMap((side) => Array.from({ length: 6 }, (_, index) => {
     const width = bounds[2] / 6 - 0.25;
     const height = 3.8 + ((index * 7 + side) % 4) * 0.8;
+    const depth = 2.4 + ((index + (side > 0 ? 1 : 0)) % 3) * 0.32;
     return {
-      position: [side * (bounds[0] / 2 - 0.52), height / 2, -bounds[2] / 2 + (index + 0.5) * bounds[2] / 6] as Vector3Tuple,
-      size: [0.95, height, width] as Vector3Tuple,
+      position: [side * (bounds[0] / 2 - depth / 2), height / 2, -bounds[2] / 2 + (index + 0.5) * bounds[2] / 6] as Vector3Tuple,
+      size: [width, height, depth] as Vector3Tuple,
       rotation: [0, side < 0 ? Math.PI / 2 : -Math.PI / 2, 0] as Vector3Tuple,
-      color: ["#776d63", "#65706f", "#866f61", "#596969"][index % 4]!,
+      color: ["#b49a7f", "#8ca09b", "#b38a72", "#829693", "#c1aa89", "#917a70"][index % 6]!,
       seed: index + (side > 0 ? 11 : 0),
     };
   })), [bounds]);
@@ -423,13 +473,23 @@ export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple;
       </mesh>
       <mesh position={[0, 0.08, 0]} receiveShadow>
         <boxGeometry args={[bounds[0] * 0.42, 0.06, bounds[2]]} />
-        <meshStandardMaterial color="#31383a" roughness={0.88} />
+        <meshStandardMaterial color="#71675b" map={surfaces.street.color} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.58, 0.58)} roughnessMap={surfaces.street.arm} roughness={0.9} />
       </mesh>
       {[-1, 1].map((side) => (
         <mesh key={side} position={[side * bounds[0] * 0.34, 0.13, 0]} receiveShadow>
           <boxGeometry args={[bounds[0] * 0.22, 0.12, bounds[2]]} />
-          <meshStandardMaterial color="#8b8274" roughness={0.96} />
+          <meshStandardMaterial color="#7f7568" map={surfaces.street.color} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.28, 0.28)} roughnessMap={surfaces.street.arm} roughness={0.96} />
         </mesh>
+      ))}
+      {[-1, 1].map((side) => (
+        <group key={`gutter:${side}`} position={[side * bounds[0] * 0.215, 0.17, 0]}>
+          {Array.from({ length: 18 }, (_, index) => (
+            <mesh key={index} position={[0, 0, -bounds[2] / 2 + (index + 0.5) * bounds[2] / 18]} rotation={[0, (index % 3 - 1) * 0.08, 0]} receiveShadow>
+              <boxGeometry args={[0.28, 0.08, bounds[2] / 18 - 0.035]} />
+              <meshStandardMaterial color={index % 2 ? "#6b6258" : "#786d61"} roughness={0.98} />
+            </mesh>
+          ))}
+        </group>
       ))}
       {facades.map((building, index) => (
         <group key={index} position={building.position} rotation={building.rotation}>
@@ -457,6 +517,12 @@ export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple;
         <group key={`banner:${factor}`} position={[0, 3.5 + index * 0.35, bounds[2] * factor]}>
           <mesh><boxGeometry args={[bounds[0] * 0.62, 0.025, 0.025]} /><meshStandardMaterial color="#352c28" roughness={0.8} /></mesh>
           {[-0.2, 0, 0.2].map((x, banner) => <mesh key={x} position={[bounds[0] * x, -0.38, 0]}><planeGeometry args={[0.55, 0.75]} /><meshStandardMaterial color={["#8c4d46", "#bc8b4d", "#4f716d"][(banner + index) % 3]} side={THREE.DoubleSide} roughness={0.9} /></mesh>)}
+          {[-0.29, -0.145, 0, 0.145, 0.29].map((x, lamp) => (
+            <group key={`lamp:${x}`} position={[bounds[0] * x, -0.13 - Math.abs(x) * 0.35, 0]}>
+              <mesh><cylinderGeometry args={[0.07, 0.1, 0.22, 8]} /><meshStandardMaterial color="#e5bd6c" emissive="#d48a35" emissiveIntensity={1.8} roughness={0.3} /></mesh>
+              {lamp % 2 === 0 && <pointLight color="#f0ae57" intensity={0.6} distance={3.4} decay={2} />}
+            </group>
+          ))}
         </group>
       ))}
     </group>

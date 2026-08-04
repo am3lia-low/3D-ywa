@@ -4,10 +4,10 @@
   "summary": {
     "kits": 4,
     "completeKits": 4,
-    "assets": 23,
+    "assets": 25,
     "passed": 23,
     "warnings": 0,
-    "failed": 0
+    "failed": 2
   },
   "catalogErrors": [],
   "kits": [
@@ -309,6 +309,51 @@
       "aspectDistortion": 1.86,
       "warnings": [],
       "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "project:storybook-pine-tall-v1",
+      "registryKey": "storybook-pine-tall",
+      "status": "fail",
+      "files": [
+        "public/models/storybook-pine-tall.glb"
+      ],
+      "totalBytes": 628000,
+      "triangles": 4608,
+      "materialCount": 5,
+      "sourceBounds": [
+        0.453,
+        1.9,
+        0.4461
+      ],
+      "aspectDistortion": 2.15,
+      "warnings": [],
+      "errors": [
+        "Bundle is 628000 bytes; budget is 600000.",
+        "Runtime normalization distortion is 2.15x; limit is 1.3x."
+      ],
+      "lods": []
+    },
+    {
+      "catalogId": "project:storybook-pine-layered-v1",
+      "registryKey": "storybook-pine-layered",
+      "status": "fail",
+      "files": [
+        "public/models/storybook-pine-layered.glb"
+      ],
+      "totalBytes": 503588,
+      "triangles": 3698,
+      "materialCount": 5,
+      "sourceBounds": [
+        0.5515,
+        1.62,
+        0.5431
+      ],
+      "aspectDistortion": 2.05,
+      "warnings": [],
+      "errors": [
+        "Runtime normalization distortion is 2.05x; limit is 1.3x."
+      ],
       "lods": []
     },
     {

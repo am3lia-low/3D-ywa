@@ -383,6 +383,100 @@
       }
     },
     {
+      "catalogId": "project:storybook-pine-tall-v1",
+      "registryKey": "storybook-pine-tall",
+      "roles": ["environment-tree", "conifer-tree"],
+      "assetKeys": ["storybook-pine-tall", "tall-pine", "pine-tree"],
+      "semanticKinds": ["tree", "vegetation", "environment-dressing"],
+      "tags": ["tree", "pine", "tall", "conifer", "layered", "branching", "canopy", "woodland", "forest", "storybook"],
+      "styleKitIds": ["woodland-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-pine-tall",
+        "geometry": "cylinder",
+        "dimensions": [4.8, 9.5, 4.8],
+        "color": "#285342",
+        "modelUrl": "/models/storybook-pine-tall.glb",
+        "roughness": 0.92
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 700000,
+        "maxTriangles": 18000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 2.3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "project:storybook-pine-layered-v1",
+      "registryKey": "storybook-pine-layered",
+      "roles": ["environment-tree", "conifer-tree"],
+      "assetKeys": ["storybook-pine-layered", "round-pine", "pine-tree"],
+      "semanticKinds": ["tree", "vegetation", "environment-dressing"],
+      "tags": ["tree", "pine", "round", "conifer", "layered", "branching", "canopy", "woodland", "forest", "storybook"],
+      "styleKitIds": ["woodland-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "storybook-pine-layered",
+        "geometry": "cylinder",
+        "dimensions": [4.8, 7, 4.8],
+        "color": "#315d47",
+        "modelUrl": "/models/storybook-pine-layered.glb",
+        "roughness": 0.92
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 600000,
+        "maxTriangles": 18000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 2.3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "quaternius:birch-tree-01",
+      "registryKey": "authored-birch-tree",
+      "roles": ["environment-tree", "broadleaf-tree"],
+      "assetKeys": ["authored-birch-tree", "birch-tree", "woodland-tree"],
+      "semanticKinds": ["tree", "vegetation", "environment-dressing"],
+      "tags": ["tree", "birch", "broadleaf", "organic", "authored", "textured", "canopy", "woodland", "forest", "storybook"],
+      "styleKitIds": ["woodland-storybook", "storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Quaternius",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://quaternius.com/packs/ultimatestylizednature.html",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "authored-birch-tree",
+        "geometry": "cylinder",
+        "dimensions": [2.8, 5.45, 2.2],
+        "color": "#567351",
+        "modelUrl": "/models/optimized/quaternius/birch-tree-01.glb",
+        "roughness": 0.82
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 1500000,
+        "maxTriangles": 6000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 3,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "polyhaven:fern_02-optimized",
       "registryKey": "environment-fern",
       "roles": ["environment-shrub", "forest-groundcover"],

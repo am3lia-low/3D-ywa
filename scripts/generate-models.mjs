@@ -185,6 +185,80 @@ function hiddenDoorModel() {
   return normalizeModel("Low-poly hidden door", root);
 }
 
+function orientAlong(mesh, direction) {
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize());
+  return mesh;
+}
+
+function storybookPineModel(variant = 0) {
+  const bark = material("Layered pine bark", variant ? "#51392b" : "#493327", { roughness: 0.96 });
+  const branch = material("Pine branch", "#3d2d25", { roughness: 0.97 });
+  const needles = [
+    material("Deep pine needles", variant ? "#1f4b3b" : "#173f34", { roughness: 0.9 }),
+    material("Moss pine needles", variant ? "#37694c" : "#2d5d47", { roughness: 0.91 }),
+    material("Sunlit pine needles", variant ? "#527a56" : "#426d50", { roughness: 0.9 }),
+  ];
+  const root = new THREE.Group();
+  const trunkHeight = variant ? 1.62 : 1.9;
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, variant ? 0.14 : 0.12, trunkHeight, 10),
+    bark,
+  );
+  trunk.name = "Tapered pine trunk";
+  trunk.position.y = trunkHeight / 2;
+  trunk.castShadow = true;
+  trunk.receiveShadow = true;
+  root.add(trunk);
+
+  const tiers = variant ? 8 : 10;
+  for (let tier = 0; tier < tiers; tier += 1) {
+    const progress = tier / Math.max(1, tiers - 1);
+    const y = 0.34 + progress * trunkHeight * 0.68;
+    const spread = (variant ? 0.62 : 0.54) * (1 - progress * 0.72) + Math.sin(tier * 1.7) * 0.025;
+    const branchCount = tier % 2 === 0 ? 7 : 6;
+    for (let index = 0; index < branchCount; index += 1) {
+      const angle = (index / branchCount) * Math.PI * 2 + tier * 0.71;
+      const length = spread * (0.82 + ((tier * 5 + index * 3) % 7) * 0.035);
+      const direction = new THREE.Vector3(Math.cos(angle), -0.12 - progress * 0.04, Math.sin(angle));
+      const midpoint = direction.clone().normalize().multiplyScalar(length * 0.48);
+      const limb = orientAlong(
+        new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.025, length, 7), branch),
+        direction,
+      );
+      limb.name = "Radiating pine limb";
+      limb.position.set(midpoint.x, y + midpoint.y, midpoint.z);
+      limb.castShadow = true;
+      root.add(limb);
+
+      for (const fraction of [0.46, 0.76, 1]) {
+        const clusterHeight = 0.26 + (1 - progress) * 0.12;
+        const cluster = orientAlong(
+          new THREE.Mesh(
+            new THREE.ConeGeometry(clusterHeight * 0.42, clusterHeight, 7),
+            needles[(tier + index + Math.round(fraction * 10)) % needles.length],
+          ),
+          direction,
+        );
+        cluster.name = "Layered needle spray";
+        const position = direction.clone().normalize().multiplyScalar(length * fraction);
+        cluster.position.set(position.x, y + position.y + 0.025, position.z);
+        cluster.castShadow = true;
+        root.add(cluster);
+      }
+    }
+  }
+
+  const crown = new THREE.Mesh(
+    new THREE.ConeGeometry(variant ? 0.28 : 0.23, variant ? 0.72 : 0.82, 9),
+    needles[1],
+  );
+  crown.name = "Pine crown";
+  crown.position.y = trunkHeight * 0.92;
+  crown.castShadow = true;
+  root.add(crown);
+  return normalizeModel(variant ? "Layered storybook pine" : "Tall storybook pine", root);
+}
+
 const models = {
   desk: deskModel,
   chair: chairModel,
@@ -192,6 +266,8 @@ const models = {
   rug: rugModel,
   lantern: lanternModel,
   "hidden-door": hiddenDoorModel,
+  "storybook-pine-tall": () => storybookPineModel(0),
+  "storybook-pine-layered": () => storybookPineModel(1),
 };
 
 await mkdir(outputDirectory, { recursive: true });
@@ -291,6 +367,15 @@ manifest.push(
     author: "James Ray Cock",
     license: "CC0 1.0 Universal",
     bytes: 924683,
+  },
+  {
+    key: "authored-birch-tree",
+    url: "/models/optimized/quaternius/birch-tree-01.glb",
+    format: "Optimized glTF 2.0 binary with authored color textures",
+    author: "Quaternius",
+    license: "CC0 1.0 Universal",
+    sourceUrl: "https://quaternius.com/packs/ultimatestylizednature.html",
+    bytes: (await stat(resolve(outputDirectory, "optimized", "quaternius", "birch-tree-01.glb"))).size,
   },
 );
 

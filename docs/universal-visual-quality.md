@@ -6,7 +6,10 @@ The web runtime is the delivery target, not the source-asset ceiling. Reviewed
 high-quality models are prepared offline into distance-selected levels of
 detail. The first quality pack adds photoreal fern clusters, weathered rock
 formations, ornate street lamps and modular industrial pipes while preserving
-the deterministic semantic recipe and canonical story identities.
+the deterministic semantic recipe and canonical story identities. A compact
+CC0 Quaternius birch supplies an authored, textured woodland silhouette beside
+the procedural conifers, proving that browser-safe assets can still carry
+organic branching and alpha-textured foliage.
 
 Raw scan assets are not rejected for being photorealistic; they are rejected
 only when no reviewed browser-ready derivative exists. Multi-million-triangle
@@ -36,7 +39,8 @@ objects can improve asynchronously.
    previewed and approved.
 
 The environment uses deterministic image-based lighting, ACES tone mapping,
-bounded cinematic lights, fog, local contact grounding and textured surfaces.
+bounded cinematic lights, fog, local contact grounding, ambient occlusion,
+restrained bloom and textured surfaces.
 This makes approved meshes and designed fallbacks respond to one art-directed
 lighting rig instead of looking pasted together.
 
@@ -59,8 +63,9 @@ The additional outdoor families provide distinct terrain palettes, traversable
 routes, horizon geometry and deterministic edge dressing. Alpine worlds receive
 snow, peaks and snow-laden conifers; deserts receive dunes and eroded rock
 spires; coasts receive water, shoreline rocks and beach grass; meadows receive
-rolling hills, wild grass, flowers and fencing. Urban worlds supply roads,
-sidewalks, facade depth, street lighting, market stalls and banners. Industrial
+rolling hills, wild grass, flowers and fencing. Urban worlds supply textured
+roads and sidewalks, facade depth, pitched roofs, shop awnings, street lighting,
+market stalls and hanging lantern strings. Industrial
 interiors supply panelled floors, pipes, work lights, consoles and machinery.
 
 `fixtures/story_package_world_families_demo.json` contains all six newer

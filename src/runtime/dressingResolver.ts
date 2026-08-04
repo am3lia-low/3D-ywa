@@ -318,7 +318,15 @@ const DRESSING_RULES: readonly DressingRule[] = [
     anyTags: ["pine-trees", "conifers"],
     requiresOpenAir: true,
     slots: [
-      ...woodlandAssetSlots("woodland-pine-tall", ["tall", "pine", "conifer"], [
+      ...woodlandAssetSlots("woodland-authored-birch", ["authored", "organic", "birch", "textured", "tree"], [
+        ["sparse", -0.25, -0.46, 3.15, 6.6, 2.7, -0.22],
+        ["sparse", 0.27, -0.43, 3.35, 7.1, 2.85, 0.64],
+        ["moderate", -0.29, 0.08, 3.45, 7.35, 2.95, 1.46],
+        ["moderate", 0.3, 0.17, 3.1, 6.55, 2.65, 2.28],
+        ["rich", -0.2, 0.39, 3.55, 7.5, 3.05, 3.12],
+        ["rich", 0.21, -0.04, 3.25, 6.85, 2.75, 4.04],
+      ]),
+      ...woodlandAssetSlots("woodland-pine-tall", ["layered", "branching", "tall", "pine", "conifer"], [
         ["sparse", -0.42, -0.42, 4.8, 9.5, 4.8, 0.3],
         ["sparse", 0.4, -0.34, 4.35, 8.7, 4.35, 1.4],
         ["sparse", -0.44, -0.06, 5.05, 10.1, 5.05, 2.5],
@@ -328,7 +336,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
         ["rich", -0.31, 0.47, 3.9, 7.8, 3.9, 0.8],
         ["rich", 0.3, -0.49, 4.1, 8.1, 4.1, 2],
       ]),
-      ...woodlandAssetSlots("woodland-pine-round", ["round", "pine", "conifer"], [
+      ...woodlandAssetSlots("woodland-pine-round", ["layered", "branching", "round", "pine", "conifer"], [
         ["sparse", -0.31, -0.3, 4.2, 6.3, 4.2, 0.9],
         ["sparse", 0.3, -0.16, 4.55, 6.7, 4.55, 2.1],
         ["moderate", -0.34, 0.14, 4.75, 7.1, 4.75, 3.3],

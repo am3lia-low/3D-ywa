@@ -9,6 +9,7 @@ import {
   useGLTF,
 } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { Bloom, EffectComposer, N8AO, Vignette } from "@react-three/postprocessing";
 import {
   Component,
   Suspense,
@@ -241,26 +242,36 @@ function PrimitiveAsset({
   );
 }
 
-function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenerated?: boolean }) {
+function LoadedModel({ url, draftGenerated = false, tint }: { url: string; draftGenerated?: boolean; tint?: string }) {
   const model = useGLTF(url);
   const renderedScene = useMemo(() => {
-    if (!draftGenerated) return model.scene;
+    if (!draftGenerated && !tint) return model.scene;
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
-      const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
-      object.material = new THREE.MeshBasicMaterial({
-        color: hasVertexColors ? "#ffffff" : "#a77a55",
-        vertexColors: hasVertexColors,
-        side: THREE.DoubleSide,
-      });
+      if (draftGenerated) {
+        const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
+        object.material = new THREE.MeshBasicMaterial({
+          color: hasVertexColors ? "#ffffff" : "#a77a55",
+          vertexColors: hasVertexColors,
+          side: THREE.DoubleSide,
+        });
+      } else {
+        const materials = Array.isArray(object.material) ? object.material : [object.material];
+        const tinted = materials.map((material) => {
+          const copy = material.clone();
+          if ("color" in copy && copy.color instanceof THREE.Color) copy.color.multiply(new THREE.Color(tint));
+          return copy;
+        });
+        object.material = Array.isArray(object.material) ? tinted : tinted[0]!;
+      }
       object.castShadow = true;
       object.receiveShadow = true;
     });
     return clone;
-  }, [draftGenerated, model.scene]);
+  }, [draftGenerated, model.scene, tint]);
   useEffect(() => {
-    if (!draftGenerated) return;
+    if (!draftGenerated && !tint) return;
     return () => {
       renderedScene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
@@ -268,7 +279,7 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
         materials.forEach((material) => material.dispose());
       });
     };
-  }, [draftGenerated, renderedScene]);
+  }, [draftGenerated, renderedScene, tint]);
   const normalization = useMemo(() => {
     renderedScene.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(renderedScene);
@@ -286,7 +297,7 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
 
   return (
     <group scale={normalization.scale}>
-      {draftGenerated ? (
+      {draftGenerated || tint ? (
         <primitive object={renderedScene} position={normalization.offset} />
       ) : (
         <Clone
@@ -328,6 +339,7 @@ function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
         key={modelUrl}
         url={modelUrl}
         draftGenerated={asset.key.startsWith("generated:")}
+        tint={asset.key === "authored-birch-tree" ? "#73906d" : undefined}
       />
     </group>
   );
@@ -2685,9 +2697,43 @@ function WoodlandKit({
     const x = side * (bounds[0] * (0.16 + ((index * 11) % 19) / 19 * 0.29));
     return { x, z, scale: 0.65 + ((index * 7) % 9) * 0.12, yaw: index * 0.79 };
   }), [bounds]);
+  const forestBackdrop = useMemo(() => {
+    const rear = Array.from({ length: 19 }, (_, index) => ({
+      x: -bounds[0] * 0.72 + index * (bounds[0] * 1.44 / 18),
+      z: -bounds[2] * (0.56 + (index % 4) * 0.025),
+      height: 4.2 + ((index * 7) % 8) * 0.46,
+      yaw: index * 0.73,
+      tone: index % 4,
+    }));
+    const sides = [-1, 1].flatMap((side) => Array.from({ length: 10 }, (_, index) => ({
+      x: side * bounds[0] * (0.5 + (index % 3) * 0.035),
+      z: -bounds[2] * 0.48 + index * (bounds[2] * 0.96 / 9),
+      height: 4.8 + ((index * 5 + (side > 0 ? 3 : 0)) % 7) * 0.5,
+      yaw: index * 0.61 + side,
+      tone: (index + (side > 0 ? 1 : 0)) % 4,
+    })));
+    return [...rear, ...sides];
+  }, [bounds]);
+  const trailStones = useMemo(() => [-1, 1].flatMap((side) => Array.from({ length: 18 }, (_, index) => {
+    const progress = (index + 0.35) / 18;
+    const z = -bounds[2] / 2 + progress * bounds[2];
+    const center = Math.sin(progress * Math.PI * 2.35 - 0.7) * bounds[0] * 0.075
+      + Math.sin(progress * Math.PI * 4.6) * bounds[0] * 0.018;
+    const width = 2.25 + Math.sin(progress * Math.PI * 3.1 + 0.4) * 0.35;
+    return {
+      x: center + side * (width + 0.1 + (index % 3) * 0.12),
+      z,
+      scale: 0.12 + (index % 4) * 0.035,
+      yaw: index * 0.83,
+    };
+  })), [bounds]);
 
   return (
     <group>
+      <mesh position={[0, -0.08, 0]} receiveShadow>
+        <boxGeometry args={[bounds[0] * 3.2, 0.1, bounds[2] * 3.2]} />
+        <meshStandardMaterial map={textures.floor} color="#73806a" roughness={1} />
+      </mesh>
       {presentation.architecture.forestFloor && (
         <mesh position={[0, 0.015, 0]} receiveShadow>
           <boxGeometry args={[bounds[0], 0.08, bounds[2]]} />
@@ -2715,6 +2761,40 @@ function WoodlandKit({
           />
         </mesh>
       ))}
+      {trailStones.map((stone, index) => (
+        <mesh
+          key={`trail-stone-${index}`}
+          position={[stone.x, 0.12 + stone.scale * 0.15, stone.z]}
+          rotation={[0.12, stone.yaw, -0.08]}
+          scale={[stone.scale * 1.5, stone.scale * 0.48, stone.scale]}
+          castShadow
+          receiveShadow
+        >
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial color={index % 3 === 0 ? "#6d6857" : "#4b5548"} roughness={0.98} />
+        </mesh>
+      ))}
+      {forestBackdrop.map((tree, index) => {
+        const foliage = ["#1a3028", "#203a2f", "#294537", "#304c3b"][tree.tone]!;
+        return (
+          <group key={`forest-backdrop-${index}`} position={[tree.x, 0, tree.z]} rotation={[0, tree.yaw, 0]}>
+            <mesh position={[0, tree.height * 0.33, 0]} castShadow={index % 3 === 0}>
+              <cylinderGeometry args={[0.08 + tree.height * 0.012, 0.16 + tree.height * 0.018, tree.height * 0.66, 8]} />
+              <meshStandardMaterial color="#433529" roughness={0.98} />
+            </mesh>
+            {([
+              [-0.11, 0.66, 0.02, 0.24, 0.17, 0.2],
+              [0.12, 0.76, -0.04, 0.27, 0.2, 0.22],
+              [-0.04, 0.87, 0.03, 0.2, 0.17, 0.18],
+            ] as const).map(([x, y, z, sx, sy, sz], cluster) => (
+              <mesh key={cluster} position={[tree.height * x, tree.height * y, tree.height * z]} scale={[tree.height * sx, tree.height * sy, tree.height * sz]} castShadow={index % 4 === 0}>
+                <icosahedronGeometry args={[1, 1]} />
+                <meshStandardMaterial color={foliage} roughness={0.97} />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
       {presentation.architecture.woodlandEdge && [-1, 1].flatMap((side) =>
         Array.from({ length: 7 }, (_, index) => (
           <mesh
@@ -2735,6 +2815,13 @@ function WoodlandKit({
           </mesh>
         )),
       )}
+      <pointLight
+        position={[0, 2.4, -bounds[2] * 0.47]}
+        color="#bfd9bd"
+        intensity={1.2}
+        distance={Math.max(bounds[0], bounds[2]) * 0.75}
+        decay={1.7}
+      />
     </group>
   );
 }
@@ -3940,6 +4027,7 @@ function WorldScene({
   onLocationRequest,
   cameraView,
   walkMode,
+  renderQuality,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
@@ -3957,6 +4045,7 @@ function WorldScene({
   onLocationRequest?: (locationId: string) => void;
   cameraView: CameraViewMode;
   walkMode: boolean;
+  renderQuality: RenderQuality;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const isGlasshouse = presentation.modules.environment.some(
@@ -3978,7 +4067,9 @@ function WorldScene({
       <fog
         attach="fog"
         args={[
-          presentation.palette.fog,
+          atmosphereProfile.family === "woodland"
+            ? atmosphereProfile.sky.horizonColor
+            : presentation.palette.fog,
           atmosphereProfile.fogNear,
           atmosphereProfile.fogFar,
         ]}
@@ -4094,6 +4185,26 @@ function WorldScene({
         />
       )}
       <RelationAwareness edges={relationEdges} />
+      {renderQuality !== "low" && (
+        <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
+          <N8AO
+            aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
+            distanceFalloff={0.72}
+            intensity={renderQuality === "high" ? 2.15 : 1.65}
+            quality={renderQuality === "high" ? "high" : "medium"}
+            halfRes={renderQuality !== "high"}
+            color="#14201e"
+          />
+          <Bloom
+            mipmapBlur
+            luminanceThreshold={1.05}
+            luminanceSmoothing={0.28}
+            intensity={0.34}
+            radius={0.55}
+          />
+          <Vignette offset={0.22} darkness={0.34} />
+        </EffectComposer>
+      )}
       <ConflictMarkers layout={layout} conflicts={openConflicts} />
       {cameraCommand?.kind === "travel" && (
         <mesh
@@ -4431,6 +4542,7 @@ export function WorldViewer({
             onLocationRequest={onLocationRequest}
             cameraView={cameraView}
             walkMode={walkMode}
+            renderQuality={renderQuality}
           />
           <PerformanceMonitor
             ms={250}
