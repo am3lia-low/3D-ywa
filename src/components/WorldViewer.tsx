@@ -5,6 +5,7 @@ import {
   Html,
   Line,
   PerformanceMonitor,
+  RoundedBox,
   useGLTF,
 } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
@@ -1042,25 +1043,68 @@ function EntityAsset({
   );
 }
 
-function ParcelAccents() {
+function StoryParcelAsset({
+  highlighted,
+  highlightColor,
+}: {
+  highlighted: boolean;
+  highlightColor: string;
+}) {
+  const wood = usePbrSurface(
+    "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_nor_gl_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
+    [1.6, 1.25],
+  );
   return (
     <group>
-      <mesh position={[0, 0.515, 0]} castShadow>
-        <boxGeometry args={[0.055, 0.024, 1.02]} />
-        <meshStandardMaterial color="#b99a6e" roughness={0.88} />
-      </mesh>
-      <mesh position={[0, 0.52, 0]} castShadow>
-        <boxGeometry args={[1.02, 0.024, 0.055]} />
-        <meshStandardMaterial color="#b99a6e" roughness={0.88} />
-      </mesh>
-      <mesh position={[0.12, 0.552, 0.1]} castShadow>
-        <cylinderGeometry args={[0.085, 0.09, 0.035, 18]} />
+      <RoundedBox args={[1, 0.82, 1]} radius={0.035} smoothness={3} castShadow receiveShadow>
         <meshStandardMaterial
-          color="#7a2929"
-          emissive="#2f0e0e"
-          emissiveIntensity={0.08}
-          roughness={0.72}
+          color="#b28a66"
+          map={wood.color}
+          normalMap={wood.normal}
+          normalScale={new THREE.Vector2(0.18, 0.18)}
+          roughnessMap={wood.arm}
+          emissive={highlighted ? highlightColor : "#000000"}
+          emissiveIntensity={highlighted ? 0.24 : 0}
+          roughness={0.88}
         />
+      </RoundedBox>
+      <RoundedBox
+        args={[1.03, 0.075, 1.03]}
+        radius={0.018}
+        smoothness={3}
+        position={[0, 0.435, 0]}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial
+          color="#9d7453"
+          map={wood.color}
+          normalMap={wood.normal}
+          normalScale={new THREE.Vector2(0.14, 0.14)}
+          roughnessMap={wood.arm}
+          roughness={0.9}
+        />
+      </RoundedBox>
+      <mesh position={[0, 0.483, 0]} castShadow>
+        <boxGeometry args={[1.045, 0.018, 0.035]} />
+        <meshStandardMaterial color="#d3b98f" roughness={0.94} />
+      </mesh>
+      <mesh position={[0, 0.485, 0]} castShadow>
+        <boxGeometry args={[0.035, 0.018, 1.045]} />
+        <meshStandardMaterial color="#d3b98f" roughness={0.94} />
+      </mesh>
+      <mesh position={[0.08, 0.505, 0.065]} scale={[1, 1, 0.92]} castShadow>
+        <cylinderGeometry args={[0.052, 0.057, 0.024, 24]} />
+        <meshStandardMaterial
+          color="#8f2931"
+          roughness={0.7}
+        />
+      </mesh>
+      <mesh position={[0.08, 0.519, 0.065]} rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.024, 0.003, 6, 20]} />
+        <meshStandardMaterial color="#5e1720" roughness={0.72} />
       </mesh>
     </group>
   );
@@ -1129,13 +1173,16 @@ function WorldEntity({
       onPointerDown={onActivate ?? onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
-      <EntityAsset
-        asset={item.asset}
-        active={item.entity.state?.active === true}
-        highlighted={highlighted}
-        highlightColor={emissive}
-      />
-      {isParcel && <ParcelAccents />}
+      {isParcel ? (
+        <StoryParcelAsset highlighted={highlighted} highlightColor={emissive} />
+      ) : (
+        <EntityAsset
+          asset={item.asset}
+          active={item.entity.state?.active === true}
+          highlighted={highlighted}
+          highlightColor={emissive}
+        />
+      )}
       {highlighted && (
         <mesh scale={[1.04, 1.04, 1.04]}>
           <boxGeometry args={[1, 1, 1]} />
@@ -1498,54 +1545,24 @@ function CourtyardIvy({ position, height, seed }: {
 
 function CourtyardCobblestones({
   bounds,
-  stone,
+  pavement,
 }: {
   bounds: Vector3Tuple;
-  stone: ReturnType<typeof usePbrSurface>;
+  pavement: ReturnType<typeof usePbrSurface>;
 }) {
-  const mesh = useRef<THREE.InstancedMesh>(null);
-  const columns = 16;
-  const rows = 13;
-  const count = columns * rows;
-  const tileWidth = bounds[0] / columns;
-  const tileDepth = bounds[2] / rows;
-
-  useEffect(() => {
-    if (!mesh.current) return;
-    const transform = new THREE.Object3D();
-    const shades = ["#e2e1d8", "#cbcfc9", "#b9c1bd", "#e6dfd2"];
-    for (let index = 0; index < count; index += 1) {
-      const column = index % columns;
-      const row = Math.floor(index / columns);
-      transform.position.set(
-        -bounds[0] / 2 + tileWidth * (column + 0.5) + (row % 2 ? tileWidth * 0.12 : 0),
-        0.028 + (index % 3) * 0.006,
-        -bounds[2] / 2 + tileDepth * (row + 0.5),
-      );
-      transform.rotation.set(0, ((index * 17) % 5 - 2) * 0.012, 0);
-      transform.scale.set(tileWidth - 0.035, 0.055, tileDepth - 0.035);
-      transform.updateMatrix();
-      mesh.current.setMatrixAt(index, transform.matrix);
-      mesh.current.setColorAt(index, new THREE.Color(shades[index % shades.length]));
-    }
-    mesh.current.instanceMatrix.needsUpdate = true;
-    if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
-  }, [bounds, count, tileDepth, tileWidth]);
-
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]} receiveShadow>
-      <boxGeometry args={[1, 1, 1]} />
+    <mesh position={[0, 0.028, 0]} receiveShadow>
+      <boxGeometry args={[bounds[0], 0.055, bounds[2]]} />
       <meshStandardMaterial
-        color="#ffffff"
-        map={stone.color}
-        normalMap={stone.normal}
-        normalScale={new THREE.Vector2(0.18, 0.18)}
-        roughnessMap={stone.arm}
-        roughness={0.68}
-        metalness={0.03}
-        vertexColors
+        color="#d8d2c4"
+        map={pavement.color}
+        normalMap={pavement.normal}
+        normalScale={new THREE.Vector2(0.46, 0.46)}
+        roughnessMap={pavement.arm}
+        roughness={0.93}
+        metalness={0}
       />
-    </instancedMesh>
+    </mesh>
   );
 }
 
@@ -1610,6 +1627,12 @@ function CourtyardKit({
     "/textures/polyhaven/castle_wall_slates_arm_1k.jpg",
     [2.4, 1.6],
   );
+  const pavement = usePbrSurface(
+    "/textures/polyhaven/patterned_cobblestone_diff_1k.jpg",
+    "/textures/polyhaven/patterned_cobblestone_nor_gl_1k.jpg",
+    "/textures/polyhaven/patterned_cobblestone_arm_1k.jpg",
+    [5.2, 4.4],
+  );
   const wall = usePbrSurface(
     "/textures/polyhaven/plastered_wall_03_diff_1k.jpg",
     "/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg",
@@ -1632,7 +1655,7 @@ function CourtyardKit({
   return (
     <group>
       {presentation.architecture.cobblestone && (
-        <CourtyardCobblestones bounds={bounds} stone={stone} />
+        <CourtyardCobblestones bounds={bounds} pavement={pavement} />
       )}
       {presentation.architecture.courtyardWalls && (
         <>
