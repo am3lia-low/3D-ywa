@@ -120,15 +120,21 @@ describe("spatial runtime continuity", () => {
     };
 
     const next = advanceSpatialRuntime(initial, moveDesk);
+    const initialDesk = itemById(initial, "desk-1");
+    const initialMap = itemById(initial, "map-1");
     const desk = itemById(next, "desk-1");
     const map = itemById(next, "map-1");
 
-    expect(map.position[0]).toBe(desk.position[0]);
-    expect(map.position[2]).toBe(desk.position[2]);
+    expect(map.position[0] - desk.position[0]).toBeCloseTo(
+      initialMap.position[0] - initialDesk.position[0],
+    );
+    expect(map.position[2] - desk.position[2]).toBeCloseTo(
+      initialMap.position[2] - initialDesk.position[2],
+    );
     expect(map.position[1]).toBeCloseTo(
       desk.position[1] + desk.dimensions[1] / 2 + map.dimensions[1] / 2 + 0.008,
     );
-    expect(map.position).not.toEqual(itemById(initial, "map-1").position);
+    expect(map.position).not.toEqual(initialMap.position);
   });
 
   it("retains removed nodes as temporary exit state without disturbing survivors", () => {

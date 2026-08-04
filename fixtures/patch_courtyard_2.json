@@ -6,7 +6,7 @@
       "op": "move_entity",
       "entityId": "courtyard-chair-1",
       "position": [2.7, 0.775, -2.9],
-      "rotation": [0, -0.7, 0]
+      "rotation": [0, -2.26, 0]
     },
     {
       "op": "update_entity",

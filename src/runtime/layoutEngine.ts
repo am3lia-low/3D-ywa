@@ -81,6 +81,60 @@ function candidateOffsets(entity: Entity, step: number): Array<[number, number]>
   return offsets;
 }
 
+function surfaceOffset(
+  item: Omit<LayoutItem, "position">,
+  target: LayoutItem,
+): [number, number] {
+  const margin = 0.05;
+  const xReach = Math.max(
+    0,
+    (target.dimensions[0] - item.dimensions[0]) / 2 - margin,
+  );
+  const zReach = Math.max(
+    0,
+    (target.dimensions[2] - item.dimensions[2]) / 2 - margin,
+  );
+  const semantics = [
+    item.entity.kind,
+    item.entity.name,
+    item.asset.key,
+    ...(item.entity.aliases ?? []),
+  ].join(" ").toLowerCase();
+
+  let localX: number;
+  let localZ: number;
+  if (/\b(map|document|paper|parchment|chart|letter|book)\b/.test(semantics)) {
+    localX = xReach * 0.15;
+    localZ = zReach;
+  } else if (/\b(light|lantern|lamp|candle)\b/.test(semantics)) {
+    localX = xReach;
+    localZ = -zReach * 0.5;
+  } else if (/\b(container|parcel|crate|chest|box)\b/.test(semantics)) {
+    localX = -xReach;
+    localZ = -zReach * 0.08;
+  } else {
+    const slots: Array<[number, number]> = [
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+      [0, 1],
+      [1, 0],
+      [0, -1],
+      [-1, 0],
+    ];
+    const slot = slots[stableHash(item.entity.id) % slots.length]!;
+    localX = slot[0] * xReach;
+    localZ = slot[1] * zReach;
+  }
+
+  const yaw = target.rotation[1];
+  return [
+    localX * Math.cos(yaw) + localZ * Math.sin(yaw),
+    -localX * Math.sin(yaw) + localZ * Math.cos(yaw),
+  ];
+}
+
 function relationPosition(
   relation: SpatialRelation,
   item: Omit<LayoutItem, "position">,
@@ -117,11 +171,14 @@ function relationPosition(
     case "near":
       return [target.position[0] + xGap, baseY, target.position[2] + distance / 2];
     case "on":
-      return [
-        target.position[0],
-        target.position[1] + target.dimensions[1] / 2 + item.dimensions[1] / 2 + 0.008,
-        target.position[2],
-      ];
+      {
+        const [offsetX, offsetZ] = surfaceOffset(item, target);
+        return [
+          target.position[0] + offsetX,
+          target.position[1] + target.dimensions[1] / 2 + item.dimensions[1] / 2 + 0.008,
+          target.position[2] + offsetZ,
+        ];
+      }
     case "inside":
       return [target.position[0], target.position[1], target.position[2]];
     default:

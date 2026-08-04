@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import snapshotFixture from "../../fixtures/snapshot_1.json";
-import type { WorldSnapshot } from "../contracts/world";
+import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
+import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
+import type { ScenePatch, WorldSnapshot } from "../contracts/world";
+import { applyScenePatch } from "./applyScenePatch";
 import { createWorldLayout } from "./layoutEngine";
 
 const snapshot = snapshotFixture as unknown as WorldSnapshot;
@@ -60,5 +63,51 @@ describe("createWorldLayout", () => {
       "archive-rug-1",
     ]);
     expect(archive.items.every((item) => item.entity.locationId === "archive-vault")).toBe(true);
+  });
+
+  it("composes related props into stable semantic slots on a tabletop", () => {
+    const opening = courtyardSnapshotFixture as unknown as WorldSnapshot;
+    const departure = applyScenePatch(
+      opening,
+      courtyardPatchFixture as unknown as ScenePatch,
+    );
+    const layout = createWorldLayout(departure);
+    const table = layout.items.find((item) => item.entity.id === "courtyard-table-1")!;
+    const parcel = layout.items.find((item) => item.entity.id === "courtyard-parcel-1")!;
+    const lantern = layout.items.find((item) => item.entity.id === "courtyard-lantern-1")!;
+    const map = layout.items.find((item) => item.entity.id === "courtyard-map-1")!;
+
+    for (const prop of [parcel, lantern, map]) {
+      expect(prop.position[1] - prop.dimensions[1] / 2).toBeCloseTo(
+        table.position[1] + table.dimensions[1] / 2 + 0.008,
+        4,
+      );
+      expect(Math.abs(prop.position[0] - table.position[0]) + prop.dimensions[0] / 2)
+        .toBeLessThan(table.dimensions[0] / 2);
+      expect(Math.abs(prop.position[2] - table.position[2]) + prop.dimensions[2] / 2)
+        .toBeLessThan(table.dimensions[2] / 2);
+    }
+
+    expect(parcel.position[0]).toBeLessThan(table.position[0]);
+    expect(lantern.position[0]).toBeGreaterThan(table.position[0]);
+    expect(map.position[2]).toBeGreaterThan(table.position[2]);
+  });
+
+  it("keeps the moved courtyard chair facing the gate", () => {
+    const departure = applyScenePatch(
+      courtyardSnapshotFixture as unknown as WorldSnapshot,
+      courtyardPatchFixture as unknown as ScenePatch,
+    );
+    const layout = createWorldLayout(departure);
+    const chair = layout.items.find((item) => item.entity.id === "courtyard-chair-1")!;
+    const gate = layout.items.find((item) => item.entity.id === "courtyard-gate-1")!;
+    const directionX = gate.position[0] - chair.position[0];
+    const directionZ = gate.position[2] - chair.position[2];
+    const length = Math.hypot(directionX, directionZ);
+    const alignment =
+      (Math.sin(chair.rotation[1]) * directionX + Math.cos(chair.rotation[1]) * directionZ) /
+      length;
+
+    expect(alignment).toBeGreaterThan(0.99);
   });
 });

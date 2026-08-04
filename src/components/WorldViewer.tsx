@@ -392,21 +392,33 @@ function StoryMap({ highlighted, highlightColor }: {
 
   return (
     <group>
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[1, 0.72, 1]} />
-        <meshStandardMaterial color="#b58d50" roughness={0.94} />
-      </mesh>
-      <mesh position={[0, 0.375, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[0.98, 0.98]} />
+      <RoundedBox
+        args={[1, 0.09, 1]}
+        radius={0.028}
+        smoothness={3}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial color="#b99055" roughness={0.98} />
+      </RoundedBox>
+      <mesh position={[0, 0.048, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[0.965, 0.965, 8, 6]} />
         <meshStandardMaterial
           map={mapTexture}
-          roughness={0.92}
+          roughness={0.96}
           emissive={highlighted ? highlightColor : "#000000"}
           emissiveIntensity={highlighted ? 0.2 : 0}
+          side={THREE.DoubleSide}
           polygonOffset
           polygonOffsetFactor={-1}
         />
       </mesh>
+      {[-0.25, 0, 0.25].map((x) => (
+        <mesh key={`map-fold-${x}`} position={[x, 0.052, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.006, 0.92]} />
+          <meshBasicMaterial color="#6d4b2d" transparent opacity={0.22} />
+        </mesh>
+      ))}
     </group>
   );
 }
