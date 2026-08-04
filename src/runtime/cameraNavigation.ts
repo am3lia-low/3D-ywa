@@ -15,6 +15,25 @@ export interface WalkInput {
   right: boolean;
 }
 
+export interface NavigationLimits {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+}
+
+/** Extends an outdoor scene through its open edge without opening the rear wall. */
+export function createExteriorNavigationLimits(
+  bounds: Vector3Tuple = DEFAULT_BOUNDS,
+): NavigationLimits {
+  return {
+    minX: -bounds[0] / 2 + EDGE_MARGIN,
+    maxX: bounds[0] / 2 - EDGE_MARGIN,
+    minZ: -bounds[2] / 2 + EDGE_MARGIN,
+    maxZ: bounds[2] * 2.3 - EDGE_MARGIN,
+  };
+}
+
 /** Places the reader inside the world at a natural standing eye height. */
 export function createPovCameraPose(
   bounds: Vector3Tuple = DEFAULT_BOUNDS,
@@ -41,13 +60,20 @@ export function createExteriorPovCameraPose(
 export function clampNavigationTarget(
   target: Vector3Tuple,
   bounds: Vector3Tuple = DEFAULT_BOUNDS,
+  limits?: NavigationLimits,
 ): Vector3Tuple {
   const halfWidth = Math.max(0, bounds[0] / 2 - EDGE_MARGIN);
   const halfDepth = Math.max(0, bounds[2] / 2 - EDGE_MARGIN);
+  const resolvedLimits = limits ?? {
+    minX: -halfWidth,
+    maxX: halfWidth,
+    minZ: -halfDepth,
+    maxZ: halfDepth,
+  };
   return [
-    Math.min(Math.max(target[0], -halfWidth), halfWidth),
+    Math.min(Math.max(target[0], resolvedLimits.minX), resolvedLimits.maxX),
     Math.min(Math.max(target[1], 0.35), Math.max(0.35, bounds[1] - 0.35)),
-    Math.min(Math.max(target[2], -halfDepth), halfDepth),
+    Math.min(Math.max(target[2], resolvedLimits.minZ), resolvedLimits.maxZ),
   ];
 }
 
@@ -92,6 +118,7 @@ export function createWalkCameraPose(
   input: WalkInput,
   deltaSeconds: number,
   bounds: Vector3Tuple = DEFAULT_BOUNDS,
+  navigationLimits?: NavigationLimits,
   speedMetersPerSecond = 4.2,
 ): CameraPose {
   const forwardX = currentTarget[0] - cameraPosition[0];
@@ -115,7 +142,7 @@ export function createWalkCameraPose(
     cameraPosition[1],
     cameraPosition[2] + moveZ * distance,
   ];
-  const clamped = clampNavigationTarget(requestedPosition, bounds);
+  const clamped = clampNavigationTarget(requestedPosition, bounds, navigationLimits);
   const eyeHeight = Math.min(1.68, Math.max(1.5, bounds[1] * 0.34));
   const offsetX = clamped[0] - cameraPosition[0];
   const offsetZ = clamped[2] - cameraPosition[2];

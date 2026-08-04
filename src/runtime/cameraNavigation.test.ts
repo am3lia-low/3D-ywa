@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   clampNavigationTarget,
+  createExteriorNavigationLimits,
   createOverviewCameraPose,
   createExteriorPovCameraPose,
   createPovCameraPose,
@@ -39,6 +40,28 @@ describe("camera navigation", () => {
     expect(pose.target[2]).toBeGreaterThan(pose.position[2]);
     expect(Math.abs(pose.position[0])).toBeLessThan(17);
     expect(pose.target[2]).toBeLessThan(14);
+  });
+
+  it("extends outdoor walking through the open edge but not the rear wall", () => {
+    const bounds: [number, number, number] = [34, 6.5, 28];
+    const limits = createExteriorNavigationLimits(bounds);
+
+    expect(clampNavigationTarget([0, 1.68, 999], bounds, limits)[2]).toBeCloseTo(63.85);
+    expect(clampNavigationTarget([0, 1.68, -999], bounds, limits)[2]).toBeCloseTo(-13.45);
+  });
+
+  it("walks from a courtyard onto its rendered exterior approach", () => {
+    const bounds: [number, number, number] = [34, 6.5, 28];
+    const pose = createWalkCameraPose(
+      [0, 1.68, 13],
+      [0, 1.4, 14],
+      { forward: true, backward: false, left: false, right: false },
+      1,
+      bounds,
+      createExteriorNavigationLimits(bounds),
+    );
+
+    expect(pose.position[2]).toBeGreaterThan(bounds[2] / 2);
   });
 
   it("preserves view offset while travelling to a bounded target", () => {

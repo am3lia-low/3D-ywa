@@ -42,6 +42,7 @@ import {
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
+  createExteriorNavigationLimits,
   createExteriorPovCameraPose,
   createOverviewCameraPose,
   createPovCameraPose,
@@ -1977,6 +1978,58 @@ function CourtyardGateSurround({
   );
 }
 
+function CourtyardSideWall({
+  bounds,
+  side,
+  wallHeight,
+  surface,
+}: {
+  bounds: Vector3Tuple;
+  side: -1 | 1;
+  wallHeight: number;
+  surface: ReturnType<typeof usePbrSurface>;
+}) {
+  const geometry = useMemo(() => {
+    const depth = bounds[2];
+    const taperLength = depth * 0.3;
+    const shape = new THREE.Shape();
+    shape.moveTo(-depth / 2, 0);
+    shape.lineTo(depth / 2, 0);
+    shape.lineTo(depth / 2, 0.16);
+    shape.lineTo(depth / 2 - taperLength, wallHeight);
+    shape.lineTo(-depth / 2, wallHeight);
+    shape.closePath();
+
+    const result = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.2,
+      bevelEnabled: false,
+      curveSegments: 1,
+    });
+    result.translate(0, 0, -0.1);
+    result.computeVertexNormals();
+    return result;
+  }, [bounds[2], wallHeight]);
+
+  return (
+    <mesh
+      geometry={geometry}
+      position={[side * (bounds[0] / 2 - 0.08), 0, 0]}
+      rotation={[0, -Math.PI / 2, 0]}
+      castShadow
+      receiveShadow
+    >
+      <meshStandardMaterial
+        color={side < 0 ? "#c9bda5" : "#c6baa2"}
+        map={surface.color}
+        normalMap={surface.normal}
+        normalScale={new THREE.Vector2(0.38, 0.38)}
+        roughnessMap={surface.arm}
+        roughness={0.99}
+      />
+    </mesh>
+  );
+}
+
 function CourtyardKit({
   bounds,
   presentation,
@@ -2006,8 +2059,6 @@ function CourtyardKit({
   const wallHeight = bounds[1] * 0.8;
   const wallSections: Array<[Vector3Tuple, Vector3Tuple, string]> = [
     [[0, wallHeight / 2, -bounds[2] / 2 + 0.08], [bounds[0], wallHeight, 0.2], "#d2c6ac"],
-    [[-bounds[0] / 2 + 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c9bda5"],
-    [[bounds[0] / 2 - 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c6baa2"],
   ];
   const puddles: Array<{ position: Vector3Tuple; scale: Vector3Tuple }> = [
     { position: [-bounds[0] * 0.28, 0.075, bounds[2] * 0.22], scale: [1.25, 0.7, 1] },
@@ -2038,10 +2089,10 @@ function CourtyardKit({
               />
             </mesh>
           ))}
+          <CourtyardSideWall bounds={bounds} side={-1} wallHeight={wallHeight} surface={wall} />
+          <CourtyardSideWall bounds={bounds} side={1} wallHeight={wallHeight} surface={wall} />
           {[
             [[0, wallHeight + 0.08, -bounds[2] / 2 + 0.1], [bounds[0] + 0.18, 0.18, 0.46]],
-            [[-bounds[0] / 2 + 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
-            [[bounds[0] / 2 - 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
           ].map(([position, dimensions], index) => (
             <mesh
               key={`courtyard-coping-${index}`}
@@ -3019,6 +3070,10 @@ function SceneCamera({
     () => openAir ? createExteriorPovCameraPose(bounds) : createPovCameraPose(bounds),
     [bounds[0], bounds[1], bounds[2], openAir],
   );
+  const walkLimits = useMemo(
+    () => openAir ? createExteriorNavigationLimits(bounds) : undefined,
+    [bounds[0], bounds[1], bounds[2], openAir],
+  );
 
   useEffect(() => {
     if (walkMode) return;
@@ -3134,6 +3189,7 @@ function SceneCamera({
       walkInput.current,
       Math.min(delta, 0.05),
       bounds,
+      walkLimits,
     );
     camera.position.set(...pose.position);
     camera.lookAt(...pose.target);
