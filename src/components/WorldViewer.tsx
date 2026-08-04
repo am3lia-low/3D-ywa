@@ -1043,12 +1043,94 @@ function EntityAsset({
   );
 }
 
+function ParcelCord({ axis }: { axis: "x" | "z" }) {
+  const curve = useMemo(() => {
+    const points = [
+      -0.51, -0.37,
+      -0.53, 0.39,
+      -0.51, 0.485,
+      0, 0.49,
+      0.51, 0.485,
+      0.53, 0.39,
+      0.51, -0.37,
+    ];
+    return new THREE.CatmullRomCurve3(
+      Array.from({ length: points.length / 2 }, (_, index) => {
+        const across = points[index * 2]!;
+        const height = points[index * 2 + 1]!;
+        return axis === "x"
+          ? new THREE.Vector3(across, height, 0)
+          : new THREE.Vector3(0, height, across);
+      }),
+      false,
+      "catmullrom",
+      0.16,
+    );
+  }, [axis]);
+
+  return (
+    <mesh castShadow>
+      <tubeGeometry args={[curve, 56, 0.009, 7, false]} />
+      <meshStandardMaterial color="#b69a70" roughness={0.98} />
+    </mesh>
+  );
+}
+
+function ParcelWaxSeal({ xzCompensation }: { xzCompensation: number }) {
+  const waxShape = useMemo(() => {
+    const shape = new THREE.Shape();
+    const pointCount = 28;
+    for (let index = 0; index < pointCount; index += 1) {
+      const angle = (index / pointCount) * Math.PI * 2;
+      const irregularity = 1 + Math.sin(index * 2.37) * 0.065 + Math.cos(index * 1.73) * 0.035;
+      const radius = 0.057 * irregularity;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius * xzCompensation;
+      if (index === 0) shape.moveTo(x, y);
+      else shape.lineTo(x, y);
+    }
+    shape.closePath();
+    return shape;
+  }, [xzCompensation]);
+  const extrusion = useMemo(
+    () => ({
+      depth: 0.018,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      bevelSize: 0.006,
+      bevelThickness: 0.004,
+      curveSegments: 24,
+    }),
+    [],
+  );
+
+  return (
+    <group position={[0, 0.5, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} castShadow>
+        <extrudeGeometry args={[waxShape, extrusion]} />
+        <meshPhysicalMaterial
+          color="#8f2430"
+          roughness={0.48}
+          clearcoat={0.28}
+          clearcoatRoughness={0.42}
+        />
+      </mesh>
+      <mesh position={[0, 0.022, 0]} scale={[1, 1, xzCompensation]} castShadow>
+        <cylinderGeometry args={[0.025, 0.025, 0.004, 28]} />
+        <meshStandardMaterial color="#651722" roughness={0.66} />
+      </mesh>
+    </group>
+  );
+}
+
 function StoryParcelAsset({
   highlighted,
   highlightColor,
+  xzCompensation,
 }: {
   highlighted: boolean;
   highlightColor: string;
+  xzCompensation: number;
 }) {
   const wood = usePbrSurface(
     "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
@@ -1087,25 +1169,9 @@ function StoryParcelAsset({
           roughness={0.9}
         />
       </RoundedBox>
-      <mesh position={[0, 0.483, 0]} castShadow>
-        <boxGeometry args={[1.045, 0.018, 0.035]} />
-        <meshStandardMaterial color="#d3b98f" roughness={0.94} />
-      </mesh>
-      <mesh position={[0, 0.485, 0]} castShadow>
-        <boxGeometry args={[0.035, 0.018, 1.045]} />
-        <meshStandardMaterial color="#d3b98f" roughness={0.94} />
-      </mesh>
-      <mesh position={[0.08, 0.505, 0.065]} scale={[1, 1, 0.92]} castShadow>
-        <cylinderGeometry args={[0.052, 0.057, 0.024, 24]} />
-        <meshStandardMaterial
-          color="#8f2931"
-          roughness={0.7}
-        />
-      </mesh>
-      <mesh position={[0.08, 0.519, 0.065]} rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.024, 0.003, 6, 20]} />
-        <meshStandardMaterial color="#5e1720" roughness={0.72} />
-      </mesh>
+      <ParcelCord axis="x" />
+      <ParcelCord axis="z" />
+      <ParcelWaxSeal xzCompensation={xzCompensation} />
     </group>
   );
 }
@@ -1174,7 +1240,11 @@ function WorldEntity({
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
       {isParcel ? (
-        <StoryParcelAsset highlighted={highlighted} highlightColor={emissive} />
+        <StoryParcelAsset
+          highlighted={highlighted}
+          highlightColor={emissive}
+          xzCompensation={resolvedScale.x / Math.max(resolvedScale.z, 0.001)}
+        />
       ) : (
         <EntityAsset
           asset={item.asset}
