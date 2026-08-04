@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import snapshotFixture from "../../fixtures/snapshot_1.json";
 import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
+import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import atticPatch2Fixture from "../../fixtures/patch_2.json";
 import atticPatch3Fixture from "../../fixtures/patch_3.json";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
@@ -122,5 +123,18 @@ describe("createWorldLayout", () => {
       length;
 
     expect(alignment).toBeGreaterThan(0.99);
+  });
+
+  it("uses the visual safe zone when a prop rests on an irregular support", () => {
+    const layout = createWorldLayout(woodlandSnapshotFixture as unknown as WorldSnapshot);
+    const log = layout.items.find((item) => item.entity.id === "fallen-cedar-1")!;
+    const lantern = layout.items.find((item) => item.entity.id === "trail-lantern-1")!;
+
+    expect(lantern.position[0]).toBeCloseTo(log.position[0], 4);
+    expect(lantern.position[2]).toBeCloseTo(log.position[2], 4);
+    expect(lantern.position[1] - lantern.dimensions[1] / 2).toBeCloseTo(
+      log.position[1] + log.dimensions[1] / 2 + 0.008,
+      4,
+    );
   });
 });

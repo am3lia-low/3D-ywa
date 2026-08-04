@@ -63,6 +63,46 @@ function isFloorLayer(item: LayoutItem): boolean {
   return item.entity.kind === "decor" && effectiveDimensions(item)[1] <= 0.16;
 }
 
+function hasIrregularSupportSurface(item: LayoutItem): boolean {
+  const semantics = [
+    item.entity.kind,
+    item.entity.name,
+    item.asset.key,
+    ...(item.entity.aliases ?? []),
+  ].join(" ").toLowerCase();
+  return /\b(log|trunk|stump|rock|boulder|barrel)\b/.test(semantics);
+}
+
+function restsOnSurface(subject: LayoutItem, target: LayoutItem): boolean {
+  const subjectDimensions = effectiveDimensions(subject);
+  const targetDimensions = effectiveDimensions(target);
+  const expectedBottom = target.position[1] + targetDimensions[1] / 2 + 0.008;
+  const subjectBottom = subject.position[1] - subjectDimensions[1] / 2;
+  if (Math.abs(subjectBottom - expectedBottom) > 0.065) return false;
+
+  const deltaX = subject.position[0] - target.position[0];
+  const deltaZ = subject.position[2] - target.position[2];
+  const targetYaw = target.rotation[1];
+  const localX = deltaX * Math.cos(targetYaw) - deltaZ * Math.sin(targetYaw);
+  const localZ = deltaX * Math.sin(targetYaw) + deltaZ * Math.cos(targetYaw);
+  const relativeYaw = subject.rotation[1] - targetYaw;
+  const subjectHalfX =
+    Math.abs(Math.cos(relativeYaw)) * subjectDimensions[0] / 2 +
+    Math.abs(Math.sin(relativeYaw)) * subjectDimensions[2] / 2;
+  const subjectHalfZ =
+    Math.abs(Math.sin(relativeYaw)) * subjectDimensions[0] / 2 +
+    Math.abs(Math.cos(relativeYaw)) * subjectDimensions[2] / 2;
+  let reachX = Math.max(0, targetDimensions[0] / 2 - subjectHalfX - 0.025);
+  let reachZ = Math.max(0, targetDimensions[2] / 2 - subjectHalfZ - 0.025);
+
+  if (hasIrregularSupportSurface(target)) {
+    reachX = Math.min(reachX, targetDimensions[0] * 0.16);
+    reachZ = Math.min(reachZ, targetDimensions[2] * 0.16);
+  }
+
+  return Math.abs(localX) <= reachX && Math.abs(localZ) <= reachZ;
+}
+
 function supportedPairs(relations: readonly SpatialRelation[]): Set<string> {
   return new Set(
     relations.flatMap((relation) =>
@@ -187,6 +227,15 @@ function auditLocation(
         locationId,
         [relation.subjectId, ...(relation.objectId ? [relation.objectId] : [])],
         `The '${relation.predicate}' relation cannot resolve within this location.`,
+      ));
+    }
+    if (relation.predicate === "on" && subject && target && !restsOnSurface(subject, target)) {
+      issues.push(issue(
+        "broken_surface_relation",
+        "error",
+        locationId,
+        [subject.entity.id, target.entity.id],
+        `${subject.entity.name} does not geometrically rest on ${target.entity.name}.`,
       ));
     }
     if (

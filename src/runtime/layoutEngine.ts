@@ -100,6 +100,19 @@ function surfaceOffset(
     item.asset.key,
     ...(item.entity.aliases ?? []),
   ].join(" ").toLowerCase();
+  const targetSemantics = [
+    target.entity.kind,
+    target.entity.name,
+    target.asset.key,
+    ...(target.entity.aliases ?? []),
+  ].join(" ").toLowerCase();
+
+  // Curved and irregular supports do not have a reliable rectangular top.
+  // Their visual safe zone is the center; placing a prop at a bounding-box
+  // corner can be mathematically contained while visibly missing the mesh.
+  if (/\b(log|trunk|stump|rock|boulder|barrel)\b/.test(targetSemantics)) {
+    return [0, 0];
+  }
 
   let localX: number;
   let localZ: number;

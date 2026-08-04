@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPlanFixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
+import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
+import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { WorldSnapshot } from "../contracts/world";
 import { compileSceneRecipe } from "./sceneRecipeCompiler";
@@ -63,5 +65,31 @@ describe("scene composition audit", () => {
     expect(audit.status).toBe("blocking");
     expect(audit.locations["coaching-courtyard"]?.issues.map((candidate) => candidate.code))
       .toContain("blocked_access");
+  });
+
+  it("blocks an on-relation whose subject misses its support surface", () => {
+    const woodlandSnapshot = woodlandSnapshotFixture as unknown as WorldSnapshot;
+    const misplaced: WorldSnapshot = {
+      ...woodlandSnapshot,
+      entities: woodlandSnapshot.entities.map((entity) =>
+        entity.id === "trail-lantern-1"
+          ? { ...entity, transform: { position: [0, 0.43, 0] } }
+          : entity,
+      ),
+    };
+    const audit = compileSceneRecipe(
+      misplaced,
+      woodlandPlanFixture as unknown as VisualScenePlan,
+    ).composition;
+
+    expect(audit.status).toBe("blocking");
+    expect(audit.locations["mosswood-path"]?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "broken_surface_relation",
+          entityIds: ["trail-lantern-1", "fallen-cedar-1"],
+        }),
+      ]),
+    );
   });
 });
