@@ -1767,7 +1767,7 @@ function EntityAsset({
 
   return (
     <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
-      <Suspense fallback={fallback}>
+      <Suspense fallback={null}>
         <AdaptiveLoadedModel asset={asset} />
       </Suspense>
     </ModelErrorBoundary>
