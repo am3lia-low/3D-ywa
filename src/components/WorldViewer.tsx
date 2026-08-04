@@ -45,6 +45,7 @@ import {
   createOverviewCameraPose,
   createPovCameraPose,
   createTravelCameraPose,
+  createWalkCameraPose,
 } from "../runtime/cameraNavigation";
 import {
   createVisibleRelationEdges,
@@ -451,23 +452,23 @@ function StoryFireplace({ highlighted, highlightColor }: {
   );
   const archShape = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(-0.5, -0.5);
-    shape.lineTo(0.5, -0.5);
-    shape.lineTo(0.5, 0.12);
-    shape.absarc(0, 0.12, 0.5, 0, Math.PI, false);
+    shape.moveTo(-0.48, -0.5);
+    shape.lineTo(0.48, -0.5);
+    shape.lineTo(0.48, 0.08);
+    shape.absarc(0, 0.08, 0.48, 0, Math.PI, false);
     shape.lineTo(-0.5, -0.5);
 
     const opening = new THREE.Path();
-    opening.moveTo(-0.27, -0.42);
-    opening.lineTo(0.27, -0.42);
-    opening.lineTo(0.27, 0.08);
-    opening.absarc(0, 0.08, 0.27, 0, Math.PI, false);
-    opening.lineTo(-0.27, -0.42);
+    opening.moveTo(-0.28, -0.43);
+    opening.lineTo(0.28, -0.43);
+    opening.lineTo(0.28, 0.04);
+    opening.absarc(0, 0.04, 0.28, 0, Math.PI, false);
+    opening.lineTo(-0.28, -0.43);
     shape.holes.push(opening);
     return shape;
   }, []);
   const archExtrusion = useMemo(() => ({
-    depth: 0.27,
+    depth: 0.25,
     bevelEnabled: true,
     bevelSegments: 2,
     bevelSize: 0.022,
@@ -477,29 +478,47 @@ function StoryFireplace({ highlighted, highlightColor }: {
 
   return (
     <group>
-      <mesh position={[0, -0.02, -0.13]} castShadow receiveShadow>
+      <mesh position={[0, -0.02, -0.14]} castShadow receiveShadow>
         <extrudeGeometry args={[archShape, archExtrusion]} />
         {stoneMaterial}
       </mesh>
-      <mesh position={[0, -0.13, 0.02]}>
-        <planeGeometry args={[0.5, 0.54]} />
-        <meshStandardMaterial color="#100b08" roughness={1} />
+      <mesh position={[0, -0.08, -0.155]} receiveShadow>
+        <planeGeometry args={[0.54, 0.78]} />
+        <meshStandardMaterial color="#211713" roughness={1} polygonOffset polygonOffsetFactor={-1} />
       </mesh>
-      <mesh position={[0, 0.48, 0.06]} castShadow receiveShadow>
-        <boxGeometry args={[1.12, 0.14, 0.52]} />
+      {[-0.275, 0.275].map((x) => (
+        <mesh key={`firebox-cheek-${x}`} position={[x, -0.18, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.045, 0.5, 0.32]} />
+          <meshStandardMaterial color="#49372f" roughness={1} />
+        </mesh>
+      ))}
+      <RoundedBox
+        args={[1.02, 0.09, 0.42]}
+        radius={0.025}
+        smoothness={3}
+        position={[0, 0.53, 0.015]}
+        castShadow
+        receiveShadow
+      >
         {stoneMaterial}
-      </mesh>
-      <mesh position={[0, -0.45, 0.18]} castShadow receiveShadow>
-        <boxGeometry args={[1.08, 0.12, 0.7]} />
+      </RoundedBox>
+      <RoundedBox
+        args={[0.96, 0.09, 0.58]}
+        radius={0.018}
+        smoothness={3}
+        position={[0, -0.455, 0.14]}
+        castShadow
+        receiveShadow
+      >
         {stoneMaterial}
-      </mesh>
-      <mesh position={[0, -0.34, 0.18]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
-        <planeGeometry args={[0.48, 0.38]} />
-        <meshStandardMaterial color="#2a1a13" roughness={1} />
+      </RoundedBox>
+      <mesh position={[0, -0.39, 0.12]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[0.5, 0.38]} />
+        <meshStandardMaterial color="#251812" roughness={1} side={THREE.DoubleSide} />
       </mesh>
       {[-0.14, 0.14].map((x) => (
-        <mesh key={x} position={[x, -0.31, 0.29]} rotation={[0, 0, x * 1.6]} castShadow>
-          <cylinderGeometry args={[0.055, 0.075, 0.42, 10]} />
+        <mesh key={x} position={[x, -0.34, 0.17]} rotation={[Math.PI / 2, 0, x * 1.5]} castShadow>
+          <cylinderGeometry args={[0.045, 0.06, 0.38, 10]} />
           <meshStandardMaterial color="#392218" roughness={1} />
         </mesh>
       ))}
@@ -564,16 +583,10 @@ function AtticRoofFrame({ bounds, timberColor }: { bounds: Vector3Tuple; timberC
   const eaveY = bounds[1] * 0.72;
   const ridgeY = bounds[1] - 0.14;
   const halfWidth = bounds[0] / 2 - 0.14;
-  const frameDepths = [
-    -bounds[2] / 2 + 0.22,
-    -bounds[2] * 0.17,
-    bounds[2] * 0.17,
-    bounds[2] / 2 - 0.22,
-  ];
-  const purlinDepth = bounds[2] - 0.3;
-  const purlinZ = 0;
-  const roofY = (x: number) =>
-    eaveY + (ridgeY - eaveY) * (1 - Math.abs(x) / halfWidth);
+  const frameDepths = Array.from(
+    { length: 7 },
+    (_, index) => -bounds[2] / 2 + 0.3 + ((bounds[2] - 0.6) / 6) * index,
+  );
 
   return (
     <group>
@@ -583,29 +596,25 @@ function AtticRoofFrame({ bounds, timberColor }: { bounds: Vector3Tuple; timberC
             start={[-halfWidth, eaveY, z]}
             end={[0, ridgeY, z]}
             color={timberColor}
-            thickness={0.22}
-            depth={0.24}
+            thickness={0.14}
+            depth={0.16}
           />
           <TimberBeam
             start={[0, ridgeY, z]}
             end={[halfWidth, eaveY, z]}
             color={timberColor}
-            thickness={0.22}
-            depth={0.24}
+            thickness={0.14}
+            depth={0.16}
           />
-          <mesh position={[0, (ridgeY + eaveY) / 2 - 0.08, z]} castShadow>
-            <boxGeometry args={[0.16, ridgeY - eaveY + 0.12, 0.2]} />
-            <meshStandardMaterial color={timberColor} roughness={0.9} />
-          </mesh>
-          <mesh position={[0, eaveY + 0.42, z]} castShadow>
-            <boxGeometry args={[bounds[0] * 0.58, 0.15, 0.18]} />
-            <meshStandardMaterial color={timberColor} roughness={0.9} />
-          </mesh>
         </group>
       ))}
-      {[-halfWidth * 0.58, 0, halfWidth * 0.58].map((x) => (
-        <mesh key={`attic-purlin-${x}`} position={[x, roofY(x), purlinZ]} castShadow>
-          <boxGeometry args={[0.18, 0.18, purlinDepth]} />
+      {[0, -halfWidth, halfWidth].map((x) => (
+        <mesh
+          key={`attic-longitudinal-${x}`}
+          position={[x, x === 0 ? ridgeY - 0.05 : eaveY - 0.02, 0]}
+          castShadow
+        >
+          <boxGeometry args={[0.16, 0.16, bounds[2] - 0.3]} />
           <meshStandardMaterial color={timberColor} roughness={0.9} />
         </mesh>
       ))}
@@ -2202,6 +2211,19 @@ function Room({
   }));
   const archiveShelfCenters = [-bounds[0] * 0.28, 0, bounds[0] * 0.28];
   const archiveShelfLevels = [0.55, 1.22, 1.89, 2.56];
+  const atticGableShape = useMemo(() => {
+    const eaveY = bounds[1] * 0.72;
+    const ridgeY = bounds[1] - 0.16;
+    const halfWidth = bounds[0] / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(-halfWidth, 0);
+    shape.lineTo(halfWidth, 0);
+    shape.lineTo(halfWidth, eaveY);
+    shape.lineTo(0, ridgeY);
+    shape.lineTo(-halfWidth, eaveY);
+    shape.closePath();
+    return shape;
+  }, [bounds[0], bounds[1]]);
 
   useEffect(
     () => () => Object.values(roomTextures).forEach((texture) => texture.dispose()),
@@ -2222,7 +2244,7 @@ function Room({
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
         <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
       </mesh>
-      {!usesConservatoryKit && !usesCourtyardKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
+      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2233,7 +2255,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!usesConservatoryKit && !usesCourtyardKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2246,6 +2268,32 @@ function Room({
       </mesh>}
       {usesAtticKit ? (
         <>
+          <mesh position={[0, 0, -bounds[2] / 2 + 0.015]} receiveShadow>
+            <shapeGeometry args={[atticGableShape]} />
+            <meshStandardMaterial
+              color="#d3c5aa"
+              map={roomTextures.wallColor}
+              normalMap={roomTextures.wallNormal}
+              normalScale={new THREE.Vector2(0.48, 0.48)}
+              roughnessMap={roomTextures.wallArm}
+              roughness={0.98}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh
+            position={[-bounds[0] / 2 + wallThickness / 2, wallTop / 2, 0]}
+            receiveShadow
+          >
+            <boxGeometry args={[wallThickness, wallTop, bounds[2]]} />
+            <meshStandardMaterial
+              color="#d3c5aa"
+              map={roomTextures.wallColor}
+              normalMap={roomTextures.wallNormal}
+              normalScale={new THREE.Vector2(0.48, 0.48)}
+              roughnessMap={roomTextures.wallArm}
+              roughness={0.98}
+            />
+          </mesh>
           {presentation.architecture.floorboards && (
             <mesh position={[0, 0.012, 0]} receiveShadow>
               <boxGeometry args={[bounds[0] - 0.08, 0.025, bounds[2] - 0.08]} />
@@ -2646,12 +2694,18 @@ function isPortalItem(item: LayoutItem): boolean {
 function SceneCamera({
   layout,
   command,
+  walkMode,
 }: {
   layout: WorldLayout;
   command: CameraCommand | null;
+  walkMode: boolean;
 }) {
   const controls = useRef<ComponentRef<typeof CameraControls>>(null);
+  const walkInput = useRef({ forward: false, backward: false, left: false, right: false });
+  const walkLook = useRef({ yaw: 0, pitch: 0, pointerId: null as number | null });
+  const wasWalking = useRef(false);
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const { camera, gl } = useThree();
 
   useEffect(() => {
     const pov = createPovCameraPose(bounds);
@@ -2672,6 +2726,126 @@ function SceneCamera({
     );
     currentControls.saveState();
   }, [bounds[0], bounds[1], bounds[2], layout.location.id]);
+
+  useEffect(() => {
+    if (!walkMode) {
+      walkInput.current = { forward: false, backward: false, left: false, right: false };
+      return;
+    }
+
+    const pose = createPovCameraPose(bounds);
+    const direction = new THREE.Vector3(...pose.target)
+      .sub(new THREE.Vector3(...pose.position))
+      .normalize();
+    walkLook.current.yaw = Math.atan2(direction.x, -direction.z);
+    walkLook.current.pitch = Math.asin(THREE.MathUtils.clamp(direction.y, -1, 1));
+    camera.position.set(...pose.position);
+    camera.lookAt(...pose.target);
+
+    const setKey = (event: KeyboardEvent, pressed: boolean) => {
+      const key = event.key.toLowerCase();
+      if (key === "w") walkInput.current.forward = pressed;
+      else if (key === "s") walkInput.current.backward = pressed;
+      else if (key === "a") walkInput.current.left = pressed;
+      else if (key === "d") walkInput.current.right = pressed;
+      else return;
+      event.preventDefault();
+    };
+    const onKeyDown = (event: KeyboardEvent) => setKey(event, true);
+    const onKeyUp = (event: KeyboardEvent) => setKey(event, false);
+    const stopWalking = () => {
+      walkInput.current = { forward: false, backward: false, left: false, right: false };
+      walkLook.current.pointerId = null;
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      walkLook.current.pointerId = event.pointerId;
+      gl.domElement.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (walkLook.current.pointerId !== event.pointerId) return;
+      walkLook.current.yaw -= event.movementX * 0.0026;
+      walkLook.current.pitch = THREE.MathUtils.clamp(
+        walkLook.current.pitch - event.movementY * 0.0022,
+        -1.25,
+        1.25,
+      );
+      event.preventDefault();
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      if (walkLook.current.pointerId !== event.pointerId) return;
+      walkLook.current.pointerId = null;
+      if (gl.domElement.hasPointerCapture(event.pointerId)) {
+        gl.domElement.releasePointerCapture(event.pointerId);
+      }
+    };
+    const onContextMenu = (event: MouseEvent) => event.preventDefault();
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", stopWalking);
+    gl.domElement.addEventListener("pointerdown", onPointerDown);
+    gl.domElement.addEventListener("pointermove", onPointerMove);
+    gl.domElement.addEventListener("pointerup", onPointerUp);
+    gl.domElement.addEventListener("pointercancel", onPointerUp);
+    gl.domElement.addEventListener("contextmenu", onContextMenu);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", stopWalking);
+      gl.domElement.removeEventListener("pointerdown", onPointerDown);
+      gl.domElement.removeEventListener("pointermove", onPointerMove);
+      gl.domElement.removeEventListener("pointerup", onPointerUp);
+      gl.domElement.removeEventListener("pointercancel", onPointerUp);
+      gl.domElement.removeEventListener("contextmenu", onContextMenu);
+      stopWalking();
+    };
+  }, [bounds[0], bounds[1], bounds[2], camera, gl, walkMode]);
+
+  useEffect(() => {
+    if (walkMode) {
+      wasWalking.current = true;
+      return;
+    }
+    if (!wasWalking.current || !controls.current) return;
+    wasWalking.current = false;
+    const direction = camera.getWorldDirection(new THREE.Vector3());
+    const target = camera.position.clone().add(direction.multiplyScalar(4));
+    void controls.current.setLookAt(
+      camera.position.x,
+      camera.position.y,
+      camera.position.z,
+      target.x,
+      target.y,
+      target.z,
+      false,
+    );
+  }, [camera, walkMode]);
+
+  useFrame((_, delta) => {
+    if (!walkMode) return;
+    const { yaw, pitch } = walkLook.current;
+    const direction = new THREE.Vector3(
+      Math.sin(yaw) * Math.cos(pitch),
+      Math.sin(pitch),
+      -Math.cos(yaw) * Math.cos(pitch),
+    );
+    const currentPosition: Vector3Tuple = [camera.position.x, camera.position.y, camera.position.z];
+    const currentTarget: Vector3Tuple = [
+      camera.position.x + direction.x,
+      camera.position.y + direction.y,
+      camera.position.z + direction.z,
+    ];
+    const pose = createWalkCameraPose(
+      currentPosition,
+      currentTarget,
+      walkInput.current,
+      Math.min(delta, 0.05),
+      bounds,
+    );
+    camera.position.set(...pose.position);
+    camera.lookAt(...pose.target);
+  });
 
   useEffect(() => {
     const currentControls = controls.current;
@@ -2700,6 +2874,7 @@ function SceneCamera({
       ref={controls}
       key={layout.location.id}
       makeDefault
+      enabled={!walkMode}
       smoothTime={0.22}
       draggingSmoothTime={0.08}
       boundaryFriction={0.18}
@@ -2793,6 +2968,7 @@ function WorldScene({
   portalDestination,
   onLocationRequest,
   cameraView,
+  walkMode,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
@@ -2809,6 +2985,7 @@ function WorldScene({
   portalDestination?: Location;
   onLocationRequest?: (locationId: string) => void;
   cameraView: CameraViewMode;
+  walkMode: boolean;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const isGlasshouse = presentation.modules.environment.some(
@@ -2817,13 +2994,18 @@ function WorldScene({
   const isCourtyard = presentation.modules.environment.some(
     (module) => module.moduleId === "shell:open-air",
   );
+  const roomSpan = Math.max(bounds[0], bounds[2]);
 
   return (
     <>
       <color attach="background" args={[presentation.palette.background]} />
       <fog
         attach="fog"
-        args={[presentation.palette.fog, isCourtyard ? 7.5 : 10, isCourtyard ? 24 : 29]}
+        args={[
+          presentation.palette.fog,
+          Math.max(isCourtyard ? 7.5 : 10, roomSpan * (isCourtyard ? 0.34 : 0.42)),
+          Math.max(isCourtyard ? 24 : 29, roomSpan * 1.7),
+        ]}
       />
       <hemisphereLight
         color={presentation.palette.keyLight}
@@ -2941,7 +3123,7 @@ function WorldScene({
           <meshBasicMaterial color="#69dfce" transparent opacity={0.8} />
         </mesh>
       )}
-      <SceneCamera layout={layout} command={cameraCommand} />
+      <SceneCamera layout={layout} command={cameraCommand} walkMode={walkMode} />
     </>
   );
 }
@@ -2970,7 +3152,9 @@ export function WorldViewer({
   const [visiblePatchKey, setVisiblePatchKey] = useState("");
   const [cameraCommand, setCameraCommand] = useState<CameraCommand | null>(null);
   const [cameraView, setCameraView] = useState<CameraViewMode>("pov");
+  const [walkMode, setWalkMode] = useState(false);
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
+  const viewerElement = useRef<HTMLDivElement>(null);
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
   const appliedPatchValue = useRef<ScenePatch | null>(null);
@@ -2987,6 +3171,34 @@ export function WorldViewer({
     cameraCommandId.current += 1;
     setCameraView(view);
     setCameraCommand({ id: cameraCommandId.current, kind: view });
+  }, []);
+
+  const enterWalkMode = useCallback(async () => {
+    const element = viewerElement.current;
+    if (!element) return;
+    requestCameraView("pov");
+    try {
+      await element.requestFullscreen();
+      setWalkMode(true);
+    } catch {
+      setWalkMode(false);
+    }
+  }, [requestCameraView]);
+
+  const leaveWalkMode = useCallback(() => {
+    if (document.fullscreenElement === viewerElement.current) {
+      void document.exitFullscreen();
+    } else {
+      setWalkMode(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setWalkMode(document.fullscreenElement === viewerElement.current);
+    };
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    return () => document.removeEventListener("fullscreenchange", syncFullscreenState);
   }, []);
 
   useEffect(() => {
@@ -3181,12 +3393,13 @@ export function WorldViewer({
 
   return (
     <div
+      ref={viewerElement}
       className={["world-viewer", className].filter(Boolean).join(" ")}
       data-runtime-status={viewer.error ? "error" : "ready"}
       data-story-id={runtime?.snapshot.storyId ?? "invalid"}
       data-world-version={runtime?.snapshot.version ?? "invalid"}
       data-location-id={runtime?.layout.location.id ?? "invalid"}
-      data-navigation-mode="map"
+      data-navigation-mode={walkMode ? "walk" : "map"}
       data-visible-relations={relationEdges.length}
       data-open-conflicts={openConflicts.length}
       data-render-quality={renderQuality}
@@ -3228,6 +3441,7 @@ export function WorldViewer({
             portalDestination={portalDestination}
             onLocationRequest={onLocationRequest}
             cameraView={cameraView}
+            walkMode={walkMode}
           />
           <PerformanceMonitor
             ms={250}
@@ -3258,12 +3472,29 @@ export function WorldViewer({
             type="button"
             aria-pressed={cameraView === "overview"}
             onClick={() => {
+              if (walkMode) leaveWalkMode();
               requestCameraView("overview");
               onEntitySelect?.(null);
             }}
           >
             Overview
           </button>
+          <button
+            type="button"
+            aria-pressed={walkMode}
+            onClick={() => {
+              if (walkMode) leaveWalkMode();
+              else void enterWalkMode();
+              onEntitySelect?.(null);
+            }}
+          >
+            {walkMode ? "Exit walk" : "Walk fullscreen"}
+          </button>
+        </div>
+      )}
+      {walkMode && (
+        <div className="world-walk-hint" role="status">
+          <strong>WASD</strong> move <span aria-hidden="true">·</span> drag to look <span aria-hidden="true">·</span> Esc exits
         </div>
       )}
       {!viewer.error && openConflicts.length > 0 && (

@@ -4,6 +4,17 @@
   background: #171b20;
 }
 
+.world-viewer:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  background: #090c0e;
+}
+
+.world-viewer[data-navigation-mode="walk"] canvas {
+  cursor: crosshair;
+}
+
 .world-viewer canvas {
   filter: saturate(1.08) contrast(1.035);
   cursor: grab;
@@ -84,6 +95,31 @@
 .world-camera-modes button[aria-pressed="true"] {
   color: #10201f;
   background: #72d9ca;
+}
+
+.world-walk-hint {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.58rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #d6e5e2;
+  background: rgba(18, 27, 29, 0.82);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  font-size: 0.72rem;
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+.world-walk-hint strong {
+  color: #7ee6d7;
+  letter-spacing: 0.08em;
 }
 
 .world-conflict-summary {

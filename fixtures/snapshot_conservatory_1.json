@@ -6,7 +6,7 @@
     {
       "id": "moonlit-conservatory",
       "name": "Moonlit conservatory",
-      "bounds": [15, 6, 12],
+      "bounds": [30, 7, 24],
       "environment": {
         "floorColor": "#31443c",
         "wallColor": "#688b82",

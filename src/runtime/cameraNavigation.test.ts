@@ -4,6 +4,7 @@ import {
   createOverviewCameraPose,
   createPovCameraPose,
   createTravelCameraPose,
+  createWalkCameraPose,
 } from "./cameraNavigation";
 
 describe("camera navigation", () => {
@@ -37,5 +38,33 @@ describe("camera navigation", () => {
     expect(pose.position[0] - pose.target[0]).toBeCloseTo(8);
     expect(pose.position[1] - pose.target[1]).toBeCloseTo(6);
     expect(pose.position[2] - pose.target[2]).toBeCloseTo(9);
+  });
+
+  it("walks relative to the view while keeping a standing eye height", () => {
+    const pose = createWalkCameraPose(
+      [0, 1.68, 4],
+      [0, 1.3, 0],
+      { forward: true, backward: false, left: false, right: true },
+      1,
+      [30, 6.8, 26],
+    );
+
+    expect(pose.position[0]).toBeGreaterThan(0);
+    expect(pose.position[2]).toBeLessThan(4);
+    expect(pose.position[1]).toBeCloseTo(1.68);
+    expect(pose.target[1] - pose.position[1]).toBeCloseTo(1.3 - 1.68);
+  });
+
+  it("keeps walking inside the room footprint without jumping", () => {
+    const pose = createWalkCameraPose(
+      [14.3, 8, -12.3],
+      [15.3, 8, -12.3],
+      { forward: true, backward: false, left: false, right: false },
+      5,
+      [30, 6.8, 26],
+    );
+
+    expect(pose.position).toEqual([14.45, 1.68, -12.3]);
+    expect(pose.target[0] - pose.position[0]).toBeCloseTo(1);
   });
 });
