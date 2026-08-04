@@ -8,6 +8,17 @@ export interface CameraPose {
   target: Vector3Tuple;
 }
 
+/** Places the reader inside the world at a natural standing eye height. */
+export function createPovCameraPose(
+  bounds: Vector3Tuple = DEFAULT_BOUNDS,
+): CameraPose {
+  const eyeHeight = Math.min(1.68, Math.max(1.5, bounds[1] * 0.34));
+  return {
+    position: [bounds[0] * 0.16, eyeHeight, bounds[2] * 0.34],
+    target: [0, Math.min(1.32, eyeHeight - 0.18), -bounds[2] * 0.17],
+  };
+}
+
 /** Keeps the navigated point inside the walkable footprint of a room. */
 export function clampNavigationTarget(
   target: Vector3Tuple,

@@ -138,9 +138,10 @@ describe("scene recipe compiler", () => {
     const awakenedDressing = recipe.locations["moonlit-conservatory"]?.dressingInstances ?? [];
     expect(awakenedDressing.map((instance) => instance.dressingId))
       .toEqual(openingDressing.map((instance) => instance.dressingId));
-    expect(awakenedDressing.filter((instance) => instance.placementStatus === "rerouted")
-      .map((instance) => instance.dressingId))
-      .toContain("moonlit-conservatory:dressing:planters:northeast-planter");
+    expect(awakenedDressing.find(
+      (instance) =>
+        instance.dressingId === "moonlit-conservatory:dressing:planters:northeast-planter",
+    )?.placementStatus).toBe("preferred");
   });
 
   it("scales adaptive dressing counts from sparse to rich without changing facts", () => {

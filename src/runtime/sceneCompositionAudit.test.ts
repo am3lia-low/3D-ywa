@@ -22,7 +22,7 @@ describe("scene composition audit", () => {
       ...snapshot,
       entities: snapshot.entities.map((entity) =>
         entity.id === "courtyard-parcel-1"
-          ? { ...entity, dimensions: [12, 4.7, 10] }
+          ? { ...entity, dimensions: [15, 5.5, 13] }
           : entity,
       ),
     };
@@ -54,7 +54,7 @@ describe("scene composition audit", () => {
       ...snapshot,
       entities: snapshot.entities.map((entity) =>
         entity.id === "courtyard-table-1"
-          ? { ...entity, transform: { position: [0, 0.6, -3.6] } }
+          ? { ...entity, transform: { position: [0, 0.6, -5] } }
           : entity,
       ),
     };

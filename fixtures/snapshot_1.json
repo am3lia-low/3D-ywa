@@ -6,7 +6,7 @@
     {
       "id": "attic-study",
       "name": "Attic study",
-      "bounds": [12, 4.5, 10],
+      "bounds": [15, 5.8, 13],
       "environment": {
         "floorColor": "#3d352e",
         "wallColor": "#a89d8d",
@@ -16,7 +16,7 @@
     {
       "id": "archive-vault",
       "name": "Archive vault",
-      "bounds": [8, 4, 7],
+      "bounds": [10, 4.6, 9],
       "environment": {
         "floorColor": "#273333",
         "wallColor": "#667474",

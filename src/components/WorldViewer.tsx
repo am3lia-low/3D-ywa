@@ -43,6 +43,7 @@ import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
   createOverviewCameraPose,
+  createPovCameraPose,
   createTravelCameraPose,
 } from "../runtime/cameraNavigation";
 import {
@@ -108,8 +109,11 @@ export interface WorldViewerProps {
 type ChangeKind = "added" | "moved" | "changed" | "removed" | undefined;
 
 type CameraCommand =
-  | { id: number; kind: "reset" }
-  | { id: number; kind: "travel" | "focus"; target: Vector3Tuple };
+  | { id: number; kind: "pov" }
+  | { id: number; kind: "overview" }
+  | { id: number; kind: "travel"; target: Vector3Tuple }
+  | { id: number; kind: "focus"; target: Vector3Tuple };
+type CameraViewMode = "pov" | "overview";
 
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
   const result = new Map<string, ChangeKind>();
@@ -560,9 +564,14 @@ function AtticRoofFrame({ bounds, timberColor }: { bounds: Vector3Tuple; timberC
   const eaveY = bounds[1] * 0.72;
   const ridgeY = bounds[1] - 0.14;
   const halfWidth = bounds[0] / 2 - 0.14;
-  const frameDepths = [-bounds[2] / 2 + 0.18, -bounds[2] * 0.24, bounds[2] * 0.04];
-  const purlinDepth = bounds[2] * 0.58;
-  const purlinZ = -bounds[2] * 0.2;
+  const frameDepths = [
+    -bounds[2] / 2 + 0.22,
+    -bounds[2] * 0.17,
+    bounds[2] * 0.17,
+    bounds[2] / 2 - 0.22,
+  ];
+  const purlinDepth = bounds[2] - 0.3;
+  const purlinZ = 0;
   const roofY = (x: number) =>
     eaveY + (ridgeY - eaveY) * (1 - Math.abs(x) / halfWidth);
 
@@ -621,8 +630,8 @@ function AtticRoofShell({
   const rise = ridgeY - eaveY;
   const slopeLength = Math.hypot(halfWidth, rise);
   const angle = Math.atan2(rise, halfWidth);
-  const panelDepth = bounds[2] * 0.58;
-  const panelZ = -bounds[2] * 0.21;
+  const panelDepth = bounds[2] + 0.18;
+  const panelZ = 0;
   const material = (
     <meshStandardMaterial
       color="#6f5947"
@@ -1571,12 +1580,6 @@ function ConservatoryKit({
               <meshStandardMaterial color="#172d2b" roughness={0.94} />
             </mesh>
           ))}
-          {[-1.12, 1.12].map((x) => (
-            <mesh key={`glasshouse-walkway-inlay-${x}`} position={[x, 0.052, 0]}>
-              <boxGeometry args={[0.025, 0.014, bounds[2] * 0.88]} />
-              <meshStandardMaterial color="#9b7445" roughness={0.5} metalness={0.62} />
-            </mesh>
-          ))}
         </group>
       )}
       {plinths.map(([x, y, z, width, height, depth], index) => (
@@ -2129,10 +2132,12 @@ function Room({
   layout,
   presentation,
   onGroundNavigate,
+  overview,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
   onGroundNavigate: (target: Vector3Tuple) => void;
+  overview: boolean;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const wallThickness = 0.12;
@@ -2254,13 +2259,17 @@ function Room({
               />
             </mesh>
           )}
-          <AtticRoofShell
-            bounds={bounds}
-            colorMap={roomTextures.floorColor}
-            normalMap={roomTextures.floorNormal}
-            roughnessMap={roomTextures.floorArm}
-          />
-          <AtticRoofFrame bounds={bounds} timberColor={presentation.palette.timber} />
+          {!overview && (
+            <AtticRoofShell
+              bounds={bounds}
+              colorMap={roomTextures.floorColor}
+              normalMap={roomTextures.floorNormal}
+              roughnessMap={roomTextures.floorArm}
+            />
+          )}
+          {!overview && (
+            <AtticRoofFrame bounds={bounds} timberColor={presentation.palette.timber} />
+          )}
           <mesh position={[0, 0.18, -bounds[2] / 2 + 0.1]} castShadow receiveShadow>
             <boxGeometry args={[bounds[0], 0.34, 0.18]} />
             <meshStandardMaterial color={presentation.palette.timber} roughness={0.96} />
@@ -2645,7 +2654,7 @@ function SceneCamera({
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
 
   useEffect(() => {
-    const overview = createOverviewCameraPose(bounds);
+    const pov = createPovCameraPose(bounds);
     const currentControls = controls.current;
     if (!currentControls) return;
 
@@ -2657,8 +2666,8 @@ function SceneCamera({
       ),
     );
     void currentControls.setLookAt(
-      ...overview.position,
-      ...overview.target,
+      ...pov.position,
+      ...pov.target,
       false,
     );
     currentControls.saveState();
@@ -2669,15 +2678,19 @@ function SceneCamera({
     if (!command || !currentControls) return;
     const currentPosition = currentControls.getPosition(new THREE.Vector3(), true);
     const currentTarget = currentControls.getTarget(new THREE.Vector3(), true);
-    const pose =
-      command.kind === "reset"
-        ? createOverviewCameraPose(bounds)
-        : createTravelCameraPose(
-            [currentPosition.x, currentPosition.y, currentPosition.z],
-            [currentTarget.x, currentTarget.y, currentTarget.z],
-            command.target,
-            bounds,
-          );
+    let pose;
+    if (command.kind === "pov") {
+      pose = createPovCameraPose(bounds);
+    } else if (command.kind === "overview") {
+      pose = createOverviewCameraPose(bounds);
+    } else {
+      pose = createTravelCameraPose(
+        [currentPosition.x, currentPosition.y, currentPosition.z],
+        [currentTarget.x, currentTarget.y, currentTarget.z],
+        command.target,
+        bounds,
+      );
+    }
     currentControls.cancel();
     void currentControls.setLookAt(...pose.position, ...pose.target, true);
   }, [bounds[0], bounds[1], bounds[2], command]);
@@ -2779,6 +2792,7 @@ function WorldScene({
   enableShadows,
   portalDestination,
   onLocationRequest,
+  cameraView,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
@@ -2794,6 +2808,7 @@ function WorldScene({
   enableShadows: boolean;
   portalDestination?: Location;
   onLocationRequest?: (locationId: string) => void;
+  cameraView: CameraViewMode;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const isGlasshouse = presentation.modules.environment.some(
@@ -2875,6 +2890,7 @@ function WorldScene({
         layout={layout}
         presentation={presentation}
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
+        overview={cameraView === "overview"}
       />
       <DressingAssets instances={dressingInstances} />
       {presentation.atmosphere.dust && (
@@ -2953,6 +2969,7 @@ export function WorldViewer({
   );
   const [visiblePatchKey, setVisiblePatchKey] = useState("");
   const [cameraCommand, setCameraCommand] = useState<CameraCommand | null>(null);
+  const [cameraView, setCameraView] = useState<CameraViewMode>("pov");
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
@@ -2966,9 +2983,10 @@ export function WorldViewer({
     setCameraCommand({ id: cameraCommandId.current, kind, target });
   }, []);
 
-  const resetCamera = useCallback(() => {
+  const requestCameraView = useCallback((view: CameraViewMode) => {
     cameraCommandId.current += 1;
-    setCameraCommand({ id: cameraCommandId.current, kind: "reset" });
+    setCameraView(view);
+    setCameraCommand({ id: cameraCommandId.current, kind: view });
   }, []);
 
   useEffect(() => {
@@ -2976,6 +2994,8 @@ export function WorldViewer({
     appliedPatch.current = null;
     appliedPatchValue.current = null;
     notifiedPatch.current = null;
+    setCameraView("pov");
+    setCameraCommand(null);
   }, [snapshot.storyId, snapshot.version]);
 
   useEffect(() => {
@@ -2989,6 +3009,7 @@ export function WorldViewer({
   useEffect(() => {
     if (!activeLocationId) return;
     setCameraCommand(null);
+    setCameraView("pov");
     setViewer((current) => {
       if (!current.runtime) return current;
       try {
@@ -3206,6 +3227,7 @@ export function WorldViewer({
             enableShadows={qualityProfile.shadows}
             portalDestination={portalDestination}
             onLocationRequest={onLocationRequest}
+            cameraView={cameraView}
           />
           <PerformanceMonitor
             ms={250}
@@ -3221,16 +3243,28 @@ export function WorldViewer({
         <div className="world-runtime-empty">The supplied world snapshot cannot be rendered.</div>
       )}
       {runtime && (
-        <button
-          type="button"
-          className="world-camera-reset"
-          onClick={() => {
-            resetCamera();
-            onEntitySelect?.(null);
-          }}
-        >
-          Reset view
-        </button>
+        <div className="world-camera-modes" role="group" aria-label="Camera view">
+          <button
+            type="button"
+            aria-pressed={cameraView === "pov"}
+            onClick={() => {
+              requestCameraView("pov");
+              onEntitySelect?.(null);
+            }}
+          >
+            POV
+          </button>
+          <button
+            type="button"
+            aria-pressed={cameraView === "overview"}
+            onClick={() => {
+              requestCameraView("overview");
+              onEntitySelect?.(null);
+            }}
+          >
+            Overview
+          </button>
+        </div>
       )}
       {!viewer.error && openConflicts.length > 0 && (
         <div className="world-conflict-summary" role="status">

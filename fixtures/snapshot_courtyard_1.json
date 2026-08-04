@@ -6,7 +6,7 @@
     {
       "id": "coaching-courtyard",
       "name": "Rain-washed coaching courtyard",
-      "bounds": [13, 4.8, 11],
+      "bounds": [17, 5.6, 14],
       "environment": {
         "floorColor": "#555b58",
         "wallColor": "#8f8878",
