@@ -1,0 +1,295 @@
+{
+  "schemaVersion": "1.0",
+  "packageId": "editable-story-template",
+  "label": "EDIT ME: The lantern reader's glade",
+  "initialSnapshot": {
+    "storyId": "story-editable-template",
+    "version": 1,
+    "passageId": "P1",
+    "locations": [
+      {
+        "id": "lantern-readers-glade",
+        "name": "The lantern reader's glade",
+        "bounds": [30, 8, 38],
+        "environment": {
+          "floorColor": "#40533d",
+          "wallColor": "#6c7966",
+          "ambientColor": "#c9d7b6"
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "reading-table-1",
+        "name": "Weathered woodland reading table",
+        "kind": "furniture",
+        "assetKey": "desk",
+        "aliases": ["table", "writing desk"],
+        "locationId": "lantern-readers-glade",
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "A weathered reading table waited beneath the old trees.",
+          "confidence": 0.96
+        }
+      },
+      {
+        "id": "reading-chair-1",
+        "name": "Old wooden reading chair",
+        "kind": "furniture",
+        "assetKey": "chair",
+        "aliases": ["chair", "seat"],
+        "locationId": "lantern-readers-glade",
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "An old chair faced the table.",
+          "confidence": 0.94
+        }
+      },
+      {
+        "id": "amber-lantern-1",
+        "name": "Amber brass reading lantern",
+        "kind": "light",
+        "assetKey": "lantern",
+        "aliases": ["lamp", "lantern"],
+        "locationId": "lantern-readers-glade",
+        "state": {
+          "lit": true
+        },
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "An amber lantern glowed on the table.",
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "forest-map-1",
+        "name": "Hand-painted map of the forest paths",
+        "kind": "document",
+        "assetKey": "map",
+        "aliases": ["map", "parchment"],
+        "locationId": "lantern-readers-glade",
+        "dimensions": [0.92, 0.025, 0.64],
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "Beside it lay a hand-painted map of the forest paths.",
+          "confidence": 0.97
+        }
+      }
+    ],
+    "relations": [
+      {
+        "id": "chair-facing-table",
+        "subjectId": "reading-chair-1",
+        "predicate": "in_front_of",
+        "objectId": "reading-table-1",
+        "distance": 0.35
+      },
+      {
+        "id": "lantern-on-table",
+        "subjectId": "amber-lantern-1",
+        "predicate": "on",
+        "objectId": "reading-table-1"
+      },
+      {
+        "id": "map-on-table",
+        "subjectId": "forest-map-1",
+        "predicate": "on",
+        "objectId": "reading-table-1"
+      }
+    ],
+    "conflicts": []
+  },
+  "moments": [
+    {
+      "passageId": "P1",
+      "text": "A weathered reading table waited beneath the old trees. An old chair faced it, while an amber lantern glowed beside a hand-painted map of the forest paths.",
+      "visualPlan": {
+        "schemaVersion": "1.0",
+        "storyId": "story-editable-template",
+        "segmentId": "arrival-at-the-readers-glade",
+        "sourcePassageIds": [
+          "P1"
+        ],
+        "snapshotVersion": 1,
+        "planVersion": 1,
+        "artDirection": {
+          "styleLabel": "stylized Ghibli-inspired woodland fantasy",
+          "stylePrompt": "A lush hand-painted fantasy woodland with graceful tree silhouettes, moss-soft ground, jewel-like flowers, tactile natural materials, a winding readable path and warm storybook light.",
+          "negativePrompt": [
+            "photorealism",
+            "empty terrain",
+            "generic white boxes",
+            "flat lighting",
+            "modern objects",
+            "visual clutter blocking the path"
+          ],
+          "materialVocabulary": [
+            "moss-soft earth",
+            "weathered oak",
+            "aged brass",
+            "painted parchment",
+            "soft broadleaf foliage",
+            "lichen-covered stone"
+          ]
+        },
+        "locations": [
+          {
+            "locationId": "lantern-readers-glade",
+            "archetype": "sun-dappled broadleaf fantasy woodland glade",
+            "visualDescription": "A generous clearing beneath old rounded trees, crossed by a winding earth path and framed by layered ferns, flowers, mossy rocks and distant woodland depth.",
+            "architectureTags": [
+              "open-air",
+              "forest-floor",
+              "winding-path",
+              "woodland-edge"
+            ],
+            "dressingTags": [
+              "broadleaf-trees",
+              "forest-undergrowth",
+              "grass-tufts",
+              "wild-mushrooms",
+              "fallen-logs",
+              "forest-rocks",
+              "flowers"
+            ],
+            "dressingDensity": "rich",
+            "mood": "welcoming, wondrous and quietly mysterious",
+            "timeOfDay": "warm late-afternoon golden hour",
+            "palette": {
+              "background": "#779b9a",
+              "fog": "#b7c9a6",
+              "floor": "#526746",
+              "wall": "#71816a",
+              "timber": "#654830",
+              "ambient": "#d7dfbb",
+              "keyLight": "#ffe1a0",
+              "practical": "#f3a64f"
+            },
+            "lighting": {
+              "warmth": "warm",
+              "contrast": "medium",
+              "ambientIntensity": 0.82,
+              "keyIntensity": 1.6,
+              "atmosphericEffects": [
+                "soft ground mist",
+                "floating pollen motes",
+                "sun shafts through leaves"
+              ]
+            },
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.68,
+              "basis": "cross_passage_inference",
+              "note": "The broad visual treatment is inferred from the passage and may be revised without changing narrative facts."
+            }
+          }
+        ],
+        "entities": [
+          {
+            "entityId": "reading-table-1",
+            "visualDescription": "A sturdy but elegant old oak writing table with softened corners and small document drawers.",
+            "importance": "supporting",
+            "materials": [
+              "weathered oak",
+              "dark iron hardware"
+            ],
+            "colors": [
+              "warm chestnut brown",
+              "deep umber"
+            ],
+            "condition": "old, cared for and softened by use",
+            "assetSearchTags": [
+              "antique wooden writing desk",
+              "storybook oak table"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.91,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "reading-chair-1",
+            "visualDescription": "A correctly proportioned high-backed wooden chair turned toward the writing table.",
+            "importance": "supporting",
+            "materials": [
+              "warm oak"
+            ],
+            "colors": [
+              "honey brown"
+            ],
+            "condition": "worn smooth at the arms",
+            "assetSearchTags": [
+              "antique wooden chair",
+              "storybook reading chair"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.9,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "amber-lantern-1",
+            "visualDescription": "A compact aged-brass lantern with clear glass and a warm flame seated naturally in its burner.",
+            "importance": "hero",
+            "materials": [
+              "aged brass",
+              "clear glass"
+            ],
+            "colors": [
+              "antique gold",
+              "amber flame"
+            ],
+            "condition": "lit and gently weathered",
+            "assetSearchTags": [
+              "storybook brass lantern",
+              "antique oil lamp"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.98,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "forest-map-1",
+            "visualDescription": "A cream parchment map painted with curling green paths, tiny trees and a dark red compass rose.",
+            "importance": "hero",
+            "materials": [
+              "parchment",
+              "pigment ink"
+            ],
+            "colors": [
+              "warm cream",
+              "forest green",
+              "dark red"
+            ],
+            "condition": "creased at the folds",
+            "assetSearchTags": [
+              "fantasy forest map",
+              "painted parchment chart"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.96,
+              "basis": "explicit_text"
+            }
+          }
+        ],
+        "presentationConnections": [],
+        "unresolvedQuestions": []
+      }
+    }
+  ]
+}

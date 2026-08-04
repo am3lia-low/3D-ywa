@@ -19,7 +19,7 @@
       "id": "woodland-storybook",
       "label": "Ghibli-inspired woodland storybook",
       "description": "A reusable stylized fantasy grammar for layered conifers or broadleaf groves, moss-soft ground, winding paths and jewel-toned forest details.",
-      "matchTags": ["woodland", "forest", "misty", "pine", "moss", "trail", "conifer"],
+      "matchTags": ["woodland", "forest", "misty", "pine", "moss", "trail", "conifer", "broadleaf", "grove", "glade", "ghibli"],
       "requiredRoles": ["environment-tree", "environment-shrub", "environment-rock", "forest-deadwood", "forest-groundcover", "forest-floor-detail"]
     },
     {

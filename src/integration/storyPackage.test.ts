@@ -5,6 +5,7 @@ import patch3Fixture from "../../fixtures/patch_3.json";
 import plan1Fixture from "../../fixtures/visual_scene_plan_1.json";
 import plan3Fixture from "../../fixtures/visual_scene_plan_3.json";
 import importedDemoFixture from "../../fixtures/story_package_import_demo.json";
+import editableTemplateFixture from "../../fixtures/part1_story_package_template.json";
 import {
   parseStoryPackageJson,
   runtimeStoryFromPackage,
@@ -69,6 +70,17 @@ describe("story package integration", () => {
     expect(recipe.coverage.approved).toBe(5);
     expect(recipe.locations["observatory-archive"]?.environmentModules.map((module) => module.moduleId))
       .toContain("structure:archive-shelves");
+  });
+
+  it("accepts the editable Part 1 starter package as a clean import", () => {
+    const storyPackage = validateStoryPackage(editableTemplateFixture);
+    const runtime = runtimeStoryFromPackage(storyPackage);
+    const recipe = compileSceneRecipe(runtime.snapshot, runtime.visualPlans[0]!);
+
+    expect(runtime.id).toBe("editable-story-template");
+    expect(recipe.styleKit.id).toBe("woodland-storybook");
+    expect(recipe.coverage.approved).toBe(4);
+    expect(recipe.composition.status).not.toBe("blocking");
   });
 
   it("permits a validated visual plan to carry forward across a factual-only passage", () => {

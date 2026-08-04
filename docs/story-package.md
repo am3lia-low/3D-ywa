@@ -38,6 +38,9 @@ The loader rejects the entire package before it changes the mounted story. It
 reports structural paths, broken version links and non-canonical visual IDs.
 Imports are session-only and limited to 2 MB in the browser MVP.
 
-Use `fixtures/story_package_import_demo.json` as the working example. Member 1
-can target `src/integration/storyPackage.ts` for the TypeScript surface and this
-fixture for serialized output.
+Use `fixtures/part1_story_package_template.json` as the editable one-passage
+starter and `fixtures/story_package_import_demo.json` as the more complete
+working example. Editing guidance lives in
+`docs/editing-part1-story-package.md`. Member 1 can target
+`src/integration/storyPackage.ts` for the TypeScript surface and either fixture
+for serialized output.
