@@ -101,6 +101,10 @@ export interface WorldViewerProps {
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
   onPatchApplied?: (snapshot: WorldSnapshot, patch: ScenePatch) => void;
   onLocationRequest?: (locationId: string) => void;
+  /** Optional reader action shown while the viewer owns the fullscreen surface. */
+  onPassageAdvance?: () => void;
+  passageActionLabel?: string;
+  passageActionDisabled?: boolean;
   /** Optional room selection; defaults to the snapshot's first location. */
   activeLocationId?: string;
   assetRegistry?: AssetRegistry;
@@ -1394,7 +1398,7 @@ function WorldEntity({
       position={initialPosition.current}
       rotation={item.rotation}
       scale={initialScale.current}
-      onPointerDown={onActivate ?? onSelect}
+      onClick={onActivate ?? onSelect}
       userData={{ entityId: item.entity.id, assetKey: item.asset.key }}
     >
       {isParcel ? (
@@ -1511,9 +1515,11 @@ function BotanicalPlanter({
 function ConservatoryKit({
   bounds,
   presentation,
+  overview,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
+  overview: boolean;
 }) {
   const stone = usePbrSurface(
     "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
@@ -1554,6 +1560,9 @@ function ConservatoryKit({
     [0, 0.34, -bounds[2] / 2 + 0.1, bounds[0], 0.68, 0.2],
     [-bounds[0] / 2 + 0.1, 0.34, 0, 0.2, 0.68, bounds[2]],
     [bounds[0] / 2 - 0.1, 0.34, 0, 0.2, 0.68, bounds[2]],
+    ...(!overview
+      ? [[0, 0.34, bounds[2] / 2 - 0.1, bounds[0], 0.68, 0.2] as [number, number, number, number, number, number]]
+      : []),
   ];
 
   return (
@@ -1620,6 +1629,12 @@ function ConservatoryKit({
             <planeGeometry args={[bounds[0] - 0.25, eaveY - 0.68]} />
             {glassMaterial(0.24)}
           </mesh>
+          {!overview && (
+            <mesh position={[0, (eaveY + 0.68) / 2, bounds[2] / 2 - 0.115]}>
+              <planeGeometry args={[bounds[0] - 0.25, eaveY - 0.68]} />
+              {glassMaterial(0.2)}
+            </mesh>
+          )}
           <mesh
             position={[-bounds[0] / 2 + 0.115, (eaveY + 0.68) / 2, 0]}
             rotation={[0, Math.PI / 2, 0]}
@@ -1658,6 +1673,12 @@ function ConservatoryKit({
               <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
             </mesh>
           ))}
+          {!overview && rearPosts.map((x, index) => (
+            <mesh key={`glasshouse-front-post-${index}`} position={[x, eaveY / 2, bounds[2] / 2 - 0.08]}>
+              <boxGeometry args={[0.085, eaveY, 0.11]} />
+              <meshStandardMaterial color={frameColor} roughness={0.58} metalness={0.56} />
+            </mesh>
+          ))}
           {[-1, 1].flatMap((side) => sidePosts.map((z, index) => (
             <mesh key={`glasshouse-side-post-${side}-${index}`} position={[side * (bounds[0] / 2 - 0.08), eaveY / 2, z]}>
               <boxGeometry args={[0.11, eaveY, 0.085]} />
@@ -1670,6 +1691,12 @@ function ConservatoryKit({
                 <boxGeometry args={[bounds[0], 0.1, 0.12]} />
                 <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
               </mesh>
+              {!overview && (
+                <mesh position={[0, height, bounds[2] / 2 - 0.08]}>
+                  <boxGeometry args={[bounds[0], 0.1, 0.12]} />
+                  <meshStandardMaterial color={frameColor} roughness={0.56} metalness={0.58} />
+                </mesh>
+              )}
               {[-1, 1].map((side) => (
                 <mesh key={`glasshouse-side-rail-${side}-${height}`} position={[side * (bounds[0] / 2 - 0.08), height, 0]}>
                   <boxGeometry args={[0.12, 0.1, bounds[2]]} />
@@ -1839,9 +1866,11 @@ function CourtyardGateSurround({
 function CourtyardKit({
   bounds,
   presentation,
+  overview,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
+  overview: boolean;
 }) {
   const stone = usePbrSurface(
     "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
@@ -1867,6 +1896,9 @@ function CourtyardKit({
     [[0, wallHeight / 2, -bounds[2] / 2 + 0.08], [bounds[0], wallHeight, 0.2], "#d2c6ac"],
     [[-bounds[0] / 2 + 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c9bda5"],
     [[bounds[0] / 2 - 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c6baa2"],
+    ...(!overview
+      ? [[[0, wallHeight / 2, bounds[2] / 2 - 0.08], [bounds[0], wallHeight, 0.2], "#c9bea7"] as [Vector3Tuple, Vector3Tuple, string]]
+      : []),
   ];
   const puddles: Array<{ position: Vector3Tuple; scale: Vector3Tuple }> = [
     { position: [-bounds[0] * 0.28, 0.075, bounds[2] * 0.22], scale: [1.25, 0.7, 1] },
@@ -1898,6 +1930,9 @@ function CourtyardKit({
             [[0, wallHeight + 0.08, -bounds[2] / 2 + 0.1], [bounds[0] + 0.18, 0.18, 0.46]],
             [[-bounds[0] / 2 + 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
             [[bounds[0] / 2 - 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
+            ...(!overview
+              ? [[[0, wallHeight + 0.08, bounds[2] / 2 - 0.1], [bounds[0] + 0.18, 0.18, 0.46]]]
+              : []),
           ].map(([position, dimensions], index) => (
             <mesh
               key={`courtyard-coping-${index}`}
@@ -2266,6 +2301,40 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
+      {!overview && !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && (
+        <>
+          <mesh position={[0, bounds[1] / 2, bounds[2] / 2]} receiveShadow>
+            <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
+            <meshStandardMaterial
+              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
+              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
+              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+              normalScale={new THREE.Vector2(0.48, 0.48)}
+              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              roughness={0.98}
+            />
+          </mesh>
+          <mesh position={[bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+            <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
+            <meshStandardMaterial
+              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
+              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
+              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+              normalScale={new THREE.Vector2(0.48, 0.48)}
+              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              roughness={0.98}
+            />
+          </mesh>
+          <mesh position={[0, bounds[1] - wallThickness / 2, 0]} receiveShadow>
+            <boxGeometry args={[bounds[0], wallThickness, bounds[2]]} />
+            <meshStandardMaterial
+              color={presentation.palette.wall}
+              roughness={1}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </>
+      )}
       {usesAtticKit ? (
         <>
           <mesh position={[0, 0, -bounds[2] / 2 + 0.015]} receiveShadow>
@@ -2294,6 +2363,40 @@ function Room({
               roughness={0.98}
             />
           </mesh>
+          {!overview && (
+            <>
+              <mesh
+                position={[0, 0, bounds[2] / 2 - 0.015]}
+                rotation={[0, Math.PI, 0]}
+                receiveShadow
+              >
+                <shapeGeometry args={[atticGableShape]} />
+                <meshStandardMaterial
+                  color="#d3c5aa"
+                  map={roomTextures.wallColor}
+                  normalMap={roomTextures.wallNormal}
+                  normalScale={new THREE.Vector2(0.48, 0.48)}
+                  roughnessMap={roomTextures.wallArm}
+                  roughness={0.98}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+              <mesh
+                position={[bounds[0] / 2 - wallThickness / 2, wallTop / 2, 0]}
+                receiveShadow
+              >
+                <boxGeometry args={[wallThickness, wallTop, bounds[2]]} />
+                <meshStandardMaterial
+                  color="#d3c5aa"
+                  map={roomTextures.wallColor}
+                  normalMap={roomTextures.wallNormal}
+                  normalScale={new THREE.Vector2(0.48, 0.48)}
+                  roughnessMap={roomTextures.wallArm}
+                  roughness={0.98}
+                />
+              </mesh>
+            </>
+          )}
           {presentation.architecture.floorboards && (
             <mesh position={[0, 0.012, 0]} receiveShadow>
               <boxGeometry args={[bounds[0] - 0.08, 0.025, bounds[2] - 0.08]} />
@@ -2346,6 +2449,43 @@ function Room({
               <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
             </mesh>
           ))}
+          {!overview && (
+            <>
+              {rearStuds.map((x, index) => (
+                <mesh
+                  key={`front-stud-${index}`}
+                  position={[x, wallTop / 2, bounds[2] / 2 - 0.055]}
+                  castShadow
+                >
+                  <boxGeometry args={[0.16, wallTop, 0.18]} />
+                  <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
+                </mesh>
+              ))}
+              {sideStuds.map((z, index) => (
+                <mesh
+                  key={`right-stud-${index}`}
+                  position={[bounds[0] / 2 - 0.055, wallTop / 2, z]}
+                  castShadow
+                >
+                  <boxGeometry args={[0.18, wallTop, 0.16]} />
+                  <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
+                </mesh>
+              ))}
+              {[
+                [[0, 0.18, bounds[2] / 2 - 0.1], [bounds[0], 0.34, 0.18]],
+                [[bounds[0] / 2 - 0.1, 0.18, 0], [0.18, 0.34, bounds[2]]],
+                [[0, wallTop, bounds[2] / 2 - 0.04], [bounds[0], 0.2, 0.22]],
+                [[bounds[0] / 2 - 0.04, wallTop, 0], [0.22, 0.2, bounds[2]]],
+                [[0, 1.12, bounds[2] / 2 - 0.075], [bounds[0], 0.14, 0.16]],
+                [[bounds[0] / 2 - 0.075, 1.12, 0], [0.16, 0.14, bounds[2]]],
+              ].map(([position, dimensions], index) => (
+                <mesh key={`attic-enclosure-beam-${index}`} position={position as Vector3Tuple} castShadow>
+                  <boxGeometry args={dimensions as Vector3Tuple} />
+                  <meshStandardMaterial color={presentation.palette.timber} roughness={0.94} />
+                </mesh>
+              ))}
+            </>
+          )}
           <mesh position={[0, wallTop, -bounds[2] / 2 + 0.04]} castShadow>
             <boxGeometry args={[bounds[0], 0.2, 0.22]} />
             <meshStandardMaterial color={presentation.palette.timber} roughness={0.95} />
@@ -2455,13 +2595,72 @@ function Room({
           ))}
         </>
       ) : usesConservatoryKit ? (
-        <ConservatoryKit bounds={bounds} presentation={presentation} />
+        <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />
       ) : usesCourtyardKit ? (
-        <CourtyardKit bounds={bounds} presentation={presentation} />
+        <CourtyardKit bounds={bounds} presentation={presentation} overview={overview} />
       ) : (
         <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
       )}
     </group>
+  );
+}
+
+function WeatherSky({
+  bounds,
+  presentation,
+}: {
+  bounds: Vector3Tuple;
+  presentation: ScenePresentation;
+}) {
+  const rainy = presentation.atmosphere.rain;
+  const night = /\b(?:night|moon|midnight|dusk)\b/i.test(presentation.location.timeOfDay);
+  const topColor = rainy ? "#14242b" : night ? "#071a24" : presentation.palette.background;
+  const horizonColor = rainy ? "#53666a" : night ? "#21464c" : presentation.palette.fog;
+  const cloudColor = rainy ? "#859397" : night ? "#36565c" : "#d6dddc";
+  const uniforms = useMemo(() => ({
+    topColor: { value: new THREE.Color(topColor) },
+    horizonColor: { value: new THREE.Color(horizonColor) },
+    cloudColor: { value: new THREE.Color(cloudColor) },
+    cloudiness: { value: rainy ? 0.9 : night ? 0.16 : 0.3 },
+  }), [cloudColor, horizonColor, night, rainy, topColor]);
+  const radius = Math.min(80, Math.max(bounds[0], bounds[2]) * 2.1);
+
+  return (
+    <mesh position={[0, bounds[1] * 0.22, 0]} renderOrder={-100}>
+      <sphereGeometry args={[radius, 48, 24]} />
+      <shaderMaterial
+        side={THREE.BackSide}
+        depthWrite={false}
+        fog={false}
+        uniforms={uniforms}
+        vertexShader={`
+          varying vec3 vSkyPosition;
+          void main() {
+            vSkyPosition = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 topColor;
+          uniform vec3 horizonColor;
+          uniform vec3 cloudColor;
+          uniform float cloudiness;
+          varying vec3 vSkyPosition;
+          void main() {
+            vec3 direction = normalize(vSkyPosition);
+            float heightMix = smoothstep(-0.08, 0.82, direction.y);
+            vec3 sky = mix(horizonColor, topColor, heightMix);
+            float cloudBands = sin(direction.x * 31.0 + direction.z * 8.0)
+              + sin(direction.z * 24.0 - direction.x * 5.0)
+              + sin((direction.x + direction.z) * 17.0);
+            float clouds = smoothstep(0.45, 1.8, cloudBands) * cloudiness;
+            clouds *= smoothstep(-0.05, 0.32, direction.y);
+            sky = mix(sky, cloudColor, clouds * 0.14);
+            gl_FragColor = vec4(sky, 1.0);
+          }
+        `}
+      />
+    </mesh>
   );
 }
 
@@ -2760,7 +2959,6 @@ function SceneCamera({
     const onPointerDown = (event: PointerEvent) => {
       walkLook.current.pointerId = event.pointerId;
       gl.domElement.setPointerCapture(event.pointerId);
-      event.preventDefault();
     };
     const onPointerMove = (event: PointerEvent) => {
       if (walkLook.current.pointerId !== event.pointerId) return;
@@ -2770,7 +2968,6 @@ function SceneCamera({
         -1.25,
         1.25,
       );
-      event.preventDefault();
     };
     const onPointerUp = (event: PointerEvent) => {
       if (walkLook.current.pointerId !== event.pointerId) return;
@@ -2980,6 +3177,9 @@ function WorldScene({
   return (
     <>
       <color attach="background" args={[presentation.palette.background]} />
+      {(isCourtyard || isGlasshouse) && (
+        <WeatherSky bounds={bounds} presentation={presentation} />
+      )}
       <fog
         attach="fog"
         args={[
@@ -3123,6 +3323,9 @@ export function WorldViewer({
   onRuntimeError,
   onPatchApplied,
   onLocationRequest,
+  onPassageAdvance,
+  passageActionLabel = "Next passage",
+  passageActionDisabled = false,
   activeLocationId,
   assetRegistry = defaultAssetRegistry,
   className,
@@ -3474,8 +3677,20 @@ export function WorldViewer({
         </div>
       )}
       {walkMode && (
-        <div className="world-walk-hint" role="status">
-          <strong>WASD</strong> move <span aria-hidden="true">·</span> drag to look <span aria-hidden="true">·</span> Esc exits
+        <div className="world-walk-footer">
+          <div className="world-walk-hint" role="status">
+            <strong>WASD</strong> move <span aria-hidden="true">·</span> drag to look <span aria-hidden="true">·</span> click doors to enter <span aria-hidden="true">·</span> Esc exits
+          </div>
+          {onPassageAdvance && (
+            <button
+              type="button"
+              className="world-walk-passage"
+              disabled={passageActionDisabled}
+              onClick={onPassageAdvance}
+            >
+              {passageActionLabel}
+            </button>
+          )}
         </div>
       )}
       {!viewer.error && openConflicts.length > 0 && (

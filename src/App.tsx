@@ -197,6 +197,12 @@ export default function App() {
     }
   };
 
+  const advancePassage = () => {
+    setInvalidPatchMode(false);
+    setReviewRegistry(null);
+    setStep((current) => Math.min(story.patches.length, current + 1));
+  };
+
   const unresolvedCount = sceneRecipe.coverage.designedFallback;
 
   return (
@@ -284,6 +290,9 @@ export default function App() {
               setSelectedEntityId(null);
             }}
             onPatchApplied={(currentSnapshot) => setAcknowledgedVersion(currentSnapshot.version)}
+            onPassageAdvance={advancePassage}
+            passageActionLabel={story.nextLabels[step] ?? "Latest moment"}
+            passageActionDisabled={step >= story.patches.length}
           />
         </Suspense>
         <div className="viewer-hint">
@@ -330,11 +339,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => {
-              setInvalidPatchMode(false);
-              setReviewRegistry(null);
-              setStep((current) => Math.min(story.patches.length, current + 1));
-            }}
+            onClick={advancePassage}
             disabled={step >= story.patches.length}
           >
             {story.nextLabels[step] ?? "Latest moment"}

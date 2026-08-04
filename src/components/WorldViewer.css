@@ -97,11 +97,18 @@
   background: #72d9ca;
 }
 
-.world-walk-hint {
+.world-walk-footer {
   position: absolute;
   bottom: 1.2rem;
   left: 50%;
   z-index: 2;
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  transform: translateX(-50%);
+}
+
+.world-walk-hint {
   display: flex;
   gap: 0.5rem;
   align-items: center;
@@ -112,14 +119,49 @@
   background: rgba(18, 27, 29, 0.82);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
   font-size: 0.72rem;
-  transform: translateX(-50%);
   backdrop-filter: blur(12px);
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .world-walk-hint strong {
   color: #7ee6d7;
   letter-spacing: 0.08em;
+}
+
+.world-walk-passage {
+  min-width: max-content;
+  padding: 0.62rem 0.9rem;
+  border: 1px solid rgba(126, 230, 215, 0.5);
+  border-radius: 999px;
+  color: #10201f;
+  background: #7ee6d7;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.world-walk-passage:hover:not(:disabled) {
+  background: #a0f2e5;
+}
+
+.world-walk-passage:disabled {
+  color: #8ca09d;
+  background: rgba(30, 43, 45, 0.86);
+  cursor: default;
+  opacity: 0.72;
+}
+
+@media (max-width: 720px) {
+  .world-walk-footer {
+    flex-direction: column;
+    width: min(92vw, 32rem);
+  }
+
+  .world-walk-hint {
+    max-width: 100%;
+    white-space: normal;
+  }
 }
 
 .world-conflict-summary {
