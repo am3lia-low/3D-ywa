@@ -13,6 +13,10 @@ import courtyardPlan1Fixture from "../../fixtures/visual_scene_plan_courtyard_1.
 import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.json";
 import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import woodlandPlan1Fixture from "../../fixtures/visual_scene_plan_woodland_1.json";
+import sunbellSnapshotFixture from "../../fixtures/snapshot_sunbell_grove_1.json";
+import sunbellPatch2Fixture from "../../fixtures/patch_sunbell_grove_2.json";
+import sunbellPlan1Fixture from "../../fixtures/visual_scene_plan_sunbell_grove_1.json";
+import sunbellPlan2Fixture from "../../fixtures/visual_scene_plan_sunbell_grove_2.json";
 import unfamiliarStoryPackageFixture from "../../fixtures/story_package_unfamiliar_demo.json";
 import worldFamiliesStoryPackageFixture from "../../fixtures/story_package_world_families_demo.json";
 import {
@@ -97,6 +101,26 @@ export const builtInStoryPackages = [
         passageId: "W1",
         text: "At blue dawn, Ilyra reaches the Mosswood path. A brass lantern burns on a fallen cedar beside red mushrooms, while a marked stone points north into the mist.",
         visualPlan: woodlandPlan1Fixture,
+      },
+    ],
+  },
+  {
+    schemaVersion: "1.0",
+    packageId: "sunbell-grove",
+    label: "The sunlit Sunbell glade",
+    initialSnapshot: sunbellSnapshotFixture,
+    moments: [
+      {
+        passageId: "G1",
+        text: "Lio enters the sunlit Sunbell glade. An unlit pilgrim lantern rests beside a blue-painted bench and provision box, while an old singing stone waits beyond the buttercups.",
+        visualPlan: sunbellPlan1Fixture,
+      },
+      {
+        passageId: "G2",
+        text: "He carries the pilgrim lantern beside the singing stone and lights it. The flame wakes a low golden hum, but the grove itself remains exactly where memory left it.",
+        patchFromPrevious: sunbellPatch2Fixture,
+        visualPlan: sunbellPlan2Fixture,
+        actionLabel: "Wake the singing stone",
       },
     ],
   },

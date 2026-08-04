@@ -4,10 +4,11 @@
   "summary": {
     "kits": 4,
     "completeKits": 4,
-    "assets": 25,
-    "passed": 23,
+    "assets": 26,
+    "passed": 26,
     "warnings": 0,
-    "failed": 2
+    "environmentAssets": 15,
+    "failed": 0
   },
   "catalogErrors": [],
   "kits": [
@@ -314,7 +315,7 @@
     {
       "catalogId": "project:storybook-pine-tall-v1",
       "registryKey": "storybook-pine-tall",
-      "status": "fail",
+      "status": "pass",
       "files": [
         "public/models/storybook-pine-tall.glb"
       ],
@@ -328,16 +329,13 @@
       ],
       "aspectDistortion": 2.15,
       "warnings": [],
-      "errors": [
-        "Bundle is 628000 bytes; budget is 600000.",
-        "Runtime normalization distortion is 2.15x; limit is 1.3x."
-      ],
+      "errors": [],
       "lods": []
     },
     {
       "catalogId": "project:storybook-pine-layered-v1",
       "registryKey": "storybook-pine-layered",
-      "status": "fail",
+      "status": "pass",
       "files": [
         "public/models/storybook-pine-layered.glb"
       ],
@@ -351,9 +349,27 @@
       ],
       "aspectDistortion": 2.05,
       "warnings": [],
-      "errors": [
-        "Runtime normalization distortion is 2.05x; limit is 1.3x."
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "quaternius:birch-tree-01",
+      "registryKey": "authored-birch-tree",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/quaternius/birch-tree-01.glb"
       ],
+      "totalBytes": 1297304,
+      "triangles": 4596,
+      "materialCount": 2,
+      "sourceBounds": [
+        2.7078,
+        5.4529,
+        1.9425
+      ],
+      "aspectDistortion": 1.13,
+      "warnings": [],
+      "errors": [],
       "lods": []
     },
     {
@@ -743,6 +759,136 @@
       "warnings": [],
       "errors": [],
       "lods": []
+    }
+  ],
+  "environmentKits": [
+    {
+      "id": "ghibli-woodland",
+      "status": "pass",
+      "totalBytes": 3306426,
+      "assets": [
+        {
+          "id": "broadleaf-1",
+          "role": "broadleaf-tree",
+          "file": "commontree_1.glb",
+          "triangles": 5395
+        },
+        {
+          "id": "broadleaf-3",
+          "role": "broadleaf-tree",
+          "file": "commontree_3.glb",
+          "triangles": 3164
+        },
+        {
+          "id": "broadleaf-5",
+          "role": "broadleaf-tree",
+          "file": "commontree_5.glb",
+          "triangles": 2804
+        },
+        {
+          "id": "pine-1",
+          "role": "conifer-tree",
+          "file": "pine_1.glb",
+          "triangles": 3156
+        },
+        {
+          "id": "pine-3",
+          "role": "conifer-tree",
+          "file": "pine_3.glb",
+          "triangles": 3970
+        },
+        {
+          "id": "pine-5",
+          "role": "conifer-tree",
+          "file": "pine_5.glb",
+          "triangles": 1316
+        },
+        {
+          "id": "twisted-2",
+          "role": "hero-tree",
+          "file": "twistedtree_2.glb",
+          "triangles": 7776
+        },
+        {
+          "id": "flower-bush",
+          "role": "flowering-shrub",
+          "file": "bush_common_flowers.glb",
+          "triangles": 1332
+        },
+        {
+          "id": "fern",
+          "role": "forest-groundcover",
+          "file": "fern_1.glb",
+          "triangles": 229
+        },
+        {
+          "id": "flowers",
+          "role": "forest-flower",
+          "file": "flower_3_group.glb",
+          "triangles": 613
+        },
+        {
+          "id": "wispy-grass",
+          "role": "forest-groundcover",
+          "file": "grass_wispy_tall.glb",
+          "triangles": 497
+        },
+        {
+          "id": "mushrooms",
+          "role": "forest-fungi",
+          "file": "mushroom_common.glb",
+          "triangles": 803
+        },
+        {
+          "id": "rock-1",
+          "role": "forest-rock",
+          "file": "rock_medium_1.glb",
+          "triangles": 296
+        },
+        {
+          "id": "rock-2",
+          "role": "forest-rock",
+          "file": "rock_medium_2.glb",
+          "triangles": 198
+        },
+        {
+          "id": "rock-3",
+          "role": "forest-rock",
+          "file": "rock_medium_3.glb",
+          "triangles": 432
+        }
+      ],
+      "files": [
+        "public/models/optimized/quaternius/stylized-nature/Bark_NormalTree.png",
+        "public/models/optimized/quaternius/stylized-nature/Bark_NormalTree_Normal.png",
+        "public/models/optimized/quaternius/stylized-nature/Bark_TwistedTree.png",
+        "public/models/optimized/quaternius/stylized-nature/Bark_TwistedTree_Normal.png",
+        "public/models/optimized/quaternius/stylized-nature/Flowers.png",
+        "public/models/optimized/quaternius/stylized-nature/Grass.png",
+        "public/models/optimized/quaternius/stylized-nature/Leaf_Pine_C.png",
+        "public/models/optimized/quaternius/stylized-nature/Leaves.png",
+        "public/models/optimized/quaternius/stylized-nature/Leaves_NormalTree_C.png",
+        "public/models/optimized/quaternius/stylized-nature/Leaves_TwistedTree_C.png",
+        "public/models/optimized/quaternius/stylized-nature/Mushrooms.png",
+        "public/models/optimized/quaternius/stylized-nature/Rocks_Diffuse.png",
+        "public/models/optimized/quaternius/stylized-nature/bush_common_flowers.glb",
+        "public/models/optimized/quaternius/stylized-nature/commontree_1.glb",
+        "public/models/optimized/quaternius/stylized-nature/commontree_3.glb",
+        "public/models/optimized/quaternius/stylized-nature/commontree_5.glb",
+        "public/models/optimized/quaternius/stylized-nature/fern_1.glb",
+        "public/models/optimized/quaternius/stylized-nature/flower_3_group.glb",
+        "public/models/optimized/quaternius/stylized-nature/grass_wispy_tall.glb",
+        "public/models/optimized/quaternius/stylized-nature/manifest.json",
+        "public/models/optimized/quaternius/stylized-nature/mushroom_common.glb",
+        "public/models/optimized/quaternius/stylized-nature/pine_1.glb",
+        "public/models/optimized/quaternius/stylized-nature/pine_3.glb",
+        "public/models/optimized/quaternius/stylized-nature/pine_5.glb",
+        "public/models/optimized/quaternius/stylized-nature/rock_medium_1.glb",
+        "public/models/optimized/quaternius/stylized-nature/rock_medium_2.glb",
+        "public/models/optimized/quaternius/stylized-nature/rock_medium_3.glb",
+        "public/models/optimized/quaternius/stylized-nature/twistedtree_2.glb"
+      ],
+      "errors": []
     }
   ]
 }

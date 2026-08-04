@@ -1,0 +1,28 @@
+{
+  "fromVersion": 1,
+  "toVersion": 2,
+  "operations": [
+    {
+      "op": "move_entity",
+      "entityId": "grove-lantern-1",
+      "position": [3.25, 0.43, -4.8],
+      "rotation": [0, -0.35, 0]
+    },
+    {
+      "op": "update_entity",
+      "entityId": "grove-lantern-1",
+      "changes": { "state": { "lit": true } }
+    },
+    { "op": "remove_relation", "relationId": "grove-lantern-near-bench" },
+    {
+      "op": "add_relation",
+      "relation": {
+        "id": "grove-lantern-near-singing-stone",
+        "subjectId": "grove-lantern-1",
+        "predicate": "near",
+        "objectId": "singing-stone-1",
+        "distance": 0.65
+      }
+    }
+  ]
+}

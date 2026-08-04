@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "kitId": "ghibli-woodland",
+  "label": "Ghibli-inspired stylized woodland",
+  "source": {
+    "author": "Quaternius",
+    "license": "CC0 1.0 Universal",
+    "url": "https://quaternius.com/packs/stylizednaturemegakit.html"
+  },
+  "processing": {
+    "geometry": "gltfpack simplification target 0.8 with 0.8% error ceiling",
+    "textures": "shared PNG textures resized to a 512px maximum dimension",
+    "rawArchiveCommitted": false
+  },
+  "assets": [
+    { "id": "broadleaf-1", "file": "commontree_1.glb", "role": "broadleaf-tree" },
+    { "id": "broadleaf-3", "file": "commontree_3.glb", "role": "broadleaf-tree" },
+    { "id": "broadleaf-5", "file": "commontree_5.glb", "role": "broadleaf-tree" },
+    { "id": "pine-1", "file": "pine_1.glb", "role": "conifer-tree" },
+    { "id": "pine-3", "file": "pine_3.glb", "role": "conifer-tree" },
+    { "id": "pine-5", "file": "pine_5.glb", "role": "conifer-tree" },
+    { "id": "twisted-2", "file": "twistedtree_2.glb", "role": "hero-tree" },
+    { "id": "flower-bush", "file": "bush_common_flowers.glb", "role": "flowering-shrub" },
+    { "id": "fern", "file": "fern_1.glb", "role": "forest-groundcover" },
+    { "id": "flowers", "file": "flower_3_group.glb", "role": "forest-flower" },
+    { "id": "wispy-grass", "file": "grass_wispy_tall.glb", "role": "forest-groundcover" },
+    { "id": "mushrooms", "file": "mushroom_common.glb", "role": "forest-fungi" },
+    { "id": "rock-1", "file": "rock_medium_1.glb", "role": "forest-rock" },
+    { "id": "rock-2", "file": "rock_medium_2.glb", "role": "forest-rock" },
+    { "id": "rock-3", "file": "rock_medium_3.glb", "role": "forest-rock" }
+  ]
+}

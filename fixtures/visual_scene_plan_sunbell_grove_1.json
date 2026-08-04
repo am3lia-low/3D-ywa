@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0",
+  "storyId": "story-sunbell-grove",
+  "segmentId": "sunbell-arrival",
+  "sourcePassageIds": ["G1"],
+  "snapshotVersion": 1,
+  "planVersion": 1,
+  "artDirection": {
+    "styleLabel": "Ghibli-inspired sunlit flower-grove fantasy",
+    "stylePrompt": "A luminous hand-painted fantasy grove with expressive broadleaf trees, buttercups, fern banks, a gently winding path and warm wind moving through layered green leaves.",
+    "negativePrompt": ["identical tree grid", "empty lawn", "dark horror forest", "modern park", "hard enclosure walls"],
+    "materialVocabulary": ["soft moss", "painted wood", "lichen stone", "wildflowers", "aged brass"]
+  },
+  "locations": [
+    {
+      "locationId": "sunbell-glade",
+      "archetype": "sunlit broadleaf flower grove",
+      "visualDescription": "A warm glade of old broadleaf trees opens around a winding path, fern banks and buttercups under a high luminous morning sky.",
+      "architectureTags": ["open-air", "forest-floor", "winding-path", "woodland-edge"],
+      "dressingTags": ["broadleaf-trees", "forest-undergrowth", "grass-tufts", "wildflowers", "forest-rocks"],
+      "dressingDensity": "rich",
+      "mood": "hopeful, curious and quietly enchanted",
+      "timeOfDay": "late morning",
+      "palette": {
+        "background": "#78b9ca",
+        "fog": "#c6dfc0",
+        "floor": "#65784a",
+        "wall": "#49613f",
+        "timber": "#70452f",
+        "ambient": "#eef0c8",
+        "keyLight": "#fff0b2",
+        "practical": "#ffb65f"
+      },
+      "lighting": {
+        "warmth": "warm",
+        "contrast": "medium",
+        "ambientIntensity": 1.12,
+        "keyIntensity": 2.35,
+        "atmosphericEffects": ["sun-haze"]
+      },
+      "evidence": {
+        "passageIds": ["G1"],
+        "confidence": 0.76,
+        "basis": "cross_passage_inference",
+        "note": "The flower banks and tree composition are presentation-only dressing around canonical objects."
+      }
+    }
+  ],
+  "entities": [
+    {
+      "entityId": "grove-bench-1",
+      "visualDescription": "A weather-softened blue woodland bench with hand-painted edges.",
+      "importance": "supporting",
+      "materials": ["painted wood"],
+      "colors": ["faded blue", "warm wood"],
+      "condition": "weathered but welcoming",
+      "assetSearchTags": ["painted woodland bench"],
+      "evidence": { "passageIds": ["G1"], "confidence": 0.95, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "grove-lantern-1",
+      "visualDescription": "A small pilgrim lantern with cloudy glass, presently unlit.",
+      "importance": "hero",
+      "materials": ["aged brass", "cloudy glass"],
+      "colors": ["muted gold", "clear glass"],
+      "condition": "unlit",
+      "assetSearchTags": ["old brass pilgrim lantern"],
+      "evidence": { "passageIds": ["G1"], "confidence": 0.96, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "singing-stone-1",
+      "visualDescription": "A rounded lichen-soft stone marked by one pale natural seam.",
+      "importance": "supporting",
+      "materials": ["weathered stone", "lichen"],
+      "colors": ["sage grey", "moss green"],
+      "condition": "old and rain-smoothed",
+      "assetSearchTags": ["mossy glade boulder"],
+      "evidence": { "passageIds": ["G1"], "confidence": 0.92, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "traveller-crate-1",
+      "visualDescription": "A compact provision box bound with dark straps.",
+      "importance": "supporting",
+      "materials": ["wood", "dark leather"],
+      "colors": ["honey brown", "deep umber"],
+      "condition": "travel-worn",
+      "assetSearchTags": ["small travel provision box"],
+      "evidence": { "passageIds": ["G1"], "confidence": 0.9, "basis": "explicit_text" }
+    }
+  ],
+  "presentationConnections": [],
+  "unresolvedQuestions": ["The source does not establish how far the grove continues beyond the visible trees."]
+}

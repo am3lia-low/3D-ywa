@@ -6,8 +6,8 @@
   "snapshotVersion": 1,
   "planVersion": 1,
   "artDirection": {
-    "styleLabel": "misty woodland storybook realism",
-    "stylePrompt": "A deep old woodland at blue dawn, layered with dark conifers, moss-soft ground, a winding ochre trail and small warm story details emerging through silver mist.",
+    "styleLabel": "Ghibli-inspired misty woodland fantasy",
+    "stylePrompt": "A hand-painted stylized fantasy woodland at luminous blue dawn, layered with expressive conifers, moss-soft ground, a winding ochre trail and small warm story details emerging through silver mist.",
     "negativePrompt": ["flat green field", "identical tree grid", "tropical foliage", "modern park furniture", "hard enclosure walls"],
     "materialVocabulary": ["moss", "pine bark", "damp earth", "weathered cedar", "lichen stone", "aged brass"]
   },
@@ -29,13 +29,13 @@
       "mood": "hushed, mysterious and quietly inviting",
       "timeOfDay": "blue dawn",
       "palette": {
-        "background": "#172a2b",
-        "fog": "#718b83",
-        "floor": "#344333",
-        "wall": "#203128",
+        "background": "#7faeae",
+        "fog": "#a8c4b6",
+        "floor": "#4d6844",
+        "wall": "#36543d",
         "timber": "#4a3528",
-        "ambient": "#c3d3ca",
-        "keyLight": "#dbe5de",
+        "ambient": "#d8e5cf",
+        "keyLight": "#eff1cf",
         "practical": "#f2a85e"
       },
       "lighting": {

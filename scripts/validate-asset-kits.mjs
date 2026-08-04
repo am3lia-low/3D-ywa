@@ -7,6 +7,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicRoot = path.join(root, "public");
 const catalogPath = path.join(root, "src", "data", "asset-kit-catalog.json");
 const reportPath = path.join(root, "docs", "asset-quality-report.json");
+const woodlandManifestPath = path.join(
+  publicRoot,
+  "models",
+  "optimized",
+  "quaternius",
+  "stylized-nature",
+  "manifest.json",
+);
 
 function publicFile(url) {
   const relative = decodeURIComponent(url.split(/[?#]/, 1)[0]).replace(/^[/\\]+/, "");
@@ -310,9 +318,62 @@ function validateCatalog(catalog) {
   return { errors, kits };
 }
 
+async function inspectEnvironmentKit(manifestPath) {
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  const errors = [];
+  const files = new Set([manifestPath]);
+  const ids = new Set();
+  const roles = new Set();
+  const assets = [];
+  if (manifest.schemaVersion !== "1.0") errors.push("Unsupported environment-kit manifest version.");
+  if (manifest.source?.license !== "CC0 1.0 Universal" || !manifest.source?.url) {
+    errors.push("Environment kit must record its CC0 source and URL.");
+  }
+  for (const asset of manifest.assets ?? []) {
+    if (ids.has(asset.id)) errors.push(`Duplicate environment asset '${asset.id}'.`);
+    ids.add(asset.id);
+    roles.add(asset.role);
+    try {
+      const modelUrl = `/${path.relative(publicRoot, path.join(path.dirname(manifestPath), asset.file)).replaceAll("\\", "/")}`;
+      const model = await inspectModel(modelUrl);
+      model.files.forEach((file) => files.add(file));
+      if (model.triangles > 30_000) {
+        errors.push(`Environment asset '${asset.id}' has ${model.triangles} triangles; budget is 30000.`);
+      }
+      assets.push({ id: asset.id, role: asset.role, file: asset.file, triangles: model.triangles });
+    } catch (error) {
+      errors.push(`Environment asset '${asset.id}' failed inspection: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const requiredRoles = [
+    "broadleaf-tree",
+    "conifer-tree",
+    "hero-tree",
+    "flowering-shrub",
+    "forest-groundcover",
+    "forest-flower",
+    "forest-fungi",
+    "forest-rock",
+  ];
+  for (const role of requiredRoles) {
+    if (!roles.has(role)) errors.push(`Environment kit lacks role '${role}'.`);
+  }
+  const bytes = await totalBytes(files);
+  if (bytes > 4_000_000) errors.push(`Environment kit is ${bytes} bytes; budget is 4000000.`);
+  return {
+    id: manifest.kitId,
+    status: errors.length ? "fail" : "pass",
+    totalBytes: bytes,
+    assets,
+    files: [...files].map((file) => path.relative(root, file).replaceAll("\\", "/")).sort(),
+    errors,
+  };
+}
+
 const catalog = JSON.parse(await readFile(catalogPath, "utf8"));
 const structural = validateCatalog(catalog);
 const assets = await Promise.all((catalog.assets ?? []).map(inspectAsset));
+const environmentKits = [await inspectEnvironmentKit(woodlandManifestPath)];
 const passed = assets.filter((asset) => asset.status === "pass").length;
 const warnings = assets.filter((asset) => asset.status === "warning").length;
 const failed = assets.filter((asset) => asset.status === "fail").length;
@@ -325,11 +386,13 @@ const report = {
     assets: assets.length,
     passed,
     warnings,
-    failed: failed + structural.errors.length,
+    environmentAssets: environmentKits.reduce((sum, kit) => sum + kit.assets.length, 0),
+    failed: failed + structural.errors.length + environmentKits.filter((kit) => kit.status === "fail").length,
   },
   catalogErrors: structural.errors,
   kits: structural.kits,
   assets,
+  environmentKits,
 };
 
 if (process.argv.includes("--write")) {
@@ -342,5 +405,9 @@ for (const asset of assets) {
   for (const error of asset.errors) console.error(`        error: ${error}`);
 }
 for (const error of structural.errors) console.error(`catalog error: ${error}`);
+for (const kit of environmentKits) {
+  console.log(`${kit.status.padEnd(7)} environment:${kit.id} (${kit.assets.length} assets, ${kit.totalBytes} bytes)`);
+  for (const error of kit.errors) console.error(`        error: ${error}`);
+}
 console.log(`Asset kits: ${report.summary.completeKits}/${report.summary.kits} complete; assets: ${passed} pass, ${warnings} warning, ${failed} fail.`);
 if (report.summary.failed > 0) process.exitCode = 1;

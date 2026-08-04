@@ -74,6 +74,13 @@ import {
   renderQualityProfiles,
   type RenderQuality,
 } from "../runtime/renderQuality";
+import {
+  compileGhibliWoodlandLayout,
+  woodlandPathCenter,
+  type WoodlandGroundVariant,
+  type WoodlandMood,
+  type WoodlandTreeVariant,
+} from "../runtime/ghibliWoodlandKit";
 import { designedFallbackKind } from "../runtime/designedFallback";
 import {
   IndustrialInteriorKit,
@@ -242,10 +249,22 @@ function PrimitiveAsset({
   );
 }
 
-function LoadedModel({ url, draftGenerated = false, tint }: { url: string; draftGenerated?: boolean; tint?: string }) {
+function LoadedModel({
+  url,
+  draftGenerated = false,
+  tint,
+  foliageColor,
+  shadows = true,
+}: {
+  url: string;
+  draftGenerated?: boolean;
+  tint?: string;
+  foliageColor?: string;
+  shadows?: boolean;
+}) {
   const model = useGLTF(url);
   const renderedScene = useMemo(() => {
-    if (!draftGenerated && !tint) return model.scene;
+    if (!draftGenerated && !tint && !foliageColor) return model.scene;
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
@@ -260,18 +279,24 @@ function LoadedModel({ url, draftGenerated = false, tint }: { url: string; draft
         const materials = Array.isArray(object.material) ? object.material : [object.material];
         const tinted = materials.map((material) => {
           const copy = material.clone();
-          if ("color" in copy && copy.color instanceof THREE.Color) copy.color.multiply(new THREE.Color(tint));
+          const isFoliage = /(?:leaf|leaves|foliage|needle|pine)/i.test(copy.name);
+          if (foliageColor && isFoliage && "color" in copy && copy.color instanceof THREE.Color) {
+            copy.color.set(foliageColor);
+            if ("vertexColors" in copy) copy.vertexColors = false;
+          } else if (tint && "color" in copy && copy.color instanceof THREE.Color) {
+            copy.color.multiply(new THREE.Color(tint));
+          }
           return copy;
         });
         object.material = Array.isArray(object.material) ? tinted : tinted[0]!;
       }
-      object.castShadow = true;
+      object.castShadow = shadows;
       object.receiveShadow = true;
     });
     return clone;
-  }, [draftGenerated, model.scene, tint]);
+  }, [draftGenerated, foliageColor, model.scene, shadows, tint]);
   useEffect(() => {
-    if (!draftGenerated && !tint) return;
+    if (!draftGenerated && !tint && !foliageColor) return;
     return () => {
       renderedScene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
@@ -279,7 +304,7 @@ function LoadedModel({ url, draftGenerated = false, tint }: { url: string; draft
         materials.forEach((material) => material.dispose());
       });
     };
-  }, [draftGenerated, renderedScene, tint]);
+  }, [draftGenerated, foliageColor, renderedScene, tint]);
   const normalization = useMemo(() => {
     renderedScene.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(renderedScene);
@@ -303,7 +328,7 @@ function LoadedModel({ url, draftGenerated = false, tint }: { url: string; draft
         <Clone
           object={model.scene}
           position={normalization.offset}
-          castShadow
+          castShadow={shadows}
           receiveShadow
         />
       )}
@@ -2657,17 +2682,81 @@ function paintedGroundTexture(
 function WoodlandKit({
   bounds,
   presentation,
+  renderQuality,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
+  renderQuality: RenderQuality;
 }) {
+  const layout = useMemo(() => compileGhibliWoodlandLayout({
+    locationId: presentation.location.locationId,
+    bounds,
+    archetype: presentation.location.archetype,
+    visualDescription: presentation.location.visualDescription,
+    mood: presentation.location.mood,
+    timeOfDay: presentation.location.timeOfDay,
+    architectureTags: presentation.location.architectureTags,
+    dressingTags: presentation.location.dressingTags,
+    dressingDensity: presentation.location.dressingDensity,
+    quality: renderQuality,
+  }), [bounds, presentation, renderQuality]);
+  const moodColors: Record<WoodlandMood, {
+    floor: string;
+    floorFlecks: string[];
+    path: string;
+    pathFlecks: string[];
+    horizon: string;
+    glow: string;
+  }> = {
+    misty: {
+      floor: "#354b38",
+      floorFlecks: ["#1d3028", "#6d744b", "#765a38"],
+      path: "#806b49",
+      pathFlecks: ["#4e3d2d", "#aa9363", "#59634c"],
+      horizon: "#2d493c",
+      glow: "#bddab9",
+    },
+    sunlit: {
+      floor: "#55753a",
+      floorFlecks: ["#304f2d", "#8ca84d", "#8c6a38"],
+      path: "#a38250",
+      pathFlecks: ["#6f5535", "#d0ad68", "#718155"],
+      horizon: "#5d813f",
+      glow: "#ffe5a0",
+    },
+    autumn: {
+      floor: "#685331",
+      floorFlecks: ["#433324", "#a87934", "#91472c"],
+      path: "#9b7447",
+      pathFlecks: ["#5c3d29", "#c79a55", "#743f2b"],
+      horizon: "#74542e",
+      glow: "#ffd08a",
+    },
+    moonlit: {
+      floor: "#263f3c",
+      floorFlecks: ["#182b2b", "#415d53", "#544c3b"],
+      path: "#655f55",
+      pathFlecks: ["#3f4140", "#8b8171", "#485b56"],
+      horizon: "#264847",
+      glow: "#9dcbd2",
+    },
+    neutral: {
+      floor: "#48613a",
+      floorFlecks: ["#293f2d", "#77834c", "#765d38"],
+      path: "#8e754c",
+      pathFlecks: ["#57422e", "#baa06a", "#5d6b4f"],
+      horizon: "#426040",
+      glow: "#d5dcaa",
+    },
+  };
+  const colors = moodColors[layout.mood];
   const textures = useMemo(() => {
-    const floor = paintedGroundTexture("#3a4936", ["#1e2d25", "#66704a", "#755a38"], 9417);
+    const floor = paintedGroundTexture(colors.floor, colors.floorFlecks, layout.seed);
     floor.repeat.set(8, 10);
-    const path = paintedGroundTexture("#806845", ["#4d3c2d", "#a68c5c", "#59604a"], 3811);
+    const path = paintedGroundTexture(colors.path, colors.pathFlecks, layout.seed ^ 0x85ebca6b);
     path.repeat.set(2.4, 8);
     return { floor, path };
-  }, []);
+  }, [layout.mood, layout.seed]);
   useEffect(() => () => {
     textures.floor.dispose();
     textures.path.dispose();
@@ -2676,12 +2765,11 @@ function WoodlandKit({
     const shape = new THREE.Shape();
     const left: Array<[number, number]> = [];
     const right: Array<[number, number]> = [];
-    for (let index = 0; index <= 18; index += 1) {
-      const progress = index / 18;
+    for (let index = 0; index <= 28; index += 1) {
+      const progress = index / 28;
       const z = -bounds[2] / 2 + progress * bounds[2];
-      const center = Math.sin(progress * Math.PI * 2.35 - 0.7) * bounds[0] * 0.075
-        + Math.sin(progress * Math.PI * 4.6) * bounds[0] * 0.018;
-      const width = 2.25 + Math.sin(progress * Math.PI * 3.1 + 0.4) * 0.35;
+      const center = woodlandPathCenter(z, bounds, layout.pathPhase, layout.pathAmplitude);
+      const width = layout.pathWidth + Math.sin(progress * Math.PI * 3.1 + layout.pathPhase) * 0.28;
       left.push([center - width, z]);
       right.push([center + width, z]);
     }
@@ -2690,135 +2778,110 @@ function WoodlandKit({
     right.reverse().forEach((point) => shape.lineTo(...point));
     shape.closePath();
     return shape;
-  }, [bounds]);
-  const woodlandPatches = useMemo(() => Array.from({ length: 42 }, (_, index) => {
-    const side = index % 2 ? 1 : -1;
-    const z = -bounds[2] * 0.46 + ((index * 17) % 41) / 40 * bounds[2] * 0.92;
-    const x = side * (bounds[0] * (0.16 + ((index * 11) % 19) / 19 * 0.29));
-    return { x, z, scale: 0.65 + ((index * 7) % 9) * 0.12, yaw: index * 0.79 };
-  }), [bounds]);
-  const forestBackdrop = useMemo(() => {
-    const rear = Array.from({ length: 19 }, (_, index) => ({
-      x: -bounds[0] * 0.72 + index * (bounds[0] * 1.44 / 18),
-      z: -bounds[2] * (0.56 + (index % 4) * 0.025),
-      height: 4.2 + ((index * 7) % 8) * 0.46,
-      yaw: index * 0.73,
-      tone: index % 4,
-    }));
-    const sides = [-1, 1].flatMap((side) => Array.from({ length: 10 }, (_, index) => ({
-      x: side * bounds[0] * (0.5 + (index % 3) * 0.035),
-      z: -bounds[2] * 0.48 + index * (bounds[2] * 0.96 / 9),
-      height: 4.8 + ((index * 5 + (side > 0 ? 3 : 0)) % 7) * 0.5,
-      yaw: index * 0.61 + side,
-      tone: (index + (side > 0 ? 1 : 0)) % 4,
-    })));
-    return [...rear, ...sides];
-  }, [bounds]);
-  const trailStones = useMemo(() => [-1, 1].flatMap((side) => Array.from({ length: 18 }, (_, index) => {
-    const progress = (index + 0.35) / 18;
-    const z = -bounds[2] / 2 + progress * bounds[2];
-    const center = Math.sin(progress * Math.PI * 2.35 - 0.7) * bounds[0] * 0.075
-      + Math.sin(progress * Math.PI * 4.6) * bounds[0] * 0.018;
-    const width = 2.25 + Math.sin(progress * Math.PI * 3.1 + 0.4) * 0.35;
-    return {
-      x: center + side * (width + 0.1 + (index % 3) * 0.12),
-      z,
-      scale: 0.12 + (index % 4) * 0.035,
-      yaw: index * 0.83,
-    };
-  })), [bounds]);
+  }, [bounds, layout.pathAmplitude, layout.pathPhase, layout.pathWidth]);
 
+  const treeUrls: Record<WoodlandTreeVariant, string> = {
+    "broadleaf-1": "/models/optimized/quaternius/stylized-nature/commontree_1.glb",
+    "broadleaf-3": "/models/optimized/quaternius/stylized-nature/commontree_3.glb",
+    "broadleaf-5": "/models/optimized/quaternius/stylized-nature/commontree_5.glb",
+    "pine-1": "/models/optimized/quaternius/stylized-nature/pine_1.glb",
+    "pine-3": "/models/optimized/quaternius/stylized-nature/pine_3.glb",
+    "pine-5": "/models/optimized/quaternius/stylized-nature/pine_5.glb",
+    "twisted-2": "/models/optimized/quaternius/stylized-nature/twistedtree_2.glb",
+  };
+  const groundUrls: Record<WoodlandGroundVariant, string> = {
+    "flower-bush": "/models/optimized/quaternius/stylized-nature/bush_common_flowers.glb",
+    fern: "/models/optimized/quaternius/stylized-nature/fern_1.glb",
+    flowers: "/models/optimized/quaternius/stylized-nature/flower_3_group.glb",
+    "wispy-grass": "/models/optimized/quaternius/stylized-nature/grass_wispy_tall.glb",
+    mushrooms: "/models/optimized/quaternius/stylized-nature/mushroom_common.glb",
+    "rock-1": "/models/optimized/quaternius/stylized-nature/rock_medium_1.glb",
+    "rock-2": "/models/optimized/quaternius/stylized-nature/rock_medium_2.glb",
+    "rock-3": "/models/optimized/quaternius/stylized-nature/rock_medium_3.glb",
+  };
   return (
-    <group>
+    <group name="ghibli-woodland-kit" userData={{ decorativeOnly: true, grammarSeed: layout.seed }}>
       <mesh position={[0, -0.08, 0]} receiveShadow>
         <boxGeometry args={[bounds[0] * 3.2, 0.1, bounds[2] * 3.2]} />
-        <meshStandardMaterial map={textures.floor} color="#73806a" roughness={1} />
+        <meshStandardMaterial map={textures.floor} color="#98aa83" roughness={1} />
       </mesh>
       {presentation.architecture.forestFloor && (
         <mesh position={[0, 0.015, 0]} receiveShadow>
           <boxGeometry args={[bounds[0], 0.08, bounds[2]]} />
-          <meshStandardMaterial map={textures.floor} color="#aab39c" roughness={1} />
+          <meshStandardMaterial map={textures.floor} color="#c1ccae" roughness={1} />
         </mesh>
       )}
       {presentation.architecture.earthTrail && (
         <mesh position={[0, 0.072, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <shapeGeometry args={[trailShape, 24]} />
-          <meshStandardMaterial map={textures.path} color="#b29b72" roughness={0.98} />
+          <meshStandardMaterial map={textures.path} color="#d1b581" roughness={0.98} />
         </mesh>
       )}
-      {woodlandPatches.map((patch, index) => (
-        <mesh
-          key={`woodland-floor-patch-${index}`}
-          position={[patch.x, 0.067, patch.z]}
-          rotation={[-Math.PI / 2, 0, patch.yaw]}
-          scale={[patch.scale * 1.8, patch.scale, 1]}
-          receiveShadow
-        >
-          <circleGeometry args={[0.82, 12]} />
-          <meshStandardMaterial
-            color={["#27392d", "#4e5e3c", "#5c4b31"][index % 3]}
-            roughness={1}
-          />
-        </mesh>
-      ))}
-      {trailStones.map((stone, index) => (
-        <mesh
-          key={`trail-stone-${index}`}
-          position={[stone.x, 0.12 + stone.scale * 0.15, stone.z]}
-          rotation={[0.12, stone.yaw, -0.08]}
-          scale={[stone.scale * 1.5, stone.scale * 0.48, stone.scale]}
-          castShadow
-          receiveShadow
-        >
-          <dodecahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color={index % 3 === 0 ? "#6d6857" : "#4b5548"} roughness={0.98} />
-        </mesh>
-      ))}
-      {forestBackdrop.map((tree, index) => {
-        const foliage = ["#1a3028", "#203a2f", "#294537", "#304c3b"][tree.tone]!;
+      {layout.trees.map((tree, index) => {
+        const foliageColors: Record<WoodlandMood, readonly string[]> = {
+          misty: ["#3f7046", "#527f4a", "#315c42", "#648b50"],
+          sunlit: ["#62a844", "#84bd4a", "#4f913a", "#99c85a"],
+          autumn: ["#cf6138", "#e18b3d", "#b84a35", "#e4ae4c"],
+          moonlit: ["#35635d", "#47756b", "#2d5655", "#527d6f"],
+          neutral: ["#4e8342", "#6b9848", "#3d713e", "#7aa451"],
+        };
         return (
-          <group key={`forest-backdrop-${index}`} position={[tree.x, 0, tree.z]} rotation={[0, tree.yaw, 0]}>
-            <mesh position={[0, tree.height * 0.33, 0]} castShadow={index % 3 === 0}>
-              <cylinderGeometry args={[0.08 + tree.height * 0.012, 0.16 + tree.height * 0.018, tree.height * 0.66, 8]} />
-              <meshStandardMaterial color="#433529" roughness={0.98} />
-            </mesh>
-            {([
-              [-0.11, 0.66, 0.02, 0.24, 0.17, 0.2],
-              [0.12, 0.76, -0.04, 0.27, 0.2, 0.22],
-              [-0.04, 0.87, 0.03, 0.2, 0.17, 0.18],
-            ] as const).map(([x, y, z, sx, sy, sz], cluster) => (
-              <mesh key={cluster} position={[tree.height * x, tree.height * y, tree.height * z]} scale={[tree.height * sx, tree.height * sy, tree.height * sz]} castShadow={index % 4 === 0}>
-                <icosahedronGeometry args={[1, 1]} />
-                <meshStandardMaterial color={foliage} roughness={0.97} />
-              </mesh>
-            ))}
-          </group>
+        <group
+          key={`woodland-tree-${index}`}
+          position={tree.position}
+          rotation={[0, tree.rotationY, 0]}
+          scale={tree.scale}
+          userData={{ decorativeOnly: true, foreground: tree.foreground }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel
+              url={treeUrls[tree.variant]}
+              foliageColor={foliageColors[layout.mood][index % 4]}
+              shadows={tree.foreground}
+            />
+          </Suspense>
+        </group>
         );
       })}
+      {layout.groundCover.map((item, index) => (
+        <group
+          key={`woodland-ground-cover-${index}`}
+          position={item.position}
+          rotation={[0, item.rotationY, 0]}
+          scale={item.scale}
+          userData={{ decorativeOnly: true, foreground: item.foreground }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel
+              url={groundUrls[item.variant]}
+              foliageColor={layout.mood === "sunlit" ? "#69a943" : "#52734a"}
+              shadows={item.foreground}
+            />
+          </Suspense>
+        </group>
+      ))}
       {presentation.architecture.woodlandEdge && [-1, 1].flatMap((side) =>
-        Array.from({ length: 7 }, (_, index) => (
+        Array.from({ length: 5 }, (_, index) => (
           <mesh
             key={`woodland-bank-${side}-${index}`}
             position={[
-              side * bounds[0] * (0.48 + (index % 2) * 0.035),
-              -1.25,
-              -bounds[2] * 0.43 + index * (bounds[2] * 0.145),
+              side * bounds[0] * (0.62 + (index % 2) * 0.06),
+              -2.2,
+              -bounds[2] * 0.58 + index * (bounds[2] * 0.29),
             ]}
-            scale={[5.6, 1.7 + (index % 3) * 0.28, 5.4]}
+            rotation={[0, index * 0.42, 0]}
+            scale={[7.8, 2.6 + (index % 3) * 0.36, 8.4]}
             receiveShadow
           >
-            <sphereGeometry args={[1, 16, 8]} />
-            <meshStandardMaterial
-              color={index % 2 ? "#24362c" : "#2d4031"}
-              roughness={1}
-            />
+            <dodecahedronGeometry args={[1, 2]} />
+            <meshStandardMaterial color={colors.horizon} roughness={1} />
           </mesh>
         )),
       )}
       <pointLight
-        position={[0, 2.4, -bounds[2] * 0.47]}
-        color="#bfd9bd"
-        intensity={1.2}
+        position={[0, 4.8, -bounds[2] * 0.42]}
+        color={colors.glow}
+        intensity={layout.mood === "sunlit" ? 2.4 : 1.35}
         distance={Math.max(bounds[0], bounds[2]) * 0.75}
         decay={1.7}
       />
@@ -2831,11 +2894,13 @@ function Room({
   presentation,
   onGroundNavigate,
   overview,
+  renderQuality,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
   onGroundNavigate: (target: Vector3Tuple) => void;
   overview: boolean;
+  renderQuality: RenderQuality;
 }) {
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const wallThickness = 0.12;
@@ -3304,7 +3369,7 @@ function Room({
       ) : usesConservatoryKit ? (
         <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />
       ) : usesWoodlandKit ? (
-        <WoodlandKit bounds={bounds} presentation={presentation} />
+        <WoodlandKit bounds={bounds} presentation={presentation} renderQuality={renderQuality} />
       ) : usesLandscapeKit && landscapeFamily ? (
         <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
       ) : usesUrbanKit ? (
@@ -4055,6 +4120,11 @@ function WorldScene({
     () => createSceneAtmosphereProfile(presentation, bounds),
     [bounds, presentation],
   );
+  const usesGhibliWoodland = presentation.architecture.forestFloor
+    && !presentation.architecture.alpineTerrain
+    && !presentation.architecture.aridTerrain
+    && !presentation.architecture.coastalTerrain
+    && !presentation.architecture.grassland;
 
   return (
     <>
@@ -4135,8 +4205,9 @@ function WorldScene({
         presentation={presentation}
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
         overview={cameraView === "overview"}
+        renderQuality={renderQuality}
       />
-      <DressingAssets instances={dressingInstances} />
+      {!usesGhibliWoodland && <DressingAssets instances={dressingInstances} />}
       {presentation.atmosphere.dust && (
         <DustMotes bounds={bounds} color={isGlasshouse ? "#b6e4dc" : "#f1d5ad"} />
       )}
@@ -4185,7 +4256,7 @@ function WorldScene({
         />
       )}
       <RelationAwareness edges={relationEdges} />
-      {renderQuality !== "low" && (
+      {renderQuality !== "low" && !usesGhibliWoodland && (
         <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
           <N8AO
             aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}

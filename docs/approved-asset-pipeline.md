@@ -94,7 +94,7 @@ TripoSR previews are never normal application assets.
 
 ## Generalization fixture
 
-The fixture selector includes four independent stories:
+The fixture selector includes independent stories across several environment families:
 
 - **The attic study** uses exact canonical asset keys and the grounded storybook
   historical kit.
@@ -104,9 +104,12 @@ The fixture selector includes four independent stories:
 - **The rain-washed courtyard** exercises the same recipe outside: open-air
   masonry, wet cobbles, rain and decorative-only coaching-yard clusters surround
   a fully approved canonical prop set.
-- **The misted Mosswood path** selects the woodland-storybook kit, procedural
-  forest floor and trail modules, two pine silhouettes and approved groundcover,
-  fungi, deadwood and rock assets from semantic visual-plan tags.
+- **The misted Mosswood path** selects the Ghibli-inspired woodland grammar,
+  an optimized CC0 Quaternius conifer/broadleaf family, a painted forest floor,
+  an open trail and presentation-only undergrowth selected from visual-plan tags.
+- **The sunlit Sunbell glade** sends unrelated canonical IDs and a broadleaf,
+  flower-rich late-morning plan through that same grammar. Passage two moves and
+  lights the lantern without regenerating the grove.
 
 Switching fixtures remounts the spatial runtime at that story's first immutable
 snapshot. Patches and renderer acknowledgements cannot leak between stories.
@@ -136,6 +139,10 @@ Woodland plans can likewise request `pine-trees`, `forest-undergrowth`,
 `grass-tufts`, `wild-mushrooms`, `fallen-logs` and `forest-rocks`. These tags
 select the closed woodland kit and its bounded deterministic placement recipes;
 they never add factual trees or fungi to the snapshot.
+
+The runtime's selected Stylized Nature MegaKit subset, CC0 notice and conversion
+manifest live under `public/models/optimized/quaternius/stylized-nature/`. The
+raw archive remains ignored; only the 512px-texture browser subset is shipped.
 
 Spatial relations remain factual inputs. The recipe makes their runtime effect
 inspectable as constraints such as `anchor_to_surface`, `face_target`,

@@ -167,6 +167,8 @@ Part 1 fixture targets:
 - `fixtures/visual_scene_plan_3.json` — revised plan after the passage-3 reveal.
 - `fixtures/snapshot_conservatory_1.json` and `fixtures/patch_conservatory_2.json` — second-story generalization proof.
 - `fixtures/visual_scene_plan_conservatory_1.json` and `fixtures/visual_scene_plan_conservatory_2.json` — botanical-gothic environment and asset context.
+- `fixtures/snapshot_woodland_1.json` and `fixtures/visual_scene_plan_woodland_1.json` — conifer-heavy misted woodland input.
+- `fixtures/snapshot_sunbell_grove_1.json`, `fixtures/patch_sunbell_grove_2.json` and matching visual plans — unrelated broadleaf woodland plus patch-persistence proof.
 
 The shared TypeScript surface is `src/contracts/visualScenePlan.ts`. Renderer decisions are compiled in `src/runtime/sceneCompiler.ts`, while `src/runtime/sceneBuildPipeline.ts` resolves project/catalog assets under canonical entity IDs and emits explicit jobs for missing assets. Canonical story, location and entity IDs are checked before visual context is accepted; decorative presentation never mutates `WorldSnapshot`.
 
@@ -267,6 +269,14 @@ const recipe = compileSceneRecipe(snapshot, visualPlan);
 The renderer chooses registered modules from recipe IDs; it does not branch on
 story IDs. The current attic and conservatory are therefore regression fixtures
 for two different recipes rather than two custom application screens.
+
+Woodland scenes additionally pass through `GhibliWoodlandKit`, a deterministic
+environment grammar seeded from canonical `locationId` and Part 1 visual
+semantics. It composes an optimized CC0 Quaternius tree/plant/rock family around
+a readable path without receiving `storyId` or minting narrative entities. The
+Mosswood and Sunbell fixtures deliberately use the same grammar with different
+conifer/broadleaf balance, atmosphere and composition. Sunbell passage two then
+moves and lights its canonical lantern while the generated grove remains stable.
 
 ## Universal visual quality
 

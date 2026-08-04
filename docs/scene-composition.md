@@ -13,8 +13,8 @@ Visual tags select only registered modules. Current environment families cover:
 - archive shelving and stone floors;
 - iron-and-glass botanical conservatories;
 - open-air masonry courtyards with cobbles and arcades;
-- misted woodland paths with painted forest floor, winding earth trails and
-  soft terrain boundaries.
+- stylized fantasy woodlands with semantic conifer/broadleaf balance, painted
+  forest floors, winding earth trails, layered CC0 foliage and soft boundaries.
 
 Dressing modules are presentation-only. Books, storage clusters, planters,
 ivy, puddles, leaf litter and courtyard clutter improve composition but never
@@ -31,6 +31,9 @@ not mint trees or rocks into `WorldSnapshot`.
 Woodland recipes use the bounded `woodland` placement region. Semantic tags for
 pine trees, undergrowth, grass, fungi, deadwood and forest rocks resolve to the
 active approved style kit. The renderer never receives model URLs from Part 1.
+`GhibliWoodlandKit` then seeds the decorative arrangement from canonical
+`locationId` plus the visual description, mood, time and sorted tags. It does not
+accept `storyId`, and it reserves the path corridor before placing scenery.
 
 ## Atmosphere and lighting
 
@@ -84,9 +87,11 @@ chair, lights a surface-mounted lantern, unlocks the gate and adds a map without
 rebuilding the environment.
 
 The Mosswood fixture then provides a second open-air proof with no courtyard
-architecture: its visual plan selects forest-floor, path and woodland-boundary
-modules plus 49 deterministic approved-asset placements. Its factual lantern,
-fallen cedar, mushroom ring and waystone retain canonical snapshot identities.
+architecture: its visual plan selects a cool conifer-heavy woodland composition.
+Its factual lantern, fallen cedar, mushroom ring and waystone retain canonical
+snapshot identities. The unrelated Sunbell fixture selects a warm broadleaf and
+flower-grove variation from the same code. Its second passage proves that factual
+object patches do not reseed or rearrange decorative woodland dressing.
 
 The same mechanism applies to imported story packages. Adding another biome or
 architectural family requires registering renderer modules and tags, not adding

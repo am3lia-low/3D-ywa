@@ -70,7 +70,7 @@ export function createSceneAtmosphereProfile(
 ): SceneAtmosphereProfile {
   const family = sceneEnvironmentFamily(presentation);
   const openAir = ["courtyard", "urban", "woodland", "alpine", "arid", "coastal", "grassland"].includes(family);
-  const night = /\b(?:night|moon|midnight|dusk|dawn|blue[- ]?hour)\b/i.test(
+  const night = /\b(?:night|moon|moonlit|midnight|dusk|starlit)\b/i.test(
     presentation.location.timeOfDay,
   );
   const rainy = presentation.atmosphere.rain;

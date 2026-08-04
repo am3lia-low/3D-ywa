@@ -4,12 +4,12 @@
 
 The web runtime is the delivery target, not the source-asset ceiling. Reviewed
 high-quality models are prepared offline into distance-selected levels of
-detail. The first quality pack adds photoreal fern clusters, weathered rock
-formations, ornate street lamps and modular industrial pipes while preserving
-the deterministic semantic recipe and canonical story identities. A compact
-CC0 Quaternius birch supplies an authored, textured woodland silhouette beside
-the procedural conifers, proving that browser-safe assets can still carry
-organic branching and alpha-textured foliage.
+detail. The quality packs add photoreal fern clusters, weathered rock formations,
+ornate street lamps and modular industrial pipes while preserving deterministic
+semantic recipes and canonical story identities. Woodland scenes now use a
+cohesive CC0 Quaternius Stylized Nature MegaKit subset: six tree variants, a hero
+tree, shrubs, ferns, flowers, grass, mushrooms and rocks with shared 512px
+textures. This replaces the former procedural-conifer backdrop.
 
 Raw scan assets are not rejected for being photorealistic; they are rejected
 only when no reviewed browser-ready derivative exists. Multi-million-triangle
@@ -39,8 +39,9 @@ objects can improve asynchronously.
    previewed and approved.
 
 The environment uses deterministic image-based lighting, ACES tone mapping,
-bounded cinematic lights, fog, local contact grounding, ambient occlusion,
-restrained bloom and textured surfaces.
+bounded cinematic lights, fog, local contact grounding and textured surfaces.
+Alpha-heavy woodland foliage uses the lighter native renderer path instead of
+the full screen-space post stack, preserving browser stability and visual density.
 This makes approved meshes and designed fallbacks respond to one art-directed
 lighting rig instead of looking pasted together.
 
