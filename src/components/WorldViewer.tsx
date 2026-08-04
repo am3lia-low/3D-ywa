@@ -197,24 +197,51 @@ function PrimitiveAsset({
 
 function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenerated?: boolean }) {
   const model = useGLTF(url);
+  const treatLanternGlass = url.endsWith("/lantern.glb");
   const renderedScene = useMemo(() => {
-    if (!draftGenerated) return model.scene;
+    if (!draftGenerated && !treatLanternGlass) return model.scene;
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
-      const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
-      object.material = new THREE.MeshBasicMaterial({
-        color: hasVertexColors ? "#ffffff" : "#a77a55",
-        vertexColors: hasVertexColors,
-        side: THREE.DoubleSide,
-      });
+      if (draftGenerated) {
+        const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
+        object.material = new THREE.MeshBasicMaterial({
+          color: hasVertexColors ? "#ffffff" : "#a77a55",
+          vertexColors: hasVertexColors,
+          side: THREE.DoubleSide,
+        });
+      } else {
+        const sourceMaterials = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+        const treatedMaterials = sourceMaterials.map((source) => {
+          const material = source.clone();
+          if (
+            /glass/i.test(material.name) &&
+            material instanceof THREE.MeshStandardMaterial
+          ) {
+            material.color.set("#b7cbc5");
+            material.metalness = 0;
+            material.roughness = 0.16;
+            material.transparent = true;
+            material.opacity = 0.14;
+            material.depthWrite = false;
+            material.side = THREE.DoubleSide;
+            material.needsUpdate = true;
+          }
+          return material;
+        });
+        object.material = Array.isArray(object.material)
+          ? treatedMaterials
+          : treatedMaterials[0]!;
+      }
       object.castShadow = true;
       object.receiveShadow = true;
     });
     return clone;
-  }, [draftGenerated, model.scene]);
+  }, [draftGenerated, model.scene, treatLanternGlass]);
   useEffect(() => {
-    if (!draftGenerated) return;
+    if (!draftGenerated && !treatLanternGlass) return;
     return () => {
       renderedScene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
@@ -244,7 +271,7 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
         <primitive object={renderedScene} position={normalization.offset} />
       ) : (
         <Clone
-          object={model.scene}
+          object={renderedScene}
           position={normalization.offset}
           castShadow
           receiveShadow
