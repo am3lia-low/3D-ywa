@@ -203,6 +203,10 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
+      if (treatLanternGlass && /dark empty chamber/i.test(object.name)) {
+        object.visible = false;
+        return;
+      }
       if (draftGenerated) {
         const hasVertexColors = Boolean(object.geometry.getAttribute("color"));
         object.material = new THREE.MeshBasicMaterial({
