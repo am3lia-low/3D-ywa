@@ -5,6 +5,8 @@ import type {
   VisualLocationPlan,
   VisualScenePlan,
   WorldSnapshot as SpatialWorldSnapshot,
+  SpatialRelation,
+  Vector3Tuple,
 } from '@spatial-runtime'
 import type { Book, Chapter, WorldEntity, WorldSnapshot } from '../types'
 
@@ -54,10 +56,124 @@ function dimensions(entity: WorldEntity): [number, number, number] {
   return [0.9, 0.9, 0.9]
 }
 
-function position(entity: WorldEntity, size: [number, number, number]): [number, number, number] {
-  const x = ((entity.position.x / 1200) - 0.5) * (BOUNDS[0] - 4)
-  const z = ((entity.position.y / 680) - 0.5) * (BOUNDS[2] - 5)
-  return [x, size[1] / 2, z]
+function semanticPlacementText(entity: WorldEntity): string {
+  return `${entity.name} ${entity.currentLocation ?? ''} ${entity.sourceSentence ?? ''}`.toLowerCase()
+}
+
+function wallFor(entity: WorldEntity): 'north' | 'south' | 'east' | 'west' | undefined {
+  const text = `${entity.currentLocation ?? ''} ${entity.sourceSentence ?? ''}`.toLowerCase()
+  if (/\bnorth(?:ern)?\b/.test(text)) return 'north'
+  if (/\bsouth(?:ern)?\b/.test(text)) return 'south'
+  if (/\beast(?:ern)?\b/.test(text)) return 'east'
+  if (/\bwest(?:ern)?\b/.test(text)) return 'west'
+  return undefined
+}
+
+function namedTarget(entity: WorldEntity, entities: readonly WorldEntity[]): WorldEntity | undefined {
+  const location = (entity.currentLocation ?? '').toLowerCase()
+  return entities.find((candidate) => {
+    if (candidate.id === entity.id) return false
+    return location.includes(candidate.name.toLowerCase()) || location.includes(candidate.id.toLowerCase())
+  })
+}
+
+function wallAxisPosition(entity: WorldEntity, wall: 'north' | 'south' | 'east' | 'west'): number {
+  const text = semanticPlacementText(entity)
+  const extent = wall === 'north' || wall === 'south' ? BOUNDS[0] : BOUNDS[2]
+  if (/\b(left|western?)\b/.test(text)) return -extent * 0.27
+  if (/\b(right|eastern?)\b/.test(text)) return extent * 0.27
+  return 0
+}
+
+function wallPosition(
+  entity: WorldEntity,
+  size: Vector3Tuple,
+  wall: 'north' | 'south' | 'east' | 'west',
+): Vector3Tuple {
+  const axis = wallAxisPosition(entity, wall)
+  return wall === 'north' || wall === 'south'
+    ? [axis, size[1] / 2, 0]
+    : [0, size[1] / 2, axis]
+}
+
+function fallbackFloorPosition(entity: WorldEntity, size: Vector3Tuple): Vector3Tuple {
+  const text = semanticPlacementText(entity)
+  const fallbackX = ((entity.position.x / 1200) - 0.5) * BOUNDS[0] * 0.5
+  const fallbackZ = ((entity.position.y / 680) - 0.5) * BOUNDS[2] * 0.5
+  const x = /\b(right|east) side\b/.test(text)
+    ? BOUNDS[0] * 0.24
+    : /\b(left|west) side\b/.test(text)
+      ? -BOUNDS[0] * 0.24
+      : fallbackX
+  return [x, size[1] / 2, fallbackZ]
+}
+
+function plannedPosition(
+  entity: WorldEntity,
+  entities: readonly WorldEntity[],
+  size: Vector3Tuple,
+): Vector3Tuple | undefined {
+  const text = semanticPlacementText(entity)
+  const target = namedTarget(entity, entities)
+  const targetSize = target ? dimensions(target) : undefined
+  const targetWall = target ? wallFor(target) : undefined
+
+  // Hanging objects need a vertical coordinate. The frozen relation set has no
+  // "above" predicate, so this development bridge resolves that height here.
+  if (/\babove\b/.test(text) && target && targetSize && targetWall) {
+    const targetPosition = wallPosition(target, targetSize, targetWall)
+    const wallDepth = targetWall === 'north' || targetWall === 'south' ? BOUNDS[2] : BOUNDS[0]
+    const wallCoordinate = wallDepth / 2 - size[2] / 2 - 0.2
+    const y = Math.min(BOUNDS[1] - size[1] / 2 - 0.35, targetSize[1] + size[1] / 2 + 0.32)
+    if (targetWall === 'north') return [targetPosition[0], y, -wallCoordinate]
+    if (targetWall === 'south') return [targetPosition[0], y, wallCoordinate]
+    if (targetWall === 'east') return [wallCoordinate, y, targetPosition[2]]
+    return [-wallCoordinate, y, targetPosition[2]]
+  }
+
+  // Small discoveries described beneath furniture belong on its floor plane,
+  // not at the height of their legacy 2D diagram marker.
+  if (/\b(beneath|under|below)\b/.test(text) && target && targetSize) {
+    const targetPosition = plannedPosition(target, entities, targetSize) ?? fallbackFloorPosition(target, targetSize)
+    return [targetPosition[0] + targetSize[0] * 0.22, size[1] / 2, targetPosition[2] + targetSize[2] * 0.22]
+  }
+
+  const wall = wallFor(entity)
+  if (wall) return wallPosition(entity, size, wall)
+
+  // Relation-driven objects remain unpositioned so the layout engine can
+  // ground them, avoid overlaps, and orient furniture toward their targets.
+  if (target && /\b(beside|near|toward|towards|next to)\b/.test(text)) return undefined
+
+  return fallbackFloorPosition(entity, size)
+}
+
+function spatialRelations(entities: readonly WorldEntity[]): SpatialRelation[] {
+  return entities.flatMap((entity): SpatialRelation[] => {
+    const relations: SpatialRelation[] = []
+    const text = semanticPlacementText(entity)
+    const wall = wallFor(entity)
+    const target = namedTarget(entity, entities)
+
+    if (wall && !/\babove\b/.test(text)) {
+      relations.push({
+        id: `${entity.id}:against-${wall}-wall`,
+        subjectId: entity.id,
+        predicate: 'against_wall',
+        metadata: { wall },
+      })
+    }
+    if (target && /\b(beside|near|toward|towards|next to)\b/.test(text)) {
+      relations.push({
+        id: `${entity.id}:near:${target.id}`,
+        subjectId: entity.id,
+        predicate: 'near',
+        objectId: target.id,
+        distance: 0.42,
+      })
+    }
+    return relations
+  })
 }
 
 function environment(text: string): {
@@ -114,15 +230,16 @@ function environment(text: string): {
   }
 }
 
-function spatialEntity(entity: WorldEntity, chapter: Chapter): Entity {
+function spatialEntity(entity: WorldEntity, chapter: Chapter, entities: readonly WorldEntity[]): Entity {
   const size = dimensions(entity)
+  const position = plannedPosition(entity, entities, size)
   return {
     id: entity.id,
     name: entity.name,
     kind: entityKind(entity),
     locationId: `${chapter.id}:scene`,
     assetKey: assetKey(entity),
-    transform: { position: position(entity, size) },
+    transform: position ? { position } : undefined,
     dimensions: size,
     state: entity.currentCondition ? { condition: entity.currentCondition } : undefined,
     provenance: {
@@ -134,7 +251,7 @@ function spatialEntity(entity: WorldEntity, chapter: Chapter): Entity {
 }
 
 function visualEntity(entity: WorldEntity, chapter: Chapter): VisualEntityPlan {
-  const factual = spatialEntity(entity, chapter)
+  const factual = spatialEntity(entity, chapter, [entity])
   return {
     entityId: entity.id,
     visualDescription: `${entity.name}. ${entity.currentCondition ?? 'Story-worn and grounded in the scene.'}`,
@@ -165,8 +282,8 @@ export function buildMockSpatialScene(
     version,
     passageId: chapter.id,
     locations: [{ id: sceneId, name: `${book.title} — ${chapter.title}`, bounds: BOUNDS, environment: generatedEnvironment.colors }],
-    entities: uiSnapshot.entities.map((entity) => spatialEntity(entity, chapter)),
-    relations: [],
+    entities: uiSnapshot.entities.map((entity) => spatialEntity(entity, chapter, uiSnapshot.entities)),
+    relations: spatialRelations(uiSnapshot.entities),
     conflicts: [],
   }
   const visualPlan: VisualScenePlan = {

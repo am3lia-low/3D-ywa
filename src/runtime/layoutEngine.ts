@@ -334,6 +334,30 @@ function orientFurnitureTowardRelation(
   };
 }
 
+function orientAgainstWall(
+  draft: Omit<LayoutItem, "position">,
+  relation?: SpatialRelation,
+): Omit<LayoutItem, "position"> {
+  if (
+    relation?.predicate !== "against_wall" ||
+    draft.entity.transform?.rotation
+  ) {
+    return draft;
+  }
+
+  const wall = relation.metadata?.wall ?? "north";
+  return {
+    ...draft,
+    // Normalized architectural assets use their local Z axis as the surface
+    // normal. Quarter-turn them for side walls so doors and windows sit flush.
+    rotation: [
+      draft.rotation[0],
+      wall === "east" || wall === "west" ? Math.PI / 2 : 0,
+      draft.rotation[2],
+    ],
+  };
+}
+
 /** Deterministically resolves explicit transforms, semantic relations and spacing. */
 export function createWorldLayout(
   snapshot: WorldSnapshot,
@@ -396,7 +420,7 @@ export function createWorldLayout(
         : [wallPosition[0], wallPosition[1], explicitPosition[2]]
       : explicitPosition;
     const item = placeWithoutCollision(
-      draft,
+      orientAgainstWall(draft, wallRelation),
       desiredPosition,
       bounds,
       placed,
@@ -445,12 +469,12 @@ export function createWorldLayout(
         resolved.relation.objectId
           ? new Set([resolved.relation.objectId])
           : new Set<string>();
-      const orientedDraft = orientFurnitureTowardRelation(
+      const orientedDraft = orientAgainstWall(orientFurnitureTowardRelation(
         draft,
         resolved.relation,
         resolved.position,
         placedById,
-      );
+      ), resolved.relation);
       const supportTarget = resolved.relation.objectId
         ? placedById.get(resolved.relation.objectId)
         : undefined;

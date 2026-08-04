@@ -71,6 +71,28 @@ describe("createWorldLayout", () => {
     expect(door.position[2]).toBeCloseTo(-bounds[2] / 2 + door.dimensions[2] / 2 + 0.18);
   });
 
+  it("turns wall assets to sit flush against east and west walls", () => {
+    const wallSnapshot: WorldSnapshot = {
+      storyId: "wall-orientation-test",
+      version: 1,
+      passageId: "P1",
+      locations: [{ id: "hall", name: "Hall", bounds: [12, 5, 10] }],
+      entities: [
+        { id: "west-door", name: "West door", kind: "architecture", locationId: "hall", assetKey: "door" },
+        { id: "east-window", name: "East window", kind: "architecture", locationId: "hall", dimensions: [1.8, 1.4, 0.16] },
+      ],
+      relations: [
+        { id: "west-door-wall", subjectId: "west-door", predicate: "against_wall", metadata: { wall: "west" } },
+        { id: "east-window-wall", subjectId: "east-window", predicate: "against_wall", metadata: { wall: "east" } },
+      ],
+      conflicts: [],
+    };
+    const layout = createWorldLayout(wallSnapshot);
+
+    expect(layout.items.find((item) => item.entity.id === "west-door")?.rotation[1]).toBeCloseTo(Math.PI / 2);
+    expect(layout.items.find((item) => item.entity.id === "east-window")?.rotation[1]).toBeCloseTo(Math.PI / 2);
+  });
+
   it("lays out only entities belonging to the requested location", () => {
     const archive = createWorldLayout(snapshot, undefined, [], "archive-vault");
 
