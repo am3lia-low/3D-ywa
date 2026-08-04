@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import snapshotFixture from "../../fixtures/snapshot_1.json";
 import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
+import atticPatch2Fixture from "../../fixtures/patch_2.json";
+import atticPatch3Fixture from "../../fixtures/patch_3.json";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
 import { createWorldLayout } from "./layoutEngine";
@@ -51,6 +53,17 @@ describe("createWorldLayout", () => {
       );
       expect(item.position[1] - item.dimensions[1] / 2).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it("locks explicit architectural coordinates to their declared wall", () => {
+    const version2 = applyScenePatch(snapshot, atticPatch2Fixture as unknown as ScenePatch);
+    const version3 = applyScenePatch(version2, atticPatch3Fixture as unknown as ScenePatch);
+    const layout = createWorldLayout(version3);
+    const door = layout.items.find((item) => item.entity.id === "hidden-door-1")!;
+    const bounds = layout.location.bounds!;
+
+    expect(door.position[0]).toBeCloseTo(7.5);
+    expect(door.position[2]).toBeCloseTo(-bounds[2] / 2 + door.dimensions[2] / 2 + 0.18);
   });
 
   it("lays out only entities belonging to the requested location", () => {

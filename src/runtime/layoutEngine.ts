@@ -296,9 +296,22 @@ export function createWorldLayout(
 
   // Explicit coordinates are authoritative and placed first.
   for (const draft of pending.filter((item) => item.entity.transform?.position)) {
+    const explicitPosition = draft.entity.transform?.position ?? [0, draft.dimensions[1] / 2, 0];
+    const wallRelation = (relationsBySubject.get(draft.entity.id) ?? []).find(
+      (relation) => relation.predicate === "against_wall",
+    );
+    const wallPosition = wallRelation
+      ? relationPosition(wallRelation, draft, placedById, bounds)
+      : undefined;
+    const wall = wallRelation?.metadata?.wall ?? "north";
+    const desiredPosition: Vector3Tuple = wallPosition
+      ? wall === "north" || wall === "south"
+        ? [explicitPosition[0], wallPosition[1], wallPosition[2]]
+        : [wallPosition[0], wallPosition[1], explicitPosition[2]]
+      : explicitPosition;
     const item = placeWithoutCollision(
       draft,
-      draft.entity.transform?.position ?? [0, draft.dimensions[1] / 2, 0],
+      desiredPosition,
       bounds,
       placed,
     );

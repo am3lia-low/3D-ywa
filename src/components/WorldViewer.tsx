@@ -42,6 +42,7 @@ import {
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
+  createExteriorPovCameraPose,
   createOverviewCameraPose,
   createPovCameraPose,
   createTravelCameraPose,
@@ -1815,6 +1816,119 @@ function CourtyardCobblestones({
   );
 }
 
+function CourtyardBeyond({
+  bounds,
+  pavement,
+}: {
+  bounds: Vector3Tuple;
+  pavement: ReturnType<typeof usePbrSurface>;
+}) {
+  const approachDepth = bounds[2] * 1.8;
+  const approachCenter = bounds[2] / 2 + approachDepth / 2;
+  const roadWidth = Math.max(8, bounds[0] * 0.3);
+  const vergeWidth = (bounds[0] * 2.2 - roadWidth) / 2;
+  const treePositions: Array<[number, number, number]> = [
+    [-bounds[0] * 0.43, bounds[2] * 0.9, 1.15],
+    [bounds[0] * 0.39, bounds[2] * 1.05, 0.92],
+    [-bounds[0] * 0.58, bounds[2] * 1.45, 0.84],
+    [bounds[0] * 0.56, bounds[2] * 1.58, 1.08],
+    [-bounds[0] * 0.28, bounds[2] * 1.9, 0.7],
+    [bounds[0] * 0.3, bounds[2] * 2.05, 0.76],
+  ];
+
+  return (
+    <group>
+      <mesh position={[0, -0.09, approachCenter]} receiveShadow>
+        <boxGeometry args={[roadWidth, 0.12, approachDepth]} />
+        <meshStandardMaterial
+          color="#8d918b"
+          map={pavement.color}
+          normalMap={pavement.normal}
+          normalScale={new THREE.Vector2(0.28, 0.28)}
+          roughnessMap={pavement.arm}
+          roughness={0.78}
+        />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <mesh
+          key={`courtyard-verge-${side}`}
+          position={[
+            side * (roadWidth / 2 + vergeWidth / 2),
+            -0.14,
+            approachCenter,
+          ]}
+          receiveShadow
+        >
+          <boxGeometry args={[vergeWidth, 0.16, approachDepth]} />
+          <meshStandardMaterial color="#26382e" roughness={1} />
+        </mesh>
+      ))}
+      {[-1, 1].flatMap((side) => [
+        bounds[2] * 0.82,
+        bounds[2] * 1.08,
+        bounds[2] * 1.42,
+        bounds[2] * 1.8,
+      ].map((z, index) => (
+        <group
+          key={`courtyard-approach-hedge-${side}-${index}`}
+          position={[side * (roadWidth / 2 + 1.2 + (index % 2) * 0.55), 0.2, z]}
+        >
+          {[-0.75, 0, 0.78].map((offset, clumpIndex) => (
+            <mesh
+              key={`hedge-clump-${clumpIndex}`}
+              position={[offset, 0.28 + (clumpIndex % 2) * 0.08, 0]}
+              scale={[1.05, 0.46, 0.72]}
+              castShadow
+            >
+              <dodecahedronGeometry args={[0.82, 0]} />
+              <meshStandardMaterial
+                color={["#283c30", "#314936", "#22372c"][clumpIndex]}
+                roughness={1}
+              />
+            </mesh>
+          ))}
+        </group>
+      )))}
+      {[-1, 1].map((side) => (
+        <mesh
+          key={`courtyard-distant-rise-${side}`}
+          position={[side * bounds[0] * 0.58, -4.7, bounds[2] * 2.05]}
+          scale={[bounds[0] * 0.72, 5.2, bounds[2] * 0.58]}
+        >
+          <sphereGeometry args={[1, 28, 14]} />
+          <meshStandardMaterial color={side < 0 ? "#1d3028" : "#24382d"} roughness={1} />
+        </mesh>
+      ))}
+      {treePositions.map(([x, z, scale], index) => (
+        <group key={`courtyard-distant-tree-${index}`} position={[x, 0, z]} scale={scale}>
+          <mesh position={[0, 1.35, 0]} castShadow>
+            <cylinderGeometry args={[0.16, 0.24, 2.7, 9]} />
+            <meshStandardMaterial color="#30271f" roughness={1} />
+          </mesh>
+          {([
+            [-0.58, 2.75, 0, 1.25, 0.9, 1],
+            [0.5, 2.9, 0.08, 1.18, 1.02, 0.92],
+            [0, 3.65, -0.04, 1.35, 1.18, 1.05],
+          ] as Array<[number, number, number, number, number, number]>).map(([crownX, crownY, crownZ, scaleX, scaleY, scaleZ], crownIndex) => (
+            <mesh
+              key={`crown-${crownIndex}`}
+              position={[crownX, crownY, crownZ]}
+              scale={[scaleX, scaleY, scaleZ]}
+              castShadow
+            >
+              <dodecahedronGeometry args={[1, 1]} />
+              <meshStandardMaterial
+                color={["#1d3027", "#294033", "#314a39"][crownIndex]}
+                roughness={1}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
 function CourtyardGateSurround({
   position,
   stone,
@@ -1866,11 +1980,9 @@ function CourtyardGateSurround({
 function CourtyardKit({
   bounds,
   presentation,
-  overview,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
-  overview: boolean;
 }) {
   const stone = usePbrSurface(
     "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
@@ -1896,9 +2008,6 @@ function CourtyardKit({
     [[0, wallHeight / 2, -bounds[2] / 2 + 0.08], [bounds[0], wallHeight, 0.2], "#d2c6ac"],
     [[-bounds[0] / 2 + 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c9bda5"],
     [[bounds[0] / 2 - 0.08, wallHeight / 2, 0], [0.2, wallHeight, bounds[2]], "#c6baa2"],
-    ...(!overview
-      ? [[[0, wallHeight / 2, bounds[2] / 2 - 0.08], [bounds[0], wallHeight, 0.2], "#c9bea7"] as [Vector3Tuple, Vector3Tuple, string]]
-      : []),
   ];
   const puddles: Array<{ position: Vector3Tuple; scale: Vector3Tuple }> = [
     { position: [-bounds[0] * 0.28, 0.075, bounds[2] * 0.22], scale: [1.25, 0.7, 1] },
@@ -1909,7 +2018,10 @@ function CourtyardKit({
   return (
     <group>
       {presentation.architecture.cobblestone && (
-        <CourtyardCobblestones bounds={bounds} pavement={pavement} />
+        <>
+          <CourtyardCobblestones bounds={bounds} pavement={pavement} />
+          <CourtyardBeyond bounds={bounds} pavement={pavement} />
+        </>
       )}
       {presentation.architecture.courtyardWalls && (
         <>
@@ -1930,9 +2042,6 @@ function CourtyardKit({
             [[0, wallHeight + 0.08, -bounds[2] / 2 + 0.1], [bounds[0] + 0.18, 0.18, 0.46]],
             [[-bounds[0] / 2 + 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
             [[bounds[0] / 2 - 0.1, wallHeight + 0.08, 0], [0.46, 0.18, bounds[2]]],
-            ...(!overview
-              ? [[[0, wallHeight + 0.08, bounds[2] / 2 - 0.1], [bounds[0] + 0.18, 0.18, 0.46]]]
-              : []),
           ].map(([position, dimensions], index) => (
             <mesh
               key={`courtyard-coping-${index}`}
@@ -1950,6 +2059,28 @@ function CourtyardKit({
                 roughness={0.94}
               />
             </mesh>
+          ))}
+          {[-1, 1].map((side) => (
+            <group
+              key={`courtyard-entrance-pier-${side}`}
+              position={[side * (bounds[0] / 2 - 0.28), 0, bounds[2] / 2 - 0.28]}
+            >
+              <mesh position={[0, wallHeight * 0.44, 0]} castShadow receiveShadow>
+                <boxGeometry args={[0.82, wallHeight * 0.88, 0.82]} />
+                <meshStandardMaterial
+                  color="#aaa28f"
+                  map={wall.color}
+                  normalMap={wall.normal}
+                  normalScale={new THREE.Vector2(0.34, 0.34)}
+                  roughnessMap={wall.arm}
+                  roughness={0.98}
+                />
+              </mesh>
+              <mesh position={[0, wallHeight * 0.9, 0]} castShadow>
+                <boxGeometry args={[1.02, 0.18, 1.02]} />
+                <meshStandardMaterial color="#858279" roughness={0.96} />
+              </mesh>
+            </group>
           ))}
           {[-1, 1].map((side) => (
             <group
@@ -2597,7 +2728,7 @@ function Room({
       ) : usesConservatoryKit ? (
         <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />
       ) : usesCourtyardKit ? (
-        <CourtyardKit bounds={bounds} presentation={presentation} overview={overview} />
+        <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (
         <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
       )}
@@ -2894,20 +3025,26 @@ function SceneCamera({
   layout,
   command,
   walkMode,
+  openAir,
 }: {
   layout: WorldLayout;
   command: CameraCommand | null;
   walkMode: boolean;
+  openAir: boolean;
 }) {
   const controls = useRef<ComponentRef<typeof CameraControls>>(null);
   const walkInput = useRef({ forward: false, backward: false, left: false, right: false });
   const walkLook = useRef({ yaw: 0, pitch: 0, pointerId: null as number | null });
   const bounds = layout.location.bounds ?? [12, 4.5, 10];
   const { camera, gl } = useThree();
+  const initialPov = useCallback(
+    () => openAir ? createExteriorPovCameraPose(bounds) : createPovCameraPose(bounds),
+    [bounds[0], bounds[1], bounds[2], openAir],
+  );
 
   useEffect(() => {
     if (walkMode) return;
-    const pov = createPovCameraPose(bounds);
+    const pov = initialPov();
     const currentControls = controls.current;
     if (!currentControls) return;
 
@@ -2924,7 +3061,7 @@ function SceneCamera({
       false,
     );
     currentControls.saveState();
-  }, [bounds[0], bounds[1], bounds[2], layout.location.id, walkMode]);
+  }, [bounds[0], bounds[1], bounds[2], initialPov, layout.location.id, walkMode]);
 
   useEffect(() => {
     if (!walkMode) {
@@ -2932,7 +3069,7 @@ function SceneCamera({
       return;
     }
 
-    const pose = createPovCameraPose(bounds);
+    const pose = initialPov();
     const direction = new THREE.Vector3(...pose.target)
       .sub(new THREE.Vector3(...pose.position))
       .normalize();
@@ -2997,7 +3134,7 @@ function SceneCamera({
       gl.domElement.removeEventListener("contextmenu", onContextMenu);
       stopWalking();
     };
-  }, [bounds[0], bounds[1], bounds[2], camera, gl, walkMode]);
+  }, [bounds[0], bounds[1], bounds[2], camera, gl, initialPov, walkMode]);
 
   useFrame((_, delta) => {
     if (!walkMode) return;
@@ -3031,7 +3168,7 @@ function SceneCamera({
     const currentTarget = currentControls.getTarget(new THREE.Vector3(), true);
     let pose;
     if (command.kind === "pov") {
-      pose = createPovCameraPose(bounds);
+      pose = initialPov();
     } else if (command.kind === "overview") {
       pose = createOverviewCameraPose(bounds);
     } else {
@@ -3044,7 +3181,7 @@ function SceneCamera({
     }
     currentControls.cancel();
     void currentControls.setLookAt(...pose.position, ...pose.target, true);
-  }, [bounds[0], bounds[1], bounds[2], command, walkMode]);
+  }, [bounds[0], bounds[1], bounds[2], command, initialPov, walkMode]);
 
   if (walkMode) return null;
 
@@ -3304,7 +3441,12 @@ function WorldScene({
           <meshBasicMaterial color="#69dfce" transparent opacity={0.8} />
         </mesh>
       )}
-      <SceneCamera layout={layout} command={cameraCommand} walkMode={walkMode} />
+      <SceneCamera
+        layout={layout}
+        command={cameraCommand}
+        walkMode={walkMode}
+        openAir={isCourtyard}
+      />
     </>
   );
 }

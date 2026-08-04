@@ -26,6 +26,17 @@ export function createPovCameraPose(
   };
 }
 
+/** Frames an open boundary immediately so outdoor scenes do not read as roofless rooms. */
+export function createExteriorPovCameraPose(
+  bounds: Vector3Tuple = DEFAULT_BOUNDS,
+): CameraPose {
+  const eyeHeight = Math.min(1.68, Math.max(1.5, bounds[1] * 0.34));
+  return {
+    position: [-bounds[0] * 0.2, eyeHeight, -bounds[2] * 0.2],
+    target: [bounds[0] * 0.04, Math.min(1.3, eyeHeight - 0.18), bounds[2] * 0.48],
+  };
+}
+
 /** Keeps the navigated point inside the walkable footprint of a room. */
 export function clampNavigationTarget(
   target: Vector3Tuple,

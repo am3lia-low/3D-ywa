@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   clampNavigationTarget,
   createOverviewCameraPose,
+  createExteriorPovCameraPose,
   createPovCameraPose,
   createTravelCameraPose,
   createWalkCameraPose,
@@ -29,6 +30,15 @@ describe("camera navigation", () => {
     expect(Math.abs(pose.position[2])).toBeLessThan(7);
     expect(pose.target[2]).toBeLessThan(pose.position[2]);
     expect(pose.target[1]).toBeLessThan(pose.position[1]);
+  });
+
+  it("starts an exterior scene looking toward its open boundary", () => {
+    const pose = createExteriorPovCameraPose([34, 6.5, 28]);
+
+    expect(pose.position[1]).toBeCloseTo(1.68);
+    expect(pose.target[2]).toBeGreaterThan(pose.position[2]);
+    expect(Math.abs(pose.position[0])).toBeLessThan(17);
+    expect(pose.target[2]).toBeLessThan(14);
   });
 
   it("preserves view offset while travelling to a bounded target", () => {
