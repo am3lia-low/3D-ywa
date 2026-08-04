@@ -1,4 +1,4 @@
-import { mkdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as THREE from "three";
@@ -293,6 +293,42 @@ manifest.push(
     bytes: 924683,
   },
 );
+
+const optimizedManifest = JSON.parse(await readFile(
+  resolve(outputDirectory, "optimized", "polyhaven", "optimization-manifest.json"),
+  "utf8",
+));
+for (const asset of optimizedManifest.assets) {
+  for (const lod of asset.lods) {
+    manifest.push({
+      key: `${asset.slug}-lod${lod.level}`,
+      url: lod.url,
+      format: `Optimized glTF 2.0 binary LOD${lod.level}`,
+      author: asset.author,
+      license: optimizedManifest.license,
+      sourceUrl: asset.sourceUrl,
+      bytes: lod.bytes,
+      sha256: lod.sha256,
+    });
+  }
+}
+
+const assetCatalog = JSON.parse(await readFile(
+  resolve(rootDirectory, "src", "data", "asset-kit-catalog.json"),
+  "utf8",
+));
+for (const entry of assetCatalog.assets.filter((asset) => asset.runtimeAsset.safeMeshUrl)) {
+  const url = entry.runtimeAsset.safeMeshUrl;
+  manifest.push({
+    key: entry.registryKey,
+    url,
+    format: "StoryWorld safe mesh 1.0",
+    author: entry.author,
+    license: entry.license,
+    sourceUrl: entry.sourceUrl,
+    bytes: (await stat(resolve(rootDirectory, "public", url.replace(/^\//, "")))).size,
+  });
+}
 
 await writeFile(
   resolve(outputDirectory, "manifest.json"),

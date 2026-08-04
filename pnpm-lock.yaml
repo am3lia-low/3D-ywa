@@ -42,6 +42,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.10
         version: 4.1.10(vitest@4.1.10)
+      gltfpack:
+        specifier: 1.2.0
+        version: 1.2.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -560,6 +563,11 @@ packages:
 
   glsl-noise@0.0.0:
     resolution: {integrity: sha512-b/ZCF6amfAUb7dJM/MxRs7AetQEahYzJ8PtgfrmEdtw6uyGOr+ZSGtgjFm6mfsBkxJ4d2W7kg+Nlqzqvn3Bc0w==}
+
+  gltfpack@1.2.0:
+    resolution: {integrity: sha512-Wb65Jqc/8yWXeugZvwQO5PWL5oVI0o0TEM7/lu66mMc3HJ7QSuQ/YJyRphUyQNRFzzHZbnrKtdq1/GcWuUbFEA==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -1415,6 +1423,8 @@ snapshots:
     optional: true
 
   glsl-noise@0.0.0: {}
+
+  gltfpack@1.2.0: {}
 
   has-flag@4.0.0: {}
 

@@ -300,6 +300,39 @@ function LoadedModel({ url, draftGenerated = false }: { url: string; draftGenera
   );
 }
 
+function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
+  const group = useRef<THREE.Group>(null);
+  const levels = useMemo(
+    () => asset.lods ?? (asset.modelUrl ? [{ modelUrl: asset.modelUrl, minimumDistance: 0 }] : []),
+    [asset.lods, asset.modelUrl],
+  );
+  const [modelUrl, setModelUrl] = useState(levels[0]?.modelUrl ?? asset.modelUrl ?? "");
+  const activeUrl = useRef(modelUrl);
+  const worldPosition = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(({ camera }) => {
+    if (!group.current || levels.length < 2) return;
+    group.current.getWorldPosition(worldPosition);
+    const distance = camera.position.distanceTo(worldPosition);
+    const selected = [...levels]
+      .reverse()
+      .find((level) => distance >= level.minimumDistance) ?? levels[0]!;
+    if (selected.modelUrl === activeUrl.current) return;
+    activeUrl.current = selected.modelUrl;
+    setModelUrl(selected.modelUrl);
+  });
+
+  return (
+    <group ref={group}>
+      <LoadedModel
+        key={modelUrl}
+        url={modelUrl}
+        draftGenerated={asset.key.startsWith("generated:")}
+      />
+    </group>
+  );
+}
+
 const safeMeshTemplates = new WeakMap<object, THREE.Group>();
 
 function safeMeshTemplate(payload: unknown): THREE.Group {
@@ -1479,10 +1512,7 @@ function EntityAsset({
   return (
     <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
       <Suspense fallback={fallback}>
-        <LoadedModel
-          url={asset.modelUrl}
-          draftGenerated={asset.key.startsWith("generated:")}
-        />
+        <AdaptiveLoadedModel asset={asset} />
       </Suspense>
     </ModelErrorBoundary>
   );

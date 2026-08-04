@@ -18,11 +18,21 @@ describe("asset registry", () => {
   it("keeps every registered runtime asset URL synchronized with the generated manifest", () => {
     const manifestUrls = new Set(modelManifest.assets.map((asset) => asset.url));
     const registeredUrls = Object.values(defaultAssetRegistry).flatMap((asset) =>
-      [asset.modelUrl, asset.safeMeshUrl, asset.surfaceTextureUrl].filter((url): url is string => Boolean(url)),
+      [
+        asset.modelUrl,
+        asset.safeMeshUrl,
+        asset.surfaceTextureUrl,
+        ...(asset.lods?.map((lod) => lod.modelUrl) ?? []),
+      ].filter((url): url is string => Boolean(url)),
     );
 
     const catalogUrls = assetKitCatalog.assets.flatMap((asset) =>
-      [asset.runtimeAsset.modelUrl, asset.runtimeAsset.safeMeshUrl, asset.runtimeAsset.surfaceTextureUrl]
+      [
+        asset.runtimeAsset.modelUrl,
+        asset.runtimeAsset.safeMeshUrl,
+        asset.runtimeAsset.surfaceTextureUrl,
+        ...(asset.runtimeAsset.lods?.map((lod) => lod.modelUrl) ?? []),
+      ]
         .filter((url): url is string => Boolean(url)),
     );
 

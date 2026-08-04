@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = path.join(root, "public", "models", "polyhaven");
 const resolution = "1k";
+const userAgent = "PersistentStoryWorld3D/0.1 (Garena AI Build Challenge)";
 const approvedSlugs = new Set([
   "large_castle_door",
   "painted_wooden_bench",
@@ -30,7 +31,7 @@ async function download(entry, destination) {
   if (url.protocol !== "https:" || url.hostname !== "dl.polyhaven.org") {
     throw new Error(`Unexpected Poly Haven download host: ${entry.url}`);
   }
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { "User-Agent": userAgent } });
   if (!response.ok) throw new Error(`Download failed (${response.status}): ${entry.url}`);
   const bytes = Buffer.from(await response.arrayBuffer());
   const digest = createHash("md5").update(bytes).digest("hex");
@@ -46,7 +47,9 @@ for (const slug of slugs) {
   if (!approvedSlugs.has(slug)) {
     throw new Error(`'${slug}' is not in the reviewed CC0 asset allowlist.`);
   }
-  const response = await fetch(`https://api.polyhaven.com/files/${slug}`);
+  const response = await fetch(`https://api.polyhaven.com/files/${slug}`, {
+    headers: { "User-Agent": userAgent },
+  });
   if (!response.ok) throw new Error(`Could not load Poly Haven manifest for '${slug}'.`);
   const manifest = await response.json();
   const gltf = manifest?.gltf?.[resolution]?.gltf;

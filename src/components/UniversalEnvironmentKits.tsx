@@ -312,14 +312,47 @@ export function UniversalLandscapeKit({
   );
 }
 
-function Building({ position, size, color, seed }: { position: Vector3Tuple; size: Vector3Tuple; color: string; seed: number }) {
+interface PbrSurfaceSet {
+  color: THREE.Texture;
+  normal: THREE.Texture;
+  arm: THREE.Texture;
+}
+
+function Building({
+  position,
+  size,
+  color,
+  seed,
+  surface,
+}: {
+  position: Vector3Tuple;
+  size: Vector3Tuple;
+  color: string;
+  seed: number;
+  surface: PbrSurfaceSet;
+}) {
   const columns = Math.max(2, Math.floor(size[0] / 0.8));
   const rows = Math.max(2, Math.floor(size[1] / 0.9));
   return (
     <group position={position}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={size} />
-        <meshStandardMaterial color={color} roughness={0.92} />
+        <meshStandardMaterial
+          color={color}
+          map={surface.color}
+          normalMap={surface.normal}
+          normalScale={new THREE.Vector2(0.34, 0.34)}
+          roughnessMap={surface.arm}
+          roughness={0.94}
+        />
+      </mesh>
+      <mesh position={[0, size[1] / 2 - 0.08, 0]} castShadow>
+        <boxGeometry args={[size[0] + 0.08, 0.18, size[2] + 0.08]} />
+        <meshStandardMaterial color="#403b37" roughness={0.82} />
+      </mesh>
+      <mesh position={[0, -size[1] / 2 + 0.34, size[2] / 2 + 0.025]} castShadow>
+        <boxGeometry args={[size[0] * 0.88, 0.58, 0.055]} />
+        <meshStandardMaterial color={(seed % 2) === 0 ? "#4e3b32" : "#34494a"} roughness={0.8} />
       </mesh>
       {Array.from({ length: columns * rows }, (_, index) => {
         const column = index % columns;
@@ -336,6 +369,34 @@ function Building({ position, size, color, seed }: { position: Vector3Tuple; siz
 }
 
 export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const surfaces = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const load = (url: string, repeat: [number, number], color = false) => {
+      const texture = loader.load(url);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...repeat);
+      texture.anisotropy = 8;
+      if (color) texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    };
+    return {
+      wall: {
+        color: load("/textures/polyhaven/plastered_wall_03_diff_1k.jpg", [1.2, 2.4], true),
+        normal: load("/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg", [1.2, 2.4]),
+        arm: load("/textures/polyhaven/plastered_wall_03_arm_1k.jpg", [1.2, 2.4]),
+      },
+      street: {
+        color: load("/textures/polyhaven/patterned_cobblestone_diff_1k.jpg", [4.5, 8], true),
+        normal: load("/textures/polyhaven/patterned_cobblestone_nor_gl_1k.jpg", [4.5, 8]),
+        arm: load("/textures/polyhaven/patterned_cobblestone_arm_1k.jpg", [4.5, 8]),
+      },
+    };
+  }, []);
+  useEffect(
+    () => () => Object.values(surfaces).flatMap((surface) => Object.values(surface)).forEach((texture) => texture.dispose()),
+    [surfaces],
+  );
   const facades = useMemo(() => [-1, 1].flatMap((side) => Array.from({ length: 6 }, (_, index) => {
     const width = bounds[2] / 6 - 0.25;
     const height = 3.8 + ((index * 7 + side) % 4) * 0.8;
@@ -351,7 +412,14 @@ export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple;
     <group>
       <mesh position={[0, 0.018, 0]} receiveShadow>
         <boxGeometry args={[bounds[0], 0.1, bounds[2]]} />
-        <meshStandardMaterial color={presentation.palette.floor} roughness={0.92} />
+        <meshStandardMaterial
+          color={presentation.palette.floor}
+          map={surfaces.street.color}
+          normalMap={surfaces.street.normal}
+          normalScale={new THREE.Vector2(0.46, 0.46)}
+          roughnessMap={surfaces.street.arm}
+          roughness={0.94}
+        />
       </mesh>
       <mesh position={[0, 0.08, 0]} receiveShadow>
         <boxGeometry args={[bounds[0] * 0.42, 0.06, bounds[2]]} />
@@ -365,16 +433,18 @@ export function UrbanStreetKit({ bounds, presentation }: { bounds: Vector3Tuple;
       ))}
       {facades.map((building, index) => (
         <group key={index} position={building.position} rotation={building.rotation}>
-          <Building position={[0, 0, 0]} size={building.size} color={building.color} seed={building.seed} />
+          <Building position={[0, 0, 0]} size={building.size} color={building.color} seed={building.seed} surface={surfaces.wall} />
         </group>
       ))}
-      {[-1, 1].flatMap((side) => [-0.34, 0, 0.34].map((factor, index) => (
-        <group key={`${side}:${index}`} position={[side * bounds[0] * 0.25, 0, bounds[2] * factor]}>
-          <mesh position={[0, 1.25, 0]} castShadow><cylinderGeometry args={[0.04, 0.06, 2.5, 10]} /><meshStandardMaterial color="#273638" metalness={0.68} roughness={0.45} /></mesh>
-          <mesh position={[0, 2.48, 0]}><sphereGeometry args={[0.13, 14, 10]} /><meshStandardMaterial color={presentation.palette.practical} emissive={presentation.palette.practical} emissiveIntensity={1.1} /></mesh>
-          <pointLight position={[0, 2.42, 0]} color={presentation.palette.practical} intensity={0.7} distance={5} />
-        </group>
-      )))}
+      {([[-0.25, -0.38], [0.25, -0.12], [-0.25, 0.15], [0.25, 0.4]] as const).map(([x, z]) => (
+        <pointLight
+          key={`street-light:${x}:${z}`}
+          position={[bounds[0] * x, 3.05, bounds[2] * z]}
+          color={presentation.palette.practical}
+          intensity={0.72}
+          distance={6}
+        />
+      ))}
       {[-1, 1].flatMap((side) => [-0.24, 0.18].map((factor, index) => (
         <group key={`stall:${side}:${factor}`} position={[side * bounds[0] * 0.26, 0, bounds[2] * factor]} rotation={[0, side < 0 ? Math.PI / 2 : -Math.PI / 2, 0]}>
           <mesh position={[0, 0.62, 0]} castShadow receiveShadow><boxGeometry args={[1.65, 0.12, 0.72]} /><meshStandardMaterial color="#6d4932" roughness={0.88} /></mesh>

@@ -122,67 +122,195 @@
       "bytes": 924683
     },
     {
-      "key": "environment-tree-oak-safe",
+      "key": "fern_02-lod0",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1143024,
+      "sha256": "7aeb36fd7b0494787bf5c7b5dfb8e2a4cac4a82312b8b58f9a26d6113f8a2b3d"
+    },
+    {
+      "key": "fern_02-lod1",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1067968,
+      "sha256": "a1f0cdf3b0d0b61bb99a0fe5ef50c1b2ddd7406b881c0eebc18de51f873d53ba"
+    },
+    {
+      "key": "fern_02-lod2",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1017932,
+      "sha256": "790853cca7b90b4947629d9ff99878e1e7cba9c9f9fab44c9e8beb6c56201661"
+    },
+    {
+      "key": "rock_face_01-lod0",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 3048996,
+      "sha256": "17534c8e5c89d260ecb503356536866284ad3f8cc566762a902e6999ece3e060"
+    },
+    {
+      "key": "rock_face_01-lod1",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 2814164,
+      "sha256": "7387e9cb85a16034f7343201811bb215fe22b90b4985963d885956317ad906c2"
+    },
+    {
+      "key": "rock_face_01-lod2",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 2673328,
+      "sha256": "21f1540dc4ccb8336fc2ad2e505fe7d9d2b1fd90540ea8fd7541ce512223f1d2"
+    },
+    {
+      "key": "street_lamp_01-lod0",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 2470976,
+      "sha256": "ffbbb8bf09cb302935e4a1db2e6ceadeb7cd303f715cf7ed9d26d3fe2e953d04"
+    },
+    {
+      "key": "street_lamp_01-lod1",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 2150184,
+      "sha256": "7336873cbf5d59592bc89ffd4dc798051a4f1f75f1e65821bef03d3443d5dc9d"
+    },
+    {
+      "key": "street_lamp_01-lod2",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 1931444,
+      "sha256": "6c82147eac2da404b5a5527d0c12201985f181fedb3e3f2eb01006f609b7cd4a"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod0",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4816132,
+      "sha256": "8a30863b2baec553e60b8d08c5a306f483a1dfa335f23656736ad5ed21662fa7"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod1",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4545692,
+      "sha256": "ce33e28cfa5447513061280578f9d2908f223acfc24f511b6b507003b20c5127"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod2",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4427928,
+      "sha256": "f3b104fac29a934fe25affa7f7e45e8949d4392ac9eb930b22881d14338bb47b"
+    },
+    {
+      "key": "environment-tree-oak",
       "url": "/models/converted/nature/tree-oak-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 67361
     },
     {
-      "key": "environment-bush-safe",
+      "key": "environment-bush",
       "url": "/models/converted/nature/bush-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 23958
     },
     {
-      "key": "environment-rock-safe",
+      "key": "environment-rock",
       "url": "/models/converted/nature/rock-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 46306
     },
     {
-      "key": "environment-pine-tall-safe",
+      "key": "environment-pine-tall",
       "url": "/models/converted/nature/pine-tall-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 45758
     },
     {
-      "key": "environment-pine-round-safe",
+      "key": "environment-pine-round",
       "url": "/models/converted/nature/pine-round-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 67565
     },
     {
-      "key": "environment-fallen-log-safe",
+      "key": "environment-fallen-log",
       "url": "/models/converted/nature/fallen-log-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 29736
     },
     {
-      "key": "environment-grass-tuft-safe",
+      "key": "environment-grass-tuft",
       "url": "/models/converted/nature/grass-tuft-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 45957
     },
     {
-      "key": "environment-red-mushrooms-safe",
+      "key": "environment-red-mushrooms",
       "url": "/models/converted/nature/red-mushrooms-safe.mesh.json",
       "format": "StoryWorld safe mesh 1.0",
-      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "author": "Kenney",
       "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
       "bytes": 67500
     }
   ]

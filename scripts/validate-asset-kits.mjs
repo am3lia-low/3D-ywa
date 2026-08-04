@@ -152,6 +152,7 @@ function distortion(runtimeDimensions, sourceBounds) {
 async function inspectAsset(asset) {
   const errors = [];
   const warnings = [];
+  const lods = [];
   const surfaceOnly = asset.runtimeAsset.surfaceTextureUrl
     && !asset.runtimeAsset.modelUrl
     && !asset.runtimeAsset.safeMeshUrl;
@@ -184,6 +185,39 @@ async function inspectAsset(asset) {
       await stat(texture);
       files.add(texture);
     }
+    if (asset.runtimeAsset.lods) {
+      let previousTriangles = Number.POSITIVE_INFINITY;
+      for (const [index, lod] of asset.runtimeAsset.lods.entries()) {
+        const inspected = await inspectModel(lod.modelUrl);
+        const bytes = await totalBytes(inspected.files);
+        const lodDistortion = distortion(asset.runtimeAsset.dimensions, inspected.sourceBounds);
+        const prefix = `LOD${index}`;
+        if (asset.qualityGate.requirePbrTextures) {
+          errors.push(...pbrProblems(inspected.document, inspected.primitives).map((problem) => `${prefix}: ${problem}`));
+        }
+        if (bytes > asset.qualityGate.maxTotalBytes) {
+          errors.push(`${prefix} bundle is ${bytes} bytes; budget is ${asset.qualityGate.maxTotalBytes}.`);
+        }
+        if (inspected.triangles > asset.qualityGate.maxTriangles) {
+          errors.push(`${prefix} has ${inspected.triangles} triangles; budget is ${asset.qualityGate.maxTriangles}.`);
+        }
+        if (index > 0 && inspected.triangles >= previousTriangles) {
+          errors.push(`${prefix} must contain fewer triangles than the previous level.`);
+        }
+        if (lodDistortion !== null && lodDistortion > asset.qualityGate.maxAspectDistortion) {
+          errors.push(`${prefix} normalization distortion is ${lodDistortion.toFixed(2)}x; limit is ${asset.qualityGate.maxAspectDistortion}x.`);
+        }
+        previousTriangles = inspected.triangles;
+        lods.push({
+          level: index,
+          minimumDistance: lod.minimumDistance,
+          modelUrl: lod.modelUrl,
+          totalBytes: bytes,
+          triangles: inspected.triangles,
+          sourceBounds: inspected.sourceBounds?.map((value) => Number(value.toFixed(4))) ?? null,
+        });
+      }
+    }
     const bytes = await totalBytes(files);
     if (bytes > asset.qualityGate.maxTotalBytes) {
       errors.push(`Bundle is ${bytes} bytes; budget is ${asset.qualityGate.maxTotalBytes}.`);
@@ -208,6 +242,7 @@ async function inspectAsset(asset) {
       aspectDistortion: aspectDistortion === null ? null : Number(aspectDistortion.toFixed(2)),
       warnings,
       errors,
+      lods,
     };
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
@@ -223,6 +258,7 @@ async function inspectAsset(asset) {
       aspectDistortion,
       warnings,
       errors,
+      lods,
     };
   }
 }
@@ -246,6 +282,19 @@ function validateCatalog(catalog) {
       errors.push(`Asset '${asset.catalogId}' has neither a model, safe mesh nor a controlled surface.`);
     }
     if (asset.source === "cc0" && !asset.sourceUrl) errors.push(`CC0 asset '${asset.catalogId}' lacks provenance.`);
+    if (asset.runtimeAsset?.lods) {
+      if (asset.runtimeAsset.lods[0]?.modelUrl !== asset.runtimeAsset.modelUrl) {
+        errors.push(`Asset '${asset.catalogId}' does not use LOD0 as its primary model.`);
+      }
+      if (asset.runtimeAsset.lods[0]?.minimumDistance !== 0) {
+        errors.push(`Asset '${asset.catalogId}' does not start LOD0 at distance zero.`);
+      }
+      for (let index = 1; index < asset.runtimeAsset.lods.length; index += 1) {
+        if (asset.runtimeAsset.lods[index].minimumDistance <= asset.runtimeAsset.lods[index - 1].minimumDistance) {
+          errors.push(`Asset '${asset.catalogId}' has non-increasing LOD distances.`);
+        }
+      }
+    }
     for (const kitId of asset.styleKitIds ?? []) {
       if (!kitIds.has(kitId)) errors.push(`Asset '${asset.catalogId}' references unknown kit '${kitId}'.`);
     }

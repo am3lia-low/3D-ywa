@@ -36,6 +36,26 @@ Run the local gate before committing a new asset:
 pnpm assets:report
 ```
 
+Reviewed Poly Haven source models use an offline, reproducible preparation step:
+
+```bash
+pnpm assets:prepare:quality
+```
+
+The preparation script accepts only reviewed slugs, verifies every Poly Haven
+checksum, caches the immutable 1K source package outside version control and
+generates near, medium and far GLB levels with pinned `gltfpack`. The runtime
+chooses a level from camera distance before loading it. The source cache means
+subsequent runs do not depend on the network; the committed optimization
+manifest records source provenance, geometric ratios, output bytes and SHA-256
+digests.
+
+The portable Node optimizer preserves the source 1K PBR textures because it has
+no native WebP/KTX2 encoder. Geometry is simplified and normalized without
+quantization so the existing bounds gate can measure it. A native texture
+transcoder can be introduced later without changing the catalog or renderer
+contract.
+
 The gate parses local glTF and GLB files, resolves their buffers and images,
 checks glTF 2.0 structure, PBR texture assignments, triangle and byte budgets,
 source bounds and normalization distortion. It also proves that each style kit
@@ -90,6 +110,12 @@ The fixture selector includes four independent stories:
 
 Switching fixtures remounts the spatial runtime at that story's first immutable
 snapshot. Patches and renderer acknowledgements cannot leak between stories.
+
+The universal-family stress fixture additionally routes natural-language
+alpine, desert, coastal, meadow, market and industrial descriptions through the
+same compiler. Its woodland groundcover, weathered rock formations, ornate
+market lamps and industrial pipe banks use optimized CC0 LOD assets instead of
+unbounded live generation.
 
 ## Scene recipe compilation
 

@@ -383,6 +383,156 @@
       }
     },
     {
+      "catalogId": "polyhaven:fern_02-optimized",
+      "registryKey": "environment-fern",
+      "roles": ["environment-shrub", "forest-groundcover"],
+      "assetKeys": ["fern", "fern-cluster", "forest-fern"],
+      "semanticKinds": ["fern", "plant", "vegetation", "environment-dressing"],
+      "tags": ["fern", "plant", "foliage", "undergrowth", "shrub", "bush", "woodland", "forest", "green", "groundcover"],
+      "styleKitIds": ["botanical-gothic", "woodland-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "environment-fern",
+        "geometry": "sphere",
+        "dimensions": [2.3, 1, 2.08],
+        "color": "#42684a",
+        "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod2.glb", "minimumDistance": 26 }
+        ],
+        "roughness": 0.9
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 1250000,
+        "maxTriangles": 7000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:rock_face_01-optimized",
+      "registryKey": "environment-rock-face",
+      "roles": ["environment-rock"],
+      "assetKeys": ["rock-face", "weathered-rock", "cliff-rock"],
+      "semanticKinds": ["rock", "cliff", "terrain", "environment-dressing"],
+      "tags": ["rock", "stone", "cliff", "boulder", "weathered", "lichen", "rugged", "alpine", "arid", "coastal", "woodland"],
+      "styleKitIds": ["storybook-historical", "woodland-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "environment-rock-face",
+        "geometry": "sphere",
+        "dimensions": [2.45, 1.76, 1.9],
+        "color": "#6d6c65",
+        "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod1.glb", "minimumDistance": 16 },
+          { "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod2.glb", "minimumDistance": 34 }
+        ],
+        "roughness": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 3200000,
+        "maxTriangles": 22000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:street_lamp_01-optimized",
+      "registryKey": "ornate-street-lamp",
+      "roles": ["practical-light", "urban-light"],
+      "assetKeys": ["street-lamp", "lamp-post", "ornate-street-lamp"],
+      "semanticKinds": ["lamp", "street-light", "lighting", "environment-dressing"],
+      "tags": ["street", "lamp", "light", "lamp-post", "ornate", "iron", "weathered", "urban", "market", "historical"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "ornate-street-lamp",
+        "geometry": "cylinder",
+        "dimensions": [0.62, 3.4, 0.34],
+        "color": "#343839",
+        "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod2.glb", "minimumDistance": 30 }
+        ],
+        "roughness": 0.62,
+        "metalness": 0.58
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2600000,
+        "maxTriangles": 32000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:modular_industrial_pipes_01-optimized",
+      "registryKey": "industrial-pipe-bank",
+      "roles": ["industrial-infrastructure"],
+      "assetKeys": ["industrial-pipes", "pipe-bank", "machine-pipes"],
+      "semanticKinds": ["pipes", "machinery", "industrial", "environment-dressing"],
+      "tags": ["industrial", "pipes", "pipe", "machinery", "factory", "engine", "maintenance", "metal", "valve", "infrastructure"],
+      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "industrial-pipe-bank",
+        "geometry": "cylinder",
+        "dimensions": [1.48, 4.76, 0.75],
+        "color": "#596567",
+        "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod1.glb", "minimumDistance": 13 },
+          { "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.58,
+        "metalness": 0.62
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 5000000,
+        "maxTriangles": 14000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.2,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "kenney:nature-tree-oak-safe",
       "registryKey": "environment-tree-oak",
       "roles": ["environment-tree"],

@@ -10,6 +10,7 @@
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
     "models:generate": "node scripts/generate-models.mjs",
     "assets:import:polyhaven": "node scripts/import-polyhaven-assets.mjs",
+    "assets:prepare:quality": "node scripts/prepare-polyhaven-lods.mjs",
     "assets:convert:glb": "node scripts/convert-external-glb.mjs",
     "assets:support:generate": "node scripts/generate-safe-mesh-support.mjs",
     "assets:support:check": "node scripts/generate-safe-mesh-support.mjs --check",
@@ -43,6 +44,7 @@
     "@types/three": "^0.185.3",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
+    "gltfpack": "1.2.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"

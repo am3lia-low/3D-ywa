@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "scripts/prepare-polyhaven-lods.mjs",
+  "license": "CC0 1.0 Universal",
+  "apiCredit": "Source assets downloaded from Poly Haven using its public API.",
+  "texturePolicy": "Original 1K PBR textures are preserved; geometric LODs are selected before loading.",
+  "assets": [
+    {
+      "slug": "fern_02",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "sourceResolution": "1k",
+      "sourceBytes": 1146361,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.005,
+          "url": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb",
+          "bytes": 1143024,
+          "sha256": "7aeb36fd7b0494787bf5c7b5dfb8e2a4cac4a82312b8b58f9a26d6113f8a2b3d"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.015,
+          "url": "/models/optimized/polyhaven/fern_02/fern_02_lod1.glb",
+          "bytes": 1067968,
+          "sha256": "a1f0cdf3b0d0b61bb99a0fe5ef50c1b2ddd7406b881c0eebc18de51f873d53ba"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.035,
+          "url": "/models/optimized/polyhaven/fern_02/fern_02_lod2.glb",
+          "bytes": 1017932,
+          "sha256": "790853cca7b90b4947629d9ff99878e1e7cba9c9f9fab44c9e8beb6c56201661"
+        }
+      ]
+    },
+    {
+      "slug": "rock_face_01",
+      "author": "Dario Barresi",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 3049988,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.005,
+          "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb",
+          "bytes": 3048996,
+          "sha256": "17534c8e5c89d260ecb503356536866284ad3f8cc566762a902e6999ece3e060"
+        },
+        {
+          "level": 1,
+          "ratio": 0.5,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod1.glb",
+          "bytes": 2814164,
+          "sha256": "7387e9cb85a16034f7343201811bb215fe22b90b4985963d885956317ad906c2"
+        },
+        {
+          "level": 2,
+          "ratio": 0.2,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod2.glb",
+          "bytes": 2673328,
+          "sha256": "21f1540dc4ccb8336fc2ad2e505fe7d9d2b1fd90540ea8fd7541ce512223f1d2"
+        }
+      ]
+    },
+    {
+      "slug": "street_lamp_01",
+      "author": "Josh Dean",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 2166163,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb",
+          "bytes": 2470976,
+          "sha256": "ffbbb8bf09cb302935e4a1db2e6ceadeb7cd303f715cf7ed9d26d3fe2e953d04"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod1.glb",
+          "bytes": 2150184,
+          "sha256": "7336873cbf5d59592bc89ffd4dc798051a4f1f75f1e65821bef03d3443d5dc9d"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod2.glb",
+          "bytes": 1931444,
+          "sha256": "6c82147eac2da404b5a5527d0c12201985f181fedb3e3f2eb01006f609b7cd4a"
+        }
+      ]
+    },
+    {
+      "slug": "modular_industrial_pipes_01",
+      "author": "Jorge Camacho",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 4823938,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb",
+          "bytes": 4816132,
+          "sha256": "8a30863b2baec553e60b8d08c5a306f483a1dfa335f23656736ad5ed21662fa7"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod1.glb",
+          "bytes": 4545692,
+          "sha256": "ce33e28cfa5447513061280578f9d2908f223acfc24f511b6b507003b20c5127"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod2.glb",
+          "bytes": 4427928,
+          "sha256": "f3b104fac29a934fe25affa7f7e45e8949d4392ac9eb930b22881d14338bb47b"
+        }
+      ]
+    }
+  ]
+}

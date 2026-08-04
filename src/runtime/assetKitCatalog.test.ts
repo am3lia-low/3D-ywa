@@ -7,7 +7,7 @@ import { defaultAssetRegistry } from "./assetRegistry";
 describe("asset kit catalog", () => {
   it("is the single source for runtime assets and semantic entries", () => {
     expect(assetKitCatalog.kits).toHaveLength(4);
-    expect(assetKitCatalog.assets).toHaveLength(19);
+    expect(assetKitCatalog.assets).toHaveLength(23);
     expect(Object.keys(defaultAssetRegistry).sort()).toEqual(
       assetKitCatalog.assets.map((asset) => asset.registryKey).sort(),
     );
@@ -35,6 +35,16 @@ describe("asset kit catalog", () => {
       .toBeCloseTo(0.747, 3);
   });
 
+  it("publishes ordered browser LODs for optimized hero environment assets", () => {
+    const streetLamp = defaultAssetRegistry["ornate-street-lamp"];
+    expect(streetLamp?.lods).toEqual([
+      expect.objectContaining({ minimumDistance: 0 }),
+      expect.objectContaining({ minimumDistance: 14 }),
+      expect.objectContaining({ minimumDistance: 30 }),
+    ]);
+    expect(streetLamp?.modelUrl).toBe(streetLamp?.lods?.[0]?.modelUrl);
+  });
+
   it("retains complete provenance for vendored CC0 models", () => {
     const crate = assetKitCatalog.assets.find((asset) => asset.registryKey === "crate");
     expect(crate).toMatchObject({
@@ -57,5 +67,11 @@ describe("asset kit catalog", () => {
     const untraceable = structuredClone(assetKitCatalog);
     delete untraceable.assets[0]!.sourceUrl;
     expect(() => validateAssetKitCatalog(untraceable)).toThrow(/CC0 assets require a source URL/);
+
+    const invalidLods = structuredClone(assetKitCatalog);
+    const optimized = invalidLods.assets.find((asset) => asset.registryKey === "ornate-street-lamp");
+    if (!optimized?.runtimeAsset.lods) throw new Error("Fixture must contain optimized LODs.");
+    optimized.runtimeAsset.lods[1]!.minimumDistance = 0;
+    expect(() => validateAssetKitCatalog(invalidLods)).toThrow(/LOD distances must increase/);
   });
 });

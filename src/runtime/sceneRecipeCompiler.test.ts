@@ -14,6 +14,7 @@ import courtyardPlan1Fixture from "../../fixtures/visual_scene_plan_courtyard_1.
 import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.json";
 import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
+import worldFamiliesFixture from "../../fixtures/story_package_world_families_demo.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -190,7 +191,7 @@ describe("scene recipe compiler", () => {
       .toEqual(expect.arrayContaining([
         "kenney:nature-tree-oak-safe",
         "kenney:nature-bush-safe",
-        "kenney:nature-rock-safe",
+        "polyhaven:rock_face_01-optimized",
       ]));
     expect(openingDressing.filter((instance) => instance.renderKind === "asset").map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
       "polyhaven:wine_barrel_01",
@@ -265,13 +266,26 @@ describe("scene recipe compiler", () => {
     )).toEqual(expect.arrayContaining([
       "kenney:nature-pine-tall-safe",
       "kenney:nature-pine-round-safe",
-      "kenney:nature-bush-safe",
+      "polyhaven:fern_02-optimized",
       "kenney:nature-grass-tuft-safe",
       "kenney:nature-red-mushrooms-safe",
       "kenney:nature-fallen-log-safe",
-      "kenney:nature-rock-safe",
+      "polyhaven:rock_face_01-optimized",
     ]));
     expect(repeated.locations["mosswood-path"]?.dressingInstances).toEqual(instances);
+  });
+
+  it("routes universal urban and industrial prose into optimized environment assets", () => {
+    const snapshot = worldFamiliesFixture.initialSnapshot as unknown as WorldSnapshot;
+    const plan = worldFamiliesFixture.moments[0]!.visualPlan as unknown as VisualScenePlan;
+    const recipe = compileSceneRecipe(snapshot, plan);
+    const marketAssets = recipe.locations["lantern-market"]?.dressingInstances
+      .flatMap((instance) => instance.renderKind === "asset" ? [instance.catalogId] : []) ?? [];
+    const engineAssets = recipe.locations["orbital-engine-room"]?.dressingInstances
+      .flatMap((instance) => instance.renderKind === "asset" ? [instance.catalogId] : []) ?? [];
+
+    expect(marketAssets).toContain("polyhaven:street_lamp_01-optimized");
+    expect(engineAssets).toContain("polyhaven:modular_industrial_pipes_01-optimized");
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {

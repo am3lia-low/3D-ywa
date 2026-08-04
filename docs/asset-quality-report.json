@@ -4,8 +4,8 @@
   "summary": {
     "kits": 4,
     "completeKits": 4,
-    "assets": 19,
-    "passed": 19,
+    "assets": 23,
+    "passed": 23,
     "warnings": 0,
     "failed": 0
   },
@@ -90,7 +90,8 @@
       ],
       "aspectDistortion": 1.41,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "polyhaven:WoodenChair_01",
@@ -113,7 +114,8 @@
       ],
       "aspectDistortion": 2.12,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "polyhaven:wooden_crate_01",
@@ -136,7 +138,8 @@
       ],
       "aspectDistortion": 1.62,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "polyhaven:large_castle_door",
@@ -159,7 +162,8 @@
       ],
       "aspectDistortion": 2.43,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "polyhaven:painted_wooden_bench",
@@ -182,7 +186,8 @@
       ],
       "aspectDistortion": 1.48,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "polyhaven:wine_barrel_01",
@@ -205,7 +210,8 @@
       ],
       "aspectDistortion": 1.12,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "project:stone-hearth-v1",
@@ -224,7 +230,8 @@
       ],
       "aspectDistortion": 2.9,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "project:worn-red-rug-v1",
@@ -244,7 +251,8 @@
       ],
       "aspectDistortion": 3.8,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "project:parchment-map-v1",
@@ -259,7 +267,8 @@
       "sourceBounds": null,
       "aspectDistortion": null,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "project:brass-lantern-v2",
@@ -278,7 +287,8 @@
       ],
       "aspectDistortion": 2.01,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "project:hidden-oak-door-v1",
@@ -298,7 +308,236 @@
       ],
       "aspectDistortion": 1.86,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
+    },
+    {
+      "catalogId": "polyhaven:fern_02-optimized",
+      "registryKey": "environment-fern",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/fern_02/fern_02_lod0.glb"
+      ],
+      "totalBytes": 1143024,
+      "triangles": 6232,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.9897,
+        0.4277,
+        0.8937
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb",
+          "totalBytes": 1143024,
+          "triangles": 6232,
+          "sourceBounds": [
+            0.9897,
+            0.4277,
+            0.8937
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod1.glb",
+          "totalBytes": 1067968,
+          "triangles": 3425,
+          "sourceBounds": [
+            0.989,
+            0.4277,
+            0.8937
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 26,
+          "modelUrl": "/models/optimized/polyhaven/fern_02/fern_02_lod2.glb",
+          "totalBytes": 1017932,
+          "triangles": 1557,
+          "sourceBounds": [
+            0.9852,
+            0.4277,
+            0.8929
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:rock_face_01-optimized",
+      "registryKey": "environment-rock-face",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb"
+      ],
+      "totalBytes": 3048996,
+      "triangles": 20174,
+      "materialCount": 1,
+      "sourceBounds": [
+        4.9535,
+        3.564,
+        3.8273
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb",
+          "totalBytes": 3048996,
+          "triangles": 20174,
+          "sourceBounds": [
+            4.9535,
+            3.564,
+            3.8273
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 16,
+          "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod1.glb",
+          "totalBytes": 2814164,
+          "triangles": 10087,
+          "sourceBounds": [
+            4.9535,
+            3.5632,
+            3.8273
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 34,
+          "modelUrl": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod2.glb",
+          "totalBytes": 2673328,
+          "triangles": 4033,
+          "sourceBounds": [
+            4.9345,
+            3.5605,
+            3.8241
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:street_lamp_01-optimized",
+      "registryKey": "ornate-street-lamp",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb"
+      ],
+      "totalBytes": 2470976,
+      "triangles": 30610,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.7043,
+        3.8706,
+        0.3865
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb",
+          "totalBytes": 2470976,
+          "triangles": 30610,
+          "sourceBounds": [
+            0.7043,
+            3.8706,
+            0.3865
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod1.glb",
+          "totalBytes": 2150184,
+          "triangles": 16832,
+          "sourceBounds": [
+            0.7031,
+            3.8706,
+            0.3865
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 30,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod2.glb",
+          "totalBytes": 1931444,
+          "triangles": 7652,
+          "sourceBounds": [
+            0.7024,
+            3.8699,
+            0.3865
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:modular_industrial_pipes_01-optimized",
+      "registryKey": "industrial-pipe-bank",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb"
+      ],
+      "totalBytes": 4816132,
+      "triangles": 12340,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.6067,
+        1.9546,
+        0.3076
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb",
+          "totalBytes": 4816132,
+          "triangles": 12340,
+          "sourceBounds": [
+            0.6067,
+            1.9546,
+            0.3076
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 13,
+          "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod1.glb",
+          "totalBytes": 4545692,
+          "triangles": 5746,
+          "sourceBounds": [
+            0.6067,
+            1.9546,
+            0.3075
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod2.glb",
+          "totalBytes": 4427928,
+          "triangles": 3075,
+          "sourceBounds": [
+            0.6067,
+            1.9546,
+            0.3073
+          ]
+        }
+      ]
     },
     {
       "catalogId": "kenney:nature-tree-oak-safe",
@@ -317,7 +556,8 @@
       ],
       "aspectDistortion": 1.52,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-bush-safe",
@@ -336,7 +576,8 @@
       ],
       "aspectDistortion": 1.8,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-rock-safe",
@@ -355,7 +596,8 @@
       ],
       "aspectDistortion": 1.88,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-pine-tall-safe",
@@ -374,7 +616,8 @@
       ],
       "aspectDistortion": 1.98,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-pine-round-safe",
@@ -393,7 +636,8 @@
       ],
       "aspectDistortion": 1.46,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-fallen-log-safe",
@@ -412,7 +656,8 @@
       ],
       "aspectDistortion": 4.53,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-grass-tuft-safe",
@@ -431,7 +676,8 @@
       ],
       "aspectDistortion": 1.6,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     },
     {
       "catalogId": "kenney:nature-red-mushrooms-safe",
@@ -450,7 +696,8 @@
       ],
       "aspectDistortion": 1.1,
       "warnings": [],
-      "errors": []
+      "errors": [],
+      "lods": []
     }
   ]
 }

@@ -241,6 +241,41 @@ const DRESSING_RULES: readonly DressingRule[] = [
     ],
   },
   {
+    anyTags: ["street-lamps", "market clutter"],
+    requiresOpenAir: true,
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-near",
+        minimumDensity: "sparse", positionFactor: [-0.25, -0.38], dimensions: [0.62, 3.4, 0.34], yaw: 0.15,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-near",
+        minimumDensity: "moderate", positionFactor: [0.25, -0.12], dimensions: [0.62, 3.4, 0.34], yaw: -0.18,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-far",
+        minimumDensity: "rich", positionFactor: [-0.25, 0.15], dimensions: [0.62, 3.4, 0.34], yaw: 0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-far",
+        minimumDensity: "rich", positionFactor: [0.25, 0.4], dimensions: [0.62, 3.4, 0.34], yaw: -0.12,
+      },
+    ],
+  },
+  {
+    anyTags: ["industrial-pipes"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["industrial", "pipes", "valve", "machinery"], slotId: "northwest-pipe-bank",
+        minimumDensity: "sparse", positionFactor: [-0.31, -0.45], dimensions: [1.48, 4.76, 0.75], wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["industrial", "pipes", "valve", "machinery"], slotId: "northeast-pipe-bank",
+        minimumDensity: "moderate", positionFactor: [0.31, -0.45], dimensions: [1.48, 4.76, 0.75], wall: "north", yaw: Math.PI,
+      },
+    ],
+  },
+  {
     anyTags: ["broadleaf-trees", "oak-trees", "trees"],
     requiresOpenAir: true,
     slots: approachAssetSlots("approach-tree", ["oak", "tree", "broadleaf"], [
@@ -272,7 +307,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   {
     anyTags: ["verge-rocks", "rocks", "boulders"],
     requiresOpenAir: true,
-    slots: approachAssetSlots("approach-rock", ["rock", "stone", "boulder"], [
+    slots: approachAssetSlots("approach-rock", ["rock", "stone", "boulder", "weathered", "cliff"], [
       ["moderate", -0.19, 0.74, 1.35, 0.72, 1.1, -0.18],
       ["moderate", 0.18, 1.22, 1.7, 0.88, 1.1, 0.34],
       ["rich", -0.21, 1.62, 1.35, 0.72, 1.1, 0.12],
@@ -306,7 +341,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   {
     anyTags: ["forest-undergrowth", "woodland-shrubs"],
     requiresOpenAir: true,
-    slots: woodlandAssetSlots("woodland-shrub", ["bush", "shrub", "woodland"], [
+    slots: woodlandAssetSlots("woodland-shrub", ["fern", "bush", "shrub", "woodland"], [
       ["sparse", -0.27, -0.44, 2.1, 1.05, 1.55, -0.3],
       ["sparse", 0.25, -0.36, 2.35, 1.18, 1.65, 0.4],
       ["sparse", -0.3, 0.02, 2.2, 1.1, 1.6, -0.7],
@@ -361,7 +396,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   {
     anyTags: ["forest-rocks", "mossy-rocks"],
     requiresOpenAir: true,
-    slots: woodlandAssetSlots("woodland-rock", ["rock", "stone", "woodland"], [
+    slots: woodlandAssetSlots("woodland-rock", ["rock", "stone", "woodland", "weathered", "cliff"], [
       ["sparse", -0.2, -0.48, 1.45, 0.78, 1.15, -0.2],
       ["sparse", 0.22, -0.33, 1.7, 0.9, 1.3, 0.35],
       ["moderate", -0.24, 0.21, 1.3, 0.7, 1, 0.8],

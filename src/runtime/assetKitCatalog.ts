@@ -10,6 +10,10 @@ const runtimeAssetSchema = z.strictObject({
   dimensions: z.tuple([z.number().positive(), z.number().positive(), z.number().positive()]),
   color: identifierSchema,
   modelUrl: z.string().trim().min(1).optional(),
+  lods: z.array(z.strictObject({
+    modelUrl: z.string().trim().min(1),
+    minimumDistance: z.number().nonnegative(),
+  })).min(2).optional(),
   safeMeshUrl: z.string().trim().min(1).optional(),
   surfaceTextureUrl: z.string().trim().min(1).optional(),
   surfaceCrop: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
@@ -82,6 +86,22 @@ export const AssetKitCatalogSchema = z.strictObject({
     }
     if (!asset.runtimeAsset.modelUrl && !asset.runtimeAsset.safeMeshUrl && !asset.runtimeAsset.surfaceTextureUrl) {
       context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset"], message: "An asset requires a model or controlled surface texture." });
+    }
+    if (asset.runtimeAsset.lods) {
+      if (!asset.runtimeAsset.modelUrl) {
+        context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset", "lods"], message: "LOD assets require a primary model URL." });
+      }
+      if (asset.runtimeAsset.lods[0]?.minimumDistance !== 0) {
+        context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset", "lods", 0], message: "The nearest LOD must start at distance zero." });
+      }
+      if (asset.runtimeAsset.lods[0]?.modelUrl !== asset.runtimeAsset.modelUrl) {
+        context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset", "lods", 0], message: "The primary model URL must match LOD0." });
+      }
+      asset.runtimeAsset.lods.forEach((lod, lodIndex) => {
+        if (lodIndex > 0 && lod.minimumDistance <= asset.runtimeAsset.lods![lodIndex - 1]!.minimumDistance) {
+          context.addIssue({ code: "custom", path: ["assets", index, "runtimeAsset", "lods", lodIndex], message: "LOD distances must increase from near to far." });
+        }
+      });
     }
   });
   catalog.kits.forEach((kit, index) => {

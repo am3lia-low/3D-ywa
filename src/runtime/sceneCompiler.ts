@@ -273,11 +273,13 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.add("urban-skyline");
     dressing.add("courtyard-clutter");
     dressing.add("storage-crates");
+    dressing.add("street-lamps");
   }
   if (hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop)\w*\b/)) {
     architecture.add("industrial-shell");
     architecture.add("industrial-floor");
     dressing.add("storage-crates");
+    dressing.add("industrial-pipes");
   }
   if (hasSemantic(atmosphereText, /\b(?:path|trail|track|woodland-road)\b/)) {
     architecture.add("earth-trail");

@@ -1,5 +1,18 @@
 # Universal visual-quality strategy
 
+## Browser-quality source assets
+
+The web runtime is the delivery target, not the source-asset ceiling. Reviewed
+high-quality models are prepared offline into distance-selected levels of
+detail. The first quality pack adds photoreal fern clusters, weathered rock
+formations, ornate street lamps and modular industrial pipes while preserving
+the deterministic semantic recipe and canonical story identities.
+
+Raw scan assets are not rejected for being photorealistic; they are rejected
+only when no reviewed browser-ready derivative exists. Multi-million-triangle
+trees remain outside the approved registry until a decimation and foliage-
+impostor pass can meet the same measurable visual, triangle and byte gates.
+
 The spatial runtime does not promise that arbitrary prose instantly produces a
 bespoke studio-quality model for every object. It guarantees a layered quality
 path in which unfamiliar stories remain coherent and explorable while important
