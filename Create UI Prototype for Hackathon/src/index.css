@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --color-bg: #0a0910;
+  --color-bg2: #0e0c18;
+  --color-fg: #e0d6c8;
+  --color-fg-dim: #a89e8e;
+  --color-card: #13111e;
+  --color-gold: #c9a55a;
+  --color-gold-dim: rgba(201,165,90,0.18);
+  --color-gold-border: rgba(201,165,90,0.14);
+  --color-muted: #1c1928;
+  --color-muted-fg: #6e6457;
+  --color-blue: #4a7cb5;
+  --color-purple: #7a52b8;
+  --color-danger: #c05050;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: #0a0910;
+  color: #e0d6c8;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float-up {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  20%  { opacity: 0.6; }
+  80%  { opacity: 0.3; }
+  100% { transform: translate(var(--dx, 30px), var(--dy, -60px)) scale(0.4); opacity: 0; }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2.2s ease-in-out infinite;
+}
+
+.animate-float-up {
+  animation: float-up 0.5s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.font-serif { font-family: 'Playfair Display', Georgia, serif; }
+.font-mono  { font-family: 'JetBrains Mono', 'Courier New', monospace; }

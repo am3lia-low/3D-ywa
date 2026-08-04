@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+.cache/
+.env*
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+*-debug.log*
+logs/
+*.log
+.claude-replay.*
+.tmp-*
+
+# Local tooling only — not part of the pushed prototype source/config
+CLAUDE.md
+.figma/
