@@ -281,6 +281,11 @@ The quality ladder, generalization safeguards and honest boundary between
 runtime fallback art and reviewed hero assets are documented in
 `docs/universal-visual-quality.md`.
 
+The **Universal world families** fixture expands that same data-driven renderer
+to snowy alpine routes, deserts, coasts, meadows, urban markets and industrial
+science-fiction interiors. Each family has its own terrain or architectural
+grammar, atmospheric profile and deterministic presentation-only dressing.
+
 ## Portable story packages
 
 The **Import story package** control accepts one validated `.json` handoff and

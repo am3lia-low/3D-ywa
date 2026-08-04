@@ -13,6 +13,7 @@ import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.jso
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
+import { sceneEnvironmentFamily } from "./sceneAtmosphere";
 import {
   compileScenePresentation,
   createFallbackScenePresentation,
@@ -193,6 +194,41 @@ describe("compileScenePresentation", () => {
     expect(scene.modules.environment.map((module) => module.moduleId)).toContain("shell:solid-room");
     expect(scene.architecture.openAir).toBe(false);
     expect(scene.architecture.floorboards).toBe(false);
+  });
+
+  it.each([
+    ["windswept alpine tundra", "A snowy frozen mountain pass beneath a glacier.", "surface:snow", "boundary:mountain-horizon", "alpine"],
+    ["sun-baked badlands", "An arid desert canyon opening into a sea of dunes.", "surface:sand", "boundary:dune-horizon", "arid"],
+    ["remote island shore", "A coastal beach above the rolling ocean.", "surface:coastal", "boundary:coastline", "coastal"],
+    ["open countryside", "A broad meadow of rolling hills and grassland.", "surface:grassland", "boundary:rolling-hills", "grassland"],
+    ["old city market", "A narrow urban street leading through a crowded marketplace.", "surface:urban-paving", "boundary:urban-skyline", "urban"],
+    ["orbital engine room", "An industrial interior laboratory chamber aboard a space station.", "surface:industrial-floor", "shell:industrial", "industrial"],
+  ])("routes unfamiliar %s prose into the %s family", (archetype, description, surfaceModule, boundaryModule, family) => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const familyPlan: VisualScenePlan = {
+      ...plan1,
+      locations: [{
+        ...sourceLocation,
+        archetype,
+        visualDescription: description,
+        architectureTags: ["unfamiliar generated setting"],
+        dressingTags: [],
+        lighting: { ...sourceLocation.lighting, atmosphericEffects: [] },
+      }],
+    };
+    const scene = compileScenePresentation(familyPlan, snapshot, "attic-study");
+    const modules = scene.modules.environment.map((module) => module.moduleId);
+
+    expect(modules).toContain(surfaceModule);
+    expect(modules).toContain(boundaryModule);
+    expect(sceneEnvironmentFamily(scene)).toBe(family);
+    if (family === "industrial") {
+      expect(modules).toContain("shell:solid-room");
+      expect(scene.architecture.openAir).toBe(false);
+    } else {
+      expect(modules).toContain("shell:open-air");
+    }
   });
 
   it("creates an atmospheric semantic fallback when no visual plan is available", () => {

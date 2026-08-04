@@ -74,6 +74,11 @@ import {
   type RenderQuality,
 } from "../runtime/renderQuality";
 import { designedFallbackKind } from "../runtime/designedFallback";
+import {
+  IndustrialInteriorKit,
+  UniversalLandscapeKit,
+  UrbanStreetKit,
+} from "./UniversalEnvironmentKits";
 
 const bundledSafeMeshes: Readonly<Record<string, unknown>> = {
   "/models/converted/nature/tree-oak-safe.mesh.json": treeOakSafeMesh,
@@ -2723,9 +2728,21 @@ function Room({
   const usesAtticKit = environmentModules.has("structure:timber-frame");
   const usesArchiveKit = environmentModules.has("structure:archive-shelves");
   const usesConservatoryKit = environmentModules.has("shell:glasshouse");
-  const usesWoodlandKit = environmentModules.has("surface:forest-floor");
-  const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit;
-  const usesGenericKit = !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit;
+  const hasWoodlandSurface = environmentModules.has("surface:forest-floor");
+  const landscapeFamily = presentation.architecture.alpineTerrain
+    ? "alpine"
+    : presentation.architecture.aridTerrain
+      ? "arid"
+      : presentation.architecture.coastalTerrain
+        ? "coastal"
+        : presentation.architecture.grassland
+          ? "grassland"
+          : null;
+  const usesLandscapeKit = landscapeFamily !== null;
+  const usesWoodlandKit = hasWoodlandSurface && !usesLandscapeKit;
+  const usesUrbanKit = presentation.architecture.urbanStreet;
+  const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit;
+  const usesGenericKit = !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit;
   const texturedGenericFloor = usesGenericKit && presentation.architecture.floorboards;
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
@@ -2904,6 +2921,9 @@ function Room({
             </>
           )}
         </group>
+      )}
+      {presentation.architecture.industrialShell && (
+        <IndustrialInteriorKit bounds={bounds} presentation={presentation} />
       )}
       {usesAtticKit ? (
         <>
@@ -3168,6 +3188,10 @@ function Room({
         <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />
       ) : usesWoodlandKit ? (
         <WoodlandKit bounds={bounds} presentation={presentation} />
+      ) : usesLandscapeKit && landscapeFamily ? (
+        <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
+      ) : usesUrbanKit ? (
+        <UrbanStreetKit bounds={bounds} presentation={presentation} />
       ) : usesCourtyardKit ? (
         <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (

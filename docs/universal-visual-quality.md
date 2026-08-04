@@ -27,6 +27,33 @@ bounded cinematic lights, fog, local contact grounding and textured surfaces.
 This makes approved meshes and designed fallbacks respond to one art-directed
 lighting rig instead of looking pasted together.
 
+## Universal environment families
+
+The semantic router currently supports ten broad presentation families:
+
+- historical or generic interiors;
+- industrial and science-fiction interiors;
+- glasshouses;
+- courtyards;
+- urban streets and markets;
+- woodlands;
+- snowy alpine terrain;
+- arid deserts and badlands;
+- coasts and shorelines; and
+- grassland and open countryside.
+
+The additional outdoor families provide distinct terrain palettes, traversable
+routes, horizon geometry and deterministic edge dressing. Alpine worlds receive
+snow, peaks and snow-laden conifers; deserts receive dunes and eroded rock
+spires; coasts receive water, shoreline rocks and beach grass; meadows receive
+rolling hills, wild grass, flowers and fencing. Urban worlds supply roads,
+sidewalks, facade depth, street lighting, market stalls and banners. Industrial
+interiors supply panelled floors, pipes, work lights, consoles and machinery.
+
+`fixtures/story_package_world_families_demo.json` contains all six newer
+families as locations in one data-only package. It is available in the renderer
+as **Universal world families** and is preflighted with every build.
+
 ## Generalization safeguards
 
 - Semantic inference changes presentation only. It never creates a canonical
@@ -35,6 +62,8 @@ lighting rig instead of looking pasted together.
   chamber stays enclosed.
 - Natural-language terms such as `conifer`, `spruce`, `mist`, `trail`,
   `deadwood`, `fungi` and `boulders` resolve to canonical renderer modules.
+- Terms such as `glacier`, `dunes`, `shoreline`, `meadow`, `marketplace`,
+  `engine room` and `space station` route into distinct world families.
 - If no style vocabulary matches, the `generic-grounded` kit wins instead of an
   arbitrary alphabetical kit.
 - If Part 1 omits the visual plan entirely, the renderer provides a labeled

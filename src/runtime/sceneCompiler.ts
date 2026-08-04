@@ -17,10 +17,17 @@ export type SceneEnvironmentModuleId =
   | "shell:solid-room"
   | "shell:glasshouse"
   | "shell:open-air"
+  | "shell:industrial"
   | "surface:wood-floorboards"
   | "surface:stone-tiles"
   | "surface:cobblestone"
   | "surface:forest-floor"
+  | "surface:snow"
+  | "surface:sand"
+  | "surface:coastal"
+  | "surface:grassland"
+  | "surface:urban-paving"
+  | "surface:industrial-floor"
   | "surface:neutral-floor"
   | "path:earth-trail"
   | "wall:aged-plaster"
@@ -30,6 +37,11 @@ export type SceneEnvironmentModuleId =
   | "structure:stone-arcade"
   | "boundary:courtyard-wall"
   | "boundary:woodland-edge"
+  | "boundary:mountain-horizon"
+  | "boundary:dune-horizon"
+  | "boundary:coastline"
+  | "boundary:rolling-hills"
+  | "boundary:urban-skyline"
   | "opening:small-window";
 
 export type SceneDressingModuleId =
@@ -82,6 +94,12 @@ export interface ScenePresentation {
     stoneArcade: boolean;
     courtyardWalls: boolean;
     woodlandEdge: boolean;
+    alpineTerrain: boolean;
+    aridTerrain: boolean;
+    coastalTerrain: boolean;
+    grassland: boolean;
+    urbanStreet: boolean;
+    industrialShell: boolean;
   };
   dressing: {
     books: boolean;
@@ -114,10 +132,17 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
 }> = [
   { moduleId: "shell:glasshouse", anyTags: ["glasshouse-panels", "arched-glazing"] },
   { moduleId: "shell:open-air", anyTags: ["open-air", "open-courtyard"] },
+  { moduleId: "shell:industrial", anyTags: ["industrial-shell"] },
   { moduleId: "surface:wood-floorboards", anyTags: ["wood-floorboards"] },
   { moduleId: "surface:stone-tiles", anyTags: ["stone-tile-floor"] },
   { moduleId: "surface:cobblestone", anyTags: ["cobblestone", "cobblestone-courtyard"] },
   { moduleId: "surface:forest-floor", anyTags: ["forest-floor", "mossy-ground", "woodland-ground"] },
+  { moduleId: "surface:snow", anyTags: ["snow-ground", "frozen-ground"] },
+  { moduleId: "surface:sand", anyTags: ["sand-ground", "desert-ground"] },
+  { moduleId: "surface:coastal", anyTags: ["coastal-ground", "shoreline-ground"] },
+  { moduleId: "surface:grassland", anyTags: ["grassland-ground", "meadow-ground"] },
+  { moduleId: "surface:urban-paving", anyTags: ["urban-paving", "street-surface"] },
+  { moduleId: "surface:industrial-floor", anyTags: ["industrial-floor", "metal-floor"] },
   { moduleId: "path:earth-trail", anyTags: ["earth-trail", "winding-path", "forest-path"] },
   { moduleId: "wall:aged-plaster", anyTags: ["aged-plaster"] },
   { moduleId: "structure:timber-frame", anyTags: ["timber-frame"] },
@@ -126,6 +151,11 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   { moduleId: "structure:stone-arcade", anyTags: ["stone-arcade", "cloister-arches"] },
   { moduleId: "boundary:courtyard-wall", anyTags: ["courtyard-walls", "weathered-masonry"] },
   { moduleId: "boundary:woodland-edge", anyTags: ["woodland-edge", "forest-boundary", "dense-tree-line"] },
+  { moduleId: "boundary:mountain-horizon", anyTags: ["mountain-horizon", "alpine-horizon"] },
+  { moduleId: "boundary:dune-horizon", anyTags: ["dune-horizon", "desert-horizon"] },
+  { moduleId: "boundary:coastline", anyTags: ["coastline", "water-horizon"] },
+  { moduleId: "boundary:rolling-hills", anyTags: ["rolling-hills", "grassland-horizon"] },
+  { moduleId: "boundary:urban-skyline", anyTags: ["urban-skyline", "street-buildings"] },
   { moduleId: "opening:small-window", anyTags: ["small-window"] },
 ];
 
@@ -195,7 +225,7 @@ function expandSemanticTags(location: VisualLocationPlan): {
   );
   const hasExplicitOpenShell = hasSemantic(
     atmosphereText,
-    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley)\b/,
+    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|market|village|town|city|harbor|port|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley)\b/,
   );
 
   if (hasExplicitOpenShell && !hasExplicitIndoorShell) architecture.add("open-air");
@@ -210,6 +240,44 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.add("woodland-edge");
     dressing.add("forest-undergrowth");
     dressing.add("grass-tufts");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:snow|snowy|winter|frozen|ice|icy|glacier|alpine|tundra)\w*\b/)) {
+    architecture.add("open-air");
+    architecture.add("snow-ground");
+    architecture.add("mountain-horizon");
+    dressing.add("pine-trees");
+    dressing.add("forest-rocks");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:desert|dune|arid|badlands|canyon|oasis|sand-sea)\w*\b/)) {
+    architecture.add("open-air");
+    architecture.add("sand-ground");
+    architecture.add("dune-horizon");
+    dressing.add("verge-rocks");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:coast|coastal|shore|shoreline|beach|seaside|ocean|sea-cliff|island|harbor|harbour|port)\w*\b/)) {
+    architecture.add("open-air");
+    architecture.add("coastal-ground");
+    architecture.add("coastline");
+    dressing.add("verge-rocks");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:grassland|meadow|prairie|savanna|steppe|moor|countryside|open-field|rolling-hill)\w*\b/)) {
+    architecture.add("open-air");
+    architecture.add("grassland-ground");
+    architecture.add("rolling-hills");
+    dressing.add("grass-tufts");
+    dressing.add("hedges");
+  }
+  if (!hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:city|town|village|street|alley|marketplace|market-square|urban|boulevard)\w*\b/)) {
+    architecture.add("open-air");
+    architecture.add("urban-paving");
+    architecture.add("urban-skyline");
+    dressing.add("courtyard-clutter");
+    dressing.add("storage-crates");
+  }
+  if (hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop)\w*\b/)) {
+    architecture.add("industrial-shell");
+    architecture.add("industrial-floor");
+    dressing.add("storage-crates");
   }
   if (hasSemantic(atmosphereText, /\b(?:path|trail|track|woodland-road)\b/)) {
     architecture.add("earth-trail");
@@ -408,6 +476,12 @@ export function compileScenePresentation(
       stoneArcade: architectureTags.has("stone-arcade") || architectureTags.has("cloister-arches"),
       courtyardWalls: architectureTags.has("courtyard-walls") || architectureTags.has("weathered-masonry"),
       woodlandEdge: ["woodland-edge", "forest-boundary", "dense-tree-line"].some((tag) => architectureTags.has(tag)),
+      alpineTerrain: architectureTags.has("snow-ground") || architectureTags.has("mountain-horizon"),
+      aridTerrain: architectureTags.has("sand-ground") || architectureTags.has("dune-horizon"),
+      coastalTerrain: architectureTags.has("coastal-ground") || architectureTags.has("coastline"),
+      grassland: architectureTags.has("grassland-ground") || architectureTags.has("rolling-hills"),
+      urbanStreet: architectureTags.has("urban-paving") || architectureTags.has("urban-skyline"),
+      industrialShell: architectureTags.has("industrial-shell") || architectureTags.has("industrial-floor"),
     },
     dressing: {
       books: dressingTags.has("books"),

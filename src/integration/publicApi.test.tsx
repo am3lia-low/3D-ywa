@@ -6,6 +6,7 @@ import patchInput from "../../fixtures/patch_2.json";
 import visualPlanInput from "../../fixtures/visual_scene_plan_1.json";
 import storyPackageInput from "../../fixtures/story_package_import_demo.json";
 import unfamiliarStoryPackageInput from "../../fixtures/story_package_unfamiliar_demo.json";
+import worldFamiliesStoryPackageInput from "../../fixtures/story_package_world_families_demo.json";
 import {
   OrderedWorldStream,
   applyScenePatch,
@@ -48,6 +49,28 @@ describe("public spatial-runtime handoff", () => {
     expect(recipe.styleKit.id).toBe("woodland-storybook");
     expect(location?.dressingInstances.length).toBeGreaterThan(12);
     expect(recipe.composition.status).not.toBe("blocking");
+  });
+
+  it("preflights six radically different world families through one data contract", () => {
+    const story = runtimeStoryFromPackage(worldFamiliesStoryPackageInput);
+    const plan = story.visualPlans[0];
+    if (!plan) throw new Error("Family showcase must include an opening visual plan.");
+    const recipe = compileSceneRecipe(story.snapshot, plan);
+    const expectedModules: Readonly<Record<string, string>> = {
+      "snowbound-pass": "surface:snow",
+      "sunken-dunes": "surface:sand",
+      "saltwind-coast": "surface:coastal",
+      "amber-meadow": "surface:grassland",
+      "lantern-market": "surface:urban-paving",
+      "orbital-engine-room": "surface:industrial-floor",
+    };
+
+    expect(preflightStoryPackage(worldFamiliesStoryPackageInput).status).toBe("ready");
+    for (const [locationId, moduleId] of Object.entries(expectedModules)) {
+      expect(recipe.locations[locationId]?.environmentModules.map((module) => module.moduleId))
+        .toContain(moduleId);
+    }
+    expect(Object.keys(recipe.locations)).toHaveLength(6);
   });
 
   it("orders, applies, and acknowledges a patch using only public exports", () => {

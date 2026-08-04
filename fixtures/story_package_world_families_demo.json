@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0",
+  "packageId": "universal-world-families",
+  "label": "Universal world families",
+  "initialSnapshot": {
+    "storyId": "story-world-families",
+    "version": 1,
+    "passageId": "F1",
+    "locations": [
+      { "id": "snowbound-pass", "name": "Snowbound Pass", "bounds": [30, 10, 38] },
+      { "id": "sunken-dunes", "name": "The Sunken Dunes", "bounds": [32, 8, 40] },
+      { "id": "saltwind-coast", "name": "Saltwind Coast", "bounds": [30, 8, 38] },
+      { "id": "amber-meadow", "name": "Amber Meadow", "bounds": [30, 7, 38] },
+      { "id": "lantern-market", "name": "Lantern Market", "bounds": [22, 7, 34] },
+      { "id": "orbital-engine-room", "name": "Orbital Engine Room", "bounds": [18, 6, 28] }
+    ],
+    "entities": [],
+    "relations": [],
+    "conflicts": []
+  },
+  "moments": [
+    {
+      "passageId": "F1",
+      "text": "Six disconnected fragments test whether the same spatial runtime can art-direct radically different settings without story-specific renderer code.",
+      "visualPlan": {
+        "schemaVersion": "1.0",
+        "storyId": "story-world-families",
+        "segmentId": "universal-family-showcase",
+        "sourcePassageIds": ["F1"],
+        "snapshotVersion": 1,
+        "planVersion": 1,
+        "artDirection": {
+          "styleLabel": "cinematic storybook worlds",
+          "stylePrompt": "Six cohesive, atmospheric narrative worlds with tactile materials, strong depth and readable paths.",
+          "negativePrompt": ["empty plane", "white box", "flat light", "unbounded void"],
+          "materialVocabulary": ["weathered natural surfaces", "layered terrain", "atmospheric depth", "story-scale architecture"]
+        },
+        "locations": [
+          {
+            "locationId": "snowbound-pass",
+            "archetype": "windswept alpine tundra",
+            "visualDescription": "A snowy frozen mountain pass below a blue glacier, with ice haze and distant peaks.",
+            "architectureTags": ["high-altitude crossing"],
+            "dressingTags": ["snow-buried conifers", "dark rocks"],
+            "dressingDensity": "moderate",
+            "mood": "vast, hushed and perilous",
+            "timeOfDay": "pale winter dawn",
+            "palette": { "background": "#6f91a8", "fog": "#c6d6d9", "floor": "#d8e3e2", "wall": "#84969a", "timber": "#4a4e4c", "ambient": "#dfe9e8", "keyLight": "#f5fbf8", "practical": "#e8a45f" },
+            "lighting": { "warmth": "cool", "contrast": "medium", "ambientIntensity": 0.82, "keyIntensity": 1.55, "atmosphericEffects": ["snow flurries", "ice haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "sunken-dunes",
+            "archetype": "sun-baked badlands",
+            "visualDescription": "An arid desert canyon opens into wind-carved dunes beneath a high copper sky.",
+            "architectureTags": ["eroded sandstone wilderness"],
+            "dressingTags": ["dry boulders", "scattered scrub"],
+            "dressingDensity": "moderate",
+            "mood": "ancient, exposed and luminous",
+            "timeOfDay": "late afternoon",
+            "palette": { "background": "#567f9b", "fog": "#d6a871", "floor": "#c9955d", "wall": "#ad7048", "timber": "#654735", "ambient": "#e6c79a", "keyLight": "#ffe0a4", "practical": "#f28a45" },
+            "lighting": { "warmth": "warm", "contrast": "high", "ambientIntensity": 0.68, "keyIntensity": 1.8, "atmosphericEffects": ["windblown dust"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "saltwind-coast",
+            "archetype": "remote island shore",
+            "visualDescription": "A coastal beach follows a cold turquoise ocean beneath salt haze and broken cloud.",
+            "architectureTags": ["weathered shoreline"],
+            "dressingTags": ["shore rocks", "coarse beach grass"],
+            "dressingDensity": "moderate",
+            "mood": "restless, open and contemplative",
+            "timeOfDay": "bright overcast morning",
+            "palette": { "background": "#397a96", "fog": "#a8d2d6", "floor": "#8d8964", "wall": "#789292", "timber": "#514b3e", "ambient": "#c9dfdd", "keyLight": "#e3f1ee", "practical": "#f1b466" },
+            "lighting": { "warmth": "cool", "contrast": "low", "ambientIntensity": 0.86, "keyIntensity": 1.35, "atmosphericEffects": ["salt haze", "moving cloud"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "amber-meadow",
+            "archetype": "open countryside",
+            "visualDescription": "A broad amber meadow rolls through green hills and long grass toward a distant hedgerow.",
+            "architectureTags": ["pastoral open field"],
+            "dressingTags": ["wild grasses", "shrubs"],
+            "dressingDensity": "rich",
+            "mood": "warm, inviting and expansive",
+            "timeOfDay": "golden hour",
+            "palette": { "background": "#688e8a", "fog": "#a9bc93", "floor": "#4f6842", "wall": "#78836b", "timber": "#584431", "ambient": "#d3dab6", "keyLight": "#ffe2a0", "practical": "#eeb35d" },
+            "lighting": { "warmth": "warm", "contrast": "medium", "ambientIntensity": 0.82, "keyIntensity": 1.6, "atmosphericEffects": ["pollen motes"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "lantern-market",
+            "archetype": "old city market",
+            "visualDescription": "A narrow urban street crosses a crowded marketplace between tall weathered facades and glowing lamps.",
+            "architectureTags": ["dense merchant quarter"],
+            "dressingTags": ["market clutter", "wooden storage"],
+            "dressingDensity": "rich",
+            "mood": "busy, intimate and secretive",
+            "timeOfDay": "early evening",
+            "palette": { "background": "#182b30", "fog": "#53696b", "floor": "#4b4d4b", "wall": "#81746a", "timber": "#49372d", "ambient": "#b8c5c0", "keyLight": "#c8d8d3", "practical": "#f0a45c" },
+            "lighting": { "warmth": "warm", "contrast": "high", "ambientIntensity": 0.62, "keyIntensity": 1.45, "atmosphericEffects": ["evening haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "orbital-engine-room",
+            "archetype": "orbital engine room",
+            "visualDescription": "An industrial interior laboratory chamber aboard a space station, lined with pipes, floor panels and cold work lights.",
+            "architectureTags": ["modular pressure bulkheads"],
+            "dressingTags": ["machine storage", "maintenance crates"],
+            "dressingDensity": "moderate",
+            "mood": "controlled, mechanical and tense",
+            "timeOfDay": "artificial ship cycle",
+            "palette": { "background": "#10191c", "fog": "#233236", "floor": "#313a3d", "wall": "#596568", "timber": "#4b5557", "ambient": "#a9c2c4", "keyLight": "#d8f2ef", "practical": "#e8a45f" },
+            "lighting": { "warmth": "cool", "contrast": "high", "ambientIntensity": 0.58, "keyIntensity": 1.7, "atmosphericEffects": ["machine haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          }
+        ],
+        "entities": [],
+        "presentationConnections": [],
+        "unresolvedQuestions": []
+      }
+    }
+  ]
+}
