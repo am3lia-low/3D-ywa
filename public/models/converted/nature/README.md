@@ -2,12 +2,15 @@
 
 These runtime-safe meshes are derived from Kenney's [Nature Kit](https://kenney.nl/assets/nature-kit), version 1.0. The source pack is released under CC0 1.0.
 
-The original `tree_oak.glb`, `plant_bushDetailed.glb`, and `rock_largeB.glb` files are not served directly. They are processed by `scripts/convert-external-glb.mjs`, which:
+The original source files are not served directly. The approved set currently
+contains oak, bush, rock, two pine silhouettes, fallen log, grass tuft and red
+mushroom group variants. They are processed by
+`scripts/convert-external-glb.mjs`, which:
 
 - bakes transforms and grounds the pivot;
 - removes textures, morph targets, tangents, and unsupported material extensions;
 - converts surfaces to opaque, rough `MeshStandardMaterial` definitions;
-- applies the muted `storybook-outdoor` palette;
+- applies the muted `storybook-outdoor` or `storybook-woodland` palette;
 - rejects non-finite geometry and assets over the triangle or byte budget; and
 - emits a normalized `.mesh.json` package used by the runtime.
 

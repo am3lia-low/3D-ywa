@@ -22,6 +22,11 @@ import {
 } from "react";
 import * as THREE from "three";
 import bushSafeMesh from "../data/converted/nature/bush-safe.mesh.json";
+import fallenLogSafeMesh from "../data/converted/nature/fallen-log-safe.mesh.json";
+import grassTuftSafeMesh from "../data/converted/nature/grass-tuft-safe.mesh.json";
+import pineRoundSafeMesh from "../data/converted/nature/pine-round-safe.mesh.json";
+import pineTallSafeMesh from "../data/converted/nature/pine-tall-safe.mesh.json";
+import redMushroomsSafeMesh from "../data/converted/nature/red-mushrooms-safe.mesh.json";
 import rockSafeMesh from "../data/converted/nature/rock-safe.mesh.json";
 import treeOakSafeMesh from "../data/converted/nature/tree-oak-safe.mesh.json";
 import { validateSafeMeshAsset } from "../runtime/safeMeshAsset";
@@ -68,6 +73,11 @@ const bundledSafeMeshes: Readonly<Record<string, unknown>> = {
   "/models/converted/nature/tree-oak-safe.mesh.json": treeOakSafeMesh,
   "/models/converted/nature/bush-safe.mesh.json": bushSafeMesh,
   "/models/converted/nature/rock-safe.mesh.json": rockSafeMesh,
+  "/models/converted/nature/pine-tall-safe.mesh.json": pineTallSafeMesh,
+  "/models/converted/nature/pine-round-safe.mesh.json": pineRoundSafeMesh,
+  "/models/converted/nature/fallen-log-safe.mesh.json": fallenLogSafeMesh,
+  "/models/converted/nature/grass-tuft-safe.mesh.json": grassTuftSafeMesh,
+  "/models/converted/nature/red-mushrooms-safe.mesh.json": redMushroomsSafeMesh,
 };
 import {
   compileScenePresentation,
@@ -2329,6 +2339,145 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
   });
 }
 
+function paintedGroundTexture(
+  base: string,
+  flecks: readonly string[],
+  seed: number,
+): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas 2D context is unavailable.");
+  context.fillStyle = base;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  let state = seed >>> 0;
+  const random = () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+  for (let index = 0; index < 1550; index += 1) {
+    context.fillStyle = flecks[index % flecks.length]!;
+    context.globalAlpha = 0.12 + random() * 0.28;
+    const size = 0.7 + random() * 3.2;
+    context.beginPath();
+    context.ellipse(
+      random() * canvas.width,
+      random() * canvas.height,
+      size * (0.7 + random()),
+      size * 0.45,
+      random() * Math.PI,
+      0,
+      Math.PI * 2,
+    );
+    context.fill();
+  }
+  context.globalAlpha = 1;
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function WoodlandKit({
+  bounds,
+  presentation,
+}: {
+  bounds: Vector3Tuple;
+  presentation: ScenePresentation;
+}) {
+  const textures = useMemo(() => {
+    const floor = paintedGroundTexture("#3a4936", ["#1e2d25", "#66704a", "#755a38"], 9417);
+    floor.repeat.set(8, 10);
+    const path = paintedGroundTexture("#806845", ["#4d3c2d", "#a68c5c", "#59604a"], 3811);
+    path.repeat.set(2.4, 8);
+    return { floor, path };
+  }, []);
+  useEffect(() => () => {
+    textures.floor.dispose();
+    textures.path.dispose();
+  }, [textures]);
+  const trailShape = useMemo(() => {
+    const shape = new THREE.Shape();
+    const left: Array<[number, number]> = [];
+    const right: Array<[number, number]> = [];
+    for (let index = 0; index <= 18; index += 1) {
+      const progress = index / 18;
+      const z = -bounds[2] / 2 + progress * bounds[2];
+      const center = Math.sin(progress * Math.PI * 2.35 - 0.7) * bounds[0] * 0.075
+        + Math.sin(progress * Math.PI * 4.6) * bounds[0] * 0.018;
+      const width = 2.25 + Math.sin(progress * Math.PI * 3.1 + 0.4) * 0.35;
+      left.push([center - width, z]);
+      right.push([center + width, z]);
+    }
+    shape.moveTo(...left[0]!);
+    left.slice(1).forEach((point) => shape.lineTo(...point));
+    right.reverse().forEach((point) => shape.lineTo(...point));
+    shape.closePath();
+    return shape;
+  }, [bounds]);
+  const woodlandPatches = useMemo(() => Array.from({ length: 42 }, (_, index) => {
+    const side = index % 2 ? 1 : -1;
+    const z = -bounds[2] * 0.46 + ((index * 17) % 41) / 40 * bounds[2] * 0.92;
+    const x = side * (bounds[0] * (0.16 + ((index * 11) % 19) / 19 * 0.29));
+    return { x, z, scale: 0.65 + ((index * 7) % 9) * 0.12, yaw: index * 0.79 };
+  }), [bounds]);
+
+  return (
+    <group>
+      {presentation.architecture.forestFloor && (
+        <mesh position={[0, 0.015, 0]} receiveShadow>
+          <boxGeometry args={[bounds[0], 0.08, bounds[2]]} />
+          <meshStandardMaterial map={textures.floor} color="#aab39c" roughness={1} />
+        </mesh>
+      )}
+      {presentation.architecture.earthTrail && (
+        <mesh position={[0, 0.072, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <shapeGeometry args={[trailShape, 24]} />
+          <meshStandardMaterial map={textures.path} color="#b29b72" roughness={0.98} />
+        </mesh>
+      )}
+      {woodlandPatches.map((patch, index) => (
+        <mesh
+          key={`woodland-floor-patch-${index}`}
+          position={[patch.x, 0.067, patch.z]}
+          rotation={[-Math.PI / 2, 0, patch.yaw]}
+          scale={[patch.scale * 1.8, patch.scale, 1]}
+          receiveShadow
+        >
+          <circleGeometry args={[0.82, 12]} />
+          <meshStandardMaterial
+            color={["#27392d", "#4e5e3c", "#5c4b31"][index % 3]}
+            roughness={1}
+          />
+        </mesh>
+      ))}
+      {presentation.architecture.woodlandEdge && [-1, 1].flatMap((side) =>
+        Array.from({ length: 7 }, (_, index) => (
+          <mesh
+            key={`woodland-bank-${side}-${index}`}
+            position={[
+              side * bounds[0] * (0.48 + (index % 2) * 0.035),
+              -1.25,
+              -bounds[2] * 0.43 + index * (bounds[2] * 0.145),
+            ]}
+            scale={[5.6, 1.7 + (index % 3) * 0.28, 5.4]}
+            receiveShadow
+          >
+            <sphereGeometry args={[1, 16, 8]} />
+            <meshStandardMaterial
+              color={index % 2 ? "#24362c" : "#2d4031"}
+              roughness={1}
+            />
+          </mesh>
+        )),
+      )}
+    </group>
+  );
+}
+
 function Room({
   layout,
   presentation,
@@ -2348,7 +2497,8 @@ function Room({
   const usesAtticKit = environmentModules.has("structure:timber-frame");
   const usesArchiveKit = environmentModules.has("structure:archive-shelves");
   const usesConservatoryKit = environmentModules.has("shell:glasshouse");
-  const usesCourtyardKit = environmentModules.has("shell:open-air");
+  const usesWoodlandKit = environmentModules.has("surface:forest-floor");
+  const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit;
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const load = (path: string, repeat: [number, number], color = false) => {
@@ -2436,7 +2586,7 @@ function Room({
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
         <meshStandardMaterial color={presentation.palette.floor} roughness={1} />
       </mesh>
-      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
+      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2447,7 +2597,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
+      {!usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
           color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
@@ -2458,7 +2608,7 @@ function Room({
           roughness={0.98}
         />
       </mesh>}
-      {!overview && !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && (
+      {!overview && !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && (
         <>
           <mesh position={[0, bounds[1] / 2, bounds[2] / 2]} receiveShadow>
             <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
@@ -2753,6 +2903,8 @@ function Room({
         </>
       ) : usesConservatoryKit ? (
         <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />
+      ) : usesWoodlandKit ? (
+        <WoodlandKit bounds={bounds} presentation={presentation} />
       ) : usesCourtyardKit ? (
         <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (

@@ -6,8 +6,8 @@ import { defaultAssetRegistry } from "./assetRegistry";
 
 describe("asset kit catalog", () => {
   it("is the single source for runtime assets and semantic entries", () => {
-    expect(assetKitCatalog.kits).toHaveLength(3);
-    expect(assetKitCatalog.assets).toHaveLength(14);
+    expect(assetKitCatalog.kits).toHaveLength(4);
+    expect(assetKitCatalog.assets).toHaveLength(19);
     expect(Object.keys(defaultAssetRegistry).sort()).toEqual(
       assetKitCatalog.assets.map((asset) => asset.registryKey).sort(),
     );

@@ -12,6 +12,8 @@ import courtyardSnapshotFixture from "../fixtures/snapshot_courtyard_1.json";
 import courtyardPatch2Fixture from "../fixtures/patch_courtyard_2.json";
 import courtyardPlan1Fixture from "../fixtures/visual_scene_plan_courtyard_1.json";
 import courtyardPlan2Fixture from "../fixtures/visual_scene_plan_courtyard_2.json";
+import woodlandSnapshotFixture from "../fixtures/snapshot_woodland_1.json";
+import woodlandPlan1Fixture from "../fixtures/visual_scene_plan_woodland_1.json";
 import { EntityInspector } from "./components/EntityInspector";
 import { Part1ConnectionPanel } from "./components/Part1ConnectionPanel";
 import { SceneBuildDiagnostics } from "./components/SceneBuildDiagnostics";
@@ -95,7 +97,26 @@ const courtyardStory = runtimeStoryFromPackage({
   ],
 });
 
-const builtInStories: readonly RuntimeStory[] = [atticStory, conservatoryStory, courtyardStory];
+const woodlandStory = runtimeStoryFromPackage({
+  schemaVersion: "1.0",
+  packageId: "mosswood-path",
+  label: "The misted Mosswood path",
+  initialSnapshot: woodlandSnapshotFixture,
+  moments: [
+    {
+      passageId: "W1",
+      text: "At blue dawn, Ilyra reaches the Mosswood path. A brass lantern burns on a fallen cedar beside red mushrooms, while a marked stone points north into the mist.",
+      visualPlan: woodlandPlan1Fixture,
+    },
+  ],
+});
+
+const builtInStories: readonly RuntimeStory[] = [
+  atticStory,
+  conservatoryStory,
+  courtyardStory,
+  woodlandStory,
+];
 const WorldViewer = lazy(() =>
   import("./components/WorldViewer").then((module) => ({ default: module.WorldViewer })),
 );

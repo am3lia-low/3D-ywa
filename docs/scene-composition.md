@@ -12,7 +12,9 @@ Visual tags select only registered modules. Current environment families cover:
 - timber-and-plaster attic interiors;
 - archive shelving and stone floors;
 - iron-and-glass botanical conservatories;
-- open-air masonry courtyards with cobbles and arcades.
+- open-air masonry courtyards with cobbles and arcades;
+- misted woodland paths with painted forest floor, winding earth trails and
+  soft terrain boundaries.
 
 Dressing modules are presentation-only. Books, storage clusters, planters,
 ivy, puddles, leaf litter and courtyard clutter improve composition but never
@@ -25,6 +27,10 @@ Exterior slots deliberately live in the recipe's `approach` placement region,
 outside the canonical location bounds but inside the walkable presentation
 ground. They remain `decorativeOnly`, retain stable IDs across patches, and do
 not mint trees or rocks into `WorldSnapshot`.
+
+Woodland recipes use the bounded `woodland` placement region. Semantic tags for
+pine trees, undergrowth, grass, fungi, deadwood and forest rocks resolve to the
+active approved style kit. The renderer never receives model URLs from Part 1.
 
 ## Composition audit
 
@@ -51,6 +57,11 @@ ivy, rain, puddles, approved approach vegetation and decorative coaching-yard
 clusters. Passage two moves the
 chair, lights a surface-mounted lantern, unlocks the gate and adds a map without
 rebuilding the environment.
+
+The Mosswood fixture then provides a second open-air proof with no courtyard
+architecture: its visual plan selects forest-floor, path and woodland-boundary
+modules plus 49 deterministic approved-asset placements. Its factual lantern,
+fallen cedar, mushroom ring and waystone retain canonical snapshot identities.
 
 The same mechanism applies to imported story packages. Adding another biome or
 architectural family requires registering renderer modules and tags, not adding

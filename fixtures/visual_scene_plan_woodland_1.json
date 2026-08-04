@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.0",
+  "storyId": "story-mosswood-path",
+  "segmentId": "mosswood-arrival",
+  "sourcePassageIds": ["W1"],
+  "snapshotVersion": 1,
+  "planVersion": 1,
+  "artDirection": {
+    "styleLabel": "misty woodland storybook realism",
+    "stylePrompt": "A deep old woodland at blue dawn, layered with dark conifers, moss-soft ground, a winding ochre trail and small warm story details emerging through silver mist.",
+    "negativePrompt": ["flat green field", "identical tree grid", "tropical foliage", "modern park furniture", "hard enclosure walls"],
+    "materialVocabulary": ["moss", "pine bark", "damp earth", "weathered cedar", "lichen stone", "aged brass"]
+  },
+  "locations": [
+    {
+      "locationId": "mosswood-path",
+      "archetype": "misty conifer woodland path",
+      "visualDescription": "A broad winding trail disappears between layered pines, low shrubs, scattered deadwood and mossy stones under cool dawn mist.",
+      "architectureTags": ["open-air", "forest-floor", "winding-path", "woodland-edge"],
+      "dressingTags": [
+        "pine-trees",
+        "forest-undergrowth",
+        "grass-tufts",
+        "wild-mushrooms",
+        "fallen-logs",
+        "forest-rocks"
+      ],
+      "dressingDensity": "rich",
+      "mood": "hushed, mysterious and quietly inviting",
+      "timeOfDay": "blue dawn",
+      "palette": {
+        "background": "#172a2b",
+        "fog": "#718b83",
+        "floor": "#344333",
+        "wall": "#203128",
+        "timber": "#4a3528",
+        "ambient": "#c3d3ca",
+        "keyLight": "#dbe5de",
+        "practical": "#f2a85e"
+      },
+      "lighting": {
+        "warmth": "cool",
+        "contrast": "medium",
+        "ambientIntensity": 1,
+        "keyIntensity": 2.1,
+        "atmosphericEffects": ["ground-mist"]
+      },
+      "evidence": {
+        "passageIds": ["W1"],
+        "confidence": 0.73,
+        "basis": "cross_passage_inference",
+        "note": "The path, trees and mist establish presentation composition; decorative vegetation remains non-canonical."
+      }
+    }
+  ],
+  "entities": [
+    {
+      "entityId": "fallen-cedar-1",
+      "visualDescription": "A broad cedar trunk darkened by rain, with a pale broken end and softened bark.",
+      "importance": "supporting",
+      "materials": ["wet cedar", "pale cut wood"],
+      "colors": ["deep umber", "warm tan"],
+      "condition": "fallen and rain-darkened",
+      "assetSearchTags": ["fallen forest log", "cedar deadwood"],
+      "evidence": { "passageIds": ["W1"], "confidence": 0.96, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "trail-lantern-1",
+      "visualDescription": "A small old brass lantern burning warmly against the blue woodland dawn.",
+      "importance": "hero",
+      "materials": ["aged brass", "glass"],
+      "colors": ["muted gold", "amber"],
+      "condition": "lit and rain-speckled",
+      "assetSearchTags": ["historical brass lantern", "forest trail light"],
+      "evidence": { "passageIds": ["W1"], "confidence": 0.95, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "mushroom-ring-1",
+      "visualDescription": "A vivid little ring of red-capped mushrooms gathered beside the cedar.",
+      "importance": "supporting",
+      "materials": ["red mushroom caps", "pale stems"],
+      "colors": ["dark crimson", "cream"],
+      "condition": "fresh after rain",
+      "assetSearchTags": ["red woodland mushrooms", "forest fungi cluster"],
+      "evidence": { "passageIds": ["W1"], "confidence": 0.93, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "north-waystone-1",
+      "visualDescription": "A low moss-furred stone whose worn ridge points north into the trail mist.",
+      "importance": "supporting",
+      "materials": ["weathered stone", "moss"],
+      "colors": ["cool grey", "moss green"],
+      "condition": "old and lichen-softened",
+      "assetSearchTags": ["mossy woodland stone", "forest waymarker"],
+      "evidence": { "passageIds": ["W1"], "confidence": 0.91, "basis": "explicit_text" }
+    }
+  ],
+  "presentationConnections": [],
+  "unresolvedQuestions": ["The passage does not establish how far the path continues beyond the visible mist."]
+}

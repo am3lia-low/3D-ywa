@@ -12,6 +12,8 @@ import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPatchFixture from "../../fixtures/patch_courtyard_2.json";
 import courtyardPlan1Fixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
 import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.json";
+import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
+import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -241,6 +243,35 @@ describe("scene recipe compiler", () => {
     expect(dressing.some(
       (instance) => instance.renderKind === "asset" && instance.registryKey.startsWith("environment-"),
     )).toBe(false);
+  });
+
+  it("builds a contrasting woodland entirely from approved semantic recipes", () => {
+    const snapshot = woodlandSnapshotFixture as unknown as WorldSnapshot;
+    const plan = woodlandPlanFixture as unknown as VisualScenePlan;
+    const first = compileSceneRecipe(snapshot, plan);
+    const repeated = compileSceneRecipe(snapshot, plan);
+    const woodland = first.locations["mosswood-path"];
+    const instances = woodland?.dressingInstances ?? [];
+
+    expect(first.styleKit.id).toBe("woodland-storybook");
+    expect(first.status).toBe("ready");
+    expect(first.coverage).toMatchObject({ total: 4, approved: 4, approvedPercent: 100 });
+    expect(instances.length).toBeGreaterThan(35);
+    expect(instances.every(
+      (instance) => instance.decorativeOnly && instance.placementRegion === "woodland",
+    )).toBe(true);
+    expect(instances.flatMap(
+      (instance) => instance.renderKind === "asset" ? [instance.catalogId] : [],
+    )).toEqual(expect.arrayContaining([
+      "kenney:nature-pine-tall-safe",
+      "kenney:nature-pine-round-safe",
+      "kenney:nature-bush-safe",
+      "kenney:nature-grass-tuft-safe",
+      "kenney:nature-red-mushrooms-safe",
+      "kenney:nature-fallen-log-safe",
+      "kenney:nature-rock-safe",
+    ]));
+    expect(repeated.locations["mosswood-path"]?.dressingInstances).toEqual(instances);
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {

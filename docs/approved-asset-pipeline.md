@@ -74,7 +74,7 @@ TripoSR previews are never normal application assets.
 
 ## Generalization fixture
 
-The fixture selector includes three independent stories:
+The fixture selector includes four independent stories:
 
 - **The attic study** uses exact canonical asset keys and the grounded storybook
   historical kit.
@@ -84,6 +84,9 @@ The fixture selector includes three independent stories:
 - **The rain-washed courtyard** exercises the same recipe outside: open-air
   masonry, wet cobbles, rain and decorative-only coaching-yard clusters surround
   a fully approved canonical prop set.
+- **The misted Mosswood path** selects the woodland-storybook kit, procedural
+  forest floor and trail modules, two pine silhouettes and approved groundcover,
+  fungi, deadwood and rock assets from semantic visual-plan tags.
 
 Switching fixtures remounts the spatial runtime at that story's first immutable
 snapshot. Patches and renderer acknowledgements cannot leak between stories.
@@ -102,6 +105,11 @@ For outdoor scenery, Part 1 may emit the generic `dressingTags`
 selects compatible assets from the active approved style kit and emits stable,
 presentation-only placements. Part 1 does not need to know model URLs or asset
 catalog IDs.
+
+Woodland plans can likewise request `pine-trees`, `forest-undergrowth`,
+`grass-tufts`, `wild-mushrooms`, `fallen-logs` and `forest-rocks`. These tags
+select the closed woodland kit and its bounded deterministic placement recipes;
+they never add factual trees or fungi to the snapshot.
 
 Spatial relations remain factual inputs. The recipe makes their runtime effect
 inspectable as constraints such as `anchor_to_surface`, `face_target`,

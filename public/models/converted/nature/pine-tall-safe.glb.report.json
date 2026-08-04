@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "tree_pineTallA_detailed.glb",
+  "output": "pine-tall-safe.glb",
+  "inputSha256": "9ba6337460e718b8baf165b23c02f39455e3d5757b1911505410c46bc88a86b5",
+  "outputSha256": "2b7b46c0bd6ee348b286d52420c6e3b25c4a17f9d41a4f56e0f616ca42569e4d",
+  "runtimeMeshSha256": "b613dbdd8680cbbeae3fa5ce778dcaf0331a6d98429c2316f6a37bf39e1dbeab",
+  "inputBytes": 10708,
+  "outputBytes": 19052,
+  "runtimeMesh": "pine-tall-safe.mesh.json",
+  "runtimeMeshBytes": 45758,
+  "meshes": 2,
+  "materials": 2,
+  "triangles": 134,
+  "sourceBounds": [
+    0.38627292215824127,
+    1.529606033116579,
+    0.39195001125335693
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-woodland",
+  "status": "pass"
+}

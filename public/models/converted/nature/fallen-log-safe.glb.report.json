@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "log_large.glb",
+  "output": "fallen-log-safe.glb",
+  "inputSha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c",
+  "outputSha256": "f4a6b0dd808851191019dc08053160fabc8f0fd7c8aa8b3055a52f9c94e763f0",
+  "runtimeMeshSha256": "352fb569c747142dc099196de14bf6ce7d148b86536a32764ae59a1b2012cbd4",
+  "inputBytes": 7924,
+  "outputBytes": 13848,
+  "runtimeMesh": "fallen-log-safe.mesh.json",
+  "runtimeMeshBytes": 29736,
+  "meshes": 2,
+  "materials": 2,
+  "triangles": 96,
+  "sourceBounds": [
+    1,
+    0.4167194254696369,
+    0.5493216216564178
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-woodland",
+  "status": "pass"
+}

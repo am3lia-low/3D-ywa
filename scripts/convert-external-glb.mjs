@@ -51,7 +51,7 @@ function parseArguments(argv) {
   const input = values.get("input");
   const output = values.get("output");
   if (!input || !output) {
-    throw new Error("Usage: node scripts/convert-external-glb.mjs --input source.glb --output safe.glb [--label name] [--palette preserve|storybook-outdoor] [--max-triangles 25000] [--max-output-bytes 1000000]");
+    throw new Error("Usage: node scripts/convert-external-glb.mjs --input source.glb --output safe.glb [--label name] [--palette preserve|storybook-outdoor|storybook-woodland] [--max-triangles 25000] [--max-output-bytes 1000000]");
   }
   return {
     input: resolve(input),
@@ -68,7 +68,7 @@ function triangleCount(geometry) {
   return Math.floor(count / 3);
 }
 
-function safeMaterial(source, index, palette) {
+function safeMaterial(source, index, palette, objectName) {
   let color = "color" in source && source.color instanceof THREE.Color
     ? source.color.clone()
     : new THREE.Color("#75806f");
@@ -78,6 +78,25 @@ function safeMaterial(source, index, palette) {
     else if (/wood|bark|trunk|branch/.test(materialName)) color = new THREE.Color("#60442f");
     else if (/rock|stone|cliff/.test(materialName)) color = new THREE.Color("#69716b");
     else color.lerp(new THREE.Color("#657269"), 0.42);
+  } else if (palette === "storybook-woodland") {
+    const subject = `${objectName} ${source.name}`.toLowerCase();
+    if (/mushroom/.test(subject)) {
+      color = Math.max(color.r, color.g, color.b) - Math.min(color.r, color.g, color.b) < 0.08
+        ? new THREE.Color("#dfd0b4")
+        : new THREE.Color("#a9443f");
+    } else if (/grass|plant|fern|flower/.test(subject)) {
+      color = new THREE.Color("#54754a");
+    } else if (/pine|tree/.test(subject)) {
+      color = color.g > color.r || color.b > color.r
+        ? new THREE.Color("#356349")
+        : new THREE.Color("#6c4b34");
+    } else if (/log|stump|wood|bark/.test(subject)) {
+      color = /_1\b/.test(objectName)
+        ? new THREE.Color("#b8885d")
+        : new THREE.Color("#744d32");
+    } else {
+      color.lerp(new THREE.Color("#596554"), 0.5);
+    }
   }
   const material = new THREE.MeshStandardMaterial({
     name: `safe-material-${index}-${source.name || "surface"}`,
@@ -120,7 +139,9 @@ function sanitizeScene(sourceScene, label, maxTriangles, palette) {
     }
 
     const sourceMaterials = Array.isArray(object.material) ? object.material : [object.material];
-    const convertedMaterials = sourceMaterials.map((material, index) => safeMaterial(material, materials + index, palette));
+    const convertedMaterials = sourceMaterials.map(
+      (material, index) => safeMaterial(material, materials + index, palette, object.name),
+    );
     const mesh = new THREE.Mesh(
       geometry,
       Array.isArray(object.material) ? convertedMaterials : convertedMaterials[0],
@@ -209,7 +230,9 @@ if (extname(options.input).toLowerCase() !== ".glb" || extname(options.output).t
 }
 if (!Number.isInteger(options.maxTriangles) || options.maxTriangles <= 0) throw new Error("max-triangles must be a positive integer.");
 if (!Number.isInteger(options.maxOutputBytes) || options.maxOutputBytes <= 0) throw new Error("max-output-bytes must be a positive integer.");
-if (!["preserve", "storybook-outdoor"].includes(options.palette)) throw new Error("palette must be 'preserve' or 'storybook-outdoor'.");
+if (!["preserve", "storybook-outdoor", "storybook-woodland"].includes(options.palette)) {
+  throw new Error("palette must be 'preserve', 'storybook-outdoor' or 'storybook-woodland'.");
+}
 
 const sourceBuffer = await readFile(options.input);
 const inputSha256 = createHash("sha256").update(sourceBuffer).digest("hex");

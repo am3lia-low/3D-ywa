@@ -144,6 +144,46 @@
       "author": "Kenney; converted by Persistent StoryWorld 3D",
       "license": "CC0 1.0 Universal",
       "bytes": 46306
+    },
+    {
+      "key": "environment-pine-tall-safe",
+      "url": "/models/converted/nature/pine-tall-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 45758
+    },
+    {
+      "key": "environment-pine-round-safe",
+      "url": "/models/converted/nature/pine-round-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 67565
+    },
+    {
+      "key": "environment-fallen-log-safe",
+      "url": "/models/converted/nature/fallen-log-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 29736
+    },
+    {
+      "key": "environment-grass-tuft-safe",
+      "url": "/models/converted/nature/grass-tuft-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 45957
+    },
+    {
+      "key": "environment-red-mushrooms-safe",
+      "url": "/models/converted/nature/red-mushrooms-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney; converted by Persistent StoryWorld 3D",
+      "license": "CC0 1.0 Universal",
+      "bytes": 67500
     }
   ]
 }

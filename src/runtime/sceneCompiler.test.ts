@@ -8,6 +8,8 @@ import conservatorySnapshotFixture from "../../fixtures/snapshot_conservatory_1.
 import conservatoryPlanFixture from "../../fixtures/visual_scene_plan_conservatory_1.json";
 import courtyardSnapshotFixture from "../../fixtures/snapshot_courtyard_1.json";
 import courtyardPlanFixture from "../../fixtures/visual_scene_plan_courtyard_1.json";
+import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
+import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
@@ -98,6 +100,42 @@ describe("compileScenePresentation", () => {
       ]),
     );
     expect(scene.atmosphere.rain).toBe(true);
+  });
+
+  it("compiles a misty woodland from the same open-air scene grammar", () => {
+    const scene = compileScenePresentation(
+      woodlandPlanFixture as unknown as VisualScenePlan,
+      woodlandSnapshotFixture as unknown as WorldSnapshot,
+      "mosswood-path",
+    );
+
+    expect(scene.modules.environment.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "shell:open-air",
+        "surface:forest-floor",
+        "path:earth-trail",
+        "boundary:woodland-edge",
+      ]),
+    );
+    expect(scene.modules.environment.map((module) => module.moduleId)).not.toContain("shell:solid-room");
+    expect(scene.modules.dressing.map((module) => module.moduleId)).toEqual(
+      expect.arrayContaining([
+        "dressing:pine-trees",
+        "dressing:forest-undergrowth",
+        "dressing:grass-tufts",
+        "dressing:wild-mushrooms",
+        "dressing:fallen-logs",
+        "dressing:forest-rocks",
+      ]),
+    );
+    expect(scene.architecture).toMatchObject({
+      openAir: true,
+      forestFloor: true,
+      earthTrail: true,
+      woodlandEdge: true,
+      courtyardWalls: false,
+    });
+    expect(scene.atmosphere.groundMist).toBe(true);
   });
 
   it("emits an asset request for a supporting object without a registered asset key", () => {

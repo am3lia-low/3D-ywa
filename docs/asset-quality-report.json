@@ -2,10 +2,10 @@
   "schemaVersion": "1.0",
   "catalogSchemaVersion": "1.0",
   "summary": {
-    "kits": 3,
-    "completeKits": 3,
-    "assets": 11,
-    "passed": 11,
+    "kits": 4,
+    "completeKits": 4,
+    "assets": 19,
+    "passed": 19,
     "warnings": 0,
     "failed": 0
   },
@@ -36,6 +36,19 @@
         "storage",
         "surface-document",
         "hearth"
+      ],
+      "missingRoles": [],
+      "complete": true
+    },
+    {
+      "id": "woodland-storybook",
+      "requiredRoles": [
+        "environment-tree",
+        "environment-shrub",
+        "environment-rock",
+        "forest-deadwood",
+        "forest-groundcover",
+        "forest-floor-detail"
       ],
       "missingRoles": [],
       "complete": true
@@ -284,6 +297,158 @@
         0.16
       ],
       "aspectDistortion": 1.86,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-tree-oak-safe",
+      "registryKey": "environment-tree-oak",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/tree-oak-safe.mesh.json"
+      ],
+      "totalBytes": 67361,
+      "triangles": 196,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.52,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-bush-safe",
+      "registryKey": "environment-bush",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/bush-safe.mesh.json"
+      ],
+      "totalBytes": 23958,
+      "triangles": 104,
+      "materialCount": 1,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.8,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-rock-safe",
+      "registryKey": "environment-rock",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/rock-safe.mesh.json"
+      ],
+      "totalBytes": 46306,
+      "triangles": 85,
+      "materialCount": 3,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.88,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-pine-tall-safe",
+      "registryKey": "environment-pine-tall",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/pine-tall-safe.mesh.json"
+      ],
+      "totalBytes": 45758,
+      "triangles": 134,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.98,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-pine-round-safe",
+      "registryKey": "environment-pine-round",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/pine-round-safe.mesh.json"
+      ],
+      "totalBytes": 67565,
+      "triangles": 206,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.46,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-fallen-log-safe",
+      "registryKey": "environment-fallen-log",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/fallen-log-safe.mesh.json"
+      ],
+      "totalBytes": 29736,
+      "triangles": 96,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 4.53,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-grass-tuft-safe",
+      "registryKey": "environment-grass-tuft",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/grass-tuft-safe.mesh.json"
+      ],
+      "totalBytes": 45957,
+      "triangles": 224,
+      "materialCount": 1,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.6,
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "catalogId": "kenney:nature-red-mushrooms-safe",
+      "registryKey": "environment-red-mushrooms",
+      "status": "pass",
+      "files": [
+        "public/models/converted/nature/red-mushrooms-safe.mesh.json"
+      ],
+      "totalBytes": 67500,
+      "triangles": 144,
+      "materialCount": 2,
+      "sourceBounds": [
+        1,
+        1,
+        1
+      ],
+      "aspectDistortion": 1.1,
       "warnings": [],
       "errors": []
     }

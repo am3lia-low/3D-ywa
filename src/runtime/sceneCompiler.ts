@@ -20,13 +20,16 @@ export type SceneEnvironmentModuleId =
   | "surface:wood-floorboards"
   | "surface:stone-tiles"
   | "surface:cobblestone"
+  | "surface:forest-floor"
   | "surface:neutral-floor"
+  | "path:earth-trail"
   | "wall:aged-plaster"
   | "structure:timber-frame"
   | "structure:iron-frame"
   | "structure:archive-shelves"
   | "structure:stone-arcade"
   | "boundary:courtyard-wall"
+  | "boundary:woodland-edge"
   | "opening:small-window";
 
 export type SceneDressingModuleId =
@@ -41,7 +44,13 @@ export type SceneDressingModuleId =
   | "dressing:courtyard-clutter"
   | "dressing:broadleaf-trees"
   | "dressing:hedges"
-  | "dressing:verge-rocks";
+  | "dressing:verge-rocks"
+  | "dressing:pine-trees"
+  | "dressing:forest-undergrowth"
+  | "dressing:grass-tufts"
+  | "dressing:wild-mushrooms"
+  | "dressing:fallen-logs"
+  | "dressing:forest-rocks";
 
 export interface SceneModuleSelection<TModuleId extends string> {
   moduleId: TModuleId;
@@ -68,8 +77,11 @@ export interface ScenePresentation {
     stoneTileFloor: boolean;
     openAir: boolean;
     cobblestone: boolean;
+    forestFloor: boolean;
+    earthTrail: boolean;
     stoneArcade: boolean;
     courtyardWalls: boolean;
+    woodlandEdge: boolean;
   };
   dressing: {
     books: boolean;
@@ -90,6 +102,7 @@ export interface ScenePresentation {
     dust: boolean;
     coolWindowLight: boolean;
     rain: boolean;
+    groundMist: boolean;
   };
   portalTargetLocationId?: string;
   assetRequests: AssetGenerationRequest[];
@@ -104,12 +117,15 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   { moduleId: "surface:wood-floorboards", anyTags: ["wood-floorboards"] },
   { moduleId: "surface:stone-tiles", anyTags: ["stone-tile-floor"] },
   { moduleId: "surface:cobblestone", anyTags: ["cobblestone", "cobblestone-courtyard"] },
+  { moduleId: "surface:forest-floor", anyTags: ["forest-floor", "mossy-ground", "woodland-ground"] },
+  { moduleId: "path:earth-trail", anyTags: ["earth-trail", "winding-path", "forest-path"] },
   { moduleId: "wall:aged-plaster", anyTags: ["aged-plaster"] },
   { moduleId: "structure:timber-frame", anyTags: ["timber-frame"] },
   { moduleId: "structure:iron-frame", anyTags: ["iron-frame"] },
   { moduleId: "structure:archive-shelves", anyTags: ["archive-shelving"] },
   { moduleId: "structure:stone-arcade", anyTags: ["stone-arcade", "cloister-arches"] },
   { moduleId: "boundary:courtyard-wall", anyTags: ["courtyard-walls", "weathered-masonry"] },
+  { moduleId: "boundary:woodland-edge", anyTags: ["woodland-edge", "forest-boundary", "dense-tree-line"] },
   { moduleId: "opening:small-window", anyTags: ["small-window"] },
 ];
 
@@ -129,6 +145,12 @@ const DRESSING_MODULE_RULES: ReadonlyArray<{
   { moduleId: "dressing:broadleaf-trees", anyTags: ["broadleaf-trees", "oak-trees", "trees"] },
   { moduleId: "dressing:hedges", anyTags: ["hedges", "shrubs", "bushes"] },
   { moduleId: "dressing:verge-rocks", anyTags: ["verge-rocks", "rocks", "boulders"] },
+  { moduleId: "dressing:pine-trees", anyTags: ["pine-trees", "conifers"] },
+  { moduleId: "dressing:forest-undergrowth", anyTags: ["forest-undergrowth", "woodland-shrubs"] },
+  { moduleId: "dressing:grass-tufts", anyTags: ["grass-tufts", "forest-grass"] },
+  { moduleId: "dressing:wild-mushrooms", anyTags: ["wild-mushrooms", "forest-fungi"] },
+  { moduleId: "dressing:fallen-logs", anyTags: ["fallen-logs", "deadwood"] },
+  { moduleId: "dressing:forest-rocks", anyTags: ["forest-rocks", "mossy-rocks"] },
 ];
 
 function selectModules<TModuleId extends string>(
@@ -268,8 +290,11 @@ export function compileScenePresentation(
       stoneTileFloor: architectureTags.has("stone-tile-floor"),
       openAir: architectureTags.has("open-air") || architectureTags.has("open-courtyard"),
       cobblestone: architectureTags.has("cobblestone") || architectureTags.has("cobblestone-courtyard"),
+      forestFloor: ["forest-floor", "mossy-ground", "woodland-ground"].some((tag) => architectureTags.has(tag)),
+      earthTrail: ["earth-trail", "winding-path", "forest-path"].some((tag) => architectureTags.has(tag)),
       stoneArcade: architectureTags.has("stone-arcade") || architectureTags.has("cloister-arches"),
       courtyardWalls: architectureTags.has("courtyard-walls") || architectureTags.has("weathered-masonry"),
+      woodlandEdge: ["woodland-edge", "forest-boundary", "dense-tree-line"].some((tag) => architectureTags.has(tag)),
     },
     dressing: {
       books: dressingTags.has("books"),
@@ -290,6 +315,7 @@ export function compileScenePresentation(
       dust: location.lighting.atmosphericEffects.includes("dust-motes"),
       coolWindowLight: location.lighting.atmosphericEffects.includes("window-shaft"),
       rain: location.lighting.atmosphericEffects.includes("rain-streaks"),
+      groundMist: location.lighting.atmosphericEffects.includes("ground-mist"),
     },
     portalTargetLocationId: connection?.targetLocationId,
     assetRequests: createAssetRequests(plan.entities, snapshot),
@@ -359,8 +385,11 @@ export function createFallbackScenePresentation(
       stoneTileFloor: false,
       openAir: false,
       cobblestone: false,
+      forestFloor: false,
+      earthTrail: false,
       stoneArcade: false,
       courtyardWalls: false,
+      woodlandEdge: false,
     },
     dressing: {
       books: false,
@@ -377,7 +406,7 @@ export function createFallbackScenePresentation(
       vergeRocks: false,
       density: "sparse",
     },
-    atmosphere: { dust: false, coolWindowLight: false, rain: false },
+    atmosphere: { dust: false, coolWindowLight: false, rain: false, groundMist: false },
     assetRequests: [],
   };
 }

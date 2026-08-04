@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "mushroom_redGroup.glb",
+  "output": "red-mushrooms-safe.glb",
+  "inputSha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802",
+  "outputSha256": "1375f8a62687d26bc8564bea9b28c567fd7e82add7e2fdaedc795729034daafe",
+  "runtimeMeshSha256": "8bafb1a99d4f1ca3606c624b6de50801fcece8baae3f1974e1053f4ff4570ecc",
+  "inputBytes": 14960,
+  "outputBytes": 27464,
+  "runtimeMesh": "red-mushrooms-safe.mesh.json",
+  "runtimeMeshBytes": 67500,
+  "meshes": 2,
+  "materials": 2,
+  "triangles": 144,
+  "sourceBounds": [
+    0.2696309983730316,
+    0.2504880167543888,
+    0.2541965991258621
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-woodland",
+  "status": "pass"
+}

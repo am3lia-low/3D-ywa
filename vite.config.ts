@@ -41,6 +41,11 @@ export default defineConfig({
               test: /src[\\/]runtime[\\/](sceneCompiler|sceneRecipeCompiler|dressingResolver)\.ts$/,
               priority: 16,
             },
+            {
+              name: "safe-mesh-data",
+              test: /src[\\/]data[\\/]converted[\\/]nature[\\/].+\.mesh\.json$/,
+              priority: 17,
+            },
           ],
         },
       },
