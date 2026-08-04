@@ -29,7 +29,10 @@ import pineTallSafeMesh from "../data/converted/nature/pine-tall-safe.mesh.json"
 import redMushroomsSafeMesh from "../data/converted/nature/red-mushrooms-safe.mesh.json";
 import rockSafeMesh from "../data/converted/nature/rock-safe.mesh.json";
 import treeOakSafeMesh from "../data/converted/nature/tree-oak-safe.mesh.json";
-import { validateSafeMeshAsset } from "../runtime/safeMeshAsset";
+import {
+  SAFE_MESH_CENTER_OFFSET,
+  validateSafeMeshAsset,
+} from "../runtime/safeMeshAsset";
 import {
   ContractValidationError,
   validateScenePatch,
@@ -327,7 +330,11 @@ function safeMeshTemplate(payload: unknown): THREE.Group {
 function SafeMeshModel({ payload }: { payload: unknown }) {
   const template = useMemo(() => safeMeshTemplate(payload), [payload]);
 
-  return <Clone object={template} castShadow receiveShadow />;
+  return (
+    <group position={SAFE_MESH_CENTER_OFFSET}>
+      <Clone object={template} castShadow receiveShadow />
+    </group>
+  );
 }
 
 function usePbrSurface(
@@ -2322,13 +2329,7 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
       <group
         key={instance.dressingId}
         name={instance.dressingId}
-        position={instance.asset.safeMeshUrl
-          ? [
-              instance.position[0],
-              instance.position[1] - instance.dimensions[1] / 2,
-              instance.position[2],
-            ]
-          : instance.position}
+        position={instance.position}
         rotation={instance.rotation}
         scale={instance.dimensions}
         userData={userData}

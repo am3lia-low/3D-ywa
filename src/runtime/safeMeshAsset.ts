@@ -58,6 +58,11 @@ export const SafeMeshAssetSchema = z.strictObject({
 
 export type SafeMeshAsset = z.infer<typeof SafeMeshAssetSchema>;
 
+// Converted safe meshes are normalized into a unit box whose base sits at Y=0.
+// Entity transforms use a center-based origin, so offset the normalized mesh by
+// half its height before the entity's dimensions are applied.
+export const SAFE_MESH_CENTER_OFFSET = [0, -0.5, 0] as const;
+
 export function validateSafeMeshAsset(value: unknown): SafeMeshAsset {
   return SafeMeshAssetSchema.parse(value);
 }

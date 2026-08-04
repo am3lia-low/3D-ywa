@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateSafeMeshAsset } from "./safeMeshAsset";
+import { SAFE_MESH_CENTER_OFFSET, validateSafeMeshAsset } from "./safeMeshAsset";
 
 const validAsset = {
   schemaVersion: "1.0",
@@ -17,6 +17,10 @@ const validAsset = {
 };
 
 describe("safe mesh assets", () => {
+  it("centers grounded unit geometry around the entity origin", () => {
+    expect(SAFE_MESH_CENTER_OFFSET).toEqual([0, -0.5, 0]);
+  });
+
   it("accepts bounded converted geometry", () => {
     expect(validateSafeMeshAsset(validAsset).meshes).toHaveLength(1);
   });
