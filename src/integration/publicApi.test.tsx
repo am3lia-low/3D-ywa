@@ -51,7 +51,7 @@ describe("public spatial-runtime handoff", () => {
     expect(recipe.composition.status).not.toBe("blocking");
   });
 
-  it("preflights six radically different world families through one data contract", () => {
+  it("preflights eleven radically different world families through one data contract", () => {
     const story = runtimeStoryFromPackage(worldFamiliesStoryPackageInput);
     const plan = story.visualPlans[0];
     if (!plan) throw new Error("Family showcase must include an opening visual plan.");
@@ -63,14 +63,19 @@ describe("public spatial-runtime handoff", () => {
       "amber-meadow": "surface:grassland",
       "lantern-market": "surface:urban-paving",
       "orbital-engine-room": "surface:industrial-floor",
+      "prismatic-cavern": "shell:cavern",
+      "coral-palace": "surface:aquatic",
+      "ember-caldera": "surface:volcanic",
+      "fallen-sanctuary": "structure:ruins",
+      "lunar-observatory": "boundary:cosmic-vista",
     };
 
-    expect(preflightStoryPackage(worldFamiliesStoryPackageInput).status).toBe("ready");
+    expect(preflightStoryPackage(worldFamiliesStoryPackageInput).status).toBe("needs_review");
     for (const [locationId, moduleId] of Object.entries(expectedModules)) {
       expect(recipe.locations[locationId]?.environmentModules.map((module) => module.moduleId))
         .toContain(moduleId);
     }
-    expect(Object.keys(recipe.locations)).toHaveLength(6);
+    expect(Object.keys(recipe.locations)).toHaveLength(11);
   });
 
   it("orders, applies, and acknowledges a patch using only public exports", () => {

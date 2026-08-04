@@ -84,6 +84,7 @@ import {
 import { designedFallbackKind } from "../runtime/designedFallback";
 import {
   IndustrialInteriorKit,
+  UniversalNarrativeEnvironmentKit,
   UniversalLandscapeKit,
   UrbanStreetKit,
 } from "./UniversalEnvironmentKits";
@@ -2911,7 +2912,12 @@ function Room({
   const usesArchiveKit = environmentModules.has("structure:archive-shelves");
   const usesConservatoryKit = environmentModules.has("shell:glasshouse");
   const hasWoodlandSurface = environmentModules.has("surface:forest-floor");
-  const landscapeFamily = presentation.architecture.alpineTerrain
+  const usesNarrativeTerrain = presentation.semanticProfile.domain === "subterranean" ||
+    (["volcanic", "aquatic"].includes(presentation.semanticProfile.domain) &&
+      presentation.semanticProfile.enclosure !== "interior");
+  const landscapeFamily = usesNarrativeTerrain
+    ? null
+    : presentation.architecture.alpineTerrain
     ? "alpine"
     : presentation.architecture.aridTerrain
       ? "arid"
@@ -2923,8 +2929,8 @@ function Room({
   const usesLandscapeKit = landscapeFamily !== null;
   const usesWoodlandKit = hasWoodlandSurface && !usesLandscapeKit;
   const usesUrbanKit = presentation.architecture.urbanStreet;
-  const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit;
-  const usesGenericKit = !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit;
+  const usesCourtyardKit = environmentModules.has("shell:open-air") && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit && !usesNarrativeTerrain;
+  const usesGenericKit = !usesAtticKit && !usesConservatoryKit && !usesCourtyardKit && !usesWoodlandKit && !usesLandscapeKit && !usesUrbanKit && !usesNarrativeTerrain;
   const texturedGenericFloor = usesGenericKit && presentation.architecture.floorboards;
   const roomTextures = useMemo(() => {
     const loader = new THREE.TextureLoader();
@@ -3107,6 +3113,7 @@ function Room({
       {presentation.architecture.industrialShell && (
         <IndustrialInteriorKit bounds={bounds} presentation={presentation} />
       )}
+      <UniversalNarrativeEnvironmentKit bounds={bounds} presentation={presentation} />
       {usesAtticKit ? (
         <>
           <mesh position={[0, 0, -bounds[2] / 2 + 0.015]} receiveShadow>
@@ -3377,7 +3384,7 @@ function Room({
       ) : usesCourtyardKit ? (
         <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (
-        <gridHelper args={[Math.max(bounds[0], bounds[2]), 16, "#637270", "#394746"]} />
+        null
       )}
     </group>
   );
@@ -4211,7 +4218,7 @@ function WorldScene({
       {presentation.atmosphere.dust && (
         <DustMotes bounds={bounds} color={isGlasshouse ? "#b6e4dc" : "#f1d5ad"} />
       )}
-      {presentation.atmosphere.rain && <RainStreaks bounds={bounds} />}
+      {presentation.atmosphere.rain && atmosphereProfile.openAir && <RainStreaks bounds={bounds} />}
       {presentation.atmosphere.groundMist && cameraView !== "overview" && (
         <GroundMist bounds={bounds} color={presentation.palette.fog} />
       )}

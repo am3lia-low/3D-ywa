@@ -8,6 +8,7 @@ export interface StoryStyleKit {
   label: string;
   description: string;
   matchTags: string[];
+  anchorTags?: string[];
 }
 
 export interface ApprovedAssetEntry {
@@ -41,7 +42,7 @@ export interface ApprovedAssetResolution {
 }
 
 export const storyStyleKits: readonly StoryStyleKit[] = assetKitCatalog.kits.map(
-  ({ id, label, description, matchTags }) => ({ id, label, description, matchTags }),
+  ({ id, label, description, matchTags, anchorTags }) => ({ id, label, description, matchTags, anchorTags }),
 );
 
 export const approvedAssetEntries: readonly ApprovedAssetEntry[] = assetKitCatalog.assets.map(
@@ -84,7 +85,9 @@ export function selectStoryStyleKit(plan: VisualScenePlan): StoryStyleKit {
   const ranked = storyStyleKits
     .map((kit) => ({
       kit,
-      score: kit.matchTags.reduce((score, tag) => score + (requested.has(tag) ? 1 : 0), 0),
+      score: kit.anchorTags?.length && !kit.anchorTags.some((tag) => requested.has(tag))
+        ? 0
+        : kit.matchTags.reduce((score, tag) => score + (requested.has(tag) ? 1 : 0), 0),
     }))
     .sort((left, right) => right.score - left.score || left.kit.id.localeCompare(right.kit.id));
   if ((ranked[0]?.score ?? 0) === 0) {

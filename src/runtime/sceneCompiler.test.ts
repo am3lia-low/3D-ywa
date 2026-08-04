@@ -16,6 +16,7 @@ import { applyScenePatch } from "./applyScenePatch";
 import { sceneEnvironmentFamily } from "./sceneAtmosphere";
 import {
   compileScenePresentation,
+  compileSceneSemanticProfile,
   createFallbackScenePresentation,
   ScenePlanError,
   visualAssetPrompt,
@@ -194,6 +195,112 @@ describe("compileScenePresentation", () => {
     expect(scene.modules.environment.map((module) => module.moduleId)).toContain("shell:solid-room");
     expect(scene.architecture.openAir).toBe(false);
     expect(scene.architecture.floorboards).toBe(false);
+  });
+
+  it.each([
+    ["coastal signal room", "A compact stone room above a fogbound coast with rain-clouded windows.", "surface:coastal"],
+    ["snowy mountain cabin", "An enclosed timber cabin overlooking frozen mountain peaks.", "surface:snow"],
+    ["submerged research station", "An interior laboratory room beneath the ocean, sealed behind thick glass.", "surface:aquatic"],
+    ["volcanic control room", "An enclosed control room overlooking a lava caldera through heatproof windows.", "surface:volcanic"],
+  ])("keeps %s enclosed when scenery is visible beyond it", (archetype, description, forbiddenSurface) => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const location = {
+      ...sourceLocation,
+      archetype,
+      visualDescription: description,
+      architectureTags: ["enclosed structure", "view windows"],
+      dressingTags: [],
+    };
+    const scene = compileScenePresentation({ ...plan1, locations: [location] }, snapshot, "attic-study");
+    const modules = scene.modules.environment.map((module) => module.moduleId);
+
+    expect(scene.semanticProfile.enclosure).toBe("interior");
+    expect(modules).toContain("shell:solid-room");
+    expect(modules).not.toContain("shell:open-air");
+    expect(modules).not.toContain(forbiddenSurface);
+  });
+
+  it.each([
+    {
+      name: "crystal cavern cathedral",
+      description: "A vast subterranean crystal cavern cathedral descending into luminous grottoes.",
+      architectureTags: ["quartz shelves", "underground depth"],
+      domain: "subterranean",
+      enclosure: "interior",
+      vista: "cavern",
+      modules: ["shell:cavern", "surface:crystal", "boundary:cavern-depth"],
+    },
+    {
+      name: "sunken coral palace",
+      description: "A monumental submerged palace on the deep-sea ocean floor, overgrown with living coral.",
+      architectureTags: ["seabed terraces", "organic arches"],
+      domain: "aquatic",
+      enclosure: "open",
+      vista: "ocean",
+      modules: ["shell:open-air", "surface:aquatic"],
+    },
+    {
+      name: "obsidian caldera shrine",
+      description: "An outdoor volcanic shrine spanning a lava caldera and fields of black basalt.",
+      architectureTags: ["obsidian causeway", "ember field"],
+      domain: "volcanic",
+      enclosure: "open",
+      vista: "mountain",
+      modules: ["shell:open-air", "surface:volcanic"],
+    },
+    {
+      name: "crumbling desert temple",
+      description: "An ancient ruined temple with collapsed columns overlooking endless dunes.",
+      architectureTags: ["broken monument", "weathered masonry"],
+      domain: "ruined",
+      enclosure: "open",
+      vista: "dunes",
+      modules: ["shell:open-air", "structure:ruins"],
+    },
+    {
+      name: "retrofuturist lunar observatory",
+      description: "A metallic interior observatory with a panoramic window over a fractured moon.",
+      architectureTags: ["riveted control bay", "observation window"],
+      domain: "celestial",
+      enclosure: "interior",
+      vista: "celestial",
+      modules: ["shell:industrial", "boundary:cosmic-vista", "opening:panoramic-window"],
+    },
+  ])("composes unfamiliar $name prose without story-specific routing", ({
+    name,
+    description,
+    architectureTags,
+    domain,
+    enclosure,
+    vista,
+    modules,
+  }) => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const location = {
+      ...sourceLocation,
+      archetype: name,
+      visualDescription: description,
+      architectureTags,
+      dressingTags: [],
+      lighting: { ...sourceLocation.lighting, atmosphericEffects: [] },
+    };
+    const scene = compileScenePresentation({ ...plan1, locations: [location] }, snapshot, "attic-study");
+    const selected = scene.modules.environment.map((module) => module.moduleId);
+
+    expect(compileSceneSemanticProfile(location)).toMatchObject({ domain, enclosure, vista });
+    expect(selected).toEqual(expect.arrayContaining(modules));
+    expect(scene.semanticProfile).toMatchObject({ domain, enclosure, vista });
+  });
+
+  it("derives the same visual grammar when only canonical story identity changes", () => {
+    const changedStoryId = "a-completely-unrelated-story";
+    const changedSnapshot = { ...snapshot, storyId: changedStoryId };
+    const changedPlan = { ...plan1, storyId: changedStoryId };
+
+    expect(compileScenePresentation(changedPlan, changedSnapshot, "attic-study").semanticProfile)
+      .toEqual(compileScenePresentation(plan1, snapshot, "attic-study").semanticProfile);
   });
 
   it.each([

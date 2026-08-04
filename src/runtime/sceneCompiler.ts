@@ -13,11 +13,46 @@ export interface AssetGenerationRequest {
   priority: "supporting" | "hero";
 }
 
+export type NarrativeSceneDomain =
+  | "constructed"
+  | "natural"
+  | "celestial"
+  | "subterranean"
+  | "aquatic"
+  | "volcanic"
+  | "ruined";
+
+export type NarrativeSceneVista =
+  | "none"
+  | "forest"
+  | "mountain"
+  | "dunes"
+  | "ocean"
+  | "city"
+  | "celestial"
+  | "cavern";
+
+/**
+ * Reusable visual axes inferred from Part 1 prose. They deliberately contain no
+ * story identity, so unrelated stories can compose the same renderer grammar.
+ */
+export interface SceneSemanticProfile {
+  enclosure: "interior" | "open" | "mixed";
+  domain: NarrativeSceneDomain;
+  vista: NarrativeSceneVista;
+  scale: "intimate" | "roomy" | "monumental";
+  metallic: boolean;
+  crystalline: boolean;
+  organic: boolean;
+  fractured: boolean;
+}
+
 export type SceneEnvironmentModuleId =
   | "shell:solid-room"
   | "shell:glasshouse"
   | "shell:open-air"
   | "shell:industrial"
+  | "shell:cavern"
   | "surface:wood-floorboards"
   | "surface:stone-tiles"
   | "surface:cobblestone"
@@ -28,6 +63,9 @@ export type SceneEnvironmentModuleId =
   | "surface:grassland"
   | "surface:urban-paving"
   | "surface:industrial-floor"
+  | "surface:aquatic"
+  | "surface:volcanic"
+  | "surface:crystal"
   | "surface:neutral-floor"
   | "path:earth-trail"
   | "wall:aged-plaster"
@@ -35,6 +73,7 @@ export type SceneEnvironmentModuleId =
   | "structure:iron-frame"
   | "structure:archive-shelves"
   | "structure:stone-arcade"
+  | "structure:ruins"
   | "boundary:courtyard-wall"
   | "boundary:woodland-edge"
   | "boundary:mountain-horizon"
@@ -42,7 +81,10 @@ export type SceneEnvironmentModuleId =
   | "boundary:coastline"
   | "boundary:rolling-hills"
   | "boundary:urban-skyline"
-  | "opening:small-window";
+  | "boundary:cosmic-vista"
+  | "boundary:cavern-depth"
+  | "opening:small-window"
+  | "opening:panoramic-window";
 
 export type SceneDressingModuleId =
   | "dressing:books"
@@ -72,6 +114,7 @@ export interface SceneModuleSelection<TModuleId extends string> {
 export interface ScenePresentation {
   planVersion: number;
   styleLabel: string;
+  semanticProfile: SceneSemanticProfile;
   location: VisualLocationPlan;
   palette: ScenePalette;
   modules: {
@@ -133,6 +176,7 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   { moduleId: "shell:glasshouse", anyTags: ["glasshouse-panels", "arched-glazing"] },
   { moduleId: "shell:open-air", anyTags: ["open-air", "open-courtyard"] },
   { moduleId: "shell:industrial", anyTags: ["industrial-shell"] },
+  { moduleId: "shell:cavern", anyTags: ["cavern-shell"] },
   { moduleId: "surface:wood-floorboards", anyTags: ["wood-floorboards"] },
   { moduleId: "surface:stone-tiles", anyTags: ["stone-tile-floor"] },
   { moduleId: "surface:cobblestone", anyTags: ["cobblestone", "cobblestone-courtyard"] },
@@ -143,12 +187,16 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   { moduleId: "surface:grassland", anyTags: ["grassland-ground", "meadow-ground"] },
   { moduleId: "surface:urban-paving", anyTags: ["urban-paving", "street-surface"] },
   { moduleId: "surface:industrial-floor", anyTags: ["industrial-floor", "metal-floor"] },
+  { moduleId: "surface:aquatic", anyTags: ["aquatic-ground", "seabed"] },
+  { moduleId: "surface:volcanic", anyTags: ["volcanic-ground", "lava-field"] },
+  { moduleId: "surface:crystal", anyTags: ["crystal-ground", "crystalline-floor"] },
   { moduleId: "path:earth-trail", anyTags: ["earth-trail", "winding-path", "forest-path"] },
   { moduleId: "wall:aged-plaster", anyTags: ["aged-plaster"] },
   { moduleId: "structure:timber-frame", anyTags: ["timber-frame"] },
   { moduleId: "structure:iron-frame", anyTags: ["iron-frame"] },
   { moduleId: "structure:archive-shelves", anyTags: ["archive-shelving"] },
   { moduleId: "structure:stone-arcade", anyTags: ["stone-arcade", "cloister-arches"] },
+  { moduleId: "structure:ruins", anyTags: ["ruined-structure", "ancient-ruins"] },
   { moduleId: "boundary:courtyard-wall", anyTags: ["courtyard-walls", "weathered-masonry"] },
   { moduleId: "boundary:woodland-edge", anyTags: ["woodland-edge", "forest-boundary", "dense-tree-line"] },
   { moduleId: "boundary:mountain-horizon", anyTags: ["mountain-horizon", "alpine-horizon"] },
@@ -156,7 +204,10 @@ const ENVIRONMENT_MODULE_RULES: ReadonlyArray<{
   { moduleId: "boundary:coastline", anyTags: ["coastline", "water-horizon"] },
   { moduleId: "boundary:rolling-hills", anyTags: ["rolling-hills", "grassland-horizon"] },
   { moduleId: "boundary:urban-skyline", anyTags: ["urban-skyline", "street-buildings"] },
+  { moduleId: "boundary:cosmic-vista", anyTags: ["cosmic-vista", "celestial-horizon"] },
+  { moduleId: "boundary:cavern-depth", anyTags: ["cavern-depth", "underground-depth"] },
   { moduleId: "opening:small-window", anyTags: ["small-window"] },
+  { moduleId: "opening:panoramic-window", anyTags: ["panoramic-window", "observation-window"] },
 ];
 
 const DRESSING_MODULE_RULES: ReadonlyArray<{
@@ -198,6 +249,94 @@ function hasSemantic(text: string, pattern: RegExp): boolean {
   return pattern.test(text);
 }
 
+export function compileSceneSemanticProfile(
+  location: VisualLocationPlan,
+  resolvedArchitectureTags: ReadonlySet<string> = new Set(location.architectureTags),
+): SceneSemanticProfile {
+  const text = semanticText([
+    location.archetype,
+    location.visualDescription,
+    location.mood,
+    location.timeOfDay,
+    ...location.architectureTags,
+    ...location.dressingTags,
+    ...location.lighting.atmosphericEffects,
+  ]);
+  const explicitlyOpen = hasSemantic(
+    text,
+    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|market|village|town|city|harbor|port|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley|salt-flat|wasteland|sky-island|seabed|ocean-floor)\b/,
+  );
+  const explicitlyExterior = hasSemantic(
+    text,
+    /\b(?:outdoor|outside|open[ -]air|exterior|courtyard|plaza|square|street|road|alley|marketplace|garden|path|trail|beach|shore)\b/,
+  );
+  const explicitlyInterior = hasSemantic(
+    text,
+    /\b(?:indoor|interior|inside|enclosed|room|chamber|cabin|vault|attic|archive|laboratory|workshop|ship[ -]interior)\b/,
+  );
+  const enclosure = explicitlyInterior
+    ? explicitlyExterior ? "mixed" : "interior"
+    : explicitlyOpen || resolvedArchitectureTags.has("open-air") ? "open" : "interior";
+  const aquatic = hasSemantic(text, /\b(?:underwater|submerged|subaquatic|deep-sea|seabed|ocean-floor|coral-reef|sunken-palace|abyssal)\w*\b/);
+  const volcanic = hasSemantic(text, /\b(?:volcanic|volcano|lava|magma|obsidian|ash-field|basalt|caldera|ember-field)\w*\b/);
+  const subterranean = hasSemantic(text, /\b(?:cave|cavern|grotto|underground|subterranean|mine|catacomb|underworld|hollow-earth)\w*\b/);
+  const hasCelestialVocabulary = hasSemantic(
+    text,
+    /\b(?:(?:celestial|cosmic|planet(?:ary)?|lunar|aether|orbital|void|nebula|astral)\w*|alien[ -]world|outer[ -]space|sky[ -]island|moon(?:scape|world)?)\b/,
+  );
+  const hasCelestialView = hasSemantic(
+    text,
+    /\b(?:panoramic[ -]window|observation[ -]window|viewing[ -]window|window[ -]wall|vast[ -]window|open[ -]sky|exterior)\w*\b/,
+  );
+  const celestial = hasCelestialVocabulary && (!explicitlyInterior || hasCelestialView);
+  const ruined = hasSemantic(text, /\b(?:ruin|ruined|crumbling|collapsed|shattered-temple|ancient-remains|broken-monument|abandoned-city)\w*\b/);
+  const natural = hasSemantic(text, /\b(?:forest|woodland|grove|meadow|mountain|valley|desert|coast|beach|jungle|swamp|marsh|tundra|wilderness)\w*\b/);
+  const domain: NarrativeSceneDomain = aquatic
+    ? "aquatic"
+    : volcanic
+      ? "volcanic"
+      : subterranean
+        ? "subterranean"
+        : celestial
+          ? "celestial"
+          : ruined
+            ? "ruined"
+            : natural
+              ? "natural"
+              : "constructed";
+  const vista: NarrativeSceneVista = celestial
+    ? "celestial"
+    : subterranean
+      ? "cavern"
+      : hasSemantic(text, /\b(?:ocean|sea|coast|shore|underwater|seabed)\w*\b/)
+        ? "ocean"
+      : hasSemantic(text, /\b(?:mountain|peak|glacier|alpine|cliff|caldera|volcano)\w*\b/)
+          ? "mountain"
+          : hasSemantic(text, /\b(?:desert|dune|badlands)\w*\b/)
+            ? "dunes"
+            : hasSemantic(text, /\b(?:city|town|village|urban|skyline)\w*\b/)
+              ? "city"
+              : hasSemantic(text, /\b(?:forest|woodland|grove|jungle)\w*\b/)
+                ? "forest"
+                : "none";
+  const scale = hasSemantic(text, /\b(?:vast|enormous|colossal|monumental|towering|endless|immense|cathedral-scale)\w*\b/)
+    ? "monumental"
+    : hasSemantic(text, /\b(?:small|tiny|narrow|cramped|intimate|compact|cozy)\w*\b/)
+      ? "intimate"
+      : "roomy";
+
+  return {
+    enclosure,
+    domain,
+    vista,
+    scale,
+    metallic: hasSemantic(text, /\b(?:metal|metallic|iron|steel|bronze|copper|brass|riveted|mechanical|industrial)\w*\b/),
+    crystalline: hasSemantic(text, /\b(?:crystal|crystalline|glass|glasswork|gem|quartz|ice-palace|prismatic)\w*\b/),
+    organic: hasSemantic(text, /\b(?:organic|living|grown|root|vine|fungal|coral|bone|biomorphic)\w*\b/),
+    fractured: hasSemantic(text, /\b(?:fractured|shattered|broken|cracked|splintered|collapsed)\w*\b/),
+  };
+}
+
 /**
  * Maps unfamiliar but descriptive Part 1 vocabulary onto the finite renderer
  * kit. These are presentation defaults only: they never create story entities
@@ -221,12 +360,33 @@ function expandSemanticTags(location: VisualLocationPlan): {
   ]);
   const hasExplicitIndoorShell = hasSemantic(
     atmosphereText,
-    /\b(?:indoor|interior|room|chamber|hall|attic|archive|library|study|bedroom|kitchen|laboratory|workshop|cabin|vault)\b/,
+    /\b(?:indoor|interior|room|chamber|hall|attic|archive|library|study|bedroom|kitchen|laboratory|workshop|cabin|vault|bay|observatory|outpost|cave|cavern|grotto|tunnel|mine|station|spaceship|airship|ship-interior)\b/,
   );
   const hasExplicitOpenShell = hasSemantic(
     atmosphereText,
-    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|market|village|town|city|harbor|port|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley)\b/,
+    /\b(?:outdoor|outside|open-air|exterior|courtyard|plaza|square|street|road|alley|market|village|town|city|harbor|port|garden|meadow|field|forest|woodland|woods|grove|path|trail|beach|shore|desert|mountain|valley|salt-flat|wasteland|sky-island|seabed|ocean-floor)\b/,
   );
+  const hasAquaticSetting = hasSemantic(
+    atmosphereText,
+    /\b(?:underwater|submerged|subaquatic|deep-sea|seabed|ocean-floor|coral-reef|sunken-palace|abyssal)\w*\b/,
+  );
+  const hasVolcanicSetting = hasSemantic(
+    atmosphereText,
+    /\b(?:volcanic|volcano|lava|magma|obsidian|ash-field|basalt|caldera|ember-field)\w*\b/,
+  );
+  const hasPanoramicWindow = hasSemantic(
+    atmosphereText,
+    /\b(?:panoramic[ -]window|observation[ -]window|viewing[ -]window|window[ -]wall|vast[ -]window)\w*\b/,
+  );
+  const hasStrongExteriorShell = hasSemantic(
+    atmosphereText,
+    /\b(?:outdoor|outside|open[ -]air|exterior|courtyard|plaza|square|street|road|alley|marketplace|garden|path|trail|beach|shore)\b/,
+  );
+  const isExposedRuin = hasSemantic(
+    atmosphereText,
+    /\b(?:ruin|ruined|crumbling|collapsed|roofless|open[ -]ruin|broken[ -]monument)\w*\b/,
+  );
+  const permitsTerrain = !hasExplicitIndoorShell || hasStrongExteriorShell || isExposedRuin;
 
   if (hasExplicitOpenShell && !hasExplicitIndoorShell) architecture.add("open-air");
   if (hasSemantic(atmosphereText, /\b(?:conservatory|glasshouse|greenhouse|winter-garden)\b/)) {
@@ -234,38 +394,69 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.add("iron-frame");
     architecture.add("stone-tile-floor");
   }
-  if (hasSemantic(atmosphereText, /\b(?:forest|woodland|woods|grove|mossy|understory)\b/)) {
+  if (permitsTerrain && hasSemantic(atmosphereText, /\b(?:forest|woodland|woods|grove|mossy|understory)\b/)) {
     architecture.add("open-air");
     architecture.add("forest-floor");
     architecture.add("woodland-edge");
     dressing.add("forest-undergrowth");
     dressing.add("grass-tufts");
   }
-  if (hasSemantic(atmosphereText, /\b(?:snow|snowy|winter|frozen|ice|icy|glacier|alpine|tundra)\w*\b/)) {
+  if (permitsTerrain && hasSemantic(atmosphereText, /\b(?:snow|snowy|winter|frozen|ice|icy|glacier|alpine|tundra)\w*\b/)) {
     architecture.add("open-air");
     architecture.add("snow-ground");
     architecture.add("mountain-horizon");
     dressing.add("pine-trees");
     dressing.add("forest-rocks");
   }
-  if (hasSemantic(atmosphereText, /\b(?:desert|dune|arid|badlands|canyon|oasis|sand-sea)\w*\b/)) {
+  if (permitsTerrain && hasSemantic(atmosphereText, /\b(?:desert|dune|arid|badlands|canyon|oasis|sand-sea)\w*\b/)) {
     architecture.add("open-air");
     architecture.add("sand-ground");
     architecture.add("dune-horizon");
     dressing.add("verge-rocks");
   }
-  if (hasSemantic(atmosphereText, /\b(?:coast|coastal|shore|shoreline|beach|seaside|ocean|sea-cliff|island|harbor|harbour|port)\w*\b/)) {
+  if (permitsTerrain && !hasAquaticSetting && hasSemantic(atmosphereText, /\b(?:coast|coastal|shore|shoreline|beach|seaside|ocean|sea-cliff|island|harbor|harbour|port)\w*\b/)) {
     architecture.add("open-air");
     architecture.add("coastal-ground");
     architecture.add("coastline");
     dressing.add("verge-rocks");
   }
-  if (hasSemantic(atmosphereText, /\b(?:grassland|meadow|prairie|savanna|steppe|moor|countryside|open-field|rolling-hill)\w*\b/)) {
+  if (permitsTerrain && hasSemantic(atmosphereText, /\b(?:grassland|meadow|prairie|savanna|steppe|moor|countryside|open-field|rolling-hill)\w*\b/)) {
     architecture.add("open-air");
     architecture.add("grassland-ground");
     architecture.add("rolling-hills");
     dressing.add("grass-tufts");
     dressing.add("hedges");
+  }
+  if (permitsTerrain && hasAquaticSetting) {
+    architecture.add("open-air");
+    architecture.add("aquatic-ground");
+    dressing.add("verge-rocks");
+  }
+  if (permitsTerrain && hasVolcanicSetting) {
+    architecture.add("open-air");
+    architecture.add("volcanic-ground");
+    architecture.add("mountain-horizon");
+    dressing.add("verge-rocks");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:cave|cavern|grotto|underground|subterranean|mine|catacomb|underworld|hollow-earth)\w*\b/)) {
+    architecture.add("cavern-shell");
+    architecture.add("cavern-depth");
+    dressing.add("verge-rocks");
+  }
+  if (
+    hasSemantic(atmosphereText, /\b(?:(?:celestial|cosmic|planet(?:ary)?|lunar|aether|orbital|void|nebula|astral)\w*|alien[ -]world|outer[ -]space|sky[ -]island|moon(?:scape|world)?)\b/) &&
+    (!hasExplicitIndoorShell || hasPanoramicWindow)
+  ) {
+    architecture.add("cosmic-vista");
+  }
+  if (hasPanoramicWindow) {
+    architecture.add("panoramic-window");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:ruin|ruined|crumbling|collapsed|shattered-temple|ancient-remains|broken-monument|abandoned-city)\w*\b/)) {
+    architecture.add("ruined-structure");
+  }
+  if (hasSemantic(atmosphereText, /\b(?:crystal|crystalline|quartz|prismatic|gem-floor)\w*\b/)) {
+    architecture.add("crystal-ground");
   }
   if (!hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:city|town|village|street|alley|marketplace|market-square|urban|boulevard)\w*\b/)) {
     architecture.add("open-air");
@@ -275,7 +466,7 @@ function expandSemanticTags(location: VisualLocationPlan): {
     dressing.add("storage-crates");
     dressing.add("street-lamps");
   }
-  if (hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop)\w*\b/)) {
+  if (hasExplicitIndoorShell && hasSemantic(atmosphereText, /\b(?:industrial|factory|warehouse|foundry|engine-room|machine-room|spaceship|space-station|orbital|laboratory|workshop|retrofuturist|mechanical|machinery|metal|metallic|riveted|control-bay|generator)\w*\b/)) {
     architecture.add("industrial-shell");
     architecture.add("industrial-floor");
     dressing.add("storage-crates");
@@ -346,9 +537,10 @@ function environmentModules(
   const selected = selectModules(architectureTags, ENVIRONMENT_MODULE_RULES);
   const hasGlasshouse = selected.some((module) => module.moduleId === "shell:glasshouse");
   const hasOpenAir = selected.some((module) => module.moduleId === "shell:open-air");
+  const hasCavern = selected.some((module) => module.moduleId === "shell:cavern");
   const hasFloor = selected.some((module) => module.moduleId.startsWith("surface:"));
   return [
-    ...(!hasGlasshouse && !hasOpenAir
+    ...(!hasGlasshouse && !hasOpenAir && !hasCavern
       ? [{ moduleId: "shell:solid-room" as const, sourceTags: [] }]
       : []),
     ...(!hasFloor
@@ -456,6 +648,7 @@ export function compileScenePresentation(
   return {
     planVersion: plan.planVersion,
     styleLabel: plan.artDirection.styleLabel,
+    semanticProfile: compileSceneSemanticProfile(resolvedLocation, architectureTags),
     location: resolvedLocation,
     palette: location.palette,
     modules: {

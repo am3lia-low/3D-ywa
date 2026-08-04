@@ -8,6 +8,49 @@ covered by `src/integration/publicApi.test.tsx` and can be checked with
 The compile-checked reference integration is
 `src/integration/Member3ConsumerHarness.tsx`.
 
+## Integration with `origin/wyf`
+
+The current Member 3 branch contains a useful reader shell, but its
+`Create UI Prototype for Hackathon/src/components/WorldViewer.tsx` is an SVG
+mock and its local `WorldSnapshot` / `ScenePatch` types are screen-specific
+placeholders. Do not translate the factual 3D contract into 2D `x`, `y`, and
+`radius` entities. Replace that boundary with imports from `src/index.ts` while
+retaining the reader, timeline, loading, conflict, and comparison UI.
+
+The integrated `ChapterProcessingResult` must carry the real values returned by
+Part 1 plus the companion visual plan:
+
+```ts
+interface ChapterProcessingResult {
+  chapterId: string;
+  snapshot: WorldSnapshot;
+  patch: ScenePatch | null;
+  visualPlan: VisualScenePlan;
+  conflicts: Conflict[];
+  summary: ChapterUpdateSummary;
+}
+```
+
+Member 3's `highlightedEntityIds` remains product UI state. The authoritative
+added/moved/updated transition comes from `ScenePatch.operations`; do not build
+a second patch format from those highlight IDs. Its `onSceneReady` state can be
+set after `compileSceneRecipe` succeeds, and `onSceneError` should be wired to
+`WorldViewer.onRuntimeError`.
+
+Recommended merge order:
+
+1. Keep Member 3's application shell and delete only its SVG mock viewer.
+2. Replace the simplified world types in its `src/types.ts` with imports from
+   Part 2's public entry point.
+3. Replace the mock API payload with the real Part 1 response plus
+   `VisualScenePlan`.
+4. Feed sequential patches through `useWorldStream`; on a version gap fetch a
+   full snapshot and call `resynchronize`.
+5. Mount the compile-checked harness pattern below inside the existing Explore
+   panel, then retain the reader's inspector/provenance chrome around it.
+6. Copy `public/models`, `public/textures`, and `public/generated` into the
+   final application unchanged.
+
 ## Minimal reader integration
 
 From a product component beneath `src/`, adjust only the relative path to

@@ -312,6 +312,206 @@ export function UniversalLandscapeKit({
   );
 }
 
+function stableSeed(value: string): number {
+  let result = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    result ^= value.charCodeAt(index);
+    result = Math.imul(result, 16777619);
+  }
+  return result >>> 0;
+}
+
+function CelestialVista({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const profile = presentation.semanticProfile;
+  const stars = useMemo(() => {
+    let state = stableSeed(`${presentation.location.locationId}:celestial`);
+    const random = () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 0x100000000;
+    };
+    const values = new Float32Array(150 * 3);
+    for (let index = 0; index < 150; index += 1) {
+      values[index * 3] = (random() - 0.5) * bounds[0] * 0.88;
+      values[index * 3 + 1] = bounds[1] * (0.2 + random() * 0.68);
+      values[index * 3 + 2] = -bounds[2] / 2 + 0.075;
+    }
+    return values;
+  }, [bounds, presentation.location.locationId]);
+  const windowWidth = bounds[0] * 0.88;
+  const windowHeight = bounds[1] * 0.72;
+  const rearZ = -bounds[2] / 2 + 0.082;
+  const bodyRadius = Math.min(bounds[0], bounds[1] * 2) * 0.145;
+
+  return (
+    <group>
+      <mesh position={[0, bounds[1] * 0.52, rearZ]}>
+        <planeGeometry args={[windowWidth, windowHeight]} />
+        <meshStandardMaterial color={presentation.palette.background} emissive={presentation.palette.background} emissiveIntensity={0.55} roughness={0.42} />
+      </mesh>
+      <points>
+        <bufferGeometry><bufferAttribute attach="attributes-position" args={[stars, 3]} /></bufferGeometry>
+        <pointsMaterial color="#dff4ff" size={0.055} transparent opacity={0.88} depthWrite={false} />
+      </points>
+      <mesh position={[bounds[0] * 0.2, bounds[1] * 0.62, rearZ + 0.035]} scale={[1, 1, 0.12]}>
+        <sphereGeometry args={[bodyRadius, 40, 24]} />
+        <meshStandardMaterial color={profile.fractured ? "#d8d0df" : "#b9cad3"} emissive={presentation.palette.keyLight} emissiveIntensity={0.18} roughness={0.92} />
+      </mesh>
+      {profile.fractured && [-0.55, -0.18, 0.22, 0.54].map((offset, index) => (
+        <mesh key={offset} position={[bounds[0] * 0.2 + offset * bodyRadius, bounds[1] * (0.63 + (index % 2 ? 0.035 : -0.02)), rearZ + 0.05]} rotation={[0, 0, -0.55 + index * 0.31]}>
+          <boxGeometry args={[bodyRadius * 0.72, 0.025, 0.012]} />
+          <meshBasicMaterial color="#50465f" />
+        </mesh>
+      ))}
+      {[-0.44, 0, 0.44].map((factor) => (
+        <mesh key={`window-rib:${factor}`} position={[windowWidth * factor, bounds[1] * 0.52, rearZ + 0.065]} castShadow>
+          <boxGeometry args={[0.1, windowHeight + 0.18, 0.14]} />
+          <meshStandardMaterial color={presentation.palette.timber} metalness={profile.metallic ? 0.68 : 0.16} roughness={0.48} />
+        </mesh>
+      ))}
+      {[-1, 1].map((side) => (
+        <mesh key={`window-edge:${side}`} position={[side * windowWidth / 2, bounds[1] * 0.52, rearZ + 0.07]}>
+          <boxGeometry args={[0.14, windowHeight + 0.25, 0.16]} />
+          <meshStandardMaterial color={presentation.palette.timber} metalness={profile.metallic ? 0.68 : 0.12} roughness={0.5} />
+        </mesh>
+      ))}
+      <pointLight position={[bounds[0] * 0.15, bounds[1] * 0.62, -bounds[2] * 0.28]} color={presentation.palette.keyLight} intensity={1.25} distance={Math.max(bounds[0], bounds[2]) * 0.7} />
+    </group>
+  );
+}
+
+function CavernEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const profile = presentation.semanticProfile;
+  const count = profile.scale === "monumental" ? 26 : 20;
+  return (
+    <group>
+      <mesh position={[0, 0.015, 0]} receiveShadow>
+        <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
+        <meshStandardMaterial color={presentation.palette.floor} roughness={0.98} />
+      </mesh>
+      {Array.from({ length: count }, (_, index) => {
+        const side = index % 2 ? 1 : -1;
+        const progress = index / Math.max(1, count - 1);
+        const z = -bounds[2] * 0.5 + progress * bounds[2];
+        const radius = 1.5 + (index % 5) * 0.34;
+        return (
+          <mesh key={index} position={[side * bounds[0] * (0.43 + (index % 3) * 0.035), radius * 0.36, z]} rotation={[index * 0.17, index * 0.51, index * 0.11]} scale={[1.2, 0.82 + (index % 3) * 0.18, 1]} castShadow receiveShadow>
+            <dodecahedronGeometry args={[radius, 1]} />
+            <meshStandardMaterial color={index % 2 ? presentation.palette.wall : presentation.palette.floor} roughness={0.96} />
+          </mesh>
+        );
+      })}
+      {Array.from({ length: 13 }, (_, index) => (
+        <mesh key={`stalactite:${index}`} position={[-bounds[0] * 0.42 + index * bounds[0] * 0.07, bounds[1] - 0.5 - (index % 3) * 0.25, -bounds[2] * (0.2 + (index % 4) * 0.08)]} rotation={[Math.PI, 0, (index % 2 ? 1 : -1) * 0.08]} castShadow>
+          <coneGeometry args={[0.22 + (index % 3) * 0.08, 1.1 + (index % 4) * 0.33, 7]} />
+          <meshStandardMaterial color={presentation.palette.wall} roughness={0.98} />
+        </mesh>
+      ))}
+      {profile.crystalline && Array.from({ length: 11 }, (_, index) => (
+        <mesh key={`crystal:${index}`} position={[(index % 2 ? 1 : -1) * bounds[0] * (0.25 + (index % 3) * 0.055), 0.48, -bounds[2] * 0.4 + index * bounds[2] * 0.078]} rotation={[0, index * 0.8, (index % 3 - 1) * 0.16]} castShadow>
+          <coneGeometry args={[0.22, 1.05 + (index % 3) * 0.3, 5]} />
+          <meshPhysicalMaterial color={presentation.palette.practical} emissive={presentation.palette.practical} emissiveIntensity={0.18} transmission={0.2} transparent opacity={0.86} roughness={0.22} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function VolcanicEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const cracks = useMemo(() => Array.from({ length: 9 }, (_, index) => {
+    const z = -bounds[2] * 0.42 + index * bounds[2] * 0.1;
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-bounds[0] * 0.42, 0.105, z),
+      new THREE.Vector3(-bounds[0] * 0.12, 0.11, z + (index % 2 ? 0.7 : -0.6)),
+      new THREE.Vector3(bounds[0] * 0.17, 0.105, z - 0.35),
+      new THREE.Vector3(bounds[0] * 0.43, 0.11, z + (index % 3 - 1) * 0.45),
+    ]);
+    return new THREE.TubeGeometry(curve, 22, 0.025 + (index % 3) * 0.009, 5, false);
+  }), [bounds]);
+  useEffect(() => () => cracks.forEach((geometry) => geometry.dispose()), [cracks]);
+  return (
+    <group>
+      <mesh position={[0, 0.025, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.15, 0.14, bounds[2] * 1.15]} /><meshStandardMaterial color="#211d25" roughness={0.94} /></mesh>
+      {cracks.map((geometry, index) => <mesh key={index} geometry={geometry}><meshStandardMaterial color={index % 2 ? "#ff7445" : presentation.palette.practical} emissive={index % 2 ? "#d83d1f" : presentation.palette.practical} emissiveIntensity={2.4} roughness={0.42} /></mesh>)}
+      {Array.from({ length: 18 }, (_, index) => (
+        <mesh key={`basalt:${index}`} position={[(index % 2 ? 1 : -1) * bounds[0] * (0.3 + (index % 4) * 0.045), 0.35 + (index % 4) * 0.09, -bounds[2] * 0.44 + index * bounds[2] * 0.052]} rotation={[index * 0.13, index * 0.49, 0]} scale={[0.7, 0.65 + (index % 3) * 0.2, 0.8]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.72, 0]} /><meshStandardMaterial color={index % 2 ? "#332d38" : "#29252d"} roughness={0.98} />
+        </mesh>
+      ))}
+      <pointLight position={[0, 1.2, 0]} color="#ff6b3d" intensity={2.2} distance={Math.max(bounds[0], bounds[2]) * 0.75} />
+    </group>
+  );
+}
+
+function AquaticEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  return (
+    <group>
+      <mesh position={[0, 0.02, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.2, 0.12, bounds[2] * 1.2]} /><meshPhysicalMaterial color={presentation.palette.floor} roughness={0.72} metalness={0.05} /></mesh>
+      <mesh position={[0, bounds[1] * 0.84, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[bounds[0] * 1.5, bounds[2] * 1.5, 18, 18]} /><meshPhysicalMaterial color={presentation.palette.keyLight} transparent opacity={0.1} transmission={0.45} roughness={0.15} side={THREE.DoubleSide} /></mesh>
+      {Array.from({ length: 24 }, (_, index) => {
+        const side = index % 2 ? 1 : -1;
+        const height = 0.7 + (index % 5) * 0.24;
+        return <mesh key={`coral:${index}`} position={[side * bounds[0] * (0.25 + (index % 4) * 0.045), height / 2, -bounds[2] * 0.44 + index * bounds[2] * 0.037]} rotation={[0, index * 0.7, (index % 3 - 1) * 0.12]} castShadow><coneGeometry args={[0.12 + (index % 3) * 0.055, height, 6]} /><meshStandardMaterial color={[presentation.palette.practical, "#a46c88", "#6ca8a0"][index % 3]} roughness={0.72} /></mesh>;
+      })}
+      {Array.from({ length: 36 }, (_, index) => (
+        <mesh key={`bubble:${index}`} position={[(Math.sin(index * 9.7) * 0.42) * bounds[0], 0.4 + ((index * 17) % 100) / 100 * bounds[1] * 0.8, Math.cos(index * 6.3) * bounds[2] * 0.4]}>
+          <sphereGeometry args={[0.025 + (index % 4) * 0.012, 8, 6]} /><meshPhysicalMaterial color="#d9fbff" transparent opacity={0.45} transmission={0.72} roughness={0.05} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function RuinedAccents({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  return (
+    <group>
+      {[-1, 1].flatMap((side) => Array.from({ length: 4 }, (_, index) => {
+        const height = bounds[1] * (0.35 + (index % 3) * 0.12);
+        return <group key={`${side}:${index}`} position={[side * bounds[0] * 0.36, 0, -bounds[2] * 0.34 + index * bounds[2] * 0.22]} rotation={[0, side * 0.08 * index, 0]}><mesh position={[0, height / 2, 0]} castShadow><cylinderGeometry args={[0.24, 0.31, height, 8]} /><meshStandardMaterial color={presentation.palette.wall} roughness={0.96} /></mesh><mesh position={[0.12 * side, height + 0.05, 0]} rotation={[0, 0, side * 0.16]} castShadow><boxGeometry args={[0.8 + (index % 2) * 0.45, 0.22, 0.5]} /><meshStandardMaterial color={presentation.palette.wall} roughness={0.98} /></mesh></group>;
+      }))}
+    </group>
+  );
+}
+
+function PolishedFallbackInterior({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  return (
+    <group>
+      {[-0.34, 0, 0.34].map((factor) => (
+        <group key={factor} position={[bounds[0] * factor, bounds[1] * 0.5, -bounds[2] / 2 + 0.11]}>
+          <mesh castShadow><boxGeometry args={[0.12, bounds[1] * 0.82, 0.2]} /><meshStandardMaterial color={presentation.palette.timber} metalness={presentation.semanticProfile.metallic ? 0.48 : 0.05} roughness={0.68} /></mesh>
+          <mesh position={[0, 0, 0.115]}><planeGeometry args={[Math.max(1.5, bounds[0] * 0.26), bounds[1] * 0.58]} /><meshStandardMaterial color={presentation.palette.wall} roughness={0.94} /></mesh>
+        </group>
+      ))}
+      {[-0.3, 0.3].map((factor) => (
+        <group key={`sconce:${factor}`} position={[bounds[0] * factor, bounds[1] * 0.58, -bounds[2] / 2 + 0.27]}>
+          <mesh castShadow><cylinderGeometry args={[0.06, 0.09, 0.34, 10]} /><meshStandardMaterial color={presentation.palette.timber} metalness={0.42} roughness={0.5} /></mesh>
+          <mesh position={[0, 0.2, 0]}><sphereGeometry args={[0.095, 12, 8]} /><meshStandardMaterial color={presentation.palette.practical} emissive={presentation.palette.practical} emissiveIntensity={1.4} roughness={0.32} /></mesh>
+          <pointLight position={[0, 0.2, 0.22]} color={presentation.palette.practical} intensity={0.48} distance={3.8} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** Composes a beauty floor for unfamiliar prose without consulting story IDs. */
+export function UniversalNarrativeEnvironmentKit({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const profile = presentation.semanticProfile;
+  const environmentModules = new Set(presentation.modules.environment.map((module) => module.moduleId));
+  const needsFallbackInterior = profile.enclosure === "interior" &&
+    environmentModules.has("shell:solid-room") &&
+    environmentModules.has("surface:neutral-floor") &&
+    !presentation.architecture.industrialShell;
+  return (
+    <group name={`semantic-environment:${profile.domain}`} userData={{ decorativeOnly: true }}>
+      {profile.domain === "celestial" && <CelestialVista bounds={bounds} presentation={presentation} />}
+      {profile.domain === "subterranean" && <CavernEnvironment bounds={bounds} presentation={presentation} />}
+      {profile.domain === "volcanic" && profile.enclosure !== "interior" && <VolcanicEnvironment bounds={bounds} presentation={presentation} />}
+      {profile.domain === "aquatic" && profile.enclosure !== "interior" && <AquaticEnvironment bounds={bounds} presentation={presentation} />}
+      {profile.domain === "ruined" && <RuinedAccents bounds={bounds} presentation={presentation} />}
+      {needsFallbackInterior && <PolishedFallbackInterior bounds={bounds} presentation={presentation} />}
+    </group>
+  );
+}
+
 interface PbrSurfaceSet {
   color: THREE.Texture;
   normal: THREE.Texture;

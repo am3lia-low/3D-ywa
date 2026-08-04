@@ -27,6 +27,28 @@ describe("approved asset library", () => {
     expect(selectStoryStyleKit(plan1).id).toBe("storybook-historical");
   });
 
+  it("does not mistake a glass-windowed maritime room for a botanical scene", () => {
+    const location = plan1.locations[0];
+    if (!location) throw new Error("Fixture must contain a visual location.");
+    const maritimePlan: VisualScenePlan = {
+      ...plan1,
+      artDirection: {
+        ...plan1.artDirection,
+        styleLabel: "stylized maritime Gothic realism",
+        stylePrompt: "A coastal signal room of aged oak, iron fittings and rain-clouded glass.",
+        materialVocabulary: ["aged oak", "blackened iron", "rain-clouded glass"],
+      },
+      locations: [{
+        ...location,
+        archetype: "coastal signal room",
+        visualDescription: "An enclosed stone room with oak ribs and tall salt-clouded windows.",
+        architectureTags: ["octagonal stone room", "oak roof ribs"],
+      }],
+    };
+
+    expect(selectStoryStyleKit(maritimePlan).id).toBe("storybook-historical");
+  });
+
   it("resolves the opening world entirely from approved assets", () => {
     const result = resolveApprovedAssetLibrary(snapshot, plan1);
 

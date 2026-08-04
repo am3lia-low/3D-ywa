@@ -12,7 +12,12 @@
       { "id": "saltwind-coast", "name": "Saltwind Coast", "bounds": [30, 8, 38] },
       { "id": "amber-meadow", "name": "Amber Meadow", "bounds": [30, 7, 38] },
       { "id": "lantern-market", "name": "Lantern Market", "bounds": [22, 7, 34] },
-      { "id": "orbital-engine-room", "name": "Orbital Engine Room", "bounds": [18, 6, 28] }
+      { "id": "orbital-engine-room", "name": "Orbital Engine Room", "bounds": [18, 6, 28] },
+      { "id": "prismatic-cavern", "name": "Prismatic Cavern", "bounds": [30, 14, 38] },
+      { "id": "coral-palace", "name": "Sunken Coral Palace", "bounds": [34, 12, 40] },
+      { "id": "ember-caldera", "name": "Ember Caldera", "bounds": [34, 10, 42] },
+      { "id": "fallen-sanctuary", "name": "Fallen Sanctuary", "bounds": [30, 10, 38] },
+      { "id": "lunar-observatory", "name": "Lunar Observatory", "bounds": [22, 8, 28] }
     ],
     "entities": [],
     "relations": [],
@@ -21,7 +26,7 @@
   "moments": [
     {
       "passageId": "F1",
-      "text": "Six disconnected fragments test whether the same spatial runtime can art-direct radically different settings without story-specific renderer code.",
+      "text": "Eleven disconnected fragments test whether the same spatial runtime can art-direct radically different settings without story-specific renderer code.",
       "visualPlan": {
         "schemaVersion": "1.0",
         "storyId": "story-world-families",
@@ -31,7 +36,7 @@
         "planVersion": 1,
         "artDirection": {
           "styleLabel": "cinematic storybook worlds",
-          "stylePrompt": "Six cohesive, atmospheric narrative worlds with tactile materials, strong depth and readable paths.",
+          "stylePrompt": "Eleven cohesive, atmospheric narrative worlds with tactile materials, strong depth and readable paths.",
           "negativePrompt": ["empty plane", "white box", "flat light", "unbounded void"],
           "materialVocabulary": ["weathered natural surfaces", "layered terrain", "atmospheric depth", "story-scale architecture"]
         },
@@ -112,6 +117,71 @@
             "timeOfDay": "artificial ship cycle",
             "palette": { "background": "#10191c", "fog": "#233236", "floor": "#313a3d", "wall": "#596568", "timber": "#4b5557", "ambient": "#a9c2c4", "keyLight": "#d8f2ef", "practical": "#e8a45f" },
             "lighting": { "warmth": "cool", "contrast": "high", "ambientIntensity": 0.58, "keyIntensity": 1.7, "atmosphericEffects": ["machine haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "prismatic-cavern",
+            "archetype": "crystal cavern cathedral",
+            "visualDescription": "A vast subterranean crystal cavern cathedral descends through luminous quartz grottoes.",
+            "architectureTags": ["underground depth", "prismatic shelves"],
+            "dressingTags": ["crystal clusters", "cave rocks"],
+            "dressingDensity": "rich",
+            "mood": "sacred, strange and hushed",
+            "timeOfDay": "timeless underground glow",
+            "palette": { "background": "#111727", "fog": "#394561", "floor": "#242b3b", "wall": "#46516a", "timber": "#35374b", "ambient": "#93a5c6", "keyLight": "#b9d7ff", "practical": "#b98cff" },
+            "lighting": { "warmth": "cool", "contrast": "high", "ambientIntensity": 0.52, "keyIntensity": 1.6, "atmosphericEffects": ["crystal glow", "deep haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "coral-palace",
+            "archetype": "sunken coral palace",
+            "visualDescription": "A monumental submerged palace stands on the deep-sea ocean floor beneath shifting blue light.",
+            "architectureTags": ["seabed terraces", "organic coral arches"],
+            "dressingTags": ["coral gardens", "bubble trails"],
+            "dressingDensity": "rich",
+            "mood": "dreamlike, ancient and weightless",
+            "timeOfDay": "filtered ocean daylight",
+            "palette": { "background": "#071f2d", "fog": "#1e6670", "floor": "#365b59", "wall": "#6c8f87", "timber": "#405f63", "ambient": "#7ac0c6", "keyLight": "#b5f1ed", "practical": "#ef8fa1" },
+            "lighting": { "warmth": "cool", "contrast": "medium", "ambientIntensity": 0.65, "keyIntensity": 1.45, "atmosphericEffects": ["caustic light", "underwater haze"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "ember-caldera",
+            "archetype": "obsidian caldera shrine",
+            "visualDescription": "An outdoor volcanic shrine spans a lava caldera through black basalt and drifting ash.",
+            "architectureTags": ["obsidian causeway", "ember field"],
+            "dressingTags": ["basalt columns", "charred stones"],
+            "dressingDensity": "moderate",
+            "mood": "dangerous, mythic and incandescent",
+            "timeOfDay": "smoke-dark noon",
+            "palette": { "background": "#24151d", "fog": "#63332e", "floor": "#211d25", "wall": "#4b3a3d", "timber": "#34282c", "ambient": "#8b5b52", "keyLight": "#ffb06a", "practical": "#ff6138" },
+            "lighting": { "warmth": "warm", "contrast": "high", "ambientIntensity": 0.45, "keyIntensity": 1.7, "atmosphericEffects": ["ash haze", "ember glow"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "fallen-sanctuary",
+            "archetype": "crumbling desert sanctuary",
+            "visualDescription": "An ancient ruined temple with collapsed columns overlooks endless wind-carved dunes.",
+            "architectureTags": ["broken monument", "weathered masonry"],
+            "dressingTags": ["fallen capitals", "sand drifts"],
+            "dressingDensity": "moderate",
+            "mood": "melancholy, vast and sun-worn",
+            "timeOfDay": "late golden afternoon",
+            "palette": { "background": "#7c6c72", "fog": "#d5b28a", "floor": "#b88457", "wall": "#9a765f", "timber": "#685044", "ambient": "#dbc5a6", "keyLight": "#ffe0a1", "practical": "#e8864d" },
+            "lighting": { "warmth": "warm", "contrast": "medium", "ambientIntensity": 0.72, "keyIntensity": 1.6, "atmosphericEffects": ["windblown dust"] },
+            "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
+          },
+          {
+            "locationId": "lunar-observatory",
+            "archetype": "retrofuturist lunar observatory",
+            "visualDescription": "A metallic interior observatory looks through a panoramic window toward a fractured moon.",
+            "architectureTags": ["riveted control bay", "observation window"],
+            "dressingTags": ["brass instruments", "star charts"],
+            "dressingDensity": "moderate",
+            "mood": "lonely, precise and awe-struck",
+            "timeOfDay": "artificial night cycle",
+            "palette": { "background": "#070b1b", "fog": "#232851", "floor": "#29343b", "wall": "#536169", "timber": "#3a464e", "ambient": "#819ab0", "keyLight": "#d8eeff", "practical": "#efb45e" },
+            "lighting": { "warmth": "cool", "contrast": "high", "ambientIntensity": 0.5, "keyIntensity": 1.55, "atmosphericEffects": ["star field", "instrument glow"] },
             "evidence": { "passageIds": ["F1"], "confidence": 0.7, "basis": "art_direction_default" }
           }
         ],

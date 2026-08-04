@@ -29,6 +29,7 @@ export const AssetKitCatalogSchema = z.strictObject({
     label: identifierSchema,
     description: identifierSchema,
     matchTags: z.array(identifierSchema),
+    anchorTags: z.array(identifierSchema).optional(),
     requiredRoles: z.array(identifierSchema),
   })).min(1),
   assets: z.array(z.strictObject({
