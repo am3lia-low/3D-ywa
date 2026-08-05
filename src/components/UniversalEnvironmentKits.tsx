@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Clone, RoundedBox, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -646,6 +646,8 @@ function Building({
   const balconyX = -size[0] / 2 + (balconyColumn + 0.5) * size[0] / columns;
   const balconyWidth = Math.min(2.15, size[0] / columns * 0.94);
   const balconyFloorY = -size[1] / 2 + 3.38;
+  const entrySide = seed % 2 ? -1 : 1;
+  const storefrontX = -entrySide * size[0] * 0.22;
   return (
     <group position={position}>
       <RoundedBox args={size} radius={0.055} smoothness={3} castShadow receiveShadow>
@@ -702,10 +704,24 @@ function Building({
       <RoundedBox args={[size[0] * 0.94, 1.1, 0.11]} radius={0.04} smoothness={3} position={[0, -size[1] / 2 + 0.55, size[2] / 2 + 0.055]} castShadow>
         <meshStandardMaterial color={trimColor} roughness={0.8} />
       </RoundedBox>
-      <group position={[size[0] * (seed % 2 ? -0.25 : 0.25), -size[1] / 2 + 1.12, size[2] / 2 + 0.13]}>
+      <group position={[size[0] * entrySide * 0.25, -size[1] / 2 + 1.12, size[2] / 2 + 0.13]}>
         <RoundedBox args={[URBAN_HUMAN_SCALE.doorWidth, URBAN_HUMAN_SCALE.doorHeight, 0.14]} radius={0.045} smoothness={4} castShadow><meshStandardMaterial color="#332a25" roughness={0.76} /></RoundedBox>
         <mesh position={[0, 0.02, 0.078]}><planeGeometry args={[0.78, 2.02]} /><meshStandardMaterial color="#72513e" roughness={0.84} /></mesh>
         <mesh position={[0.29, -0.02, 0.092]}><sphereGeometry args={[0.048, 12, 10]} /><meshStandardMaterial color="#c19859" metalness={0.72} roughness={0.34} /></mesh>
+      </group>
+      <group position={[storefrontX, -size[1] / 2 + 1.18, size[2] / 2 + 0.145]}>
+        <RoundedBox args={[Math.min(1.65, size[0] * 0.36), 2.05, 0.16]} radius={0.06} smoothness={4} castShadow>
+          <meshStandardMaterial color="#55463d" roughness={0.8} />
+        </RoundedBox>
+        <mesh position={[0, 0.02, 0.092]}>
+          <planeGeometry args={[Math.min(1.42, size[0] * 0.31), 1.76]} />
+          <meshPhysicalMaterial color="#27464d" emissive="#173138" emissiveIntensity={0.32} roughness={0.18} metalness={0.08} clearcoat={0.48} clearcoatRoughness={0.28} />
+        </mesh>
+        <mesh position={[0, 0.02, 0.108]} castShadow><boxGeometry args={[0.045, 1.76, 0.026]} /><meshStandardMaterial color="#4b3a30" roughness={0.78} /></mesh>
+        <mesh position={[0, 0.02, 0.11]} castShadow><boxGeometry args={[Math.min(1.42, size[0] * 0.31), 0.045, 0.026]} /><meshStandardMaterial color="#4b3a30" roughness={0.78} /></mesh>
+        <RoundedBox args={[Math.min(1.48, size[0] * 0.33), 0.12, 0.3]} radius={0.035} smoothness={3} position={[0, -1.02, 0.1]} castShadow>
+          <meshStandardMaterial color="#7d6651" roughness={0.88} />
+        </RoundedBox>
       </group>
       <RoundedBox
         args={[size[0] * 0.9, 0.13, 0.18]}
@@ -724,6 +740,22 @@ function Building({
             <meshStandardMaterial color={stripe % 2 ? awningColor : "#d4b781"} roughness={0.88} />
           </mesh>
         ))}
+      </group>
+      <group position={[entrySide * size[0] * 0.42, -size[1] / 2 + 3.12, size[2] / 2 + 0.48]}>
+        <mesh position={[0, 0.24, -0.18]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.035, 0.035, 0.72, 12]} />
+          <meshStandardMaterial color="#3b3834" metalness={0.48} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.24, -0.52]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.035, 0.035, 0.46, 12]} />
+          <meshStandardMaterial color="#3b3834" metalness={0.48} roughness={0.5} />
+        </mesh>
+        <RoundedBox args={[0.72, 0.58, 0.09]} radius={0.08} smoothness={4} position={[0, -0.14, 0]} castShadow>
+          <meshStandardMaterial color={seed % 3 === 0 ? "#5c766d" : seed % 3 === 1 ? "#9a5e48" : "#9a7747"} roughness={0.78} />
+        </RoundedBox>
+        <RoundedBox args={[0.46, 0.055, 0.025]} radius={0.02} smoothness={2} position={[0, -0.14, 0.052]}>
+          <meshStandardMaterial color="#d4bd89" roughness={0.68} />
+        </RoundedBox>
       </group>
       {hasBalcony && (
         <>
@@ -797,6 +829,25 @@ function Building({
                 ))}
               </group>
             ))}
+            {(index + seed) % 3 === 0 && (
+              <group position={[0, -0.74, 0.18]}>
+                <RoundedBox args={[0.92, 0.2, 0.3]} radius={0.045} smoothness={3} castShadow>
+                  <meshStandardMaterial color="#72513c" roughness={0.86} />
+                </RoundedBox>
+                {[-0.3, 0, 0.3].map((x, flowerIndex) => (
+                  <group key={`flower-box:${x}`} position={[x, 0.15, 0]}>
+                    <mesh position={[0, 0.08, 0]} castShadow>
+                      <sphereGeometry args={[0.16, 12, 8]} />
+                      <meshStandardMaterial color={flowerIndex === 1 ? "#66815e" : "#58745a"} roughness={0.9} />
+                    </mesh>
+                    <mesh position={[0.04, 0.22, 0.03]} castShadow>
+                      <sphereGeometry args={[0.055, 10, 7]} />
+                      <meshStandardMaterial color={flowerIndex % 2 ? "#d2a76c" : "#b96962"} roughness={0.82} />
+                    </mesh>
+                  </group>
+                ))}
+              </group>
+            )}
           </group>
         );
       })}
@@ -1027,6 +1078,45 @@ export function UrbanStreetKit({
           ))}
         </group>
       ))}
+      {hasCanal && [-1, 1].flatMap((side) => [-0.29, 0.02, 0.31].map((factor, index) => (
+        <group
+          key={`canal-planter:${side}:${factor}`}
+          position={[side * (reservedCanalWidth / 2 + 0.72), 0, bounds[2] * factor]}
+          userData={{ decorativeOnly: true, module: "canal-planter" }}
+        >
+          <RoundedBox args={[0.52, 0.44, 0.52]} radius={0.09} smoothness={4} position={[0, 0.24, 0]} castShadow receiveShadow>
+            <meshStandardMaterial color="#777166" normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.16, 0.16)} roughnessMap={surfaces.street.arm} roughness={0.94} />
+          </RoundedBox>
+          <Suspense fallback={null}>
+            <NormalizedSceneryModel
+              url="/models/optimized/polyhaven/fern_02/fern_02_lod1.glb"
+              position={[0, 0.76, 0]}
+              rotation={[0, index * 0.88 + (side > 0 ? 0.4 : -0.3), 0]}
+              dimensions={[0.72, 0.62, 0.68]}
+            />
+          </Suspense>
+        </group>
+      )))}
+      {hasCanal && [-1, 1].flatMap((side) => Array.from({ length: 8 }, (_, index) => (
+        <group
+          key={`canal-bollard:${side}:${index}`}
+          position={[
+            side * (reservedCanalWidth / 2 + 0.22),
+            0.37,
+            -bounds[2] * 0.43 + index * (bounds[2] * 0.86 / 7),
+          ]}
+          userData={{ decorativeOnly: true, module: "canal-bollard" }}
+        >
+          <mesh castShadow>
+            <cylinderGeometry args={[0.085, 0.11, 0.64, 14]} />
+            <meshStandardMaterial color="#434641" metalness={0.42} roughness={0.56} />
+          </mesh>
+          <mesh position={[0, 0.34, 0]} castShadow>
+            <sphereGeometry args={[0.115, 14, 10]} />
+            <meshStandardMaterial color="#50534e" metalness={0.38} roughness={0.6} />
+          </mesh>
+        </group>
+      )))}
       {([[-0.25, -0.38], [0.25, -0.12], [-0.25, 0.15], [0.25, 0.4]] as const).map(([x, z]) => (
         <pointLight
           key={`street-light:${x}:${z}`}

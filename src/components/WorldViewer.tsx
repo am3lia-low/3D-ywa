@@ -1578,6 +1578,27 @@ function StoryBayWindowAsset({ highlighted, highlightColor }: { highlighted: boo
       <RoundedBox args={[1.12, 0.11, 0.58]} radius={0.02} smoothness={3} position={[0, -0.5, 0.12]} castShadow receiveShadow>
         <meshStandardMaterial color="#684c36" roughness={0.82} />
       </RoundedBox>
+      {[-1, 1].map((side) => (
+        <group key={`window-drape-${side}`} position={[side * 0.59, 0.02, 0.24]}>
+          <mesh rotation={[0, 0, side * -0.055]} castShadow>
+            <cylinderGeometry args={[0.13, 0.2, 1.18, 22, 5]} />
+            <meshStandardMaterial color="#704139" roughness={0.94} />
+          </mesh>
+          <mesh position={[-side * 0.035, -0.06, 0.12]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[0.145, 0.025, 8, 22]} />
+            <meshStandardMaterial color="#b28b4f" metalness={0.48} roughness={0.46} />
+          </mesh>
+          {[-0.07, 0, 0.07].map((x) => (
+            <mesh key={`drape-fold-${x}`} position={[x, 0, 0.17]} castShadow>
+              <cylinderGeometry args={[0.018, 0.025, 1.08, 8]} />
+              <meshStandardMaterial color={x === 0 ? "#9a5b4f" : "#5f342f"} roughness={0.9} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      <RoundedBox args={[1.44, 0.16, 0.22]} radius={0.06} smoothness={4} position={[0, 0.61, 0.23]} castShadow>
+        <meshStandardMaterial color="#78483b" roughness={0.9} />
+      </RoundedBox>
     </group>
   );
 }
@@ -1747,15 +1768,17 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
             vec3 color = mix(deepColor, surfaceColor, 0.22 + diffuse * 0.2 + depthVariation);
             color = mix(color, vec3(0.18, 0.34, 0.38), fresnel * 0.34);
             color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
-            float bankGlow = exp(-pow((waterUv.x - 0.1) * 12.0, 2.0))
-              + exp(-pow((waterUv.x - 0.9) * 12.0, 2.0));
+            float bankGlow = exp(-pow((waterUv.x - 0.08) * 9.0, 2.0))
+              + exp(-pow((waterUv.x - 0.92) * 9.0, 2.0));
             float lanternPools = exp(-pow((waterUv.y - 0.2) * 7.0, 2.0))
               + exp(-pow((waterUv.y - 0.52) * 8.0, 2.0))
               + exp(-pow((waterUv.y - 0.82) * 7.0, 2.0));
             float brokenReflection = 0.42 + 0.58 * pow(0.5 + 0.5 * sin(waterUv.y * 115.0 + time * 1.7), 4.0);
             float warmReflection = min(bankGlow * lanternPools * brokenReflection, 1.0);
-            color += vec3(0.72, 0.39, 0.14) * warmReflection * 0.34;
+            color += vec3(0.82, 0.43, 0.16) * warmReflection * 0.62;
             gl_FragColor = vec4(color, 0.97);
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
           }
         `}
       />
@@ -3280,6 +3303,7 @@ function HistoricalInteriorDetails({
 }) {
   const timber = presentation.palette.timber;
   const panelHeight = Math.min(1.55, bounds[1] * 0.24);
+  const friezeY = Math.min(bounds[1] - 0.72, 4.82);
   const obstacles = useMemo(
     () => collectWallObstacles(layout, dressingInstances, panelHeight + 0.22),
     [dressingInstances, layout, panelHeight],
@@ -3387,6 +3411,26 @@ function HistoricalInteriorDetails({
       {wallArt("west")}
       {!overview && wallArt("south")}
       {!overview && wallArt("east")}
+      <group position={[0, friezeY, -bounds[2] / 2 + 0.14]} userData={{ decorativeOnly: true, motif: "estate-frieze" }}>
+        <RoundedBox args={[bounds[0] * 0.86, 0.2, 0.055]} radius={0.035} smoothness={3} castShadow>
+          <meshStandardMaterial color="#665442" roughness={0.84} />
+        </RoundedBox>
+        {Array.from({ length: 9 }, (_, index) => {
+          const x = -bounds[0] * 0.36 + index * bounds[0] * 0.09;
+          return (
+            <group key={`estate-frieze-rosette-${index}`} position={[x, 0, 0.048]}>
+              <mesh castShadow>
+                <torusGeometry args={[0.075, 0.018, 8, 20]} />
+                <meshStandardMaterial color="#b8965d" roughness={0.62} metalness={0.24} />
+              </mesh>
+              <mesh rotation={[0, 0, Math.PI / 4]} castShadow>
+                <boxGeometry args={[0.115, 0.115, 0.025]} />
+                <meshStandardMaterial color="#8d734f" roughness={0.72} />
+              </mesh>
+            </group>
+          );
+        })}
+      </group>
       {[-0.34, 0.34].map((factor, index) => (
         <DecorativeWallSconce
           key={`north-sconce-${factor}`}
@@ -3412,6 +3456,54 @@ function HistoricalInteriorDetails({
           <meshStandardMaterial color="#8d765e" roughness={0.84} />
         </mesh>
       ))}
+      {([
+        [[0, 0.028, -bounds[2] * 0.37], [bounds[0] * 0.82, 0.03, 0.07]],
+        [[0, 0.028, bounds[2] * 0.37], [bounds[0] * 0.82, 0.03, 0.07]],
+        [[-bounds[0] * 0.41, 0.028, 0], [0.07, 0.03, bounds[2] * 0.74]],
+        [[bounds[0] * 0.41, 0.028, 0], [0.07, 0.03, bounds[2] * 0.74]],
+      ] as Array<[Vector3Tuple, Vector3Tuple]>).map(([position, dimensions], index) => (
+        <RoundedBox
+          key={`estate-floor-inlay-${index}`}
+          args={dimensions}
+          radius={0.015}
+          smoothness={2}
+          position={position}
+          receiveShadow
+        >
+          <meshStandardMaterial color="#9d7a48" metalness={0.24} roughness={0.58} />
+        </RoundedBox>
+      ))}
+      {[-0.43, 0.43].map((factor) => (
+        <group key={`estate-rear-pilaster-${factor}`} position={[bounds[0] * factor, 2.28, -bounds[2] / 2 + 0.16]}>
+          <RoundedBox args={[0.3, 4.35, 0.22]} radius={0.035} smoothness={3} castShadow>
+            <meshStandardMaterial color="#70533d" roughness={0.82} />
+          </RoundedBox>
+          {[-2.08, 2.08].map((y) => (
+            <RoundedBox key={y} args={[0.52, 0.2, 0.32]} radius={0.035} smoothness={3} position={[0, y, 0.02]} castShadow>
+              <meshStandardMaterial color="#9b8162" roughness={0.78} />
+            </RoundedBox>
+          ))}
+        </group>
+      ))}
+      {!overview && (
+        <group position={[0, bounds[1] - 0.19, -bounds[2] * 0.08]} rotation={[Math.PI / 2, 0, 0]}>
+          {[0.64, 0.94, 1.24].map((radius, index) => (
+            <mesh key={`estate-ceiling-medallion-${radius}`} castShadow>
+              <torusGeometry args={[radius, 0.035 + index * 0.007, 10, 48]} />
+              <meshStandardMaterial color={index === 1 ? "#b89f7b" : "#8f775b"} roughness={0.76} />
+            </mesh>
+          ))}
+          {Array.from({ length: 8 }, (_, index) => {
+            const angle = index * Math.PI / 4;
+            return (
+              <mesh key={`estate-medallion-ray-${index}`} position={[Math.cos(angle) * 0.48, Math.sin(angle) * 0.48, 0]} rotation={[0, 0, angle]} castShadow>
+                <boxGeometry args={[0.72, 0.055, 0.055]} />
+                <meshStandardMaterial color="#a48a68" roughness={0.8} />
+              </mesh>
+            );
+          })}
+        </group>
+      )}
       {!overview && Array.from({ length: 6 }, (_, index) => (
         <mesh
           key={`estate-ceiling-beam-${index}`}
@@ -3620,6 +3712,7 @@ function ArchiveGalleryDetails({
       </Suspense>
     </group>
   );
+  const rearShelfFactors = [-0.41, -0.255, -0.1, 0.1, 0.255, 0.41];
 
   return (
     <group userData={{ decorativeOnly: true, module: "archive-gallery-details" }}>
@@ -3632,6 +3725,26 @@ function ArchiveGalleryDetails({
             yaw={0}
             lit={index !== 1}
           />
+        </group>
+      ))}
+      {rearShelfFactors.map((factor, index) => (
+        <group
+          key={`archive-shelf-light-${factor}`}
+          position={[bounds[0] * factor, 4.45, -bounds[2] / 2 + 0.72]}
+          userData={{ decorativeOnly: true, motif: "shelf-light" }}
+        >
+          <RoundedBox args={[0.2, 0.34, 0.08]} radius={0.04} smoothness={3} position={[0, 0.13, -0.14]} castShadow>
+            <meshStandardMaterial color="#8e693b" metalness={0.72} roughness={0.34} />
+          </RoundedBox>
+          <mesh position={[0, 0.04, -0.03]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.035, 0.035, 0.34, 12]} />
+            <meshStandardMaterial color="#8e693b" metalness={0.72} roughness={0.34} />
+          </mesh>
+          <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[0.065, 0.065, 0.68, 14]} />
+            <meshStandardMaterial color="#c69b58" emissive="#9f5d25" emissiveIntensity={0.4} metalness={0.58} roughness={0.34} />
+          </mesh>
+          {index % 2 === 0 && <pointLight color="#eeb36b" intensity={0.24} distance={3.2} decay={2} />}
         </group>
       ))}
       <group position={[0, 5.88, -bounds[2] / 2 + 0.25]} userData={{ decorativeOnly: true, motif: "archive-clock" }}>
@@ -3677,6 +3790,52 @@ function ArchiveGalleryDetails({
           <meshStandardMaterial color="#654f3e" roughness={0.9} />
         </RoundedBox>
       ))}
+      <group
+        position={[bounds[0] * 0.255, 1.88, -bounds[2] / 2 + 0.92]}
+        rotation={[0.04, 0, -0.13]}
+        userData={{ decorativeOnly: true, module: "archive-rolling-ladder" }}
+      >
+        {[-0.39, 0.39].map((x) => (
+          <RoundedBox key={`ladder-rail-${x}`} args={[0.1, 3.7, 0.12]} radius={0.035} smoothness={3} position={[x, 0, 0]} castShadow>
+            <meshStandardMaterial color="#7a5336" roughness={0.78} />
+          </RoundedBox>
+        ))}
+        {Array.from({ length: 9 }, (_, index) => (
+          <RoundedBox key={`ladder-rung-${index}`} args={[0.82, 0.085, 0.16]} radius={0.025} smoothness={3} position={[0, -1.48 + index * 0.37, 0.02]} castShadow>
+            <meshStandardMaterial color="#9a6c42" roughness={0.74} />
+          </RoundedBox>
+        ))}
+        <mesh position={[0, 1.92, -0.08]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.09, 0.09, 1.12, 18]} />
+          <meshStandardMaterial color="#a77b45" metalness={0.56} roughness={0.4} />
+        </mesh>
+      </group>
+      <group
+        position={[-bounds[0] * 0.22, 0.58, bounds[2] * 0.2]}
+        rotation={[0, 0.12, 0]}
+        userData={{ decorativeOnly: true, module: "archive-book-cart" }}
+      >
+        <RoundedBox args={[1.55, 0.12, 0.7]} radius={0.045} smoothness={3} position={[0, 0.58, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#68472f" roughness={0.8} />
+        </RoundedBox>
+        {[-0.62, 0.62].map((x) => (
+          <mesh key={`cart-post-${x}`} position={[x, 0.06, 0]} castShadow>
+            <cylinderGeometry args={[0.045, 0.05, 1.1, 12]} />
+            <meshStandardMaterial color="#493328" metalness={0.24} roughness={0.66} />
+          </mesh>
+        ))}
+        {[-0.48, 0, 0.48].map((x, index) => (
+          <RoundedBox key={`cart-book-${x}`} args={[0.26, 0.7 + index * 0.08, 0.48]} radius={0.025} smoothness={2} position={[x, 0.98 + index * 0.04, 0]} rotation={[0, 0, (index - 1) * 0.07]} castShadow>
+            <meshStandardMaterial color={["#7d493e", "#516a62", "#a17a43"][index]} roughness={0.86} />
+          </RoundedBox>
+        ))}
+        {[-0.6, 0.6].flatMap((x) => [-0.26, 0.26].map((z) => (
+          <mesh key={`cart-wheel-${x}-${z}`} position={[x, -0.43, z]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[0.14, 0.035, 8, 18]} />
+            <meshStandardMaterial color="#3c3430" metalness={0.52} roughness={0.48} />
+          </mesh>
+        )))}
+      </group>
       {[-0.2, 0.2].map((factor, index) => (
         <group key={`archive-reading-pool:${factor}`} position={[bounds[0] * factor, 3.55, 0]}>
           <mesh position={[0, (bounds[1] - 3.55) / 2 - 0.08, 0]} castShadow>
@@ -3704,6 +3863,16 @@ function ArchiveGalleryDetails({
         </group>
         <group position={[0.42, 0.78, 1.25]} rotation={[0, Math.PI, 0]} scale={[0.95, 1.55, 0.95]}>
           <Suspense fallback={null}><LoadedModel url="/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf" /></Suspense>
+        </group>
+        {[-0.48, -0.1, 0.32].map((x, index) => (
+          <mesh key={`archive-desk-paper-${x}`} position={[x, 0.66 + index * 0.006, -0.08 + index * 0.12]} rotation={[-Math.PI / 2, 0, -0.12 + index * 0.09]} castShadow>
+            <planeGeometry args={[0.54, 0.72]} />
+            <meshStandardMaterial color={index === 1 ? "#c7af7c" : "#d9c99e"} roughness={0.92} side={THREE.DoubleSide} />
+          </mesh>
+        ))}
+        <group position={[0.72, 1.02, -0.3]} scale={[0.52, 0.76, 0.52]}>
+          <StorybookLampAsset highlighted={false} highlightColor="#000000" table />
+          <pointLight position={[0, 0.42, 0]} color="#efb36a" intensity={0.46} distance={3.4} decay={2} />
         </group>
       </group>
     </group>

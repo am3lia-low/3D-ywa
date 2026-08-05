@@ -160,7 +160,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "reading-lounge-chair",
-        minimumDensity: "rich", positionFactor: [-0.18, 0.16], dimensions: [1.05, 1.32, 0.95], yaw: 2.45,
+        minimumDensity: "rich", positionFactor: [-0.2, -0.015], dimensions: [1.05, 1.32, 0.95], yaw: 2.2,
       },
       {
         renderKind: "asset", searchTags: ["painted", "wooden", "bench", "seat"], slotId: "south-gallery-bench",
@@ -168,7 +168,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "east-conversation-chair",
-        minimumDensity: "rich", positionFactor: [0.24, 0.18], dimensions: [1.05, 1.32, 0.95], yaw: -2.38,
+        minimumDensity: "rich", positionFactor: [0.2, 0.015], dimensions: [1.05, 1.32, 0.95], yaw: -2.2,
       },
       {
         renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "south-console-table",
