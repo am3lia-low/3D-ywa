@@ -52,7 +52,7 @@ function assetKey(entity: WorldEntity): string | undefined {
 
 function dimensions(entity: WorldEntity): [number, number, number] {
   const text = `${entity.id} ${entity.name}`.toLowerCase()
-  if (/canal|waterway|channel/.test(text)) return [5, 0.35, 18]
+  if (/canal|waterway|channel/.test(text)) return [6.2, 0.65, 27.4]
   if (/amber.*pendant|pendant|necklace/.test(text)) return [0.22, 0.38, 0.08]
   if (/fireplace|hearth/.test(text)) return [2.2, 2.2, 0.65]
   if (/window/.test(text)) return [2.5, 2.1, 0.25]
@@ -138,6 +138,10 @@ function plannedPosition(
   const target = namedTarget(entity, entities)
   const targetSize = target ? dimensions(target) : undefined
   const targetWall = target ? wallFor(target) : undefined
+
+  // A city waterway is a scene-scale circulation feature, not a loose prop.
+  // Center it and let the urban kit reserve the corresponding corridor.
+  if (/canal|waterway|channel/.test(text)) return [0, size[1] / 2, 0]
 
   // Hanging objects need a vertical coordinate. The frozen relation set has no
   // "above" predicate, so this development bridge resolves that height here.

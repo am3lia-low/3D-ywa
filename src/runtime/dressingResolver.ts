@@ -600,27 +600,37 @@ function placeSlot(
   const footprint = rotatedDimensions(slot.dimensions, yaw);
   const halfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.18);
   const halfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.18);
+  const wallHalfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.018);
+  const wallHalfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.018);
   const exterior = slot.placementRegion === "approach";
   const desiredX = exterior
     ? bounds[0] * slot.positionFactor[0]
     : slot.wall === "west"
-    ? -halfX
+    ? -wallHalfX
     : slot.wall === "east"
-      ? halfX
+      ? wallHalfX
       : bounds[0] * slot.positionFactor[0];
   const desiredZ = exterior
     ? bounds[2] * slot.positionFactor[1]
     : slot.wall === "north"
-    ? -halfZ
+    ? -wallHalfZ
     : slot.wall === "south"
-      ? halfZ
+      ? wallHalfZ
       : bounds[2] * slot.positionFactor[1];
 
   for (const [index, [offsetX, offsetZ]] of candidateOffsets(slot).entries()) {
     const position: Vector3Tuple = [
-      exterior ? desiredX + offsetX : clamp(desiredX + offsetX, -halfX, halfX),
+      exterior
+        ? desiredX + offsetX
+        : slot.wall === "west" || slot.wall === "east"
+          ? desiredX
+          : clamp(desiredX + offsetX, -halfX, halfX),
       slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
-      exterior ? desiredZ + offsetZ : clamp(desiredZ + offsetZ, -halfZ, halfZ),
+      exterior
+        ? desiredZ + offsetZ
+        : slot.wall === "north" || slot.wall === "south"
+          ? desiredZ
+          : clamp(desiredZ + offsetZ, -halfZ, halfZ),
     ];
     const candidate: OccupiedVolume = { id: slot.slotId, position, dimensions: footprint };
     if (!occupied.some((other) => overlaps(candidate, other))) {

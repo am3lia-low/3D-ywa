@@ -28,6 +28,7 @@ export interface WorldLayout {
 
 const DEFAULT_BOUNDS: Vector3Tuple = [12, 4.5, 10];
 const SPACING = 0.18;
+const WALL_CLEARANCE = 0.018;
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
@@ -222,10 +223,15 @@ function relationPosition(
 
   if (relation.predicate === "against_wall") {
     const wall = relation.metadata?.wall ?? "north";
-    if (wall === "north") return [0, baseY, -bounds[2] / 2 + item.dimensions[2] / 2 + SPACING];
-    if (wall === "south") return [0, baseY, bounds[2] / 2 - item.dimensions[2] / 2 - SPACING];
-    if (wall === "east") return [bounds[0] / 2 - item.dimensions[0] / 2 - SPACING, baseY, 0];
-    return [-bounds[0] / 2 + item.dimensions[0] / 2 + SPACING, baseY, 0];
+    // Wall-authored assets use local Z as their surface normal. After a
+    // quarter-turn on side walls their normal extent is still local depth,
+    // never local width. The old east/west rule used width and could leave a
+    // door or cabinet more than half a metre in front of the wall.
+    const normalHalfExtent = item.dimensions[2] / 2;
+    if (wall === "north") return [0, baseY, -bounds[2] / 2 + normalHalfExtent + WALL_CLEARANCE];
+    if (wall === "south") return [0, baseY, bounds[2] / 2 - normalHalfExtent - WALL_CLEARANCE];
+    if (wall === "east") return [bounds[0] / 2 - normalHalfExtent - WALL_CLEARANCE, baseY, 0];
+    return [-bounds[0] / 2 + normalHalfExtent + WALL_CLEARANCE, baseY, 0];
   }
 
   if (!target) return undefined;
@@ -258,6 +264,36 @@ function relationPosition(
     default:
       return undefined;
   }
+}
+
+function placeAgainstWallWithoutCollision(
+  draft: Omit<LayoutItem, "position">,
+  desired: Vector3Tuple,
+  wall: "north" | "south" | "east" | "west",
+  bounds: Vector3Tuple,
+  placed: readonly LayoutItem[],
+): LayoutItem {
+  const halfTangent = Math.max(0, (wall === "north" || wall === "south" ? bounds[0] : bounds[2]) / 2 - draft.dimensions[0] / 2 - SPACING);
+  const distances = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+  const step = Math.max(0.55, draft.dimensions[0] + SPACING);
+
+  for (const distance of distances) {
+    const tangent = clamp(
+      (wall === "north" || wall === "south" ? desired[0] : desired[2]) + distance * step,
+      -halfTangent,
+      halfTangent,
+    );
+    const position: Vector3Tuple = wall === "north" || wall === "south"
+      ? [tangent, desired[1], desired[2]]
+      : [desired[0], desired[1], tangent];
+    const candidate: LayoutItem = { ...draft, position };
+    if (!placed.some((other) => overlaps(candidate, other, 0.04))) return candidate;
+  }
+
+  // Never trade wall flushness for a collision fallback. Composition
+  // preflight can flag an overfull wall, while a detached portal is always a
+  // visible runtime defect.
+  return { ...draft, position: desired };
 }
 
 function placeWithoutCollision(
@@ -419,12 +455,10 @@ export function createWorldLayout(
         ? [explicitPosition[0], wallPosition[1], wallPosition[2]]
         : [wallPosition[0], wallPosition[1], explicitPosition[2]]
       : explicitPosition;
-    const item = placeWithoutCollision(
-      orientAgainstWall(draft, wallRelation),
-      desiredPosition,
-      bounds,
-      placed,
-    );
+    const orientedDraft = orientAgainstWall(draft, wallRelation);
+    const item = wallRelation
+      ? placeAgainstWallWithoutCollision(orientedDraft, desiredPosition, wall, bounds, placed)
+      : placeWithoutCollision(orientedDraft, desiredPosition, bounds, placed);
     placed.push(item);
     placedById.set(item.entity.id, item);
   }
@@ -478,7 +512,15 @@ export function createWorldLayout(
       const supportTarget = resolved.relation.objectId
         ? placedById.get(resolved.relation.objectId)
         : undefined;
-      const item = resolved.relation.predicate === "on" && supportTarget
+      const item = resolved.relation.predicate === "against_wall"
+        ? placeAgainstWallWithoutCollision(
+            orientedDraft,
+            resolved.position,
+            resolved.relation.metadata?.wall ?? "north",
+            bounds,
+            placed,
+          )
+        : resolved.relation.predicate === "on" && supportTarget
         ? placeOnSupportWithoutCollision(
             orientedDraft,
             resolved.position,

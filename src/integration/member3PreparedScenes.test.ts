@@ -3,6 +3,7 @@ import { BOOKS, SNAPSHOTS } from "../../Create UI Prototype for Hackathon/src/da
 import { buildMockSpatialScene } from "../../Create UI Prototype for Hackathon/src/spatial/mockSpatialAdapter";
 import { compileSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import { createWorldLayout } from "../runtime/layoutEngine";
+import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
 
 function relativeScaleSpread(
   target: readonly [number, number, number],
@@ -34,6 +35,36 @@ describe("Member 3 prepared story scenes", () => {
           expect(Math.abs(item.position[2])).toBeLessThanOrEqual(bounds[2] / 2 + 0.01);
           const asset = recipe.assetRegistry[item.entity.id]!;
           expect(relativeScaleSpread(item.dimensions, asset.dimensions)).toBeLessThanOrEqual(1.2);
+        }
+
+        for (const relation of scene.spatialSnapshot.relations.filter((candidate) => candidate.predicate === "against_wall")) {
+          const item = layout.items.find((candidate) => candidate.entity.id === relation.subjectId)!;
+          const wall = relation.metadata?.wall ?? "north";
+          const normalEdge = wall === "north"
+            ? item.position[2] - item.dimensions[2] / 2
+            : wall === "south"
+              ? item.position[2] + item.dimensions[2] / 2
+              : wall === "east"
+                ? item.position[0] + item.dimensions[2] / 2
+                : item.position[0] - item.dimensions[2] / 2;
+          const boundary = wall === "north"
+            ? -bounds[2] / 2
+            : wall === "south"
+              ? bounds[2] / 2
+              : wall === "east"
+                ? bounds[0] / 2
+                : -bounds[0] / 2;
+          expect(Math.abs(normalEdge - boundary), `${item.entity.id} must sit flush on ${wall}`).toBeLessThan(0.03);
+        }
+
+        const canal = layout.items.find((item) => item.asset.proceduralModel === "canal");
+        if (canal) {
+          expect(Math.abs(canal.position[0])).toBeLessThan(0.01);
+          expect(Math.abs(canal.position[2])).toBeLessThan(0.01);
+          expect(canal.dimensions[2] / bounds[2]).toBeGreaterThanOrEqual(URBAN_HUMAN_SCALE.canalCoverageRatio);
+          expect(URBAN_HUMAN_SCALE.minimumBuildingHeight).toBeGreaterThan(URBAN_HUMAN_SCALE.doorHeight * 3);
+          expect(URBAN_HUMAN_SCALE.doorHeight).toBeGreaterThanOrEqual(2.1);
+          expect(URBAN_HUMAN_SCALE.stallCanopyHeight).toBeGreaterThanOrEqual(2.3);
         }
 
         const distortedDressing: string[] = [];

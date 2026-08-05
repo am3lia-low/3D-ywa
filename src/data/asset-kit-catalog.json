@@ -1080,7 +1080,7 @@
       }
     },
     {
-      "catalogId": "kenney:furniture-doorway-front",
+      "catalogId": "project:story-door-v2",
       "registryKey": "story-door",
       "roles": ["portal"],
       "assetKeys": ["story-door", "main-door", "front-door", "interior-door"],
@@ -1088,17 +1088,16 @@
       "tags": ["door", "wood", "panelled", "entry", "historical", "storybook"],
       "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
       "placement": "wall",
-      "source": "cc0",
-      "author": "Kenney",
-      "license": "CC0 1.0 Universal",
-      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
       "quality": "hero",
       "runtimeAsset": {
         "key": "story-door",
         "geometry": "box",
         "dimensions": [1.3, 2.7, 0.3],
         "color": "#6d4935",
-        "modelUrl": "/models/kenney/furniture/doorwayFront.glb",
+        "proceduralModel": "door",
         "roughness": 0.86
       },
       "qualityGate": {
@@ -1108,8 +1107,7 @@
         "requirePbrTextures": false,
         "maxAspectDistortion": 1.15,
         "expectedUpAxis": "Y",
-        "expectedForwardAxis": "+Z",
-        "waiver": "Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
+        "expectedForwardAxis": "+Z"
       }
     },
     {
@@ -1547,7 +1545,7 @@
       "runtimeAsset": {
         "key": "storybook-canal",
         "geometry": "box",
-        "dimensions": [5, 0.35, 18],
+        "dimensions": [6.2, 0.65, 27.4],
         "color": "#315f68",
         "proceduralModel": "canal",
         "roughness": 0.18,

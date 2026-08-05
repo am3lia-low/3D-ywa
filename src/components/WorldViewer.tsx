@@ -55,6 +55,11 @@ import {
   type AssetRegistry,
 } from "../runtime/assetRegistry";
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
+import {
+  ARCHIVE_SHELF_LEVELS,
+  createArchiveShelfBookSlots,
+  createWornBookshelfBookSlots,
+} from "../runtime/shelfComposition";
 import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
   createExteriorNavigationLimits,
@@ -379,24 +384,59 @@ function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
 
 function BookcaseContents() {
   const colors = ["#7b443d", "#42605d", "#aa8751", "#5d5474", "#8c6a45", "#485f48"];
+  // Measured shelf-top sockets from the approved normalized Poly Haven mesh.
+  // Keeping these explicit prevents decorative books from intersecting a
+  // different model's timber or leaving its lowest shelf mysteriously empty.
+  const shelfRows = createWornBookshelfBookSlots();
   return (
-    <group position={[0, -0.015, 0.39]} userData={{ decorativeOnly: true }}>
-      {[-0.31, -0.09, 0.14, 0.36].flatMap((shelfY, shelfIndex) =>
-        Array.from({ length: 7 }, (_, bookIndex) => {
-          const height = 0.14 + ((bookIndex + shelfIndex) % 3) * 0.022;
+    <group position={[0, 0, 0.39]} userData={{ decorativeOnly: true }}>
+      {shelfRows.flatMap((row, shelfIndex) =>
+        row.map((slot, bookIndex) => {
           return (
             <mesh
               key={`shelf-book-${shelfIndex}-${bookIndex}`}
-              position={[-0.34 + bookIndex * 0.112, shelfY + height / 2, 0]}
+              position={[slot.x, slot.y, 0]}
               rotation={[0, 0, bookIndex % 5 === 0 ? -0.055 : 0]}
               castShadow
             >
-              <boxGeometry args={[0.078, height, 0.13]} />
+              <boxGeometry args={[slot.width, slot.height, slot.depth]} />
               <meshStandardMaterial color={colors[(bookIndex + shelfIndex * 2) % colors.length]} roughness={0.91} />
             </mesh>
           );
         }),
       )}
+    </group>
+  );
+}
+
+function StoryDoorAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const wood = highlighted ? highlightColor : "#5d3929";
+  const frame = highlighted ? highlightColor : "#34251f";
+  return (
+    <group>
+      <RoundedBox args={[0.76, 0.91, 0.16]} radius={0.018} smoothness={3} position={[0, -0.035, 0]} castShadow receiveShadow>
+        <meshStandardMaterial color={wood} roughness={0.82} />
+      </RoundedBox>
+      {[-0.27, 0.27].flatMap((x) => [-0.24, 0.2].map((y) => (
+        <group key={`${x}:${y}`} position={[x, y, 0.087]}>
+          <mesh castShadow><boxGeometry args={[0.2, 0.29, 0.025]} /><meshStandardMaterial color="#3f291f" roughness={0.86} /></mesh>
+          <mesh position={[0, 0, 0.016]}><boxGeometry args={[0.15, 0.235, 0.012]} /><meshStandardMaterial color="#714a34" roughness={0.8} /></mesh>
+        </group>
+      )))}
+      {[-0.43, 0.43].map((x) => (
+        <mesh key={x} position={[x, 0, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.09, 1, 0.22]} />
+          <meshStandardMaterial color={frame} roughness={0.9} />
+        </mesh>
+      ))}
+      <mesh position={[0, 0.455, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.95, 0.09, 0.22]} />
+        <meshStandardMaterial color={frame} roughness={0.9} />
+      </mesh>
+      <mesh position={[0.25, -0.02, 0.12]} castShadow>
+        <sphereGeometry args={[0.038, 16, 12]} />
+        <meshStandardMaterial color="#b48a4b" metalness={0.72} roughness={0.32} />
+      </mesh>
     </group>
   );
 }
@@ -1615,12 +1655,12 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
   });
   return (
     <group>
-      <mesh position={[0, -0.34, 0]} receiveShadow>
-        <boxGeometry args={[0.82, 0.24, 1]} />
+      <mesh position={[0, -0.3, 0]} receiveShadow>
+        <boxGeometry args={[0.78, 0.4, 1]} />
         <meshStandardMaterial color="#243f44" roughness={0.96} />
       </mesh>
-      <mesh position={[0, -0.18, 0]} receiveShadow>
-        <boxGeometry args={[0.82, 0.08, 1]} />
+      <mesh position={[0, -0.42, 0]} receiveShadow>
+        <boxGeometry args={[0.78, 0.1, 1]} />
         <meshPhysicalMaterial
           ref={water}
           color="#3f7e88"
@@ -1628,27 +1668,27 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
           emissiveIntensity={0.2}
           roughness={0.12}
           metalness={0.08}
-          transmission={0.18}
+          transmission={0.06}
           transparent
           opacity={0.88}
         />
       </mesh>
-      {[-0.47, 0.47].map((x) => (
+      {[-0.45, 0.45].map((x) => (
         <group key={`canal-bank-${x}`} position={[x, 0, 0]}>
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[0.12, 0.34, 1]} />
+          <mesh position={[0, -0.22, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.16, 0.56, 1]} />
             <meshStandardMaterial color="#77766e" roughness={0.96} />
           </mesh>
-          {Array.from({ length: 14 }, (_, index) => (
-            <mesh key={`canal-cap-${index}`} position={[0, 0.2, -0.46 + index * 0.071]} rotation={[0, (index % 3 - 1) * 0.03, 0]} castShadow>
-              <boxGeometry args={[0.15, 0.08, 0.064]} />
+          {Array.from({ length: 18 }, (_, index) => (
+            <mesh key={`canal-cap-${index}`} position={[0, 0.095, -0.47 + index * 0.055]} rotation={[0, (index % 3 - 1) * 0.03, 0]} castShadow>
+              <boxGeometry args={[0.19, 0.1, 0.05]} />
               <meshStandardMaterial color={index % 2 ? "#99978c" : "#85857d"} roughness={0.94} />
             </mesh>
           ))}
         </group>
       ))}
-      {Array.from({ length: 9 }, (_, index) => (
-        <mesh key={`canal-glint-${index}`} position={[(index % 3 - 1) * 0.18, -0.125, -0.42 + index * 0.1]} rotation={[-Math.PI / 2, 0, index * 0.21]}>
+      {Array.from({ length: 11 }, (_, index) => (
+        <mesh key={`canal-glint-${index}`} position={[(index % 3 - 1) * 0.18, -0.365, -0.45 + index * 0.09]} rotation={[-Math.PI / 2, 0, index * 0.21]}>
           <planeGeometry args={[0.16, 0.012]} />
           <meshBasicMaterial color="#b6e2df" transparent opacity={0.28} depthWrite={false} />
         </mesh>
@@ -1692,6 +1732,9 @@ function EntityAsset({
   }
   if (asset.proceduralModel === "canal") {
     return <StoryCanalAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+  if (asset.proceduralModel === "door") {
+    return <StoryDoorAsset highlighted={highlighted} highlightColor={highlightColor} />;
   }
 
   if (asset.key === "fallback:instrument") {
@@ -3281,7 +3324,7 @@ function Room({
   }));
   const archiveShelfCenters = [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]
     .map((factor) => bounds[0] * factor);
-  const archiveShelfLevels = [0.55, 1.22, 1.9, 2.58, 3.26, 3.94];
+  const archiveShelfLevels = ARCHIVE_SHELF_LEVELS;
   const atticGableShape = useMemo(() => {
     const eaveY = bounds[1] * 0.72;
     const ridgeY = bounds[1] - 0.16;
@@ -3641,28 +3684,30 @@ function Room({
                     <boxGeometry args={[2.55, 0.11, 0.56]} />
                     <meshStandardMaterial color="#4b3326" roughness={0.9} />
                   </mesh>
-                  {Array.from({ length: 8 }, (_, bookIndex) => (
-                    <mesh
-                      key={`archive-book-${bookIndex}`}
-                      position={[
-                        -0.97 + bookIndex * 0.275,
-                        level + 0.25 + ((bookIndex + levelIndex) % 3) * 0.028,
-                        0.17,
-                      ]}
-                      rotation={[0, 0, bookIndex % 4 === 0 ? -0.07 : 0]}
-                      castShadow
-                    >
-                      <boxGeometry args={[0.19, 0.44 + ((bookIndex + 1) % 3) * 0.05, 0.29]} />
-                      <meshStandardMaterial
-                        color={["#78594a", "#657165", "#6f4a45", "#88714c"][
-                          (bookIndex + levelIndex) % 4
+                  {createArchiveShelfBookSlots(level, levelIndex).map((slot, bookIndex) => {
+                    return (
+                      <mesh
+                        key={`archive-book-${bookIndex}`}
+                        position={[
+                          slot.x,
+                          slot.y,
+                          0.17,
                         ]}
-                        roughness={0.94}
-                      />
-                    </mesh>
-                  ))}
-                  <mesh position={[0.88, level + 0.12, 0.31]} castShadow>
-                    <boxGeometry args={[0.42, 0.06, 0.22]} />
+                        rotation={[0, 0, bookIndex % 4 === 0 ? -0.045 : 0]}
+                        castShadow
+                      >
+                        <boxGeometry args={[slot.width, slot.height, slot.depth]} />
+                        <meshStandardMaterial
+                          color={["#78594a", "#657165", "#6f4a45", "#88714c"][
+                            (bookIndex + levelIndex) % 4
+                          ]}
+                          roughness={0.94}
+                        />
+                      </mesh>
+                    );
+                  })}
+                  <mesh position={[0, level - 0.085, 0.41]} castShadow>
+                    <boxGeometry args={[0.36, 0.11, 0.025]} />
                     <meshStandardMaterial color="#b1884c" roughness={0.46} metalness={0.55} />
                   </mesh>
                 </group>
@@ -3687,7 +3732,11 @@ function Room({
       ) : usesLandscapeKit && landscapeFamily ? (
         <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
       ) : usesUrbanKit ? (
-        <UrbanStreetKit bounds={bounds} presentation={presentation} />
+        <UrbanStreetKit
+          bounds={bounds}
+          presentation={presentation}
+          hasCanal={layout.items.some((item) => item.asset.proceduralModel === "canal")}
+        />
       ) : usesCourtyardKit ? (
         <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (
@@ -4085,9 +4134,6 @@ function StoryEffects({
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
   const portalItem = layout.items.find((item) => isPortalItem(item));
-  const portalLocked = portalItem?.entity.state?.locked === true;
-  const portalAccentColor = portalLocked ? "#596765" : "#d79855";
-  const portalAccentOpacity = portalLocked ? 0.3 : 0.72;
 
   return (
     <>
@@ -4095,19 +4141,7 @@ function StoryEffects({
         <Firelight key={`firelight-${item.entity.id}`} item={item} />
       ))}
       {portalItem && (
-        <group position={portalItem.position}>
-          <mesh position={[-portalItem.dimensions[0] / 2 - 0.05, 0, 0.17]}>
-            <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
-            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
-          </mesh>
-          <mesh position={[portalItem.dimensions[0] / 2 + 0.05, 0, 0.17]}>
-            <boxGeometry args={[0.06, portalItem.dimensions[1] + 0.16, 0.06]} />
-            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
-          </mesh>
-          <mesh position={[0, portalItem.dimensions[1] / 2 + 0.05, 0.17]}>
-            <boxGeometry args={[portalItem.dimensions[0] + 0.16, 0.06, 0.06]} />
-            <meshBasicMaterial color={portalAccentColor} transparent opacity={portalAccentOpacity} />
-          </mesh>
+        <group position={portalItem.position} rotation={portalItem.rotation}>
           {portalDestination && onLocationRequest && (
             <Html
               center

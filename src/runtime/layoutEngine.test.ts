@@ -68,7 +68,7 @@ describe("createWorldLayout", () => {
     const bounds = layout.location.bounds!;
 
     expect(door.position[0]).toBeCloseTo(7.5);
-    expect(door.position[2]).toBeCloseTo(-bounds[2] / 2 + door.dimensions[2] / 2 + 0.18);
+    expect(door.position[2]).toBeCloseTo(-bounds[2] / 2 + door.dimensions[2] / 2 + 0.018);
   });
 
   it("turns wall assets to sit flush against east and west walls", () => {
@@ -91,6 +91,10 @@ describe("createWorldLayout", () => {
 
     expect(layout.items.find((item) => item.entity.id === "west-door")?.rotation[1]).toBeCloseTo(Math.PI / 2);
     expect(layout.items.find((item) => item.entity.id === "east-window")?.rotation[1]).toBeCloseTo(Math.PI / 2);
+    const westDoor = layout.items.find((item) => item.entity.id === "west-door")!;
+    const eastWindow = layout.items.find((item) => item.entity.id === "east-window")!;
+    expect(westDoor.position[0] - westDoor.dimensions[2] / 2).toBeCloseTo(-6 + 0.018);
+    expect(eastWindow.position[0] + eastWindow.dimensions[2] / 2).toBeCloseTo(6 - 0.018);
   });
 
   it("lays out only entities belonging to the requested location", () => {
