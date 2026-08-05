@@ -17,6 +17,7 @@
     "assets:support:check": "node scripts/generate-safe-mesh-support.mjs --check",
     "assets:validate": "node scripts/validate-asset-kits.mjs",
     "assets:report": "node scripts/validate-asset-kits.mjs --write",
+    "docs:check": "node scripts/check-team-contract-docs.mjs",
     "part1:mock": "node scripts/mock-part1-server.mjs",
     "scenes:preflight": "vitest run src/integration/scenePreflight.test.ts --reporter=verbose",
     "handoff:check": "vitest run src/integration/publicApi.test.tsx --reporter=verbose",
@@ -29,7 +30,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "verify": "pnpm test && pnpm typecheck && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check"
+    "verify": "pnpm test && pnpm typecheck && pnpm docs:check && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

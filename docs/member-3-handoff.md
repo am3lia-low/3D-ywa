@@ -1,5 +1,8 @@
 # Member 3 spatial-runtime handoff
 
+Read `docs/team-integration-contract.md` first for the authoritative three-member
+input/output boundary. This file expands the Member 3 implementation details.
+
 Member 3 can integrate the complete Part 2 runtime through one source entry:
 `src/index.ts`. Do not import renderer internals directly. The public boundary is
 covered by `src/integration/publicApi.test.tsx` and can be checked with

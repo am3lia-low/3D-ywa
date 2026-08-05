@@ -1,5 +1,9 @@
 # Editing the Part 1 story-package template
 
+The complete Member 1 -> Member 2 -> Member 3 contract is documented in
+`docs/team-integration-contract.md`. This file is the shorter editing checklist
+for the canonical example.
+
 Start with `fixtures/part1_story_package_template.json`. The file is a complete,
 valid one-passage Part 1 output, so it can be imported before or after editing.
 

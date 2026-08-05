@@ -1,5 +1,9 @@
 # Story package integration contract
 
+For team ownership, the live API shape, renderer outputs, and end-to-end
+acceptance checklist, start with `docs/team-integration-contract.md`. This file
+is the detailed batch/offline package reference.
+
 `StoryPackage` is the portable handoff from narrative processing to the spatial
 runtime. Importing one JSON file adds a story without changing React code.
 

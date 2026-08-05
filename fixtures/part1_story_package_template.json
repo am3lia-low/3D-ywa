@@ -1,100 +1,178 @@
 {
   "schemaVersion": "1.0",
-  "packageId": "editable-story-template",
-  "label": "EDIT ME: The lantern reader's glade",
+  "packageId": "fogbell-signal-room-story",
+  "label": "The fogbell keeper's signal room",
   "initialSnapshot": {
-    "storyId": "story-editable-template",
+    "storyId": "story-fogbell-signal-room",
     "version": 1,
     "passageId": "P1",
     "locations": [
       {
-        "id": "lantern-readers-glade",
-        "name": "The lantern reader's glade",
-        "bounds": [30, 8, 38],
+        "id": "fogbell-signal-room",
+        "name": "Fogbell signal room",
+        "bounds": [18, 7, 20],
         "environment": {
-          "floorColor": "#40533d",
-          "wallColor": "#6c7966",
-          "ambientColor": "#c9d7b6"
+          "floorColor": "#49392d",
+          "wallColor": "#6b706d",
+          "ambientColor": "#9eb7ba"
         }
       }
     ],
     "entities": [
       {
-        "id": "reading-table-1",
-        "name": "Weathered woodland reading table",
+        "id": "keeper-chart-desk-1",
+        "name": "Weathered keeper's chart desk",
         "kind": "furniture",
         "assetKey": "desk",
-        "aliases": ["table", "writing desk"],
-        "locationId": "lantern-readers-glade",
+        "aliases": ["chart desk", "keeper's desk"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [2.8, 1, 1.25],
         "provenance": {
           "passageId": "P1",
-          "sentence": "A weathered reading table waited beneath the old trees.",
-          "confidence": 0.96
+          "sentence": "A weathered chart desk stood at its center.",
+          "confidence": 0.99
         }
       },
       {
-        "id": "reading-chair-1",
-        "name": "Old wooden reading chair",
+        "id": "cane-keeper-chair-1",
+        "name": "Cane-backed keeper's chair",
         "kind": "furniture",
         "assetKey": "chair",
-        "aliases": ["chair", "seat"],
-        "locationId": "lantern-readers-glade",
+        "aliases": ["cane chair", "keeper's chair"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [0.75, 1.05, 0.75],
         "provenance": {
           "passageId": "P1",
-          "sentence": "An old chair faced the table.",
-          "confidence": 0.94
+          "sentence": "A cane-backed chair was drawn close before it.",
+          "confidence": 0.98
         }
       },
       {
-        "id": "amber-lantern-1",
-        "name": "Amber brass reading lantern",
+        "id": "brass-watch-lantern-1",
+        "name": "Brass watch lantern",
         "kind": "light",
         "assetKey": "lantern",
-        "aliases": ["lamp", "lantern"],
-        "locationId": "lantern-readers-glade",
+        "aliases": ["watch lantern", "brass lamp"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [0.28, 0.52, 0.28],
         "state": {
           "lit": true
         },
         "provenance": {
           "passageId": "P1",
-          "sentence": "An amber lantern glowed on the table.",
+          "sentence": "A brass lantern burned beside a rolled tide map and a black iron speaking trumpet on the desktop.",
           "confidence": 0.99
         }
       },
       {
-        "id": "forest-map-1",
-        "name": "Hand-painted map of the forest paths",
+        "id": "rolled-tide-map-1",
+        "name": "Rolled tide map",
         "kind": "document",
         "assetKey": "map",
-        "aliases": ["map", "parchment"],
-        "locationId": "lantern-readers-glade",
-        "dimensions": [0.92, 0.025, 0.64],
+        "aliases": ["tide map", "coastal chart"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [1.05, 0.03, 0.65],
         "provenance": {
           "passageId": "P1",
-          "sentence": "Beside it lay a hand-painted map of the forest paths.",
-          "confidence": 0.97
+          "sentence": "A brass lantern burned beside a rolled tide map and a black iron speaking trumpet on the desktop.",
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "iron-speaking-trumpet-1",
+        "name": "Black iron speaking trumpet",
+        "kind": "decor",
+        "aliases": ["speaking trumpet", "signal horn"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [0.65, 0.24, 0.24],
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "A brass lantern burned beside a rolled tide map and a black iron speaking trumpet on the desktop.",
+          "confidence": 0.98
+        }
+      },
+      {
+        "id": "north-wall-fireplace-1",
+        "name": "Soot-dark stone fireplace",
+        "kind": "architecture",
+        "assetKey": "fireplace",
+        "aliases": ["fireplace", "stone hearth"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [2.4, 2.3, 0.65],
+        "state": {
+          "lit": true,
+          "fireLevel": "embers"
+        },
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "In the north wall, a soot-dark fireplace held the last coals.",
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "east-panel-hidden-door-1",
+        "name": "Narrow hidden panel door",
+        "kind": "architecture",
+        "assetKey": "hidden-door",
+        "aliases": ["hidden door", "panel door"],
+        "locationId": "fogbell-signal-room",
+        "dimensions": [1.05, 2.25, 0.18],
+        "state": {
+          "open": false
+        },
+        "provenance": {
+          "passageId": "P1",
+          "sentence": "A narrow hidden door sat flush with the east paneling.",
+          "confidence": 0.99
         }
       }
     ],
     "relations": [
       {
-        "id": "chair-facing-table",
-        "subjectId": "reading-chair-1",
+        "id": "desk-centered-in-signal-room",
+        "subjectId": "keeper-chart-desk-1",
+        "predicate": "centered"
+      },
+      {
+        "id": "chair-before-chart-desk",
+        "subjectId": "cane-keeper-chair-1",
         "predicate": "in_front_of",
-        "objectId": "reading-table-1",
-        "distance": 0.35
+        "objectId": "keeper-chart-desk-1",
+        "distance": 0.85
       },
       {
-        "id": "lantern-on-table",
-        "subjectId": "amber-lantern-1",
+        "id": "lantern-on-chart-desk",
+        "subjectId": "brass-watch-lantern-1",
         "predicate": "on",
-        "objectId": "reading-table-1"
+        "objectId": "keeper-chart-desk-1"
       },
       {
-        "id": "map-on-table",
-        "subjectId": "forest-map-1",
+        "id": "tide-map-on-chart-desk",
+        "subjectId": "rolled-tide-map-1",
         "predicate": "on",
-        "objectId": "reading-table-1"
+        "objectId": "keeper-chart-desk-1"
+      },
+      {
+        "id": "speaking-trumpet-on-chart-desk",
+        "subjectId": "iron-speaking-trumpet-1",
+        "predicate": "on",
+        "objectId": "keeper-chart-desk-1"
+      },
+      {
+        "id": "fireplace-against-north-wall",
+        "subjectId": "north-wall-fireplace-1",
+        "predicate": "against_wall",
+        "metadata": {
+          "wall": "north"
+        }
+      },
+      {
+        "id": "hidden-door-against-east-wall",
+        "subjectId": "east-panel-hidden-door-1",
+        "predicate": "against_wall",
+        "metadata": {
+          "wall": "east"
+        }
       }
     ],
     "conflicts": []
@@ -102,155 +180,187 @@
   "moments": [
     {
       "passageId": "P1",
-      "text": "A weathered reading table waited beneath the old trees. An old chair faced it, while an amber lantern glowed beside a hand-painted map of the forest paths.",
+      "text": "At first light, the fogbell keeper entered the octagonal signal room. A weathered chart desk stood at its center, with a cane-backed chair drawn close before it. A brass lantern burned beside a rolled tide map and a black iron speaking trumpet on the desktop. In the north wall, a soot-dark fireplace held the last coals, while a narrow hidden door sat flush with the east paneling.",
       "visualPlan": {
         "schemaVersion": "1.0",
-        "storyId": "story-editable-template",
-        "segmentId": "arrival-at-the-readers-glade",
+        "storyId": "story-fogbell-signal-room",
+        "segmentId": "first-light-in-the-signal-room",
         "sourcePassageIds": [
           "P1"
         ],
         "snapshotVersion": 1,
         "planVersion": 1,
         "artDirection": {
-          "styleLabel": "stylized Ghibli-inspired woodland fantasy",
-          "stylePrompt": "A lush hand-painted fantasy woodland with graceful tree silhouettes, moss-soft ground, jewel-like flowers, tactile natural materials, a winding readable path and warm storybook light.",
+          "styleLabel": "stylized maritime Gothic realism",
+          "stylePrompt": "An octagonal coastal signal room at foggy first light, built from salt-paled stone and dark oak, with rain-clouded windows, restrained nautical detail, a low amber hearth and crisp readable silhouettes against cool sea light.",
           "negativePrompt": [
-            "photorealism",
-            "empty terrain",
-            "generic white boxes",
-            "flat lighting",
-            "modern objects",
-            "visual clutter blocking the path"
+            "science-fiction technology",
+            "tropical beach",
+            "bright midday sun",
+            "modern office furniture",
+            "polished luxury interior",
+            "dense clutter blocking the hidden door",
+            "oversized desktop props"
           ],
           "materialVocabulary": [
-            "moss-soft earth",
-            "weathered oak",
+            "salt-paled limestone",
+            "tar-dark oak",
             "aged brass",
-            "painted parchment",
-            "soft broadleaf foliage",
-            "lichen-covered stone"
+            "blackened iron",
+            "waxed chart paper",
+            "rain-clouded glass"
           ]
         },
         "locations": [
           {
-            "locationId": "lantern-readers-glade",
-            "archetype": "sun-dappled broadleaf fantasy woodland glade",
-            "visualDescription": "A generous clearing beneath old rounded trees, crossed by a winding earth path and framed by layered ferns, flowers, mossy rocks and distant woodland depth.",
+            "locationId": "fogbell-signal-room",
+            "archetype": "octagonal lighthouse signal room above a fogbound coast",
+            "visualDescription": "A compact octagonal chamber with thick stone walls, exposed oak roof ribs and tall salt-clouded windows. The centered work area remains open, the north hearth anchors one wall and the flush east panel door has a clear approach from the middle of the room.",
             "architectureTags": [
-              "open-air",
-              "forest-floor",
-              "winding-path",
-              "woodland-edge"
+              "octagonal-stone-room",
+              "exposed-oak-roof-ribs",
+              "tall-coastal-windows",
+              "wide-plank-floor",
+              "wood-paneled-east-wall"
             ],
             "dressingTags": [
-              "broadleaf-trees",
-              "forest-undergrowth",
-              "grass-tufts",
-              "wild-mushrooms",
-              "fallen-logs",
-              "forest-rocks",
-              "flowers"
+              "coiled-hemp-rope",
+              "brass-wall-fittings",
+              "rain-streaked-glass",
+              "salt-bloom-on-stone",
+              "coal-scuttle",
+              "damp-boot-marks"
             ],
-            "dressingDensity": "rich",
-            "mood": "welcoming, wondrous and quietly mysterious",
-            "timeOfDay": "warm late-afternoon golden hour",
+            "dressingDensity": "moderate",
+            "mood": "watchful, weather-beaten and quietly expectant",
+            "timeOfDay": "foggy first light before sunrise",
             "palette": {
-              "background": "#779b9a",
-              "fog": "#b7c9a6",
-              "floor": "#526746",
-              "wall": "#71816a",
-              "timber": "#654830",
-              "ambient": "#d7dfbb",
-              "keyLight": "#ffe1a0",
-              "practical": "#f3a64f"
+              "background": "#39484c",
+              "fog": "#a8bec0",
+              "floor": "#49392d",
+              "wall": "#747a75",
+              "timber": "#30251e",
+              "ambient": "#93afb2",
+              "keyLight": "#c6d8d4",
+              "practical": "#e7a54f"
             },
             "lighting": {
-              "warmth": "warm",
+              "warmth": "cool",
               "contrast": "medium",
-              "ambientIntensity": 0.82,
-              "keyIntensity": 1.6,
+              "ambientIntensity": 0.58,
+              "keyIntensity": 1.35,
               "atmosphericEffects": [
-                "soft ground mist",
-                "floating pollen motes",
-                "sun shafts through leaves"
+                "thin window fog",
+                "soft rain shadows",
+                "faint hearth haze",
+                "warm lantern bloom"
               ]
             },
             "evidence": {
               "passageIds": [
                 "P1"
               ],
-              "confidence": 0.68,
+              "confidence": 0.78,
               "basis": "cross_passage_inference",
-              "note": "The broad visual treatment is inferred from the passage and may be revised without changing narrative facts."
+              "note": "The octagonal room, first-light conditions and named wall placements are explicit; the coastal stone, roof ribs and window weathering are art-direction inferences from the fogbell keeper setting."
             }
           }
         ],
         "entities": [
           {
-            "entityId": "reading-table-1",
-            "visualDescription": "A sturdy but elegant old oak writing table with softened corners and small document drawers.",
-            "importance": "supporting",
+            "entityId": "keeper-chart-desk-1",
+            "visualDescription": "A broad, waist-high oak chart desk with sturdy trestle legs, a scarred rectangular top and shallow brass-handled drawers, leaving ample surface for the three small objects.",
+            "importance": "hero",
             "materials": [
-              "weathered oak",
-              "dark iron hardware"
+              "tar-dark oak",
+              "aged brass"
             ],
             "colors": [
-              "warm chestnut brown",
-              "deep umber"
+              "deep umber",
+              "muted brass"
             ],
-            "condition": "old, cared for and softened by use",
+            "condition": "salt-marked, knife-scarred and solid",
             "assetSearchTags": [
-              "antique wooden writing desk",
-              "storybook oak table"
+              "antique nautical chart desk",
+              "heavy oak map table"
             ],
             "evidence": {
               "passageIds": [
                 "P1"
               ],
-              "confidence": 0.91,
+              "confidence": 0.97,
               "basis": "explicit_text"
             }
           },
           {
-            "entityId": "reading-chair-1",
-            "visualDescription": "A correctly proportioned high-backed wooden chair turned toward the writing table.",
+            "entityId": "cane-keeper-chair-1",
+            "visualDescription": "A modest oak chair with a bowed cane back and square legs, pulled close to the south side of the chart desk without touching it.",
             "importance": "supporting",
             "materials": [
-              "warm oak"
+              "dark oak",
+              "woven cane"
             ],
             "colors": [
-              "honey brown"
+              "weathered brown",
+              "straw tan"
             ],
-            "condition": "worn smooth at the arms",
+            "condition": "worn smooth at the arms and slightly damp",
             "assetSearchTags": [
-              "antique wooden chair",
-              "storybook reading chair"
+              "antique cane back chair",
+              "rustic keeper chair"
             ],
             "evidence": {
               "passageIds": [
                 "P1"
               ],
-              "confidence": 0.9,
+              "confidence": 0.96,
               "basis": "explicit_text"
             }
           },
           {
-            "entityId": "amber-lantern-1",
-            "visualDescription": "A compact aged-brass lantern with clear glass and a warm flame seated naturally in its burner.",
+            "entityId": "brass-watch-lantern-1",
+            "visualDescription": "A compact brass lantern with four clear panes and a low amber flame, set on one rear corner of the broad desk away from the paper map.",
             "importance": "hero",
             "materials": [
               "aged brass",
-              "clear glass"
+              "clear glass",
+              "cotton wick"
             ],
             "colors": [
               "antique gold",
-              "amber flame"
+              "warm amber",
+              "smoke gray"
             ],
-            "condition": "lit and gently weathered",
+            "condition": "lit, tarnished and beaded with moisture",
             "assetSearchTags": [
-              "storybook brass lantern",
-              "antique oil lamp"
+              "antique brass watch lantern",
+              "nautical oil lamp"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.99,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "rolled-tide-map-1",
+            "visualDescription": "A partly unrolled cream paper chart with blue-gray tidal arcs, black depth marks and curled edges, occupying the center of the desktop.",
+            "importance": "hero",
+            "materials": [
+              "waxed chart paper",
+              "mineral ink"
+            ],
+            "colors": [
+              "aged cream",
+              "slate blue",
+              "ink black"
+            ],
+            "condition": "creased, damp at the corners and weighted flat",
+            "assetSearchTags": [
+              "antique nautical tide map",
+              "rolled coastal chart"
             ],
             "evidence": {
               "passageIds": [
@@ -261,28 +371,79 @@
             }
           },
           {
-            "entityId": "forest-map-1",
-            "visualDescription": "A cream parchment map painted with curling green paths, tiny trees and a dark red compass rose.",
-            "importance": "hero",
+            "entityId": "iron-speaking-trumpet-1",
+            "visualDescription": "A hand-length black iron speaking trumpet with a narrow mouthpiece and flared bell, laid horizontally along the desk's free edge.",
+            "importance": "supporting",
             "materials": [
-              "parchment",
-              "pigment ink"
+              "blackened iron"
             ],
             "colors": [
-              "warm cream",
-              "forest green",
-              "dark red"
+              "matte black",
+              "rust brown"
             ],
-            "condition": "creased at the folds",
+            "condition": "salt-speckled and worn bright at the grip",
             "assetSearchTags": [
-              "fantasy forest map",
-              "painted parchment chart"
+              "antique iron speaking trumpet",
+              "maritime signal horn"
+            ],
+            "assetGenerationPrompt": "A compact antique blackened-iron speaking trumpet, 65 centimeters long, narrow mouthpiece, modest flared bell, salt-speckled maritime wear, physically plausible proportions, isolated game-ready prop.",
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.98,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "north-wall-fireplace-1",
+            "visualDescription": "A shallow limestone fireplace built into the north wall with a soot-black arched opening, an iron grate and a dim bed of red coals.",
+            "importance": "supporting",
+            "materials": [
+              "salt-paled limestone",
+              "blackened iron",
+              "wood ash"
+            ],
+            "colors": [
+              "chalk gray",
+              "soot black",
+              "ember red"
+            ],
+            "condition": "heavily sooted with only the last coals glowing",
+            "assetSearchTags": [
+              "small stone lighthouse fireplace",
+              "coastal cottage hearth"
             ],
             "evidence": {
               "passageIds": [
                 "P1"
               ],
-              "confidence": 0.96,
+              "confidence": 0.99,
+              "basis": "explicit_text"
+            }
+          },
+          {
+            "entityId": "east-panel-hidden-door-1",
+            "visualDescription": "A narrow door concealed within vertical dark-oak paneling on the east wall, betrayed only by a fine rectangular seam and a recessed iron finger pull; the floor before it is unobstructed.",
+            "importance": "hero",
+            "materials": [
+              "tar-dark oak",
+              "blackened iron"
+            ],
+            "colors": [
+              "deep umber",
+              "charcoal black"
+            ],
+            "condition": "closed, damp-swollen and nearly flush with the wall",
+            "assetSearchTags": [
+              "hidden wood panel door",
+              "secret lighthouse door"
+            ],
+            "evidence": {
+              "passageIds": [
+                "P1"
+              ],
+              "confidence": 0.99,
               "basis": "explicit_text"
             }
           }

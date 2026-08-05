@@ -2,6 +2,21 @@
 
 Member 2's fixture-driven React Three Fiber runtime for turning versioned world-state JSON into a stable, explorable room.
 
+## Team handoff: start here
+
+The authoritative cross-member input/output contract is
+[`docs/team-integration-contract.md`](docs/team-integration-contract.md). It
+defines exactly what Member 1 emits, what Member 2 validates and renders, what
+Member 3 imports and owns, the required version/identity rules, failure recovery,
+valid JSON examples, and the acceptance commands before integration.
+
+Detailed implementation references remain in:
+
+- [`docs/part1-live-adapter.md`](docs/part1-live-adapter.md) for live passage responses.
+- [`docs/story-package.md`](docs/story-package.md) for batch/offline story packages.
+- [`docs/member-3-handoff.md`](docs/member-3-handoff.md) for the reader integration.
+- [`docs/editing-part1-story-package.md`](docs/editing-part1-story-package.md) for editing the canonical fixture.
+
 ## Milestone 1
 
 - Preserves the proposal's frozen `WorldSnapshot`, `ScenePatch`, and `WorldViewer` surfaces.

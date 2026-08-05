@@ -1,5 +1,9 @@
 # Live Part 1 adapter
 
+Read `docs/team-integration-contract.md` first for the authoritative request,
+response, identity, versioning, and ownership rules. This file focuses on the
+runtime adapter and local integration proof.
+
 The live adapter consumes the frozen passage endpoint:
 
 ```http
