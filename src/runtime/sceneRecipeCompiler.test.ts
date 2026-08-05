@@ -282,10 +282,17 @@ describe("scene recipe compiler", () => {
     const recipe = compileSceneRecipe(snapshot, plan);
     const marketAssets = recipe.locations["lantern-market"]?.dressingInstances
       .flatMap((instance) => instance.renderKind === "asset" ? [instance.catalogId] : []) ?? [];
+    const marketLamps = recipe.locations["lantern-market"]?.dressingInstances
+      .filter((instance) => instance.renderKind === "asset" && instance.registryKey === "ornate-street-lamp") ?? [];
     const engineAssets = recipe.locations["orbital-engine-room"]?.dressingInstances
       .flatMap((instance) => instance.renderKind === "asset" ? [instance.catalogId] : []) ?? [];
 
     expect(marketAssets).toContain("polyhaven:street_lamp_01-optimized");
+    expect(marketLamps).toHaveLength(4);
+    expect(marketLamps.every((lamp) => (
+      Math.abs(lamp.position[0]) + lamp.dimensions[0] / 2 <= 22 * 0.32 &&
+      Math.abs(lamp.position[2]) + lamp.dimensions[2] / 2 <= 34 / 2
+    ))).toBe(true);
     expect(engineAssets).toContain("polyhaven:modular_industrial_pipes_01-optimized");
   });
 

@@ -339,19 +339,19 @@ const DRESSING_RULES: readonly DressingRule[] = [
     slots: [
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-near",
-        minimumDensity: "sparse", positionFactor: [-0.43, 0.02], dimensions: [0.5, 2.85, 0.3], yaw: 0.15,
+        minimumDensity: "sparse", positionFactor: [-0.29, -0.24], dimensions: [0.5, 2.85, 0.3], yaw: 0.15,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-near",
-        minimumDensity: "moderate", positionFactor: [0.43, 0.18], dimensions: [0.5, 2.85, 0.3], yaw: -0.18,
+        minimumDensity: "moderate", positionFactor: [0.29, -0.08], dimensions: [0.5, 2.85, 0.3], yaw: -0.18,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "west-street-lamp-far",
-        minimumDensity: "rich", positionFactor: [-0.43, 0.34], dimensions: [0.5, 2.85, 0.3], yaw: 0.2,
+        minimumDensity: "rich", positionFactor: [-0.29, 0.2], dimensions: [0.5, 2.85, 0.3], yaw: 0.2,
       },
       {
         renderKind: "asset", searchTags: ["ornate", "street", "lamp", "urban"], slotId: "east-street-lamp-far",
-        minimumDensity: "rich", positionFactor: [0.43, 0.48], dimensions: [0.5, 2.85, 0.3], yaw: -0.12,
+        minimumDensity: "rich", positionFactor: [0.29, 0.38], dimensions: [0.5, 2.85, 0.3], yaw: -0.12,
       },
     ],
   },
