@@ -286,6 +286,11 @@ const recipe = compileSceneRecipe(currentSnapshot, visualPlan);
 />
 ```
 
+Member 3 may also pass the optional `resetToken` prop when the reader explicitly
+restarts the same story snapshot. Changing the token resets spatial runtime state
+without unmounting the WebGL canvas. Ordinary passage patches and location travel
+must not change it.
+
 Member 2 outputs to Member 3:
 
 | Output | Meaning |

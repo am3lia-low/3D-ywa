@@ -145,6 +145,8 @@ export interface WorldViewerRuntimeError {
 export interface WorldViewerProps {
   snapshot: WorldSnapshot;
   patch?: ScenePatch | null;
+  /** Changes reset runtime state without destroying the mounted WebGL canvas. */
+  resetToken?: string | number;
   visualPlan?: VisualScenePlan;
   /** Optional precompiled visual/asset recipe for production integrations. */
   sceneRecipe?: CompiledSceneRecipe;
@@ -3663,7 +3665,9 @@ function Room({
       {presentation.architecture.industrialShell && (
         <IndustrialInteriorKit bounds={bounds} presentation={presentation} />
       )}
-      <UniversalNarrativeEnvironmentKit bounds={bounds} presentation={presentation} />
+      <Suspense fallback={null}>
+        <UniversalNarrativeEnvironmentKit bounds={bounds} presentation={presentation} />
+      </Suspense>
       {usesAtticKit ? (
         <>
           <mesh position={[0, 0, -bounds[2] / 2 + 0.015]} receiveShadow>
@@ -3910,7 +3914,9 @@ function Room({
       ) : usesWoodlandKit ? (
         <WoodlandKit bounds={bounds} presentation={presentation} renderQuality={renderQuality} />
       ) : usesLandscapeKit && landscapeFamily ? (
-        <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
+        <Suspense fallback={null}>
+          <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
+        </Suspense>
       ) : usesUrbanKit ? (
         (() => {
           const canal = layout.items.find((item) => item.asset.proceduralModel === "canal");
@@ -4659,6 +4665,10 @@ function WorldScene({
     && !presentation.architecture.aridTerrain
     && !presentation.architecture.coastalTerrain
     && !presentation.architecture.grassland;
+  const postProcessingSafe = !presentation.architecture.industrialShell
+    && !(["subterranean", "aquatic", "volcanic"] as const).includes(
+      presentation.semanticProfile.domain as "subterranean" | "aquatic" | "volcanic",
+    );
 
   return (
     <>
@@ -4791,7 +4801,7 @@ function WorldScene({
         />
       )}
       <RelationAwareness edges={relationEdges} />
-      {renderQuality !== "low" && !usesGhibliWoodland && (
+      {renderQuality !== "low" && !usesGhibliWoodland && postProcessingSafe && (
         <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
           <N8AO
             aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
@@ -4838,6 +4848,7 @@ function WorldScene({
 export function WorldViewer({
   snapshot,
   patch,
+  resetToken,
   visualPlan,
   sceneRecipe,
   selectedEntityId,
@@ -4914,7 +4925,7 @@ export function WorldViewer({
     notifiedPatch.current = null;
     setCameraView("pov");
     setCameraCommand(null);
-  }, [snapshot.storyId, snapshot.version]);
+  }, [resetToken, snapshot.storyId, snapshot.version]);
 
   useEffect(() => {
     setViewer((current) =>
@@ -5062,7 +5073,9 @@ export function WorldViewer({
     ) {
       return compiled;
     }
-    if (!visualPlan) {
+    // Prop changes reach render before the state-sync effect. During that one
+    // frame, never compile a new story's plan against the previous runtime.
+    if (!visualPlan || visualPlan.storyId !== runtime.snapshot.storyId) {
       return createFallbackScenePresentation(
         runtime.snapshot,
         runtime.layout.location.id,

@@ -195,9 +195,9 @@ export default function App() {
       <section className="viewer-frame" aria-label="Interactive 3D story world">
         <Suspense fallback={<div className="viewer-loading" role="status">Loading spatial runtime…</div>}>
           <WorldViewer
-            key={`${story.id}-${session}`}
             snapshot={story.snapshot}
             patch={patch}
+            resetToken={session}
             visualPlan={visualPlan}
             sceneRecipe={sceneRecipe}
             assetRegistry={reviewRegistry ?? sceneRecipe.assetRegistry}

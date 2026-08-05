@@ -6,7 +6,18 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = path.join(root, "public", "textures", "polyhaven");
-const approved = new Set(["grey_roof_tiles", "brick_wall_08", "damaged_plaster"]);
+const approved = new Set([
+  "grey_roof_tiles",
+  "brick_wall_08",
+  "damaged_plaster",
+  "rocky_trail",
+  "snow_field_aerial",
+  "sand_01",
+  "coast_sand_05",
+  "sparse_grass",
+  "rock_ground",
+  "metal_plate_02",
+]);
 const slugs = process.argv.slice(2);
 const requested = slugs.length ? slugs : [...approved];
 const maps = [

@@ -49,6 +49,15 @@ the full screen-space post stack, preserving browser stability and visual densit
 This makes approved meshes and designed fallbacks respond to one art-directed
 lighting rig instead of looking pasted together.
 
+Universal terrain now uses reviewed Poly Haven PBR surface sets for snow,
+desert sand, coast sand, sparse grass, rocky trails, rock ground and industrial
+metal. Each set includes color, normal and packed material-response maps. The
+runtime keeps only the currently mounted family's maps on the GPU; this is a
+release requirement because a reader may travel through many unrelated story
+families in one session. New asynchronous environment modules must be mounted
+inside the scene's local Suspense boundary so loading cannot destroy the shared
+WebGL canvas.
+
 ## Universal environment families
 
 The semantic router currently supports ten broad presentation families:
@@ -95,6 +104,8 @@ as **Universal world families** and is preflighted with every build.
 - Prepared-scene regression checks reject severe non-uniform asset scaling,
   out-of-bounds canonical placement, unresolved hero assets and below-floor
   dressing before Member 3 integration can ship.
+- The family stress route must traverse every fixture location in one mounted
+  viewer without a WebGL context loss or renderer remount.
 
 ## Stress-test fixture
 

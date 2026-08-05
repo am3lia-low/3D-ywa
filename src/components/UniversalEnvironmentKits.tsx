@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RoundedBox } from "@react-three/drei";
+import { Clone, RoundedBox, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { Vector3Tuple } from "../contracts/world";
 import type { SceneEnvironmentFamily } from "../runtime/sceneAtmosphere";
@@ -9,35 +9,67 @@ import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
 
 type LandscapeFamily = Extract<SceneEnvironmentFamily, "alpine" | "arid" | "coastal" | "grassland">;
 
-function seededTexture(base: string, accents: readonly string[], seed: number): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Canvas 2D context is unavailable.");
-  context.fillStyle = base;
-  context.fillRect(0, 0, 256, 256);
-  let state = seed >>> 0;
-  const random = () => {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0x100000000;
-  };
-  for (let index = 0; index < 1900; index += 1) {
-    context.fillStyle = accents[index % accents.length]!;
-    context.globalAlpha = 0.08 + random() * 0.24;
-    const radius = 0.5 + random() * 3.5;
-    context.beginPath();
-    context.ellipse(random() * 256, random() * 256, radius * (0.6 + random()), radius * 0.45, random() * Math.PI, 0, Math.PI * 2);
-    context.fill();
-  }
-  context.globalAlpha = 1;
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(8, 10);
-  texture.anisotropy = 8;
-  return texture;
+interface PbrSurfaceSet {
+  color: THREE.Texture;
+  normal: THREE.Texture;
+  arm: THREE.Texture;
+}
+
+function usePbrSurfaceSet(slug: string, repeat: [number, number]): PbrSurfaceSet {
+  const surface = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const load = (suffix: "diff" | "nor_gl" | "arm", color = false) => {
+      const texture = loader.load(`/textures/polyhaven/${slug}_${suffix}_1k.jpg`);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(...repeat);
+      texture.anisotropy = 8;
+      if (color) texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    };
+    return {
+      color: load("diff", true),
+      normal: load("nor_gl"),
+      arm: load("arm"),
+    };
+  }, [repeat[0], repeat[1], slug]);
+  useEffect(() => () => Object.values(surface).forEach((texture) => texture.dispose()), [surface]);
+  return surface;
+}
+
+function NormalizedSceneryModel({
+  url,
+  position,
+  rotation = [0, 0, 0],
+  dimensions,
+}: {
+  url: string;
+  position: Vector3Tuple;
+  rotation?: Vector3Tuple;
+  dimensions: Vector3Tuple;
+}) {
+  const model = useGLTF(url);
+  const normalization = useMemo(() => {
+    model.scene.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(model.scene);
+    const center = bounds.getCenter(new THREE.Vector3()).multiplyScalar(-1);
+    const size = bounds.getSize(new THREE.Vector3());
+    return {
+      offset: center,
+      scale: new THREE.Vector3(
+        size.x > 0 ? 1 / size.x : 1,
+        size.y > 0 ? 1 / size.y : 1,
+        size.z > 0 ? 1 / size.z : 1,
+      ),
+    };
+  }, [model.scene]);
+  return (
+    <group position={position} rotation={rotation} scale={dimensions}>
+      <group scale={normalization.scale}>
+        <Clone object={model.scene} position={normalization.offset} castShadow receiveShadow />
+      </group>
+    </group>
+  );
 }
 
 const LANDSCAPE_COLORS: Readonly<Record<LandscapeFamily, {
@@ -82,7 +114,34 @@ function SnowField({ bounds }: { bounds: Vector3Tuple }) {
   );
 }
 
-function WindingTrail({ bounds, color }: { bounds: Vector3Tuple; color: string }) {
+function useNaturalRockGeometries(seeds: readonly number[]) {
+  const geometries = useMemo(() => seeds.map((seed) => {
+    const geometry = new THREE.IcosahedronGeometry(1, 3);
+    const positions = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const direction = new THREE.Vector3();
+    for (let index = 0; index < positions.count; index += 1) {
+      direction.fromBufferAttribute(positions, index);
+      const radius = direction.length();
+      direction.normalize();
+      const broadVariation = Math.sin(direction.x * 4.3 + seed)
+        * Math.cos(direction.z * 3.7 - seed * 0.63) * 0.13;
+      const fineVariation = Math.sin(
+        (direction.x + direction.y * 1.7 + direction.z * 0.8) * 11.2 + seed * 2.1,
+      ) * 0.045;
+      direction.multiplyScalar(radius * (1 + broadVariation + fineVariation));
+      positions.setXYZ(index, direction.x, direction.y, direction.z);
+    }
+    positions.needsUpdate = true;
+    geometry.computeVertexNormals();
+    return geometry;
+  }), [seeds]);
+  useEffect(() => () => geometries.forEach((geometry) => geometry.dispose()), [geometries]);
+  return geometries;
+}
+
+const ROCK_SEEDS = [0.7, 2.35, 4.8, 7.15] as const;
+
+function WindingTrail({ bounds, color, surface }: { bounds: Vector3Tuple; color: string; surface: PbrSurfaceSet }) {
   const shape = useMemo(() => {
     const result = new THREE.Shape();
     const left: Array<[number, number]> = [];
@@ -104,12 +163,12 @@ function WindingTrail({ bounds, color }: { bounds: Vector3Tuple; color: string }
   return (
     <mesh position={[0, 0.075, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <shapeGeometry args={[shape, 24]} />
-      <meshStandardMaterial color={color} roughness={0.97} />
+      <meshStandardMaterial color={color} map={surface.color} normalMap={surface.normal} normalScale={new THREE.Vector2(0.38, 0.38)} roughnessMap={surface.arm} roughness={0.97} />
     </mesh>
   );
 }
 
-function AlpineHorizon({ bounds }: { bounds: Vector3Tuple }) {
+function AlpineHorizon({ bounds, surface }: { bounds: Vector3Tuple; surface: PbrSurfaceSet }) {
   return (
     <group position={[0, 0, -bounds[2] * 0.58]}>
       {Array.from({ length: 8 }, (_, index) => {
@@ -119,7 +178,7 @@ function AlpineHorizon({ bounds }: { bounds: Vector3Tuple }) {
           <group key={index} position={[x, height * 0.38 - 0.6, (index % 2) * 2.1]}>
             <mesh castShadow receiveShadow>
               <coneGeometry args={[height * 0.72, height, 5]} />
-              <meshStandardMaterial color={index % 2 ? "#667b7d" : "#778b8c"} roughness={0.96} />
+              <meshStandardMaterial color={index % 2 ? "#82908e" : "#929e9a"} map={surface.color} normalMap={surface.normal} normalScale={new THREE.Vector2(0.46, 0.46)} roughnessMap={surface.arm} roughness={0.96} />
             </mesh>
             <mesh position={[0, height * 0.27, 0]}>
               <coneGeometry args={[height * 0.34, height * 0.48, 5]} />
@@ -132,7 +191,7 @@ function AlpineHorizon({ bounds }: { bounds: Vector3Tuple }) {
   );
 }
 
-function RollingHorizon({ bounds, family, color }: { bounds: Vector3Tuple; family: LandscapeFamily; color: string }) {
+function RollingHorizon({ bounds, family, color, surface }: { bounds: Vector3Tuple; family: LandscapeFamily; color: string; surface: PbrSurfaceSet }) {
   const count = family === "arid" ? 16 : 13;
   return (
     <group>
@@ -149,7 +208,7 @@ function RollingHorizon({ bounds, family, color }: { bounds: Vector3Tuple; famil
             receiveShadow
           >
             <sphereGeometry args={[1, 20, 10]} />
-            <meshStandardMaterial color={color} roughness={1} />
+            <meshStandardMaterial color={color} map={surface.color} normalMap={surface.normal} normalScale={new THREE.Vector2(0.42, 0.42)} roughnessMap={surface.arm} roughness={1} />
           </mesh>
         );
       })}
@@ -158,62 +217,56 @@ function RollingHorizon({ bounds, family, color }: { bounds: Vector3Tuple; famil
 }
 
 function AlpineDressing({ bounds }: { bounds: Vector3Tuple }) {
+  const pineUrls = [
+    "/models/optimized/quaternius/stylized-nature/pine_1.glb",
+    "/models/optimized/quaternius/stylized-nature/pine_3.glb",
+    "/models/optimized/quaternius/stylized-nature/pine_5.glb",
+  ];
   return (
     <group>
       {[-1, 1].flatMap((side) => Array.from({ length: 6 }, (_, index) => {
-        const height = 2.7 + (index % 3) * 0.55;
+        const height = 3.2 + (index % 3) * 0.72;
         return (
-          <group key={`${side}:${index}`} position={[side * bounds[0] * (0.28 + (index % 2) * 0.09), 0, -bounds[2] * 0.38 + index * bounds[2] * 0.15]} rotation={[0, index * 0.71, 0]}>
-            <mesh position={[0, height * 0.3, 0]} castShadow><cylinderGeometry args={[0.1, 0.16, height * 0.6, 9]} /><meshStandardMaterial color="#4b4037" roughness={0.92} /></mesh>
-            {[0.42, 0.62, 0.82].map((factor, tier) => (
-              <group key={factor} position={[0, height * factor, 0]}>
-                <mesh castShadow><coneGeometry args={[height * (0.3 - tier * 0.045), height * 0.38, 8]} /><meshStandardMaterial color={tier % 2 ? "#274b45" : "#31554d"} roughness={0.94} /></mesh>
-                <mesh position={[0, height * 0.055, 0]}><coneGeometry args={[height * (0.23 - tier * 0.035), height * 0.18, 8]} /><meshStandardMaterial color="#dce9e7" roughness={0.96} /></mesh>
-              </group>
-            ))}
-          </group>
+          <NormalizedSceneryModel
+            key={`${side}:${index}`}
+            url={pineUrls[(index + (side > 0 ? 1 : 0)) % pineUrls.length]!}
+            position={[side * bounds[0] * (0.28 + (index % 2) * 0.09), height / 2, -bounds[2] * 0.38 + index * bounds[2] * 0.15]}
+            rotation={[0, index * 0.71, 0]}
+            dimensions={[1.85 + (index % 2) * 0.32, height, 1.85 + (index % 2) * 0.32]}
+          />
         );
       }))}
     </group>
   );
 }
 
-function AridDressing({ bounds }: { bounds: Vector3Tuple }) {
+function AridDressing({ bounds, surface }: { bounds: Vector3Tuple; surface: PbrSurfaceSet }) {
+  const rockGeometries = useNaturalRockGeometries(ROCK_SEEDS);
   return (
     <group>
       {Array.from({ length: 11 }, (_, index) => {
         const side = index % 2 ? 1 : -1;
-        const height = 1.2 + (index % 4) * 0.7;
+        const height = 1.25 + (index % 4) * 0.72;
         return (
-          <group key={index} position={[side * bounds[0] * (0.3 + (index % 3) * 0.06), 0, -bounds[2] * 0.42 + index * bounds[2] * 0.085]} rotation={[0, index * 0.47, 0]}>
-            <mesh position={[0, height * 0.42, 0]} castShadow receiveShadow>
-              <cylinderGeometry args={[0.22 + (index % 2) * 0.12, 0.48, height, 6]} />
-              <meshStandardMaterial color={index % 2 ? "#8f5738" : "#a96640"} roughness={0.98} />
-            </mesh>
-            {index % 3 === 0 && <mesh position={[0.13, height * 0.92, 0]} castShadow><dodecahedronGeometry args={[0.32, 0]} /><meshStandardMaterial color="#704936" roughness={1} /></mesh>}
-          </group>
+          <mesh key={index} geometry={rockGeometries[index % rockGeometries.length]} position={[side * bounds[0] * (0.3 + (index % 3) * 0.06), height * 0.33 - 0.02, -bounds[2] * 0.42 + index * bounds[2] * 0.085]} rotation={[(index % 3 - 1) * 0.12, index * 0.47, (index % 2 ? 1 : -1) * 0.08]} scale={[1.05 + (index % 3) * 0.34, height * 0.42, 0.86 + (index % 2) * 0.28]} castShadow receiveShadow>
+            <meshStandardMaterial color={index % 2 ? "#b7744b" : "#ca8959"} map={surface.color} normalMap={surface.normal} normalScale={new THREE.Vector2(0.42, 0.42)} roughnessMap={surface.arm} roughness={0.98} />
+          </mesh>
         );
       })}
     </group>
   );
 }
 
-function CoastalDressing({ bounds }: { bounds: Vector3Tuple }) {
+function CoastalDressing({ bounds, surface }: { bounds: Vector3Tuple; surface: PbrSurfaceSet }) {
+  const rockGeometries = useNaturalRockGeometries(ROCK_SEEDS);
   return (
     <group>
-      {Array.from({ length: 13 }, (_, index) => (
-        <mesh
-          key={index}
-          position={[bounds[0] * (0.02 + (index % 3) * 0.055), 0.18 + (index % 4) * 0.06, -bounds[2] * 0.44 + index * bounds[2] * 0.072]}
-          rotation={[index * 0.13, index * 0.61, 0]}
-          scale={[0.7 + (index % 3) * 0.32, 0.55 + (index % 2) * 0.26, 0.8]}
-          castShadow
-          receiveShadow
-        >
-          <dodecahedronGeometry args={[0.62, 0]} />
-          <meshStandardMaterial color={index % 2 ? "#536b67" : "#687771"} roughness={0.98} />
-        </mesh>
-      ))}
+      {Array.from({ length: 13 }, (_, index) => {
+        const height = 0.62 + (index % 4) * 0.16;
+        return <mesh key={index} geometry={rockGeometries[index % rockGeometries.length]} position={[bounds[0] * (0.02 + (index % 3) * 0.055), height * 0.32, -bounds[2] * 0.44 + index * bounds[2] * 0.072]} rotation={[(index % 3 - 1) * 0.1, index * 0.61, (index % 2 ? 1 : -1) * 0.08]} scale={[0.74 + (index % 3) * 0.28, height * 0.48, 0.72 + (index % 2) * 0.22]} castShadow receiveShadow>
+          <meshStandardMaterial color={index % 2 ? "#75827b" : "#87928b"} map={surface.color} normalMap={surface.normal} normalScale={new THREE.Vector2(0.44, 0.44)} roughnessMap={surface.arm} roughness={0.98} />
+        </mesh>;
+      })}
       {[-0.36, -0.18, 0.04, 0.27, 0.42].map((factor, index) => (
         <group key={factor} position={[-bounds[0] * 0.23, 0, bounds[2] * factor]}>
           {[-0.12, 0, 0.12].map((x, blade) => (
@@ -236,14 +289,21 @@ function GrasslandDressing({ bounds }: { bounds: Vector3Tuple }) {
         const x = side * bounds[0] * (0.18 + ((index * 7) % 19) / 19 * 0.25);
         const z = -bounds[2] * 0.46 + ((index * 13) % 47) / 47 * bounds[2] * 0.92;
         return (
-          <group key={index} position={[x, 0, z]} rotation={[0, index * 0.8, 0]}>
-            {[0, 0.09, -0.08].map((offset, blade) => (
-              <mesh key={offset} position={[offset, 0.24 + blade * 0.045, 0]} rotation={[0, 0, (blade - 1) * 0.12]}>
-                <coneGeometry args={[0.035, 0.48 + blade * 0.08, 4]} />
-                <meshStandardMaterial color={["#6d8249", "#829153", "#b09a50"][blade]} roughness={1} />
-              </mesh>
-            ))}
-            {index % 6 === 0 && <mesh position={[0, 0.53, 0]}><sphereGeometry args={[0.07, 10, 7]} /><meshStandardMaterial color={index % 12 ? "#e0b35e" : "#d9d6e8"} roughness={0.9} /></mesh>}
+          <group key={index}>
+            <NormalizedSceneryModel
+              url="/models/optimized/quaternius/stylized-nature/grass_wispy_tall.glb"
+              position={[x, 0.42, z]}
+              rotation={[0, index * 0.8, 0]}
+              dimensions={[0.48 + (index % 3) * 0.12, 0.84 + (index % 4) * 0.09, 0.48 + (index % 2) * 0.1]}
+            />
+            {index % 6 === 0 && (
+              <NormalizedSceneryModel
+                url="/models/optimized/quaternius/stylized-nature/flower_3_group.glb"
+                position={[x + 0.16, 0.3, z - 0.12]}
+                rotation={[0, index * 0.37, 0]}
+                dimensions={[0.5, 0.6, 0.5]}
+              />
+            )}
           </group>
         );
       })}
@@ -275,22 +335,37 @@ export function UniversalLandscapeKit({
   presentation: ScenePresentation;
 }) {
   const colors = LANDSCAPE_COLORS[family];
-  const ground = useMemo(() => seededTexture(colors.ground, colors.accents, 61031 + family.length * 97), [colors, family]);
-  useEffect(() => () => ground.dispose(), [ground]);
+  const groundSlug: Record<LandscapeFamily, string> = {
+    alpine: "snow_field_aerial",
+    arid: "sand_01",
+    coastal: "coast_sand_05",
+    grassland: "sparse_grass",
+  };
+  const ground = usePbrSurfaceSet(groundSlug[family], [5.8, 7.4]);
+  const trail = usePbrSurfaceSet("rocky_trail", [2.2, 7.5]);
+  // Reuse one transformed surface across terrain and horizon. A separate
+  // clone for every distance band doubles GPU texture memory during travel.
+  const horizon = ground;
+  const groundTint: Record<LandscapeFamily, string> = {
+    alpine: "#eef3f2",
+    arid: "#e4b17c",
+    coastal: "#d4c59b",
+    grassland: "#9eaf83",
+  };
   const showTrail = family !== "coastal" || presentation.architecture.earthTrail;
 
   return (
     <group>
       <mesh position={[0, 0.015, 0]} receiveShadow>
         <boxGeometry args={[bounds[0], 0.1, bounds[2]]} />
-        <meshStandardMaterial map={ground} color="#d7d9d1" roughness={0.98} />
+        <meshStandardMaterial color={groundTint[family]} map={ground.color} normalMap={ground.normal} normalScale={new THREE.Vector2(0.54, 0.54)} roughnessMap={ground.arm} roughness={0.98} />
       </mesh>
       <mesh position={[0, -0.08, 0]} receiveShadow>
         <boxGeometry args={[bounds[0] * 4, 0.12, bounds[2] * 4]} />
-        <meshStandardMaterial map={ground} color="#899187" roughness={1} />
+        <meshStandardMaterial color={colors.horizon} map={ground.color} normalMap={ground.normal} normalScale={new THREE.Vector2(0.32, 0.32)} roughnessMap={ground.arm} roughness={1} />
       </mesh>
-      {showTrail && <WindingTrail bounds={bounds} color={colors.path} />}
-      {family === "alpine" ? <AlpineHorizon bounds={bounds} /> : <RollingHorizon bounds={bounds} family={family} color={colors.horizon} />}
+      {showTrail && <WindingTrail bounds={bounds} color={colors.path} surface={trail} />}
+      {family === "alpine" ? <AlpineHorizon bounds={bounds} surface={horizon} /> : <RollingHorizon bounds={bounds} family={family} color={colors.horizon} surface={horizon} />}
       {family === "coastal" && (
         <>
           <mesh position={[bounds[0] * 0.29, 0.045, 0]} receiveShadow>
@@ -306,8 +381,8 @@ export function UniversalLandscapeKit({
         </>
       )}
       {family === "alpine" && <AlpineDressing bounds={bounds} />}
-      {family === "arid" && <AridDressing bounds={bounds} />}
-      {family === "coastal" && <CoastalDressing bounds={bounds} />}
+      {family === "arid" && <AridDressing bounds={bounds} surface={horizon} />}
+      {family === "coastal" && <CoastalDressing bounds={bounds} surface={horizon} />}
       {family === "grassland" && <GrasslandDressing bounds={bounds} />}
       {family === "alpine" && <SnowField bounds={bounds} />}
     </group>
@@ -384,28 +459,27 @@ function CelestialVista({ bounds, presentation }: { bounds: Vector3Tuple; presen
 function CavernEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
   const profile = presentation.semanticProfile;
   const count = profile.scale === "monumental" ? 26 : 20;
+  const rockSurface = usePbrSurfaceSet("rock_ground", [5.5, 7.2]);
+  const rockGeometries = useNaturalRockGeometries(ROCK_SEEDS);
   return (
     <group>
       <mesh position={[0, 0.015, 0]} receiveShadow>
         <boxGeometry args={[bounds[0], 0.12, bounds[2]]} />
-        <meshStandardMaterial color={presentation.palette.floor} roughness={0.98} />
+        <meshStandardMaterial color="#707680" map={rockSurface.color} normalMap={rockSurface.normal} normalScale={new THREE.Vector2(0.62, 0.62)} roughnessMap={rockSurface.arm} roughness={0.98} />
       </mesh>
       {Array.from({ length: count }, (_, index) => {
         const side = index % 2 ? 1 : -1;
         const progress = index / Math.max(1, count - 1);
         const z = -bounds[2] * 0.5 + progress * bounds[2];
         const radius = 1.5 + (index % 5) * 0.34;
-        return (
-          <mesh key={index} position={[side * bounds[0] * (0.43 + (index % 3) * 0.035), radius * 0.36, z]} rotation={[index * 0.17, index * 0.51, index * 0.11]} scale={[1.2, 0.82 + (index % 3) * 0.18, 1]} castShadow receiveShadow>
-            <dodecahedronGeometry args={[radius, 1]} />
-            <meshStandardMaterial color={index % 2 ? presentation.palette.wall : presentation.palette.floor} roughness={0.96} />
-          </mesh>
-        );
+        return <mesh key={index} geometry={rockGeometries[index % rockGeometries.length]} position={[side * bounds[0] * (0.43 + (index % 3) * 0.035), radius * 0.48, z]} rotation={[(index % 3 - 1) * 0.18, index * 0.51, (index % 2 ? 1 : -1) * 0.14]} scale={[radius * 1.2, radius * (0.88 + (index % 3) * 0.14), radius]} castShadow receiveShadow>
+          <meshStandardMaterial color={index % 2 ? "#77808b" : "#68727f"} map={rockSurface.color} normalMap={rockSurface.normal} normalScale={new THREE.Vector2(0.52, 0.52)} roughnessMap={rockSurface.arm} roughness={0.97} />
+        </mesh>;
       })}
       {Array.from({ length: 13 }, (_, index) => (
         <mesh key={`stalactite:${index}`} position={[-bounds[0] * 0.42 + index * bounds[0] * 0.07, bounds[1] - 0.5 - (index % 3) * 0.25, -bounds[2] * (0.2 + (index % 4) * 0.08)]} rotation={[Math.PI, 0, (index % 2 ? 1 : -1) * 0.08]} castShadow>
           <coneGeometry args={[0.22 + (index % 3) * 0.08, 1.1 + (index % 4) * 0.33, 7]} />
-          <meshStandardMaterial color={presentation.palette.wall} roughness={0.98} />
+          <meshStandardMaterial color="#78808b" map={rockSurface.color} normalMap={rockSurface.normal} normalScale={new THREE.Vector2(0.38, 0.38)} roughnessMap={rockSurface.arm} roughness={0.98} />
         </mesh>
       ))}
       {profile.crystalline && Array.from({ length: 11 }, (_, index) => (
@@ -419,6 +493,7 @@ function CavernEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; pre
 }
 
 function VolcanicEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const rockSurface = usePbrSurfaceSet("rock_ground", [6.2, 7.8]);
   const cracks = useMemo(() => Array.from({ length: 9 }, (_, index) => {
     const z = -bounds[2] * 0.42 + index * bounds[2] * 0.1;
     const curve = new THREE.CatmullRomCurve3([
@@ -432,11 +507,11 @@ function VolcanicEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; p
   useEffect(() => () => cracks.forEach((geometry) => geometry.dispose()), [cracks]);
   return (
     <group>
-      <mesh position={[0, 0.025, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.15, 0.14, bounds[2] * 1.15]} /><meshStandardMaterial color="#211d25" roughness={0.94} /></mesh>
+      <mesh position={[0, 0.025, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.15, 0.14, bounds[2] * 1.15]} /><meshStandardMaterial color="#41383d" map={rockSurface.color} normalMap={rockSurface.normal} normalScale={new THREE.Vector2(0.65, 0.65)} roughnessMap={rockSurface.arm} roughness={0.94} /></mesh>
       {cracks.map((geometry, index) => <mesh key={index} geometry={geometry}><meshStandardMaterial color={index % 2 ? "#ff7445" : presentation.palette.practical} emissive={index % 2 ? "#d83d1f" : presentation.palette.practical} emissiveIntensity={2.4} roughness={0.42} /></mesh>)}
       {Array.from({ length: 18 }, (_, index) => (
         <mesh key={`basalt:${index}`} position={[(index % 2 ? 1 : -1) * bounds[0] * (0.3 + (index % 4) * 0.045), 0.35 + (index % 4) * 0.09, -bounds[2] * 0.44 + index * bounds[2] * 0.052]} rotation={[index * 0.13, index * 0.49, 0]} scale={[0.7, 0.65 + (index % 3) * 0.2, 0.8]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.72, 0]} /><meshStandardMaterial color={index % 2 ? "#332d38" : "#29252d"} roughness={0.98} />
+          <dodecahedronGeometry args={[0.72, 1]} /><meshStandardMaterial color={index % 2 ? "#4c444c" : "#3f3942"} map={rockSurface.color} normalMap={rockSurface.normal} normalScale={new THREE.Vector2(0.34, 0.34)} roughnessMap={rockSurface.arm} roughness={0.98} />
         </mesh>
       ))}
       <pointLight position={[0, 1.2, 0]} color="#ff6b3d" intensity={2.2} distance={Math.max(bounds[0], bounds[2]) * 0.75} />
@@ -445,14 +520,43 @@ function VolcanicEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; p
 }
 
 function AquaticEnvironment({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const seabed = usePbrSurfaceSet("coast_sand_05", [6.4, 7.2]);
   return (
     <group>
-      <mesh position={[0, 0.02, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.2, 0.12, bounds[2] * 1.2]} /><meshPhysicalMaterial color={presentation.palette.floor} roughness={0.72} metalness={0.05} /></mesh>
+      <mesh position={[0, 0.02, 0]} receiveShadow><boxGeometry args={[bounds[0] * 1.2, 0.12, bounds[2] * 1.2]} /><meshStandardMaterial color="#83a79f" map={seabed.color} normalMap={seabed.normal} normalScale={new THREE.Vector2(0.48, 0.48)} roughnessMap={seabed.arm} roughness={0.82} /></mesh>
       <mesh position={[0, bounds[1] * 0.84, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[bounds[0] * 1.5, bounds[2] * 1.5, 18, 18]} /><meshPhysicalMaterial color={presentation.palette.keyLight} transparent opacity={0.1} transmission={0.45} roughness={0.15} side={THREE.DoubleSide} /></mesh>
-      {Array.from({ length: 24 }, (_, index) => {
+      {Array.from({ length: 14 }, (_, index) => {
         const side = index % 2 ? 1 : -1;
-        const height = 0.7 + (index % 5) * 0.24;
-        return <mesh key={`coral:${index}`} position={[side * bounds[0] * (0.25 + (index % 4) * 0.045), height / 2, -bounds[2] * 0.44 + index * bounds[2] * 0.037]} rotation={[0, index * 0.7, (index % 3 - 1) * 0.12]} castShadow><coneGeometry args={[0.12 + (index % 3) * 0.055, height, 6]} /><meshStandardMaterial color={[presentation.palette.practical, "#a46c88", "#6ca8a0"][index % 3]} roughness={0.72} /></mesh>;
+        const height = 0.72 + (index % 4) * 0.23;
+        const coralColor = [presentation.palette.practical, "#bd6f8e", "#62a9a1", "#d38b68"][index % 4]!;
+        return (
+          <group key={`coral:${index}`} position={[side * bounds[0] * (0.24 + (index % 4) * 0.048), 0, -bounds[2] * 0.42 + index * bounds[2] * 0.065]} rotation={[0, index * 0.73, 0]}>
+            <mesh position={[0, height / 2, 0]} castShadow>
+              <cylinderGeometry args={[0.085, 0.14, height, 9]} />
+              <meshStandardMaterial color={coralColor} roughness={0.68} />
+            </mesh>
+            {[-1, 1].flatMap((branchSide) => [0.38, 0.64].map((factor, branch) => {
+              const branchLength = height * (0.34 + branch * 0.08);
+              const angle = branchSide * (0.62 + branch * 0.08);
+              return (
+                <group key={`${branchSide}:${factor}`} position={[0, height * factor, 0]} rotation={[0, branch * 1.1, angle]}>
+                  <mesh position={[0, branchLength / 2, 0]} castShadow>
+                    <cylinderGeometry args={[0.045, 0.075, branchLength, 8]} />
+                    <meshStandardMaterial color={coralColor} roughness={0.68} />
+                  </mesh>
+                  <mesh position={[0, branchLength + 0.025, 0]} scale={[1, 1.25, 1]}>
+                    <sphereGeometry args={[0.075, 10, 7]} />
+                    <meshStandardMaterial color={coralColor} emissive={coralColor} emissiveIntensity={0.08} roughness={0.62} />
+                  </mesh>
+                </group>
+              );
+            }))}
+            <mesh position={[0, height + 0.035, 0]} scale={[1, 1.2, 1]}>
+              <sphereGeometry args={[0.095, 10, 7]} />
+              <meshStandardMaterial color={coralColor} emissive={coralColor} emissiveIntensity={0.08} roughness={0.62} />
+            </mesh>
+          </group>
+        );
       })}
       {Array.from({ length: 36 }, (_, index) => (
         <mesh key={`bubble:${index}`} position={[(Math.sin(index * 9.7) * 0.42) * bounds[0], 0.4 + ((index * 17) % 100) / 100 * bounds[1] * 0.8, Math.cos(index * 6.3) * bounds[2] * 0.4]}>
@@ -512,12 +616,6 @@ export function UniversalNarrativeEnvironmentKit({ bounds, presentation }: { bou
       {needsFallbackInterior && <PolishedFallbackInterior bounds={bounds} presentation={presentation} />}
     </group>
   );
-}
-
-interface PbrSurfaceSet {
-  color: THREE.Texture;
-  normal: THREE.Texture;
-  arm: THREE.Texture;
 }
 
 function Building({
@@ -877,12 +975,59 @@ export function UrbanStreetKit({
 }
 
 export function IndustrialInteriorKit({ bounds, presentation }: { bounds: Vector3Tuple; presentation: ScenePresentation }) {
+  const metalSurface = usePbrSurfaceSet("metal_plate_02", [1.4, 5.5]);
   return (
     <group>
+      {Array.from({ length: 6 }, (_, index) => (
+        <RoundedBox
+          key={`rear-bulkhead:${index}`}
+          args={[bounds[0] / 6 - 0.045, bounds[1] * 0.78, 0.12]}
+          radius={0.035}
+          smoothness={3}
+          position={[-bounds[0] / 2 + (index + 0.5) * bounds[0] / 6, bounds[1] * 0.48, -bounds[2] / 2 + 0.12]}
+          receiveShadow
+        >
+          <meshStandardMaterial color={index % 2 ? "#829092" : "#6d7b7e"} map={metalSurface.color} normalMap={metalSurface.normal} normalScale={new THREE.Vector2(0.42, 0.42)} roughnessMap={metalSurface.arm} roughness={0.62} metalness={0.38} />
+        </RoundedBox>
+      ))}
+      {[-0.24, 0.24].map((factor, bank) => (
+        <group key={`industrial-pipe-bank:${factor}`} position={[bounds[0] * factor, 0, -bounds[2] / 2 + 0.34]}>
+          {[-0.54, 0, 0.54].map((x, index) => {
+            const height = Math.min(3.35, bounds[1] * (0.58 + index * 0.045));
+            const radius = 0.1 + index * 0.018;
+            const pipeColor = index === 1 ? "#866143" : bank ? "#55686a" : "#66787a";
+            return (
+              <group key={x} position={[x, 0, index * 0.045]}>
+                <mesh position={[0, height / 2 + 0.18, 0]} castShadow>
+                  <cylinderGeometry args={[radius, radius, height, 16]} />
+                  <meshStandardMaterial color={pipeColor} metalness={0.66} roughness={0.4} />
+                </mesh>
+                {[0.52, height * 0.56, height + 0.05].map((y) => (
+                  <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                    <torusGeometry args={[radius * 1.22, 0.035, 8, 18]} />
+                    <meshStandardMaterial color="#3e4b4e" metalness={0.72} roughness={0.38} />
+                  </mesh>
+                ))}
+                <mesh position={[index % 2 ? -0.28 : 0.28, height + 0.18, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+                  <cylinderGeometry args={[radius, radius, 0.56, 16]} />
+                  <meshStandardMaterial color={pipeColor} metalness={0.66} roughness={0.4} />
+                </mesh>
+                <mesh position={[index % 2 ? -0.56 : 0.56, height + 0.18, 0]} castShadow>
+                  <sphereGeometry args={[radius, 16, 10]} />
+                  <meshStandardMaterial color={pipeColor} metalness={0.66} roughness={0.4} />
+                </mesh>
+              </group>
+            );
+          })}
+          <RoundedBox args={[2.05, 0.5, 0.22]} radius={0.08} smoothness={3} position={[0, 0.38, 0.08]} castShadow receiveShadow>
+            <meshStandardMaterial color="#4b595c" map={metalSurface.color} normalMap={metalSurface.normal} normalScale={new THREE.Vector2(0.25, 0.25)} roughnessMap={metalSurface.arm} metalness={0.5} roughness={0.55} />
+          </RoundedBox>
+        </group>
+      ))}
       {Array.from({ length: 7 }, (_, index) => (
         <mesh key={`floor-panel-${index}`} position={[-bounds[0] / 2 + (index + 0.5) * bounds[0] / 7, 0.075, 0]} receiveShadow>
           <boxGeometry args={[bounds[0] / 7 - 0.035, 0.055, bounds[2] - 0.12]} />
-          <meshStandardMaterial color={index % 2 ? "#394346" : "#313a3d"} roughness={0.58} metalness={0.42} />
+          <meshStandardMaterial color={index % 2 ? "#8b9595" : "#747e80"} map={metalSurface.color} normalMap={metalSurface.normal} normalScale={new THREE.Vector2(0.52, 0.52)} roughnessMap={metalSurface.arm} roughness={0.58} metalness={0.42} />
         </mesh>
       ))}
       {[-0.3, 0.3].map((factor) => (
@@ -891,6 +1036,18 @@ export function IndustrialInteriorKit({ bounds, presentation }: { bounds: Vector
           <mesh position={[0.2, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><cylinderGeometry args={[0.045, 0.045, bounds[2], 10]} /><meshStandardMaterial color="#936646" metalness={0.62} roughness={0.48} /></mesh>
         </group>
       ))}
+      {[-1, 1].flatMap((side) => Array.from({ length: 6 }, (_, index) => (
+        <group key={`side-rib:${side}:${index}`} position={[side * (bounds[0] / 2 - 0.075), bounds[1] * 0.48, -bounds[2] * 0.42 + index * bounds[2] * 0.17]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.14, bounds[1] * 0.78, 0.16]} />
+            <meshStandardMaterial color="#435256" metalness={0.56} roughness={0.48} />
+          </mesh>
+          <mesh position={[-side * 0.06, bounds[1] * 0.27, 0]} rotation={[0, 0, side * 0.12]}>
+            <boxGeometry args={[0.12, 0.08, Math.max(0.7, bounds[2] * 0.14)]} />
+            <meshStandardMaterial color="#738387" metalness={0.48} roughness={0.5} />
+          </mesh>
+        </group>
+      )))}
       {[-0.28, 0, 0.28].map((factor) => (
         <group key={factor} position={[factor * bounds[0], bounds[1] - 0.22, 0]}>
           <mesh><boxGeometry args={[1.8, 0.08, 0.22]} /><meshStandardMaterial color="#d7e2df" emissive={presentation.palette.keyLight} emissiveIntensity={1.25} /></mesh>
@@ -899,7 +1056,7 @@ export function IndustrialInteriorKit({ bounds, presentation }: { bounds: Vector
       ))}
       {[-1, 1].map((side) => (
         <group key={side} position={[side * bounds[0] * 0.33, 0, -bounds[2] * 0.28]}>
-          <mesh position={[0, 0.7, 0]} castShadow receiveShadow><boxGeometry args={[2.2, 1.4, 0.75]} /><meshStandardMaterial color="#354348" metalness={0.48} roughness={0.55} /></mesh>
+          <RoundedBox args={[2.2, 1.4, 0.75]} radius={0.12} smoothness={4} position={[0, 0.7, 0]} castShadow receiveShadow><meshStandardMaterial color="#718084" map={metalSurface.color} normalMap={metalSurface.normal} normalScale={new THREE.Vector2(0.28, 0.28)} roughnessMap={metalSurface.arm} metalness={0.48} roughness={0.55} /></RoundedBox>
           {[-0.62, 0, 0.62].map((x, index) => <mesh key={x} position={[x, 0.84, 0.385]}><planeGeometry args={[0.42, 0.32]} /><meshStandardMaterial color={index === 1 ? "#d29a53" : "#75b6ac"} emissive={index === 1 ? "#75451f" : "#245f59"} emissiveIntensity={0.75} roughness={0.28} /></mesh>)}
           {[-0.74, 0.74].map((x) => <mesh key={x} position={[x, 1.65, -0.02]} castShadow><cylinderGeometry args={[0.36, 0.42, 1.8, 16]} /><meshStandardMaterial color="#56666a" metalness={0.58} roughness={0.48} /></mesh>)}
         </group>
