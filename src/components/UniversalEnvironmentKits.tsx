@@ -562,6 +562,23 @@ function Building({
           emissiveIntensity={0.035}
         />
       </RoundedBox>
+      {[-1, 1].flatMap((side) => Array.from({ length: Math.ceil(size[1] / 0.58) }, (_, course) => (
+        <RoundedBox
+          key={`quoin:${side}:${course}`}
+          args={[course % 2 ? 0.31 : 0.38, 0.42, 0.13]}
+          radius={0.025}
+          smoothness={3}
+          position={[
+            side * (size[0] / 2 - 0.08),
+            -size[1] / 2 + 0.28 + course * 0.58,
+            size[2] / 2 + 0.055,
+          ]}
+          castShadow
+          receiveShadow
+        >
+          <meshStandardMaterial color={course % 3 === 0 ? "#8d8172" : "#a19686"} roughness={0.96} />
+        </RoundedBox>
+      )))}
       <RoundedBox args={[size[0] + 0.22, 0.2, size[2] + 0.18]} radius={0.045} smoothness={3} position={[0, size[1] / 2 - 0.08, 0]} castShadow receiveShadow>
         <meshStandardMaterial color="#55463d" roughness={0.82} />
       </RoundedBox>
@@ -592,6 +609,15 @@ function Building({
         <mesh position={[0, 0.02, 0.078]}><planeGeometry args={[0.78, 2.02]} /><meshStandardMaterial color="#72513e" roughness={0.84} /></mesh>
         <mesh position={[0.29, -0.02, 0.092]}><sphereGeometry args={[0.048, 12, 10]} /><meshStandardMaterial color="#c19859" metalness={0.72} roughness={0.34} /></mesh>
       </group>
+      <RoundedBox
+        args={[size[0] * 0.9, 0.13, 0.18]}
+        radius={0.035}
+        smoothness={3}
+        position={[0, -size[1] / 2 + 2.82, size[2] / 2 + 0.075]}
+        castShadow
+      >
+        <meshStandardMaterial color="#8f806d" roughness={0.9} />
+      </RoundedBox>
       <group position={[0, -size[1] / 2 + 2.42, size[2] / 2 + 0.31]} rotation={[0.12, 0, 0]}>
         <mesh castShadow receiveShadow><boxGeometry args={[size[0] * 0.82, 0.07, 0.88]} /><meshStandardMaterial color={awningColor} roughness={0.88} /></mesh>
         {Array.from({ length: 5 }, (_, stripe) => (
@@ -658,10 +684,36 @@ function Building({
               <meshStandardMaterial color={(index + seed) % 5 === 0 ? "#d7b56a" : "#28444c"} emissive={(index + seed) % 5 === 0 ? "#d49748" : "#102126"} emissiveIntensity={(index + seed) % 5 === 0 ? 0.72 : 0.22} roughness={0.32} />
             </mesh>
             <mesh position={[0, 0, 0.04]}><boxGeometry args={[0.032, 1.01, 0.02]} /><meshStandardMaterial color="#35302c" roughness={0.78} /></mesh>
-            <mesh position={[0, -0.68, 0.055]} castShadow><boxGeometry args={[0.91, 0.09, 0.18]} /><meshStandardMaterial color="#6c5d4c" roughness={0.86} /></mesh>
+            <RoundedBox args={[0.91, 0.09, 0.18]} radius={0.025} smoothness={3} position={[0, -0.68, 0.055]} castShadow><meshStandardMaterial color="#6c5d4c" roughness={0.86} /></RoundedBox>
+            <RoundedBox args={[1.08, 0.12, 0.16]} radius={0.03} smoothness={3} position={[0, 0.69, 0.045]} castShadow><meshStandardMaterial color="#857461" roughness={0.9} /></RoundedBox>
+            {[-1, 1].map((shutterSide) => (
+              <group key={`shutter:${shutterSide}`} position={[shutterSide * 0.54, 0, 0.075]}>
+                <RoundedBox args={[0.18, 1.12, 0.055]} radius={0.022} smoothness={3} castShadow>
+                  <meshStandardMaterial color={seed % 2 ? "#536d6b" : "#665343"} roughness={0.84} />
+                </RoundedBox>
+                {[-0.34, 0, 0.34].map((slatY) => (
+                  <mesh key={slatY} position={[0, slatY, 0.034]} castShadow>
+                    <boxGeometry args={[0.16, 0.025, 0.022]} />
+                    <meshStandardMaterial color="#342f2b" roughness={0.8} />
+                  </mesh>
+                ))}
+              </group>
+            ))}
           </group>
         );
       })}
+      <group position={[size[0] / 2 - 0.32, 0, size[2] / 2 + 0.16]}>
+        <mesh castShadow>
+          <cylinderGeometry args={[0.045, 0.055, size[1] - 0.45, 14]} />
+          <meshStandardMaterial color="#4b4c48" metalness={0.34} roughness={0.62} />
+        </mesh>
+        {[-size[1] * 0.28, 0, size[1] * 0.28].map((y) => (
+          <mesh key={`pipe-clamp:${y}`} position={[0, y, -0.025]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[0.074, 0.014, 8, 16]} />
+            <meshStandardMaterial color="#343633" metalness={0.42} roughness={0.52} />
+          </mesh>
+        ))}
+      </group>
       <group position={[size[0] * (seed % 2 ? 0.32 : -0.3), size[1] / 2 + roofRise + 0.5, 0]}>
         <mesh castShadow><boxGeometry args={[0.28, 1.05, 0.34]} /><meshStandardMaterial color="#5f5146" roughness={0.9} /></mesh>
         <mesh position={[0, 0.55, 0]} castShadow><boxGeometry args={[0.4, 0.12, 0.46]} /><meshStandardMaterial color="#463b35" roughness={0.86} /></mesh>
