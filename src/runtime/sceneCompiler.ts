@@ -424,13 +424,11 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.add("open-air");
     architecture.add("sand-ground");
     architecture.add("dune-horizon");
-    dressing.add("verge-rocks");
   }
   if (permitsTerrain && !hasAquaticSetting && hasSemantic(atmosphereText, /\b(?:coast|coastal|shore|shoreline|beach|seaside|ocean|sea-cliff|island|harbor|harbour|port)\w*\b/)) {
     architecture.add("open-air");
     architecture.add("coastal-ground");
     architecture.add("coastline");
-    dressing.add("verge-rocks");
   }
   if (permitsTerrain && hasSemantic(atmosphereText, /\b(?:grassland|meadow|prairie|savanna|steppe|moor|countryside|open-field|rolling-hill)\w*\b/)) {
     architecture.add("open-air");
@@ -442,18 +440,15 @@ function expandSemanticTags(location: VisualLocationPlan): {
   if (permitsTerrain && hasAquaticSetting) {
     architecture.add("open-air");
     architecture.add("aquatic-ground");
-    dressing.add("verge-rocks");
   }
   if (permitsTerrain && hasVolcanicSetting) {
     architecture.add("open-air");
     architecture.add("volcanic-ground");
     architecture.add("mountain-horizon");
-    dressing.add("verge-rocks");
   }
   if (hasSemantic(atmosphereText, /\b(?:cave|cavern|grotto|underground|subterranean|mine|catacomb|underworld|hollow-earth)\w*\b/)) {
     architecture.add("cavern-shell");
     architecture.add("cavern-depth");
-    dressing.add("verge-rocks");
   }
   if (
     hasSemantic(atmosphereText, /\b(?:(?:celestial|cosmic|planet(?:ary)?|lunar|aether|orbital|void|nebula|astral)\w*|alien[ -]world|outer[ -]space|sky[ -]island|moon(?:scape|world)?)\b/) &&
@@ -536,7 +531,16 @@ function expandSemanticTags(location: VisualLocationPlan): {
     dressing.add(architecture.has("forest-floor") ? "forest-undergrowth" : "hedges");
   }
   if (hasSemantic(atmosphereText, /\b(?:boulder|rock|stone-outcrop)\w*\b/)) {
-    dressing.add(architecture.has("forest-floor") ? "forest-rocks" : "verge-rocks");
+    const hasIntegratedRockDressing = [
+      "sand-ground",
+      "coastal-ground",
+      "aquatic-ground",
+      "volcanic-ground",
+      "cavern-shell",
+    ].some((tag) => architecture.has(tag));
+    if (!hasIntegratedRockDressing) {
+      dressing.add(architecture.has("forest-floor") ? "forest-rocks" : "verge-rocks");
+    }
   }
   if (hasSemantic(atmosphereText, /\b(?:mushroom|fungi|toadstool)\w*\b/)) dressing.add("wild-mushrooms");
   if (hasSemantic(atmosphereText, /\b(?:fallen-log|deadwood|tree-trunk)\w*\b/)) dressing.add("fallen-logs");

@@ -286,6 +286,13 @@ describe("scene recipe compiler", () => {
       .filter((instance) => instance.renderKind === "asset" && instance.registryKey === "ornate-street-lamp") ?? [];
     const engineAssets = recipe.locations["orbital-engine-room"]?.dressingInstances
       .flatMap((instance) => instance.renderKind === "asset" ? [instance.catalogId] : []) ?? [];
+    const integratedRockLocations = [
+      "sunken-dunes",
+      "saltwind-coast",
+      "prismatic-cavern",
+      "coral-palace",
+      "ember-caldera",
+    ];
 
     expect(marketAssets).toContain("polyhaven:street_lamp_01-optimized");
     expect(marketLamps).toHaveLength(4);
@@ -294,6 +301,11 @@ describe("scene recipe compiler", () => {
       Math.abs(lamp.position[2]) + lamp.dimensions[2] / 2 <= 34 / 2
     ))).toBe(true);
     expect(engineAssets).toContain("polyhaven:modular_industrial_pipes_01-optimized");
+    for (const locationId of integratedRockLocations) {
+      expect(recipe.locations[locationId]?.dressingInstances.some(
+        (instance) => instance.sourceTag === "verge-rocks",
+      )).toBe(false);
+    }
   });
 
   it("derives surface, facing, wall-clearance, and centering constraints from facts", () => {
