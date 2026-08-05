@@ -1,0 +1,91 @@
+{
+  "storyId": "story-rain-courtyard",
+  "version": 1,
+  "passageId": "R1",
+  "locations": [
+    {
+      "id": "coaching-courtyard",
+      "name": "Rain-washed coaching courtyard",
+      "bounds": [34, 6.5, 28],
+      "environment": {
+        "floorColor": "#555b58",
+        "wallColor": "#8f8878",
+        "ambientColor": "#b9c8c7"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "courtyard-table-1",
+      "name": "Courier's sorting table",
+      "kind": "furniture",
+      "locationId": "coaching-courtyard",
+      "assetKey": "desk",
+      "transform": { "position": [-2.3, 0.6, 1.1] },
+      "provenance": { "passageId": "R1", "confidence": 0.96 }
+    },
+    {
+      "id": "courtyard-chair-1",
+      "name": "Waiting courier's chair",
+      "kind": "furniture",
+      "locationId": "coaching-courtyard",
+      "assetKey": "chair",
+      "provenance": { "passageId": "R1", "confidence": 0.91 }
+    },
+    {
+      "id": "courtyard-parcel-1",
+      "name": "Wax-sealed parcel crate",
+      "kind": "container",
+      "locationId": "coaching-courtyard",
+      "assetKey": "crate",
+      "dimensions": [0.72, 0.42, 0.55],
+      "provenance": { "passageId": "R1", "confidence": 0.94 }
+    },
+    {
+      "id": "courtyard-gate-1",
+      "name": "North carriage gate",
+      "kind": "architecture",
+      "locationId": "coaching-courtyard",
+      "assetKey": "carriage-gate",
+      "state": { "locked": true },
+      "provenance": { "passageId": "R1", "confidence": 0.98 }
+    },
+    {
+      "id": "courtyard-lantern-1",
+      "name": "Rain-dulled brass lantern",
+      "kind": "light",
+      "locationId": "coaching-courtyard",
+      "assetKey": "lantern",
+      "state": { "lit": false },
+      "provenance": { "passageId": "R1", "confidence": 0.93 }
+    }
+  ],
+  "relations": [
+    {
+      "id": "courtyard-chair-before-table",
+      "subjectId": "courtyard-chair-1",
+      "predicate": "in_front_of",
+      "objectId": "courtyard-table-1",
+      "distance": 0.35
+    },
+    {
+      "id": "courtyard-parcel-on-table",
+      "subjectId": "courtyard-parcel-1",
+      "predicate": "on",
+      "objectId": "courtyard-table-1"
+    },
+    {
+      "id": "courtyard-gate-north-wall",
+      "subjectId": "courtyard-gate-1",
+      "predicate": "against_wall",
+      "metadata": { "wall": "north" }
+    },
+    {
+      "id": "courtyard-lantern-on-table",
+      "subjectId": "courtyard-lantern-1",
+      "predicate": "on",
+      "objectId": "courtyard-table-1"
+    }
+  ],
+  "conflicts": []
+}

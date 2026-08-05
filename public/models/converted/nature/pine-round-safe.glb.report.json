@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "tree_pineRoundC.glb",
+  "output": "pine-round-safe.glb",
+  "inputSha256": "29080a4935bae6b4ab29066f22c99c58f88b23ce4e2f79b4dcbb5e76de73f69d",
+  "outputSha256": "b380000ffca9b206a1a1f0af2ec6ece343e686d98470b93945c1349a38a2b33f",
+  "runtimeMeshSha256": "791c1ee15a9712b98d1d2bc61495c653222ce27dc952e90635a2eac49bab1b77",
+  "inputBytes": 15332,
+  "outputBytes": 27308,
+  "runtimeMesh": "pine-round-safe.mesh.json",
+  "runtimeMeshBytes": 67565,
+  "meshes": 2,
+  "materials": 2,
+  "triangles": 206,
+  "sourceBounds": [
+    0.48038429021835327,
+    1.2528530843555927,
+    0.5547000169754028
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-woodland",
+  "status": "pass"
+}

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "1.0",
+  "packageId": "unfamiliar-highland-crossing",
+  "label": "Unfamiliar story stress test",
+  "initialSnapshot": {
+    "storyId": "story-highland-crossing",
+    "version": 1,
+    "passageId": "H1",
+    "locations": [
+      {
+        "id": "stormwatch-pass",
+        "name": "Stormwatch Pass",
+        "bounds": [28, 8, 36]
+      }
+    ],
+    "entities": [
+      {
+        "id": "guide-1",
+        "name": "The cloaked guide",
+        "kind": "character",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.97 }
+      },
+      {
+        "id": "dispatch-chest-1",
+        "name": "Weathered courier chest",
+        "kind": "container",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.91 }
+      },
+      {
+        "id": "dispatch-1",
+        "name": "Rain-spotted sealed dispatch",
+        "kind": "document",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.95 }
+      },
+      {
+        "id": "way-lamp-1",
+        "name": "Blue way lamp",
+        "kind": "light",
+        "locationId": "stormwatch-pass",
+        "state": { "lit": true },
+        "provenance": { "passageId": "H1", "confidence": 0.94 }
+      },
+      {
+        "id": "pass-gate-1",
+        "name": "Runed bronze pass gate",
+        "kind": "architecture",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.89 }
+      },
+      {
+        "id": "silver-fern-1",
+        "name": "A silver mountain fern",
+        "kind": "flora",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.86 }
+      },
+      {
+        "id": "wind-idol-1",
+        "name": "An unfamiliar wind idol",
+        "kind": "mysterious-relic",
+        "locationId": "stormwatch-pass",
+        "provenance": { "passageId": "H1", "confidence": 0.82 }
+      }
+    ],
+    "relations": [
+      {
+        "id": "dispatch-on-chest",
+        "subjectId": "dispatch-1",
+        "predicate": "on",
+        "objectId": "dispatch-chest-1"
+      },
+      {
+        "id": "guide-near-lamp",
+        "subjectId": "guide-1",
+        "predicate": "near",
+        "objectId": "way-lamp-1",
+        "distance": 1.2
+      },
+      {
+        "id": "gate-at-pass-edge",
+        "subjectId": "pass-gate-1",
+        "predicate": "against_wall",
+        "metadata": { "wall": "north" }
+      }
+    ],
+    "conflicts": []
+  },
+  "moments": [
+    {
+      "passageId": "H1",
+      "text": "Rain silvered the highland crossing. Beside a blue way lamp, the cloaked guide waited while a sealed dispatch lay on the courier chest beneath the old pass gate.",
+      "visualPlan": {
+        "schemaVersion": "1.0",
+        "storyId": "story-highland-crossing",
+        "segmentId": "arrival-at-stormwatch-pass",
+        "sourcePassageIds": ["H1"],
+        "snapshotVersion": 1,
+        "planVersion": 1,
+        "artDirection": {
+          "styleLabel": "romantic highland fantasy",
+          "stylePrompt": "A windswept highland crossing rendered as tactile storybook fantasy, with deep conifer greens, rain-dark stone, silver fog and a single blue guiding light.",
+          "negativePrompt": ["empty plane", "generic white boxes", "modern road", "flat lighting"],
+          "materialVocabulary": ["rain-dark stone", "weathered bronze", "waxed canvas", "wet bark", "silver fern"]
+        },
+        "locations": [
+          {
+            "locationId": "stormwatch-pass",
+            "archetype": "remote highland crossing",
+            "visualDescription": "A misty conifer forest trail climbs through wet boulders, spruce, fungi and fallen logs toward an ancient pass.",
+            "architectureTags": ["wilderness", "weathered mountain crossing"],
+            "dressingTags": ["spruce", "ferns", "fungi", "deadwood", "wet boulders"],
+            "dressingDensity": "rich",
+            "mood": "windswept, expectant and mysterious",
+            "timeOfDay": "rainy blue hour",
+            "palette": {
+              "background": "#0b2027",
+              "fog": "#476365",
+              "floor": "#34463b",
+              "wall": "#68736e",
+              "timber": "#3b3028",
+              "ambient": "#a9c5c2",
+              "keyLight": "#c1ddd9",
+              "practical": "#78b9d8"
+            },
+            "lighting": {
+              "warmth": "cool",
+              "contrast": "medium",
+              "ambientIntensity": 0.68,
+              "keyIntensity": 1.35,
+              "atmosphericEffects": ["low fog", "drizzle"]
+            },
+            "evidence": {
+              "passageIds": ["H1"],
+              "confidence": 0.66,
+              "basis": "cross_passage_inference"
+            }
+          }
+        ],
+        "entities": [
+          {
+            "entityId": "guide-1",
+            "visualDescription": "A human guide in a rain-heavy charcoal cloak, face kept indistinct.",
+            "importance": "hero",
+            "materials": ["waxed wool", "leather"],
+            "colors": ["charcoal", "storm blue"],
+            "condition": "rain soaked",
+            "assetSearchTags": ["cloaked fantasy guide", "traveller silhouette"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.83, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "dispatch-chest-1",
+            "visualDescription": "A squat courier chest with bronze bands and rain-dark timber.",
+            "importance": "supporting",
+            "materials": ["dark timber", "bronze"],
+            "colors": ["umber", "verdigris"],
+            "condition": "weathered",
+            "assetSearchTags": ["fantasy courier chest"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.84, "basis": "cross_passage_inference" }
+          },
+          {
+            "entityId": "dispatch-1",
+            "visualDescription": "A folded cream dispatch with rain marks and an intact dark red seal.",
+            "importance": "hero",
+            "materials": ["parchment", "sealing wax"],
+            "colors": ["cream", "dark red"],
+            "condition": "rain spotted",
+            "assetSearchTags": ["sealed fantasy letter"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.94, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "way-lamp-1",
+            "visualDescription": "A compact bronze way lamp burning with an uncanny blue flame.",
+            "importance": "hero",
+            "materials": ["bronze", "glass"],
+            "colors": ["verdigris", "blue flame"],
+            "condition": "lit",
+            "assetSearchTags": ["fantasy blue lantern"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.9, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "pass-gate-1",
+            "visualDescription": "A narrow bronze-bound gate carved with wind-softened runes.",
+            "importance": "supporting",
+            "materials": ["dark wood", "weathered bronze"],
+            "colors": ["brown-black", "verdigris"],
+            "condition": "ancient",
+            "assetSearchTags": ["runed fantasy gate"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.62, "basis": "cross_passage_inference" }
+          },
+          {
+            "entityId": "silver-fern-1",
+            "visualDescription": "A low fern whose wet leaves catch the blue light like silver.",
+            "importance": "background",
+            "materials": ["foliage"],
+            "colors": ["silver green"],
+            "condition": "rain wet",
+            "assetSearchTags": ["silver fern"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.72, "basis": "explicit_text" }
+          },
+          {
+            "entityId": "wind-idol-1",
+            "visualDescription": "A palm-sized weathered idol ringed with thin bronze bands.",
+            "importance": "supporting",
+            "materials": ["stone", "bronze"],
+            "colors": ["lichen grey", "verdigris"],
+            "condition": "weathered",
+            "assetSearchTags": ["small fantasy wind idol"],
+            "evidence": { "passageIds": ["H1"], "confidence": 0.44, "basis": "art_direction_default" }
+          }
+        ],
+        "presentationConnections": [],
+        "unresolvedQuestions": ["The exact appearance of the guide remains intentionally unresolved."]
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "tree_oak.glb",
+  "output": "tree-oak-safe.glb",
+  "inputSha256": "d7fd8773674928c50c11b66d12c636d49bdcc15a8b1c7fbb98e6f63a3439a3f3",
+  "outputSha256": "a9f6588cda3606a8e4b43c5e2ccbe2d3eea4b88aabd1c28c8e83f7b1253811b0",
+  "runtimeMeshSha256": "176525c5dc33aed18de78ee904166ac4cc98b71659d3460190b72550b47bfd1e",
+  "inputBytes": 14644,
+  "outputBytes": 26112,
+  "runtimeMesh": "tree-oak-safe.mesh.json",
+  "runtimeMeshBytes": 67361,
+  "meshes": 2,
+  "materials": 2,
+  "triangles": 196,
+  "sourceBounds": [
+    0.6405540108680725,
+    1.2262399680912495,
+    0.7396479845046997
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-outdoor",
+  "status": "pass"
+}

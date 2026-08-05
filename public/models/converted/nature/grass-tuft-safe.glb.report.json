@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "grass_large.glb",
+  "output": "grass-tuft-safe.glb",
+  "inputSha256": "af49a595624abca7249824eeefb944d4baf974abeeb5b16110d175da3563d6cd",
+  "outputSha256": "874669ea335f0a989f82cb07db274d6abd1f3df9b3cbc207d5cd525f2973f36e",
+  "runtimeMeshSha256": "1844b869fb27970d483eb0adc7aa37dbfb045a104da3c0ad9ee850290ea5db4b",
+  "inputBytes": 18504,
+  "outputBytes": 18848,
+  "runtimeMesh": "grass-tuft-safe.mesh.json",
+  "runtimeMeshBytes": 45957,
+  "meshes": 1,
+  "materials": 1,
+  "triangles": 224,
+  "sourceBounds": [
+    0.4089978337287903,
+    0.254000011831522,
+    0.4078889787197113
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-woodland",
+  "status": "pass"
+}

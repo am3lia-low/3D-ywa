@@ -1,0 +1,74 @@
+{
+  "storyId": "story-mosswood-path",
+  "version": 1,
+  "passageId": "W1",
+  "locations": [
+    {
+      "id": "mosswood-path",
+      "name": "The misted Mosswood path",
+      "bounds": [46, 9, 56],
+      "environment": {
+        "floorColor": "#344333",
+        "wallColor": "#223128",
+        "ambientColor": "#a9beb4"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "fallen-cedar-1",
+      "name": "Rain-dark fallen cedar",
+      "kind": "natural-feature",
+      "locationId": "mosswood-path",
+      "assetKey": "environment-fallen-log",
+      "dimensions": [3.4, 0.75, 1.1],
+      "transform": { "position": [-5.2, 0.375, 1.8], "rotation": [0, 0.34, 0] },
+      "provenance": { "passageId": "W1", "confidence": 0.96 }
+    },
+    {
+      "id": "trail-lantern-1",
+      "name": "Burning brass trail lantern",
+      "kind": "light",
+      "locationId": "mosswood-path",
+      "assetKey": "lantern",
+      "state": { "lit": true },
+      "provenance": { "passageId": "W1", "confidence": 0.95 }
+    },
+    {
+      "id": "mushroom-ring-1",
+      "name": "Ring of red mushrooms",
+      "kind": "fungi",
+      "locationId": "mosswood-path",
+      "assetKey": "environment-red-mushrooms",
+      "dimensions": [0.72, 0.5, 0.72],
+      "transform": { "position": [-2.7, 0.25, 3.4] },
+      "provenance": { "passageId": "W1", "confidence": 0.93 }
+    },
+    {
+      "id": "north-waystone-1",
+      "name": "North-pointing mossy waystone",
+      "kind": "rock",
+      "locationId": "mosswood-path",
+      "assetKey": "environment-rock",
+      "dimensions": [1.45, 0.8, 1.1],
+      "transform": { "position": [4.8, 0.4, -4.5], "rotation": [0, -0.28, 0] },
+      "provenance": { "passageId": "W1", "confidence": 0.91 }
+    }
+  ],
+  "relations": [
+    {
+      "id": "woodland-lantern-on-cedar",
+      "subjectId": "trail-lantern-1",
+      "predicate": "on",
+      "objectId": "fallen-cedar-1"
+    },
+    {
+      "id": "woodland-mushrooms-near-cedar",
+      "subjectId": "mushroom-ring-1",
+      "predicate": "near",
+      "objectId": "fallen-cedar-1",
+      "distance": 0.8
+    }
+  ],
+  "conflicts": []
+}

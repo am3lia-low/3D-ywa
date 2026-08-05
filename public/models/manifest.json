@@ -1,0 +1,612 @@
+{
+  "generatedBy": "scripts/generate-models.mjs",
+  "assets": [
+    {
+      "key": "desk",
+      "url": "/models/desk.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 17420
+    },
+    {
+      "key": "chair",
+      "url": "/models/chair.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 16692
+    },
+    {
+      "key": "fireplace",
+      "url": "/models/fireplace.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 11684
+    },
+    {
+      "key": "rug",
+      "url": "/models/rug.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 9564
+    },
+    {
+      "key": "lantern",
+      "url": "/models/lantern.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 35540
+    },
+    {
+      "key": "hidden-door",
+      "url": "/models/hidden-door.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 18616
+    },
+    {
+      "key": "storybook-pine-tall",
+      "url": "/models/storybook-pine-tall.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 628000
+    },
+    {
+      "key": "storybook-pine-layered",
+      "url": "/models/storybook-pine-layered.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 503588
+    },
+    {
+      "key": "hidden-door-generated-surface",
+      "url": "/generated/hidden-door-1-v1.png",
+      "format": "PNG projected onto controlled architectural geometry",
+      "author": "Persistent StoryWorld 3D team using ComfyUI",
+      "license": "Project-owned generated artifact; source model license documented in services/comfyui/README.md",
+      "bytes": 1014202
+    },
+    {
+      "key": "worn-red-rug-surface",
+      "url": "/textures/story/faded-red-rug-v1.png",
+      "format": "PNG projected onto controlled floor geometry",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 3442804
+    },
+    {
+      "key": "parchment-map-surface",
+      "url": "/textures/story/antique-map-v1.png",
+      "format": "PNG projected onto controlled document geometry",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "bytes": 3875384
+    },
+    {
+      "key": "desk-polyhaven",
+      "url": "/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "Serhii Khromov",
+      "license": "CC0 1.0 Universal",
+      "bytes": 485316
+    },
+    {
+      "key": "chair-polyhaven",
+      "url": "/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "Jake Mobley",
+      "license": "CC0 1.0 Universal",
+      "bytes": 1079531
+    },
+    {
+      "key": "crate-polyhaven",
+      "url": "/models/polyhaven/wooden_crate_01/wooden_crate_01_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "bytes": 2277087
+    },
+    {
+      "key": "carriage-gate-polyhaven",
+      "url": "/models/polyhaven/large_castle_door/large_castle_door_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "Tina",
+      "license": "CC0 1.0 Universal",
+      "bytes": 3271006
+    },
+    {
+      "key": "courtyard-bench-polyhaven",
+      "url": "/models/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "bytes": 1989639
+    },
+    {
+      "key": "wine-barrel-polyhaven",
+      "url": "/models/polyhaven/wine_barrel_01/wine_barrel_01_1k.gltf",
+      "format": "glTF 2.0 with 1K PBR textures",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "bytes": 924683
+    },
+    {
+      "key": "authored-birch-tree",
+      "url": "/models/optimized/quaternius/birch-tree-01.glb",
+      "format": "Optimized glTF 2.0 binary with authored color textures",
+      "author": "Quaternius",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://quaternius.com/packs/ultimatestylizednature.html",
+      "bytes": 1297304
+    },
+    {
+      "key": "fern_02-lod0",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1143024,
+      "sha256": "7aeb36fd7b0494787bf5c7b5dfb8e2a4cac4a82312b8b58f9a26d6113f8a2b3d"
+    },
+    {
+      "key": "fern_02-lod1",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1067968,
+      "sha256": "a1f0cdf3b0d0b61bb99a0fe5ef50c1b2ddd7406b881c0eebc18de51f873d53ba"
+    },
+    {
+      "key": "fern_02-lod2",
+      "url": "/models/optimized/polyhaven/fern_02/fern_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rob Tuytel and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fern_02",
+      "bytes": 1017932,
+      "sha256": "790853cca7b90b4947629d9ff99878e1e7cba9c9f9fab44c9e8beb6c56201661"
+    },
+    {
+      "key": "rock_face_01-lod0",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 3048996,
+      "sha256": "17534c8e5c89d260ecb503356536866284ad3f8cc566762a902e6999ece3e060"
+    },
+    {
+      "key": "rock_face_01-lod1",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 2814164,
+      "sha256": "7387e9cb85a16034f7343201811bb215fe22b90b4985963d885956317ad906c2"
+    },
+    {
+      "key": "rock_face_01-lod2",
+      "url": "/models/optimized/polyhaven/rock_face_01/rock_face_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Dario Barresi",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/rock_face_01",
+      "bytes": 2673328,
+      "sha256": "21f1540dc4ccb8336fc2ad2e505fe7d9d2b1fd90540ea8fd7541ce512223f1d2"
+    },
+    {
+      "key": "street_lamp_01-lod0",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 2470976,
+      "sha256": "ffbbb8bf09cb302935e4a1db2e6ceadeb7cd303f715cf7ed9d26d3fe2e953d04"
+    },
+    {
+      "key": "street_lamp_01-lod1",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 2150184,
+      "sha256": "7336873cbf5d59592bc89ffd4dc798051a4f1f75f1e65821bef03d3443d5dc9d"
+    },
+    {
+      "key": "street_lamp_01-lod2",
+      "url": "/models/optimized/polyhaven/street_lamp_01/street_lamp_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_01",
+      "bytes": 1931444,
+      "sha256": "6c82147eac2da404b5a5527d0c12201985f181fedb3e3f2eb01006f609b7cd4a"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod0",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4816132,
+      "sha256": "8a30863b2baec553e60b8d08c5a306f483a1dfa335f23656736ad5ed21662fa7"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod1",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4545692,
+      "sha256": "ce33e28cfa5447513061280578f9d2908f223acfc24f511b6b507003b20c5127"
+    },
+    {
+      "key": "modular_industrial_pipes_01-lod2",
+      "url": "/models/optimized/polyhaven/modular_industrial_pipes_01/modular_industrial_pipes_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/modular_industrial_pipes_01",
+      "bytes": 4427928,
+      "sha256": "f3b104fac29a934fe25affa7f7e45e8949d4392ac9eb930b22881d14338bb47b"
+    },
+    {
+      "key": "GothicCabinet_01-lod0",
+      "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/GothicCabinet_01",
+      "bytes": 1010984,
+      "sha256": "e3abceda2c8cdf045d7993104c95dca13f1a08c609f63bdec7d72fa86c507350"
+    },
+    {
+      "key": "GothicCabinet_01-lod1",
+      "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/GothicCabinet_01",
+      "bytes": 818296,
+      "sha256": "71a7fddd13ee0c405ca2cf8e83b58187e3a386f182958eefe0992bf7e2723553"
+    },
+    {
+      "key": "GothicCabinet_01-lod2",
+      "url": "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/GothicCabinet_01",
+      "bytes": 672304,
+      "sha256": "24a75ebbded2299898145c06c43f7d1740e0f49ee6e5e55d822ce9b18898eaee"
+    },
+    {
+      "key": "ClassicConsole_01-lod0",
+      "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+      "bytes": 739796,
+      "sha256": "ddbfc8e248da5ee877f90cd1fc5c78e6ae6275d77bbb4629ba99d57df01a1149"
+    },
+    {
+      "key": "ClassicConsole_01-lod1",
+      "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+      "bytes": 647392,
+      "sha256": "45b04fea91dfcce803614b71716b82a58e89d3417c87c23cb4767973f9cdc40f"
+    },
+    {
+      "key": "ClassicConsole_01-lod2",
+      "url": "/models/optimized/polyhaven/ClassicConsole_01/ClassicConsole_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+      "bytes": 581624,
+      "sha256": "cc628d1dc36358f2c5c9f3eee35ede1bb583e4f90de27549fe3dfc7d9c80f5de"
+    },
+    {
+      "key": "ArmChair_01-lod0",
+      "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+      "bytes": 768268,
+      "sha256": "602e19a5f6d3deafbb7da6c9c7419a1d649507d35811c037fcc16e7209c71dc7"
+    },
+    {
+      "key": "ArmChair_01-lod1",
+      "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+      "bytes": 703216,
+      "sha256": "5c0dad509f2a0e8412f5d828d3863750f50533b69776af26eeec99b99c4105a9"
+    },
+    {
+      "key": "ArmChair_01-lod2",
+      "url": "/models/optimized/polyhaven/ArmChair_01/ArmChair_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+      "bytes": 658716,
+      "sha256": "80db1cdd8f870c5b1bf2aa120e0dd7a5d9adc3b5aef3e7b1ea03234b448db7ec"
+    },
+    {
+      "key": "lantern_chandelier_01-lod0",
+      "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/lantern_chandelier_01",
+      "bytes": 1429244,
+      "sha256": "43af96cea14febd1ee247fdf0407fd57e1c8c88ff8be6e71ffdb90853309888c"
+    },
+    {
+      "key": "lantern_chandelier_01-lod1",
+      "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/lantern_chandelier_01",
+      "bytes": 1335568,
+      "sha256": "2c730b5fa0e71757ee529fd85c7070459d6b045649564f4dafb1221fbbde485c"
+    },
+    {
+      "key": "lantern_chandelier_01-lod2",
+      "url": "/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/lantern_chandelier_01",
+      "bytes": 1271452,
+      "sha256": "998cc9b524ae10d325912ecfeedce010500067b523f278c0a9bf2ec1cd11eb3d"
+    },
+    {
+      "key": "painted_wooden_cabinet_02-lod0",
+      "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+      "bytes": 1593312,
+      "sha256": "43c83543ba712d21a031288b461dce1375656cb3379d099a1511b7c10e28a9dd"
+    },
+    {
+      "key": "painted_wooden_cabinet_02-lod1",
+      "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+      "bytes": 1578840,
+      "sha256": "3a4ee14d14ddf55f385d5e1ec37c0d3b7642b9a6b15aa9bd4c2df74454fba3ba"
+    },
+    {
+      "key": "painted_wooden_cabinet_02-lod2",
+      "url": "/models/optimized/polyhaven/painted_wooden_cabinet_02/painted_wooden_cabinet_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet_02",
+      "bytes": 1569372,
+      "sha256": "dee7a391e8c7bcc20690aaf8ca65ed001d39bb32ec9c4a922cd07db1aeb6d5d2"
+    },
+    {
+      "key": "wooden_bookshelf_worn-lod0",
+      "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "bytes": 2776196,
+      "sha256": "77eabe480c1ff0ef6ce86b4c5a32466f14851894743ed27cd4232e0bd06ca4da"
+    },
+    {
+      "key": "wooden_bookshelf_worn-lod1",
+      "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "bytes": 2668556,
+      "sha256": "d4def85b9ff5e85ffcde9add89ff0af76ceea1671ce63c6bae6711992ebbc168"
+    },
+    {
+      "key": "wooden_bookshelf_worn-lod2",
+      "url": "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "bytes": 2594072,
+      "sha256": "059358fb483edb822015827aba6c254b5be2cf6c21dd733999fb9c203451fb34"
+    },
+    {
+      "key": "story-door",
+      "url": "/models/kenney/furniture/doorwayFront.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 13016
+    },
+    {
+      "key": "storybook-bookcase",
+      "url": "/models/kenney/furniture/bookcaseOpen.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 18020
+    },
+    {
+      "key": "storybook-bookcase-wide",
+      "url": "/models/kenney/furniture/bookcaseClosedWide.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 23140
+    },
+    {
+      "key": "storybook-books",
+      "url": "/models/kenney/furniture/books.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 6864
+    },
+    {
+      "key": "storybook-side-table",
+      "url": "/models/kenney/furniture/sideTableDrawers.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 19072
+    },
+    {
+      "key": "storybook-floor-lamp",
+      "url": "/models/kenney/furniture/lampRoundFloor.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 6600
+    },
+    {
+      "key": "storybook-table-lamp",
+      "url": "/models/kenney/furniture/lampRoundTable.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 6604
+    },
+    {
+      "key": "storybook-lounge-chair",
+      "url": "/models/kenney/furniture/loungeChair.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 9648
+    },
+    {
+      "key": "storybook-potted-plant",
+      "url": "/models/kenney/furniture/pottedPlant.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 7576
+    },
+    {
+      "key": "storybook-coat-rack",
+      "url": "/models/kenney/furniture/coatRackStanding.glb",
+      "format": "glTF 2.0 binary",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "bytes": 13288
+    },
+    {
+      "key": "environment-tree-oak",
+      "url": "/models/converted/nature/tree-oak-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 67361
+    },
+    {
+      "key": "environment-bush",
+      "url": "/models/converted/nature/bush-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 23958
+    },
+    {
+      "key": "environment-rock",
+      "url": "/models/converted/nature/rock-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 46306
+    },
+    {
+      "key": "environment-pine-tall",
+      "url": "/models/converted/nature/pine-tall-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 45758
+    },
+    {
+      "key": "environment-pine-round",
+      "url": "/models/converted/nature/pine-round-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 67565
+    },
+    {
+      "key": "environment-fallen-log",
+      "url": "/models/converted/nature/fallen-log-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 29736
+    },
+    {
+      "key": "environment-grass-tuft",
+      "url": "/models/converted/nature/grass-tuft-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 45957
+    },
+    {
+      "key": "environment-red-mushrooms",
+      "url": "/models/converted/nature/red-mushrooms-safe.mesh.json",
+      "format": "StoryWorld safe mesh 1.0",
+      "author": "Kenney",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "bytes": 67500
+    }
+  ]
+}

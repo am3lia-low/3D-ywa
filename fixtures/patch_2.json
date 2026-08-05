@@ -1,0 +1,41 @@
+{
+  "fromVersion": 1,
+  "toVersion": 2,
+  "operations": [
+    {
+      "op": "move_entity",
+      "entityId": "chair-1",
+      "position": [2.25, 0.55, 0.75],
+      "rotation": [0, -0.45, 0]
+    },
+    {
+      "op": "update_entity",
+      "entityId": "desk-1",
+      "changes": { "state": { "condition": "scratched" } }
+    },
+    {
+      "op": "add_entity",
+      "entity": {
+        "id": "lantern-1",
+        "name": "Brass lantern",
+        "kind": "light",
+        "locationId": "attic-study",
+        "assetKey": "lantern",
+        "state": { "lit": false },
+        "provenance": { "passageId": "P2", "confidence": 0.96 }
+      }
+    },
+    {
+      "op": "add_relation",
+      "relation": {
+        "id": "lantern-near-desk",
+        "subjectId": "lantern-1",
+        "predicate": "right_of",
+        "objectId": "desk-1",
+        "distance": 0.3
+      }
+    },
+    { "op": "remove_relation", "relationId": "chair-near-desk" }
+  ]
+}
+

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+__pycache__/
+*.pyc
+.proposal-render/
+.local/
+.asset-cache/
+public/generated/*.glb
+*.local

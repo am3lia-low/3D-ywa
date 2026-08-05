@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0",
+  "storyId": "story-rain-courtyard",
+  "segmentId": "courtyard-departure",
+  "sourcePassageIds": ["R1", "R2"],
+  "snapshotVersion": 2,
+  "planVersion": 2,
+  "previousPlanVersion": 1,
+  "artDirection": {
+    "styleLabel": "rainy historical storybook realism",
+    "stylePrompt": "A rain-washed old coaching courtyard with tactile masonry, reflective cobbles, restrained autumn colour and one inviting pool of lantern light.",
+    "negativePrompt": ["modern asphalt", "plastic street furniture", "empty plaza", "flat grey lighting"],
+    "materialVocabulary": ["wet cobblestone", "weathered limestone", "dark oak", "aged brass", "autumn ivy", "rain-marked parchment"]
+  },
+  "locations": [
+    {
+      "locationId": "coaching-courtyard",
+      "archetype": "rain-washed coaching courtyard",
+      "visualDescription": "An open coaching courtyard enclosed by weathered masonry arcades, rain-dark cobbles and ivy-softened walls, now warmed by a courier lantern.",
+      "architectureTags": ["open-air", "cobblestone-courtyard", "courtyard-walls", "stone-arcade", "weathered-masonry"],
+      "dressingTags": [
+        "rain-puddles",
+        "wall-ivy",
+        "fallen-leaves",
+        "courtyard-clutter",
+        "broadleaf-trees",
+        "hedges",
+        "verge-rocks"
+      ],
+      "dressingDensity": "rich",
+      "mood": "expectant, rain-muted and ready for departure",
+      "timeOfDay": "overcast late afternoon",
+      "palette": {
+        "background": "#243236",
+        "fog": "#39484a",
+        "floor": "#555b58",
+        "wall": "#918a79",
+        "timber": "#423329",
+        "ambient": "#b8c8c7",
+        "keyLight": "#d2dddc",
+        "practical": "#f0a45c"
+      },
+      "lighting": {
+        "warmth": "neutral",
+        "contrast": "medium",
+        "ambientIntensity": 0.6,
+        "keyIntensity": 1.75,
+        "atmosphericEffects": ["rain-streaks"]
+      },
+      "evidence": {
+        "passageIds": ["R1", "R2"],
+        "confidence": 0.8,
+        "basis": "cross_passage_inference",
+        "note": "Decorative rain, ivy, leaf litter, approach trees, hedges and rocks remain presentation-only dressing."
+      }
+    }
+  ],
+  "entities": [
+    {
+      "entityId": "courtyard-table-1",
+      "visualDescription": "A broad weathered oak sorting table darkened by rain at the edges.",
+      "importance": "supporting",
+      "materials": ["aged oak", "dark iron"],
+      "colors": ["deep brown"],
+      "condition": "weathered",
+      "assetSearchTags": ["historical wooden table", "courier sorting table"],
+      "evidence": { "passageIds": ["R1"], "confidence": 0.9, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "courtyard-chair-1",
+      "visualDescription": "A sturdy wooden waiting chair pulled towards the carriage gate.",
+      "importance": "supporting",
+      "materials": ["oak"],
+      "colors": ["warm brown"],
+      "condition": "used",
+      "assetSearchTags": ["historical wooden chair", "courier chair"],
+      "evidence": { "passageIds": ["R2"], "confidence": 0.88, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "courtyard-parcel-1",
+      "visualDescription": "A compact wooden parcel crate bound for travel and closed with a red wax seal.",
+      "importance": "supporting",
+      "materials": ["rough wood", "wax", "cord"],
+      "colors": ["umber", "dark red"],
+      "condition": "rain-speckled",
+      "assetSearchTags": ["wooden parcel crate", "historical package"],
+      "evidence": { "passageIds": ["R1"], "confidence": 0.92, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "courtyard-gate-1",
+      "visualDescription": "A tall dark-oak carriage gate set into the north arcade, its lock released.",
+      "importance": "hero",
+      "materials": ["dark oak", "iron straps", "stone surround"],
+      "colors": ["charcoal brown", "iron black"],
+      "condition": "unlocked",
+      "assetSearchTags": ["historical courtyard gate", "oak carriage gate"],
+      "evidence": { "passageIds": ["R2"], "confidence": 0.94, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "courtyard-lantern-1",
+      "visualDescription": "An old brass courier lantern casting a warm pool of light across the wet table.",
+      "importance": "supporting",
+      "materials": ["aged brass", "glass"],
+      "colors": ["warm gold", "amber"],
+      "condition": "lit",
+      "assetSearchTags": ["historical brass lantern", "courier lantern"],
+      "evidence": { "passageIds": ["R2"], "confidence": 0.95, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "courtyard-map-1",
+      "visualDescription": "A small rain-marked route map spread beside the parcel.",
+      "importance": "supporting",
+      "materials": ["aged parchment", "ink"],
+      "colors": ["warm parchment", "sepia"],
+      "condition": "rain-marked",
+      "assetSearchTags": ["historical route map", "wet parchment map"],
+      "evidence": { "passageIds": ["R2"], "confidence": 0.94, "basis": "explicit_text" }
+    }
+  ],
+  "presentationConnections": [],
+  "unresolvedQuestions": ["The passage does not establish the view beyond the unlocked gate."]
+}

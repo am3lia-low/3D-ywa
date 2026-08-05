@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0",
+  "storyId": "story-moonlit-conservatory",
+  "segmentId": "conservatory-awakening",
+  "sourcePassageIds": ["C1"],
+  "snapshotVersion": 1,
+  "planVersion": 1,
+  "artDirection": {
+    "styleLabel": "botanical gothic storybook realism",
+    "stylePrompt": "An elegant moonlit glasshouse with oxidized metalwork, lush silhouettes, jewel-toned botanical accents and tactile grounded materials.",
+    "negativePrompt": ["laboratory plastic", "flat debug materials", "empty room", "harsh white light"],
+    "materialVocabulary": ["aged bronze", "fogged glass", "green stone tile", "dark wood", "painted ceramic"]
+  },
+  "locations": [
+    {
+      "locationId": "moonlit-conservatory",
+      "archetype": "moonlit-conservatory",
+      "visualDescription": "A tall botanical glasshouse whose iron ribs frame moonlit panes above a patterned green stone floor.",
+      "architectureTags": ["glasshouse-panels", "iron-frame", "stone-tile-floor", "arched-glazing"],
+      "dressingTags": ["planters", "climbing-vines", "ceramic-pots"],
+      "dressingDensity": "rich",
+      "mood": "enchanted, hushed and verdant",
+      "timeOfDay": "moonlit night",
+      "palette": {
+        "background": "#071516",
+        "fog": "#102626",
+        "floor": "#30483f",
+        "wall": "#6d948b",
+        "timber": "#253c38",
+        "ambient": "#9ac7c3",
+        "keyLight": "#b8d9e7",
+        "practical": "#f0a95f"
+      },
+      "lighting": {
+        "warmth": "cool",
+        "contrast": "high",
+        "ambientIntensity": 0.62,
+        "keyIntensity": 2.1,
+        "atmosphericEffects": ["window-shaft", "dust-motes"]
+      },
+      "evidence": { "passageIds": ["C1"], "confidence": 0.8, "basis": "cross_passage_inference" }
+    }
+  ],
+  "entities": [
+    {
+      "entityId": "conservatory-worktable-1",
+      "visualDescription": "A weathered dark wooden potting worktable with a broad practical top.",
+      "importance": "supporting",
+      "materials": ["dark wood"],
+      "colors": ["deep brown"],
+      "condition": "weathered",
+      "assetSearchTags": ["wooden work table", "potting bench"],
+      "evidence": { "passageIds": ["C1"], "confidence": 0.9, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "conservatory-chair-1",
+      "visualDescription": "A slender wooden garden chair with a simple upright back.",
+      "importance": "supporting",
+      "materials": ["wood"],
+      "colors": ["warm brown"],
+      "condition": "used",
+      "assetSearchTags": ["wooden chair", "garden seat"],
+      "evidence": { "passageIds": ["C1"], "confidence": 0.91, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "conservatory-runner-1",
+      "visualDescription": "A faded botanical runner rug in deep wine and moss tones.",
+      "importance": "background",
+      "materials": ["woven wool"],
+      "colors": ["wine red", "moss green"],
+      "condition": "faded",
+      "assetSearchTags": ["botanical rug", "vintage runner"],
+      "evidence": { "passageIds": ["C1"], "confidence": 0.87, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "conservatory-door-1",
+      "visualDescription": "A tall dark wooden garden door framed by oxidized iron and glass.",
+      "importance": "supporting",
+      "materials": ["dark wood", "oxidized iron", "glass"],
+      "colors": ["charcoal green"],
+      "condition": "locked",
+      "assetSearchTags": ["garden door", "gothic glasshouse door"],
+      "evidence": { "passageIds": ["C1"], "confidence": 0.94, "basis": "explicit_text" }
+    },
+    {
+      "entityId": "orrery-1",
+      "visualDescription": "A unique celestial flower orrery with enamel planets and clockwork rings opening like petals.",
+      "importance": "hero",
+      "materials": ["bronze", "painted enamel", "steel rings"],
+      "colors": ["midnight blue", "verdigris", "gold"],
+      "condition": "dormant",
+      "assetSearchTags": ["celestial flower orrery", "clockwork planetary instrument"],
+      "evidence": { "passageIds": ["C1"], "confidence": 0.93, "basis": "explicit_text" }
+    }
+  ],
+  "presentationConnections": [],
+  "unresolvedQuestions": []
+}

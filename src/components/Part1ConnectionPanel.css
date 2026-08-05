@@ -1,0 +1,91 @@
+.part1-connection {
+  margin-top: 1rem;
+  border: 1px solid #30383d;
+  border-radius: 18px;
+  padding: 1rem 1.2rem;
+  background: #1a2024;
+}
+
+.part1-connection summary {
+  color: #dce8e5;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.part1-connection form {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.2fr) minmax(10rem, 1fr) minmax(8rem, 0.5fr);
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.part1-connection label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.part1-connection label span {
+  color: #91a7a2;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.part1-connection input,
+.part1-connection textarea {
+  width: 100%;
+  border: 1px solid #465157;
+  border-radius: 10px;
+  padding: 0.7rem;
+  color: #f4efe7;
+  background: #242b30;
+  font: inherit;
+}
+
+.part1-connection textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.part1-passage-input,
+.part1-actions {
+  grid-column: 1 / -1;
+}
+
+.part1-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.part1-help,
+.part1-notice {
+  margin: 0.8rem 0 0;
+  color: #9caaa7;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.part1-help code {
+  color: #c5e7df;
+}
+
+.part1-notice.success {
+  color: #9bd8cd;
+}
+
+.part1-notice.error {
+  color: #ffad9f;
+}
+
+@media (max-width: 820px) {
+  .part1-connection form {
+    grid-template-columns: 1fr;
+  }
+
+  .part1-passage-input,
+  .part1-actions {
+    grid-column: auto;
+  }
+}

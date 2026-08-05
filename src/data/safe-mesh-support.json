@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "assets": {
+    "/models/converted/nature/tree-oak-safe.mesh.json": {
+      "supportSurfaceY": 1
+    },
+    "/models/converted/nature/bush-safe.mesh.json": {
+      "supportSurfaceY": 0.021328
+    },
+    "/models/converted/nature/rock-safe.mesh.json": {
+      "supportSurfaceY": 1
+    },
+    "/models/converted/nature/pine-tall-safe.mesh.json": {
+      "supportSurfaceY": 0.937451
+    },
+    "/models/converted/nature/pine-round-safe.mesh.json": {
+      "supportSurfaceY": 1
+    },
+    "/models/converted/nature/fallen-log-safe.mesh.json": {
+      "supportSurfaceY": 0.746905
+    },
+    "/models/converted/nature/red-mushrooms-safe.mesh.json": {
+      "supportSurfaceY": 0.840336
+    }
+  }
+}

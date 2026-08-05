@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "input": "rock_largeB.glb",
+  "output": "rock-safe.glb",
+  "inputSha256": "caa8b025833d4dabf6d98fe2e96cf2fbd886693ac990df0db75f9d827194374b",
+  "outputSha256": "e234ea32350f050ff47d850f4eee8b03472c3908aa1048e8b3fca6f731e20fb0",
+  "runtimeMeshSha256": "052ec2aa0263e12f30a146bada4ec373221b0daddaaff0a07bf75bda288010c8",
+  "inputBytes": 8560,
+  "outputBytes": 20932,
+  "runtimeMesh": "rock-safe.mesh.json",
+  "runtimeMeshBytes": 46306,
+  "meshes": 3,
+  "materials": 3,
+  "triangles": 85,
+  "sourceBounds": [
+    0.7667151093482971,
+    0.4302540011703968,
+    1.0154614448547363
+  ],
+  "extensionsUsed": [],
+  "policy": "geometry-only-standard-material-v1",
+  "palette": "storybook-outdoor",
+  "status": "pass"
+}

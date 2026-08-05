@@ -1,0 +1,121 @@
+.entity-inspector {
+  display: grid;
+  align-content: start;
+  gap: 0.32rem;
+  min-height: 112px;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #30383d;
+  border-radius: 18px;
+  background: #1a2024;
+}
+
+.entity-inspector > strong,
+.entity-inspector > small {
+  display: block;
+}
+
+.entity-inspector > strong {
+  color: #f4efe7;
+}
+
+.entity-inspector > small {
+  overflow-wrap: anywhere;
+  color: #929a9a;
+}
+
+.entity-inspector__eyebrow,
+.entity-inspector__section h2 {
+  color: #91a7a2;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.entity-inspector__facts,
+.entity-inspector__state {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+}
+
+.entity-inspector__facts > div,
+.entity-inspector__state > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.entity-inspector dt,
+.entity-inspector dd {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.entity-inspector dt {
+  color: #84908f;
+  text-transform: capitalize;
+}
+
+.entity-inspector dd {
+  color: #d9d3ca;
+  text-align: right;
+}
+
+.entity-inspector__section {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid #30383d;
+}
+
+.entity-inspector__section h2 {
+  margin: 0 0 0.5rem;
+}
+
+.entity-inspector__relations {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.entity-inspector__relations button,
+.entity-inspector__relations p {
+  width: 100%;
+  margin: 0;
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  color: #dce9e6;
+  background: #242e31;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.entity-inspector__relations button {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.entity-inspector__relations button:hover {
+  background: #304043;
+}
+
+.entity-inspector__relations b {
+  color: #69dfce;
+}
+
+.entity-inspector__conflicts {
+  border-top-color: rgba(239, 111, 108, 0.35);
+}
+
+.entity-inspector__conflicts h2 {
+  color: #f19a86;
+}
+
+.entity-inspector__conflicts p {
+  margin: 0;
+  color: #edc2b8;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}

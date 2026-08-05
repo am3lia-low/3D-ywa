@@ -1,11 +1,8 @@
-// Thin adapter over the backend contract described in the PRD (§14 Minimum Backend
-// Interfaces). Every function here corresponds to one endpoint and returns exactly
-// the shape that endpoint promises. Nothing outside this file knows the data is
-// coming from local mock state and setTimeout instead of a network request —
-// swapping these bodies for real fetch() calls once the schema is aligned with
-// Member 1's backend should not require touching any component.
+// Thin adapter over the backend contract described in the PRD. Components do
+// not need to know that this development build uses local mock state and delay.
 
 import { BOOKS, CONFLICTS, PATCHES, SNAPSHOTS, summaryFromPatch } from '../data/mockData'
+import { buildMockSpatialScene } from '../spatial/mockSpatialAdapter'
 import type { Book, ChapterProcessingResult, Conflict, ConflictResolution, ProcessingStage } from '../types'
 
 function delay(ms: number) {
@@ -28,8 +25,7 @@ export async function importBook(input: { title: string; text: string }): Promis
     title: input.title.trim() || 'Untitled Story',
     description: 'Imported story',
     chapters: [
-      // No chapter-heading detection in this prototype: the whole submission
-      // becomes one chapter, per PRD §4's documented fallback behaviour.
+      // Until chapter-heading detection is connected, one import is one chapter.
       { id: `${id}-ch1`, bookId: id, index: 1, title: 'Chapter 1', content: input.text, processingStatus: 'not_started' },
     ],
   }
@@ -38,39 +34,31 @@ export async function importBook(input: { title: string; text: string }): Promis
 const STAGE_SEQUENCE: ProcessingStage[] = ['understanding_chapter', 'matching_entities', 'updating_world', 'preparing_scene']
 const STAGE_DELAYS_MS = [900, 1500, 1700, 1500]
 
-const attemptsByChapterId = new Map<string, number>()
-
 // POST /api/books/{bookId}/chapters/{chapterId}/process
-// (also used for retry — see retryChapterProcessing below)
 export async function processChapter(
   bookId: string,
   chapterId: string,
   onStage?: (stage: ProcessingStage) => void,
 ): Promise<ChapterProcessingResult> {
-  const attempt = (attemptsByChapterId.get(chapterId) ?? 0) + 1
-  attemptsByChapterId.set(chapterId, attempt)
-
   for (let i = 0; i < STAGE_SEQUENCE.length; i++) {
     await delay(STAGE_DELAYS_MS[i])
     onStage?.(STAGE_SEQUENCE[i])
   }
   await delay(500)
 
-  // Demo hook: the first processing attempt on Ashwood chapter 2 simulates a
-  // transient backend failure, so the failure / Retry Loading UI (PRD §12) has
-  // a real path that exercises it instead of being permanently dead code.
-  if (chapterId === 'ashwood-ch2' && attempt === 1) {
-    throw new Error('The narrative-processing service timed out while resolving spatial relationships.')
-  }
-
   const snapshot = SNAPSHOTS[chapterId]
   const patch = PATCHES[chapterId]
   if (!snapshot || !patch) throw new Error(`No processing result is available for chapter ${chapterId}.`)
+  const book = BOOKS.find(candidate => candidate.id === bookId)
+  const chapter = book?.chapters.find(candidate => candidate.id === chapterId)
+  if (!book || !chapter) throw new Error(`No story metadata is available for chapter ${chapterId}.`)
+  const spatial = buildMockSpatialScene(book, chapter, snapshot)
 
   return {
     chapterId,
     snapshot,
     patch,
+    ...spatial,
     summary: summaryFromPatch(patch, snapshot),
     conflicts: CONFLICTS[chapterId] ?? [],
   }
@@ -88,7 +76,7 @@ export async function retryChapterProcessing(
 // POST /api/conflicts/{conflictId}/resolve
 export async function resolveConflict(conflictId: string, resolution: ConflictResolution): Promise<Conflict> {
   await delay(700)
-  const conflict = Object.values(CONFLICTS).flat().find(c => c.id === conflictId)
+  const conflict = Object.values(CONFLICTS).flat().find(candidate => candidate.id === conflictId)
   if (!conflict) throw new Error(`Unknown conflict ${conflictId}.`)
   return { ...conflict, activeInterpretation: resolution, status: resolution === 'unresolved' ? 'open' : 'resolved' }
 }

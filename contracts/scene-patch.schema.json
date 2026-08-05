@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fromVersion": {
+      "$ref": "#/$defs/__schema0"
+    },
+    "toVersion": {
+      "$ref": "#/$defs/__schema1"
+    },
+    "operations": {
+      "$ref": "#/$defs/__schema2"
+    }
+  },
+  "required": [
+    "fromVersion",
+    "toVersion",
+    "operations"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "__schema1": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "__schema2": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "add_entity"
+              },
+              "entity": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "kind": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "locationId": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "assetKey": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "aliases": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "transform": {
+                    "$ref": "#/$defs/__schema4"
+                  },
+                  "dimensions": {
+                    "$ref": "#/$defs/__schema6"
+                  },
+                  "state": {
+                    "$ref": "#/$defs/__schema7"
+                  },
+                  "provenance": {
+                    "type": "object",
+                    "properties": {
+                      "passageId": {
+                        "$ref": "#/$defs/__schema3"
+                      },
+                      "sentence": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "passageId"
+                    ],
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "kind",
+                  "locationId"
+                ],
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "op",
+              "entity"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "remove_entity"
+              },
+              "entityId": {
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "op",
+              "entityId"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "move_entity"
+              },
+              "entityId": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "position": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "rotation": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "locationId": {
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "op",
+              "entityId",
+              "position"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "update_entity"
+              },
+              "entityId": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "changes": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "$ref": "#/$defs/__schema8"
+                  },
+                  "kind": {
+                    "$ref": "#/$defs/__schema9"
+                  },
+                  "assetKey": {
+                    "$ref": "#/$defs/__schema10"
+                  },
+                  "dimensions": {
+                    "$ref": "#/$defs/__schema11"
+                  },
+                  "state": {
+                    "$ref": "#/$defs/__schema12"
+                  },
+                  "transform": {
+                    "$ref": "#/$defs/__schema13"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "entityId",
+              "changes"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "add_relation"
+              },
+              "relation": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "subjectId": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "predicate": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "objectId": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "distance": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "properties": {
+                      "wall": {
+                        "type": "string",
+                        "enum": [
+                          "north",
+                          "south",
+                          "east",
+                          "west"
+                        ]
+                      }
+                    },
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "id",
+                  "subjectId",
+                  "predicate"
+                ],
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "op",
+              "relation"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "remove_relation"
+              },
+              "relationId": {
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "op",
+              "relationId"
+            ],
+            "additionalProperties": {}
+          }
+        ]
+      }
+    },
+    "__schema3": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema4": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "$ref": "#/$defs/__schema5"
+        },
+        "rotation": {
+          "$ref": "#/$defs/__schema5"
+        },
+        "scale": {
+          "$ref": "#/$defs/__schema5"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "__schema5": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "__schema6": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      ]
+    },
+    "__schema7": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
+    "__schema8": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema9": {
+      "$ref": "#/$defs/__schema3"
+    },
+    "__schema10": {
+      "$ref": "#/$defs/__schema3"
+    },
+    "__schema11": {
+      "$ref": "#/$defs/__schema6"
+    },
+    "__schema12": {
+      "$ref": "#/$defs/__schema7"
+    },
+    "__schema13": {
+      "$ref": "#/$defs/__schema4"
+    }
+  },
+  "$id": "https://persistent-storyworld.local/contracts/ScenePatch",
+  "title": "ScenePatch"
+}

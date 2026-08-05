@@ -1,3 +1,9 @@
+import type {
+  ScenePatch as SpatialScenePatch,
+  VisualScenePlan,
+  WorldSnapshot as SpatialWorldSnapshot,
+} from '@spatial-runtime'
+
 // Shared types for the frontend. These mirror the PRD's data model (Book, Chapter,
 // ChapterProcessingResult, FrontendState, etc.) so the mock API layer in `src/api/mockApi.ts`
 // and the `WorldViewer` component can be swapped for Member 1/Member 2's real
@@ -30,6 +36,9 @@ export interface ChapterProcessingResult {
   chapterId: string
   snapshot: WorldSnapshot
   patch: ScenePatch
+  spatialSnapshot: SpatialWorldSnapshot
+  spatialPatch: SpatialScenePatch | null
+  visualPlan: VisualScenePlan
   summary: ChapterUpdateSummary
   conflicts: Conflict[]
 }

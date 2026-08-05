@@ -1,0 +1,145 @@
+{
+  "storyId": "story-attic-study",
+  "version": 1,
+  "passageId": "P1",
+  "locations": [
+    {
+      "id": "attic-study",
+      "name": "Attic study",
+      "bounds": [30, 6.8, 26],
+      "environment": {
+        "floorColor": "#3d352e",
+        "wallColor": "#a89d8d",
+        "ambientColor": "#d8cfbd"
+      }
+    },
+    {
+      "id": "archive-vault",
+      "name": "Archive vault",
+      "bounds": [22, 5.4, 20],
+      "environment": {
+        "floorColor": "#273333",
+        "wallColor": "#667474",
+        "ambientColor": "#b8d0ca"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "desk-1",
+      "name": "Oak writing desk",
+      "kind": "furniture",
+      "locationId": "attic-study",
+      "assetKey": "desk",
+      "aliases": ["desk", "writing table"],
+      "transform": { "position": [-2.6, 0.6, -1.1] },
+      "state": { "condition": "worn" },
+      "provenance": { "passageId": "P1", "confidence": 0.98 }
+    },
+    {
+      "id": "chair-1",
+      "name": "Desk chair",
+      "kind": "furniture",
+      "locationId": "attic-study",
+      "assetKey": "chair",
+      "provenance": { "passageId": "P1", "confidence": 0.95 }
+    },
+    {
+      "id": "hearth-1",
+      "name": "Stone hearth",
+      "kind": "architecture",
+      "locationId": "attic-study",
+      "assetKey": "fireplace",
+      "state": { "lit": false },
+      "provenance": { "passageId": "P1", "confidence": 0.99 }
+    },
+    {
+      "id": "rug-1",
+      "name": "Faded red rug",
+      "kind": "decor",
+      "locationId": "attic-study",
+      "assetKey": "rug",
+      "provenance": { "passageId": "P1", "confidence": 0.97 }
+    },
+    {
+      "id": "map-1",
+      "name": "Folded old map",
+      "kind": "document",
+      "locationId": "attic-study",
+      "dimensions": [0.55, 0.08, 0.4],
+      "provenance": { "passageId": "P1", "confidence": 0.84 }
+    },
+    {
+      "id": "archive-desk-1",
+      "name": "Archive catalog desk",
+      "kind": "furniture",
+      "locationId": "archive-vault",
+      "assetKey": "desk",
+      "transform": { "position": [0, 0.6, -1.8] },
+      "provenance": { "passageId": "P1", "confidence": 0.94 }
+    },
+    {
+      "id": "archive-chair-1",
+      "name": "Archivist's chair",
+      "kind": "furniture",
+      "locationId": "archive-vault",
+      "assetKey": "chair",
+      "provenance": { "passageId": "P1", "confidence": 0.92 }
+    },
+    {
+      "id": "archive-rug-1",
+      "name": "Moth-eaten archive rug",
+      "kind": "decor",
+      "locationId": "archive-vault",
+      "assetKey": "rug",
+      "provenance": { "passageId": "P1", "confidence": 0.9 }
+    }
+  ],
+  "relations": [
+    {
+      "id": "chair-near-desk",
+      "subjectId": "chair-1",
+      "predicate": "in_front_of",
+      "objectId": "desk-1",
+      "distance": 0.25
+    },
+    {
+      "id": "hearth-north-wall",
+      "subjectId": "hearth-1",
+      "predicate": "against_wall",
+      "metadata": { "wall": "north" }
+    },
+    {
+      "id": "rug-centered",
+      "subjectId": "rug-1",
+      "predicate": "centered"
+    },
+    {
+      "id": "map-on-desk",
+      "subjectId": "map-1",
+      "predicate": "on",
+      "objectId": "desk-1"
+    },
+    {
+      "id": "archive-chair-near-desk",
+      "subjectId": "archive-chair-1",
+      "predicate": "in_front_of",
+      "objectId": "archive-desk-1",
+      "distance": 0.3
+    },
+    {
+      "id": "archive-rug-centered",
+      "subjectId": "archive-rug-1",
+      "predicate": "centered"
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "map-display-conflict",
+      "entityId": "map-1",
+      "description": "The map is described as folded, but its exact display state is uncertain.",
+      "status": "open",
+      "passageIds": ["P1"]
+    }
+  ]
+}

@@ -99,3 +99,10 @@ body {
 
 .font-serif { font-family: 'Playfair Display', Georgia, serif; }
 .font-mono  { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+
+/* Keep Member 2's camera controls clear of Member 3's product chrome. */
+.member-three-spatial-world .world-camera-modes {
+  top: 4.5rem;
+  right: 1.25rem;
+  z-index: 25;
+}

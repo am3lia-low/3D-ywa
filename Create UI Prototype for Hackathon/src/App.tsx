@@ -672,7 +672,7 @@ function ReaderScreen({
 // ─── Explorer Screen ──────────────────────────────────────────────────────────
 
 function ExplorerScreen({
-  book, chapter, snapshot, patch, summary,
+  book, chapter, snapshot, patch, spatialScene, summary,
   selectedEntityId, highlightedEntityIds, onSelectEntity,
   drawerOpen, onToggleDrawer, displayedTextChapterId, onViewChapter,
   summaryOpen, onToggleSummary,
@@ -680,7 +680,7 @@ function ExplorerScreen({
   conflicts, adminPanelOpen, onOpenAdminPanel, onCloseAdminPanel, onResolveConflict,
   onBack, onNextChapter, isFinalChapter,
 }: {
-  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; patch: ScenePatch | null; summary: ChapterUpdateSummary | null;
+  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; patch: ScenePatch | null; spatialScene: ChapterProcessingResult | null; summary: ChapterUpdateSummary | null;
   selectedEntityId: string | null; highlightedEntityIds: string[]; onSelectEntity: (id: string | null) => void;
   drawerOpen: boolean; onToggleDrawer: () => void; displayedTextChapterId: string; onViewChapter: (id: string) => void;
   summaryOpen: boolean; onToggleSummary: () => void;
@@ -693,6 +693,7 @@ function ExplorerScreen({
   const openConflicts = conflicts.filter(c => c.status === 'open')
   const activeConflict = conflicts.find(c => c.status === 'open') ?? conflicts[conflicts.length - 1] ?? null
   const [sceneError, setSceneError] = useState<string | null>(null)
+  const [cameraResetKey, setCameraResetKey] = useState(0)
 
   return (
     <div className="relative h-screen overflow-hidden" style={{ background: '#06050c' }}>
@@ -708,14 +709,17 @@ function ExplorerScreen({
           </div>
         ) : (
           <WorldViewer
-            snapshot={snapshot}
-            patch={patch}
+            key={cameraResetKey}
+            snapshot={spatialScene?.spatialSnapshot ?? null}
+            patch={spatialScene?.spatialPatch ?? null}
+            visualPlan={spatialScene?.visualPlan ?? null}
             selectedEntityId={selectedEntityId}
             highlightedEntityIds={highlightedEntityIds}
             showChapterChanges
             onEntitySelect={onSelectEntity}
             onSceneReady={() => setSceneError(null)}
             onSceneError={msg => setSceneError(msg)}
+            onPassageAdvance={isFinalChapter ? undefined : onNextChapter}
           />
         )}
       </div>
@@ -732,6 +736,7 @@ function ExplorerScreen({
           <div className="font-mono text-[10px]">Chapter {chapter.index} · 3D World</div>
         </div>
         <button
+          onClick={() => setCameraResetKey(key => key + 1)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-mono transition-all hover:opacity-80"
           style={{ background: 'rgba(10,9,16,0.7)', borderColor: 'rgba(201,165,90,0.1)', color: '#6e6354', backdropFilter: 'blur(12px)' }}>
           ⊙ Reset camera
@@ -1012,12 +1017,14 @@ export default function App() {
 
   if ((appMode === 'exploring' || appMode === 'admin_review') && activeBook && latestProcessedChapter && displayedTextChapterId) {
     const isFinalChapter = activeBook.chapters.findIndex(c => c.id === latestProcessedChapterId) === activeBook.chapters.length - 1
+    const activeSpatialScene = chapterResults[latestProcessedChapter.id] ?? null
     return (
       <ExplorerScreen
         book={activeBook}
         chapter={latestProcessedChapter}
         snapshot={activeSnapshot}
         patch={activePatch}
+        spatialScene={activeSpatialScene}
         summary={activeSummary}
         selectedEntityId={selectedEntityId}
         highlightedEntityIds={highlightedEntityIds}
