@@ -469,8 +469,7 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.add("open-air");
     architecture.add("urban-paving");
     architecture.add("urban-skyline");
-    dressing.add("courtyard-clutter");
-    dressing.add("storage-crates");
+    dressing.add("urban-clutter");
     dressing.add("street-lamps");
   }
   if (hasIndustrialInterior) {

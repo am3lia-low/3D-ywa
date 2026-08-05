@@ -888,6 +888,8 @@ export function UrbanStreetKit({
   })), [bounds]);
   const reservedCanalWidth = Math.min(bounds[0] * 0.46, Math.max(4.8, canalWidth ?? bounds[0] * 0.28));
   const canalSideWidth = (bounds[0] - reservedCanalWidth) / 2;
+  const horizonCenter = bounds[2] * URBAN_HUMAN_SCALE.horizonCenterFactor;
+  const horizonApronDepth = bounds[2] * URBAN_HUMAN_SCALE.horizonApronDepthRatio;
   return (
     <group>
       {(hasCanal ? [-1, 1] : [0]).map((side) => (
@@ -941,6 +943,32 @@ export function UrbanStreetKit({
           />
         </group>
       ))}
+      {[-1, 1].flatMap((end) => (hasCanal ? [-1, 1] : [0]).map((side) => (
+        <mesh
+          key={`urban-horizon-ground:${end}:${side}`}
+          position={[
+            hasCanal ? side * (reservedCanalWidth / 2 + canalSideWidth / 2) : 0,
+            0.012,
+            end * horizonCenter,
+          ]}
+          receiveShadow
+          userData={{ decorativeOnly: true, depthLayer: "urban-horizon-ground" }}
+        >
+          <boxGeometry args={[hasCanal ? canalSideWidth : bounds[0], 0.1, horizonApronDepth]} />
+          <meshStandardMaterial color="#5d5953" map={surfaces.street.color} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.34, 0.34)} roughnessMap={surfaces.street.arm} roughness={0.96} />
+        </mesh>
+      )))}
+      {hasCanal && [-1, 1].map((end) => (
+        <mesh
+          key={`urban-horizon-water:${end}`}
+          position={[0, URBAN_HUMAN_SCALE.canalWaterLevel - 0.025, end * horizonCenter]}
+          receiveShadow
+          userData={{ decorativeOnly: true, depthLayer: "canal-continuation" }}
+        >
+          <boxGeometry args={[reservedCanalWidth, 0.16, horizonApronDepth]} />
+          <meshPhysicalMaterial color="#235965" emissive="#102e35" emissiveIntensity={0.18} roughness={0.24} metalness={0.04} clearcoat={0.42} clearcoatRoughness={0.3} />
+        </mesh>
+      ))}
       {[-1, 1].flatMap((end) => Array.from({ length: 5 }, (_, index) => {
         if (index === 2) return null;
         const width = bounds[0] / 5 - 0.34;
@@ -949,7 +977,7 @@ export function UrbanStreetKit({
         return (
           <group
             key={`urban-horizon:${end}:${index}`}
-            position={[-bounds[0] / 2 + (index + 0.5) * bounds[0] / 5, height / 2 - 0.05, end * bounds[2] * 0.69]}
+            position={[-bounds[0] / 2 + (index + 0.5) * bounds[0] / 5, height / 2 - 0.05, end * horizonCenter]}
             rotation={[0, end > 0 ? Math.PI : 0, 0]}
             userData={{ decorativeOnly: true, depthLayer: "urban-horizon" }}
           >

@@ -71,6 +71,7 @@ interface DressingRule {
   anyTags: string[];
   archetypes?: string[];
   requiresOpenAir?: boolean;
+  requiresArchitecture?: keyof ScenePresentation["architecture"];
   slots: DressingSlot[];
 }
 
@@ -159,7 +160,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "reading-lounge-chair",
-        minimumDensity: "rich", positionFactor: [-0.18, 0.16], dimensions: [0.85, 1.07, 0.77], yaw: 2.45,
+        minimumDensity: "rich", positionFactor: [-0.18, 0.16], dimensions: [1.05, 1.32, 0.95], yaw: 2.45,
       },
       {
         renderKind: "asset", searchTags: ["painted", "wooden", "bench", "seat"], slotId: "south-gallery-bench",
@@ -167,7 +168,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
       {
         renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "east-conversation-chair",
-        minimumDensity: "rich", positionFactor: [0.24, 0.18], dimensions: [0.85, 1.07, 0.77], yaw: -2.38,
+        minimumDensity: "rich", positionFactor: [0.24, 0.18], dimensions: [1.05, 1.32, 0.95], yaw: -2.38,
       },
       {
         renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "south-console-table",
@@ -191,8 +192,8 @@ const DRESSING_RULES: readonly DressingRule[] = [
     slots: [
       {
         renderKind: "asset", searchTags: ["victorian", "lantern", "chandelier", "ceiling"], slotId: "central-chandelier",
-        minimumDensity: "moderate", positionFactor: [0, -0.08], dimensions: [0.7, 1.06, 0.7],
-        verticalOffset: 6.55,
+        minimumDensity: "moderate", positionFactor: [0, -0.08], dimensions: [1.25, 1.9, 1.25],
+        verticalOffset: 3.6,
       },
       {
         renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "west-floor-lamp",
@@ -346,6 +347,25 @@ const DRESSING_RULES: readonly DressingRule[] = [
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "east-crate-small",
         minimumDensity: "rich", positionFactor: [0.34, -0.18], dimensions: [0.74, 0.51, 0.55], yaw: 0.14,
+      },
+    ],
+  },
+  {
+    anyTags: ["urban-clutter"],
+    requiresOpenAir: true,
+    requiresArchitecture: "urbanStreet",
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["wine", "barrel", "oak"], slotId: "west-urban-barrel",
+        minimumDensity: "moderate", positionFactor: [-0.31, -0.3], dimensions: [0.82, 1.06, 0.82], yaw: 0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "west-urban-crate",
+        minimumDensity: "rich", positionFactor: [-0.31, 0.27], dimensions: [0.89, 0.61, 0.66], yaw: 0.22,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "east-urban-crate",
+        minimumDensity: "rich", positionFactor: [0.305, -0.2], dimensions: [1.12, 0.84, 0.9], yaw: -0.2,
       },
     ],
   },
@@ -671,6 +691,7 @@ export function resolveDressingInstances(
   for (const rule of DRESSING_RULES) {
     if (rule.archetypes && !rule.archetypes.includes(presentation.location.archetype)) continue;
     if (rule.requiresOpenAir && !presentation.architecture.openAir) continue;
+    if (rule.requiresArchitecture && !presentation.architecture[rule.requiresArchitecture]) continue;
     const sourceTag = rule.anyTags.find((tag) => selectedTags.has(tag));
     if (!sourceTag) continue;
     for (const slot of rule.slots) {

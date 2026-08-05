@@ -39,7 +39,7 @@ function assetKey(entity: WorldEntity): string | undefined {
   if (/window/.test(text)) return 'storybook-bay-window'
   if (/silver.*key|\bkey\b/.test(text)) return 'silver-key'
   if (/fireplace|hearth/.test(text)) return 'fireplace'
-  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return 'storybook-lounge-chair'
+  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return 'victorian-armchair'
   if (/chair|seat/.test(text)) return 'chair'
   if (/desk|table/.test(text)) return 'desk'
   if (/hidden.*door|doorway/.test(text)) return 'hidden-door'
@@ -59,7 +59,7 @@ function dimensions(entity: WorldEntity): [number, number, number] {
   if (/portrait|painting/.test(text)) return [1.4, 1.8, 0.14]
   if (/hidden.*door|doorway/.test(text)) return [1.8, 2.9, 0.25]
   if (/door/.test(text)) return [1.3, 2.7, 0.3]
-  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return [1, 0.94, 0.84]
+  if (/armchair|easy.*chair|lounge.*chair/.test(text)) return [1.15, 1.45, 1.04]
   if (/chair|seat/.test(text)) return [0.95, 1.55, 0.95]
   if (/desk|table/.test(text)) return [2.4, 1.2, 1.1]
   if (/\bkey\b/.test(text)) return [0.3, 0.08, 0.12]
@@ -221,7 +221,7 @@ function environment(text: string): {
         archetype: 'storybook city quarter',
         visualDescription: 'A weathered old-city street with layered facades, stone paving and atmospheric depth.',
         architectureTags: ['open-air', 'urban-paving', 'urban-skyline'],
-        dressingTags: ['courtyard-clutter', 'storage-crates', 'street-lamps', 'market clutter'],
+        dressingTags: ['urban-clutter', 'street-lamps', 'market clutter'],
         dressingDensity: 'rich',
         mood: 'mysterious, lived-in and quietly magical',
         timeOfDay: 'blue hour',

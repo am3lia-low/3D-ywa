@@ -354,7 +354,7 @@ function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
   const [modelUrl, setModelUrl] = useState(levels[0]?.modelUrl ?? asset.modelUrl ?? "");
   const activeUrl = useRef(modelUrl);
   const worldPosition = useMemo(() => new THREE.Vector3(), []);
-  const tint = asset.key === "storybook-lounge-chair"
+  const tint = asset.key === "storybook-lounge-chair" || asset.key === "victorian-armchair"
     ? "#a94f49"
     : asset.key === "story-door"
       ? "#80583e"
@@ -1686,8 +1686,8 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
   const water = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     time: { value: 0 },
-    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#1b5260") },
-    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#4f929a") },
+    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#123a46") },
+    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#2f6d76") },
   }), [highlightColor, highlighted]);
   useFrame((state) => {
     if (!water.current) return;
@@ -1745,8 +1745,16 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
             float sparkle = pow(max(dot(reflect(-lightDirection, normal), normalize(viewDirection)), 0.0), 46.0);
             float depthVariation = 0.08 * sin(waterUv.y * 8.0 + time * 0.18) + elevation * 0.9;
             vec3 color = mix(deepColor, surfaceColor, 0.22 + diffuse * 0.2 + depthVariation);
-            color = mix(color, vec3(0.25, 0.42, 0.46), fresnel * 0.34);
+            color = mix(color, vec3(0.18, 0.34, 0.38), fresnel * 0.34);
             color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
+            float bankGlow = exp(-pow((waterUv.x - 0.1) * 12.0, 2.0))
+              + exp(-pow((waterUv.x - 0.9) * 12.0, 2.0));
+            float lanternPools = exp(-pow((waterUv.y - 0.2) * 7.0, 2.0))
+              + exp(-pow((waterUv.y - 0.52) * 8.0, 2.0))
+              + exp(-pow((waterUv.y - 0.82) * 7.0, 2.0));
+            float brokenReflection = 0.42 + 0.58 * pow(0.5 + 0.5 * sin(waterUv.y * 115.0 + time * 1.7), 4.0);
+            float warmReflection = min(bankGlow * lanternPools * brokenReflection, 1.0);
+            color += vec3(0.72, 0.39, 0.14) * warmReflection * 0.34;
             gl_FragColor = vec4(color, 0.97);
           }
         `}

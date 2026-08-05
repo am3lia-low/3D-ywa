@@ -30,6 +30,11 @@ describe("Member 3 prepared story scenes", () => {
         expect(recipe.fallbackEntityIds).toEqual([]);
         expect(recipe.generationJobs).toEqual([]);
 
+        if (scene.spatialSnapshot.entities.some((entity) => entity.id === "armchair")) {
+          expect(recipe.assetRegistry.armchair?.key).toBe("victorian-armchair");
+          expect(layout.items.find((item) => item.entity.id === "armchair")?.dimensions[1]).toBeGreaterThanOrEqual(1.4);
+        }
+
         for (const item of layout.items) {
           expect(Number.isFinite(item.position[0] + item.position[1] + item.position[2])).toBe(true);
           expect(Math.abs(item.position[0])).toBeLessThanOrEqual(bounds[0] / 2 + 0.01);
@@ -66,6 +71,16 @@ describe("Member 3 prepared story scenes", () => {
           expect(URBAN_HUMAN_SCALE.minimumBuildingHeight).toBeGreaterThan(URBAN_HUMAN_SCALE.doorHeight * 3);
           expect(URBAN_HUMAN_SCALE.doorHeight).toBeGreaterThanOrEqual(2.1);
           expect(URBAN_HUMAN_SCALE.stallCanopyHeight).toBeGreaterThanOrEqual(2.3);
+          const facadeInnerEdge = bounds[0] / 2 - URBAN_HUMAN_SCALE.facadeMaximumDepth;
+          for (const instance of recipe.locations[locationId]!.dressingInstances) {
+            const cosine = Math.abs(Math.cos(instance.rotation[1]));
+            const sine = Math.abs(Math.sin(instance.rotation[1]));
+            const footprintX = instance.dimensions[0] * cosine + instance.dimensions[2] * sine;
+            expect(
+              Math.abs(instance.position[0]) + footprintX / 2,
+              `${instance.dressingId} must remain in the urban pedestrian corridor`,
+            ).toBeLessThanOrEqual(facadeInnerEdge + 0.01);
+          }
         }
 
         const distortedDressing: string[] = [];
@@ -111,5 +126,8 @@ describe("Member 3 prepared story scenes", () => {
       URBAN_HUMAN_SCALE.canalWaterLevel - URBAN_HUMAN_SCALE.canalWaveAmplitude,
     );
     expect(waterVolumeTop).toBeGreaterThan(URBAN_HUMAN_SCALE.canalBedTop);
+    expect(
+      URBAN_HUMAN_SCALE.horizonCenterFactor - URBAN_HUMAN_SCALE.horizonApronDepthRatio / 2,
+    ).toBeLessThan(0.5);
   });
 });
