@@ -185,12 +185,13 @@ registry and deployment.
 
 The `wl` branch contains Member 3's application under
 `Create UI Prototype for Hackathon/`, connected to Part 2 through the
-`@spatial-runtime` alias. Run it with:
+`@spatial-runtime` alias. The complete fresh-clone and troubleshooting guide is
+[`integrated-quick-start.md`](integrated-quick-start.md). From the repository
+root, run:
 
 ```powershell
-cd "Create UI Prototype for Hackathon"
-pnpm install
-pnpm dev
+pnpm setup:integrated
+pnpm dev:integrated
 ```
 
 Then open `http://127.0.0.1:8443/`. The prepared-story mock service emits both

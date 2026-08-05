@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "setup:integrated": "pnpm install --frozen-lockfile && pnpm --dir \"Create UI Prototype for Hackathon\" install --frozen-lockfile",
+    "dev:integrated": "pnpm --dir \"Create UI Prototype for Hackathon\" dev",
+    "build:integrated": "pnpm --dir \"Create UI Prototype for Hackathon\" build",
+    "check:integrated": "pnpm handoff:check && pnpm scenes:preflight && pnpm build:integrated",
     "build": "tsc -b && vite build",
     "bundle:check": "node scripts/check-bundle.mjs",
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
@@ -30,7 +34,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "verify": "pnpm test && pnpm typecheck && pnpm docs:check && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check"
+    "verify": "pnpm test && pnpm typecheck && pnpm docs:check && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check && pnpm check:integrated"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

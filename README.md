@@ -12,6 +12,7 @@ valid JSON examples, and the acceptance commands before integration.
 
 Detailed implementation references remain in:
 
+- [`docs/integrated-quick-start.md`](docs/integrated-quick-start.md) for starting the combined Member 3 UI and Member 2 world from a fresh clone.
 - [`docs/part1-live-adapter.md`](docs/part1-live-adapter.md) for live passage responses.
 - [`docs/story-package.md`](docs/story-package.md) for batch/offline story packages.
 - [`docs/member-3-handoff.md`](docs/member-3-handoff.md) for the reader integration.
@@ -398,6 +399,10 @@ When `stream.status === "resync_required"`, request a fresh snapshot from the ba
 
 ```bash
 pnpm install
+pnpm setup:integrated
+pnpm dev:integrated
+pnpm check:integrated
+pnpm build:integrated
 pnpm contracts:generate
 pnpm models:generate
 pnpm triposr:setup

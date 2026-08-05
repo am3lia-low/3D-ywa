@@ -1,5 +1,9 @@
 # Team integration contract
 
+To run the combined Member 3 reader and Member 2 renderer from a fresh clone,
+follow [`integrated-quick-start.md`](integrated-quick-start.md). This document
+remains the authoritative ownership and data-contract reference.
+
 This is the authoritative handoff document for the three project members. If a
 fixture, UI mock, or older note disagrees with this file, the exported schemas
 and validators in `src/index.ts` win.
