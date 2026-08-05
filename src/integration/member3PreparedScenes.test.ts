@@ -4,6 +4,7 @@ import { buildMockSpatialScene } from "../../Create UI Prototype for Hackathon/s
 import { compileSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import { createWorldLayout } from "../runtime/layoutEngine";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import { WALL_COMPOSITION } from "../runtime/wallComposition";
 
 function relativeScaleSpread(
   target: readonly [number, number, number],
@@ -74,9 +75,34 @@ describe("Member 3 prepared story scenes", () => {
             const spread = relativeScaleSpread(instance.dimensions, instance.asset.dimensions);
             if (spread > 1.2) distortedDressing.push(`${instance.dressingId} -> ${instance.asset.key} (${spread.toFixed(2)}x)`);
           }
+          if (instance.wall) {
+            const cosine = Math.abs(Math.cos(instance.rotation[1]));
+            const sine = Math.abs(Math.sin(instance.rotation[1]));
+            const footprintX = instance.dimensions[0] * cosine + instance.dimensions[2] * sine;
+            const footprintZ = instance.dimensions[0] * sine + instance.dimensions[2] * cosine;
+            const clearance = instance.wall === "west" || instance.wall === "east"
+              ? bounds[0] / 2 - Math.abs(instance.position[0]) - footprintX / 2
+              : bounds[2] / 2 - Math.abs(instance.position[2]) - footprintZ / 2;
+            expect(clearance, `${instance.dressingId} must clear wall trim`).toBeGreaterThanOrEqual(
+              WALL_COMPOSITION.dressingClearance - 0.005,
+            );
+          }
         }
         expect(distortedDressing).toEqual([]);
       });
     }
   }
+
+  it("uses readable balcony projection and visibly displaced canal water", () => {
+    expect(
+      URBAN_HUMAN_SCALE.balconyCenterProjection + URBAN_HUMAN_SCALE.balconyDepth / 2,
+    ).toBeGreaterThanOrEqual(0.9);
+    expect(
+      URBAN_HUMAN_SCALE.balconyCenterProjection - URBAN_HUMAN_SCALE.balconyDepth / 2,
+    ).toBeLessThanOrEqual(0.08);
+    expect(URBAN_HUMAN_SCALE.canalWaveAmplitude).toBeGreaterThanOrEqual(0.1);
+    expect(
+      URBAN_HUMAN_SCALE.canalWaterLevel - URBAN_HUMAN_SCALE.canalWaveAmplitude,
+    ).toBeGreaterThanOrEqual(URBAN_HUMAN_SCALE.canalBedTop);
+  });
 });

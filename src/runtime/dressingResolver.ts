@@ -3,6 +3,7 @@ import { assetKitCatalog, catalogAssetDefinition, type AssetKitCatalogAsset } fr
 import type { AssetDefinition } from "./assetRegistry";
 import type { LayoutItem, WorldLayout } from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
+import { WALL_COMPOSITION } from "./wallComposition";
 
 interface ResolvedDressingCommon {
   dressingId: string;
@@ -15,6 +16,7 @@ interface ResolvedDressingCommon {
   position: Vector3Tuple;
   rotation: Vector3Tuple;
   dimensions: Vector3Tuple;
+  wall?: DressingWall;
 }
 
 export interface ResolvedAssetDressingInstance extends ResolvedDressingCommon {
@@ -40,7 +42,7 @@ export type ResolvedDressingInstance =
   | ResolvedModuleDressingInstance;
 
 type DressingDensity = ScenePresentation["dressing"]["density"];
-type DressingWall = "north" | "south" | "west" | "east";
+export type DressingWall = "north" | "south" | "west" | "east";
 
 interface DressingSlotCommon {
   slotId: string;
@@ -600,8 +602,8 @@ function placeSlot(
   const footprint = rotatedDimensions(slot.dimensions, yaw);
   const halfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.18);
   const halfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.18);
-  const wallHalfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.018);
-  const wallHalfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.018);
+  const wallHalfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - WALL_COMPOSITION.dressingClearance);
+  const wallHalfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - WALL_COMPOSITION.dressingClearance);
   const exterior = slot.placementRegion === "approach";
   const desiredX = exterior
     ? bounds[0] * slot.positionFactor[0]
@@ -676,6 +678,7 @@ export function resolveDressingInstances(
         position: placed.position,
         rotation: [0, slot.yaw ?? 0, 0],
         dimensions: slot.dimensions,
+        wall: slot.wall,
       };
       if (slot.renderKind === "module") {
         instances.push({ ...common, renderKind: "module", moduleKey: slot.moduleKey });

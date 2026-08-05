@@ -590,10 +590,39 @@ function Building({
         ))}
       </group>
       {seed % 2 === 0 && (
-        <group position={[0, -size[1] / 2 + 3.38, size[2] / 2 + 0.18]}>
-          <mesh castShadow><boxGeometry args={[size[0] * 0.72, 0.08, 0.34]} /><meshStandardMaterial color="#403630" roughness={0.78} /></mesh>
-          {[-0.28, 0, 0.28].map((factor) => <mesh key={factor} position={[size[0] * factor, 0.3, 0.12]}><boxGeometry args={[0.045, 0.62, 0.045]} /><meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} /></mesh>)}
-          <mesh position={[0, 0.3, 0.12]}><boxGeometry args={[size[0] * 0.68, 0.04, 0.04]} /><meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} /></mesh>
+        <group position={[0, -size[1] / 2 + 3.38, size[2] / 2 + URBAN_HUMAN_SCALE.balconyCenterProjection]}>
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[size[0] * 0.74, 0.12, URBAN_HUMAN_SCALE.balconyDepth]} />
+            <meshStandardMaterial color="#403630" roughness={0.78} />
+          </mesh>
+          {[-0.3, 0, 0.3].map((factor) => (
+            <mesh key={factor} position={[size[0] * factor, 0.38, 0.38]} castShadow>
+              <boxGeometry args={[0.055, 0.76, 0.055]} />
+              <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.76, 0.38]} castShadow>
+            <boxGeometry args={[size[0] * 0.72, 0.06, 0.06]} />
+            <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <group key={`balcony-side:${side}`} position={[side * size[0] * 0.36, 0.38, 0]}>
+              <mesh position={[0, 0.38, 0]} castShadow>
+                <boxGeometry args={[0.055, 0.06, 0.78]} />
+                <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+              </mesh>
+              <mesh position={[0, 0, 0.38]} castShadow>
+                <boxGeometry args={[0.055, 0.76, 0.055]} />
+                <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+              </mesh>
+            </group>
+          ))}
+          {[-0.24, 0.24].map((factor) => (
+            <mesh key={`balcony-bracket:${factor}`} position={[size[0] * factor, -0.32, -0.02]} rotation={[0.72, 0, 0]} castShadow>
+              <boxGeometry args={[0.09, 0.72, 0.09]} />
+              <meshStandardMaterial color="#4d3b31" roughness={0.84} />
+            </mesh>
+          ))}
         </group>
       )}
       {Array.from({ length: columns * rows }, (_, index) => {

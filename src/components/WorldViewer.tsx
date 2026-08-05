@@ -118,6 +118,8 @@ import {
   resolveDressingInstances,
   type ResolvedDressingInstance,
 } from "../runtime/dressingResolver";
+import { WALL_COMPOSITION } from "../runtime/wallComposition";
+import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -1647,32 +1649,69 @@ function StoryAmberPendantAsset({ highlighted, highlightColor }: { highlighted: 
   );
 }
 
-function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
-  const water = useRef<THREE.MeshStandardMaterial>(null);
+function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const water = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({
+    time: { value: 0 },
+    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#1b5260") },
+    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#4f929a") },
+  }), [highlightColor, highlighted]);
   useFrame((state) => {
     if (!water.current) return;
-    water.current.emissiveIntensity = 0.2 + Math.sin(state.clock.elapsedTime * 0.72) * 0.035;
+    water.current.uniforms.time!.value = state.clock.elapsedTime;
   });
   return (
+    <mesh position={[0, URBAN_HUMAN_SCALE.canalWaterLevel, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[0.78, 1, 32, 128]} />
+      <shaderMaterial
+        ref={water}
+        uniforms={uniforms}
+        transparent
+        depthWrite
+        vertexShader={`
+          uniform float time;
+          varying float elevation;
+          varying vec2 waterUv;
+          void main() {
+            vec3 displaced = position;
+            float broad = sin(position.y * 31.0 - time * 1.35) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.52};
+            float cross = sin(position.x * 18.0 + position.y * 12.0 + time * 1.8) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude / 3};
+            float detail = cos(position.y * 67.0 + time * 0.72) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.148};
+            elevation = broad + cross + detail;
+            displaced.z += elevation;
+            waterUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 deepColor;
+          uniform vec3 surfaceColor;
+          uniform float time;
+          varying float elevation;
+          varying vec2 waterUv;
+          void main() {
+            float crest = smoothstep(0.018, 0.086, elevation);
+            float ripple = sin(waterUv.y * 92.0 + sin(waterUv.x * 16.0) * 2.2 - time * 1.45);
+            float crestLine = smoothstep(0.76, 1.0, ripple);
+            float shimmer = pow(max(0.0, sin(waterUv.y * 121.0 - time * 1.1)), 18.0) * 0.2;
+            vec3 color = mix(deepColor, surfaceColor, 0.26 + crest * 0.56 + shimmer);
+            color = mix(color, vec3(0.55, 0.82, 0.84), crestLine * 0.34);
+            gl_FragColor = vec4(color, 0.96);
+          }
+        `}
+      />
+    </mesh>
+  );
+}
+
+function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  return (
     <group>
-      <mesh position={[0, -0.3, 0]} receiveShadow>
-        <boxGeometry args={[0.78, 0.4, 1]} />
+      <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop - 0.04, 0]} receiveShadow>
+        <boxGeometry args={[0.78, 0.08, 1]} />
         <meshStandardMaterial color="#243f44" roughness={0.96} />
       </mesh>
-      <mesh position={[0, -0.42, 0]} receiveShadow>
-        <boxGeometry args={[0.78, 0.1, 1]} />
-        <meshPhysicalMaterial
-          ref={water}
-          color="#3f7e88"
-          emissive={highlighted ? highlightColor : "#1a505d"}
-          emissiveIntensity={0.2}
-          roughness={0.12}
-          metalness={0.08}
-          transmission={0.06}
-          transparent
-          opacity={0.88}
-        />
-      </mesh>
+      <StoryCanalWater highlighted={highlighted} highlightColor={highlightColor} />
       {[-0.45, 0.45].map((x) => (
         <group key={`canal-bank-${x}`} position={[x, 0, 0]}>
           <mesh position={[0, -0.22, 0]} castShadow receiveShadow>
@@ -1688,7 +1727,7 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
         </group>
       ))}
       {Array.from({ length: 11 }, (_, index) => (
-        <mesh key={`canal-glint-${index}`} position={[(index % 3 - 1) * 0.18, -0.365, -0.45 + index * 0.09]} rotation={[-Math.PI / 2, 0, index * 0.21]}>
+        <mesh key={`canal-glint-${index}`} position={[(index % 3 - 1) * 0.18, URBAN_HUMAN_SCALE.canalWaterLevel + URBAN_HUMAN_SCALE.canalWaveAmplitude + 0.015, -0.45 + index * 0.09]} rotation={[-Math.PI / 2, 0, index * 0.21]}>
           <planeGeometry args={[0.16, 0.012]} />
           <meshBasicMaterial color="#b6e2df" transparent opacity={0.28} depthWrite={false} />
         </mesh>
@@ -3427,22 +3466,22 @@ function Room({
       )}
       {usesGenericKit && (
         <group>
-          <mesh position={[0, 0.12, -bounds[2] / 2 + 0.09]} castShadow receiveShadow>
-            <boxGeometry args={[bounds[0] - 0.18, 0.24, 0.12]} />
+          <mesh position={[0, 0.12, -bounds[2] / 2 + WALL_COMPOSITION.trimCenterInset]} castShadow receiveShadow>
+            <boxGeometry args={[bounds[0] - 0.18, 0.24, WALL_COMPOSITION.trimDepth]} />
             <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
           </mesh>
-          <mesh position={[-bounds[0] / 2 + 0.09, 0.12, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.12, 0.24, bounds[2] - 0.18]} />
+          <mesh position={[-bounds[0] / 2 + WALL_COMPOSITION.trimCenterInset, 0.12, 0]} castShadow receiveShadow>
+            <boxGeometry args={[WALL_COMPOSITION.trimDepth, 0.24, bounds[2] - 0.18]} />
             <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
           </mesh>
           {!overview && (
             <>
-              <mesh position={[0, 0.12, bounds[2] / 2 - 0.09]} castShadow receiveShadow>
-                <boxGeometry args={[bounds[0] - 0.18, 0.24, 0.12]} />
+              <mesh position={[0, 0.12, bounds[2] / 2 - WALL_COMPOSITION.trimCenterInset]} castShadow receiveShadow>
+                <boxGeometry args={[bounds[0] - 0.18, 0.24, WALL_COMPOSITION.trimDepth]} />
                 <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
               </mesh>
-              <mesh position={[bounds[0] / 2 - 0.09, 0.12, 0]} castShadow receiveShadow>
-                <boxGeometry args={[0.12, 0.24, bounds[2] - 0.18]} />
+              <mesh position={[bounds[0] / 2 - WALL_COMPOSITION.trimCenterInset, 0.12, 0]} castShadow receiveShadow>
+                <boxGeometry args={[WALL_COMPOSITION.trimDepth, 0.24, bounds[2] - 0.18]} />
                 <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
               </mesh>
             </>
@@ -3652,12 +3691,12 @@ function Room({
               </mesh>
             );
           })}
-          <mesh position={[0, 0.16, -bounds[2] / 2 + 0.09]} receiveShadow>
-            <boxGeometry args={[bounds[0], 0.32, 0.18]} />
+          <mesh position={[0, 0.16, -bounds[2] / 2 + WALL_COMPOSITION.archiveTrimCenterInset]} receiveShadow>
+            <boxGeometry args={[bounds[0], 0.32, WALL_COMPOSITION.archiveTrimDepth]} />
             <meshStandardMaterial color="#263534" roughness={1} />
           </mesh>
-          <mesh position={[-bounds[0] / 2 + 0.09, 0.16, 0]} receiveShadow>
-            <boxGeometry args={[0.18, 0.32, bounds[2]]} />
+          <mesh position={[-bounds[0] / 2 + WALL_COMPOSITION.archiveTrimCenterInset, 0.16, 0]} receiveShadow>
+            <boxGeometry args={[WALL_COMPOSITION.archiveTrimDepth, 0.32, bounds[2]]} />
             <meshStandardMaterial color="#263534" roughness={1} />
           </mesh>
           {archiveShelfCenters.map((center, shelfIndex) => (

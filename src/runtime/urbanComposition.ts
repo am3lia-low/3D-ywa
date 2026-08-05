@@ -6,5 +6,10 @@ export const URBAN_HUMAN_SCALE = Object.freeze({
   windowSillHeight: 2.87,
   stallCounterHeight: 0.94,
   stallCanopyHeight: 2.42,
+  balconyCenterProjection: 0.5,
+  balconyDepth: 0.92,
+  canalWaveAmplitude: 0.11,
+  canalWaterLevel: -0.31,
+  canalBedTop: -0.43,
   canalCoverageRatio: 0.97,
 });
