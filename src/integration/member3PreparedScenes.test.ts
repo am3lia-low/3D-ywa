@@ -93,16 +93,23 @@ describe("Member 3 prepared story scenes", () => {
     }
   }
 
-  it("uses readable balcony projection and visibly displaced canal water", () => {
+  it("uses wall-anchored Juliet balconies and visibly displaced canal water", () => {
     expect(
       URBAN_HUMAN_SCALE.balconyCenterProjection + URBAN_HUMAN_SCALE.balconyDepth / 2,
-    ).toBeGreaterThanOrEqual(0.9);
+    ).toBeLessThanOrEqual(0.38);
     expect(
       URBAN_HUMAN_SCALE.balconyCenterProjection - URBAN_HUMAN_SCALE.balconyDepth / 2,
-    ).toBeLessThanOrEqual(0.08);
+    ).toBeCloseTo(0, 5);
     expect(URBAN_HUMAN_SCALE.canalWaveAmplitude).toBeGreaterThanOrEqual(0.1);
     expect(
       URBAN_HUMAN_SCALE.canalWaterLevel - URBAN_HUMAN_SCALE.canalWaveAmplitude,
     ).toBeGreaterThanOrEqual(URBAN_HUMAN_SCALE.canalBedTop);
+    const waterVolumeTop = URBAN_HUMAN_SCALE.canalWaterLevel
+      - URBAN_HUMAN_SCALE.canalWaveAmplitude
+      - URBAN_HUMAN_SCALE.canalVolumeClearance;
+    expect(waterVolumeTop).toBeLessThan(
+      URBAN_HUMAN_SCALE.canalWaterLevel - URBAN_HUMAN_SCALE.canalWaveAmplitude,
+    );
+    expect(waterVolumeTop).toBeGreaterThan(URBAN_HUMAN_SCALE.canalBedTop);
   });
 });

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 import type { Vector3Tuple } from "../contracts/world";
 import type { SceneEnvironmentFamily } from "../runtime/sceneAtmosphere";
@@ -525,12 +526,14 @@ function Building({
   color,
   seed,
   surface,
+  roofSurface,
 }: {
   position: Vector3Tuple;
   size: Vector3Tuple;
   color: string;
   seed: number;
   surface: PbrSurfaceSet;
+  roofSurface: PbrSurfaceSet;
 }) {
   const columns = Math.max(2, Math.floor(size[0] / 1.45));
   const rows = Math.max(2, Math.floor((size[1] - 2.8) / 2.05));
@@ -540,10 +543,14 @@ function Building({
   const roofRun = size[0] / 2 + 0.18;
   const roofSlope = Math.atan2(roofRise, roofRun);
   const roofLength = Math.hypot(roofRun, roofRise);
+  const hasBalcony = seed % 2 === 0;
+  const balconyColumn = Math.floor(columns / 2);
+  const balconyX = -size[0] / 2 + (balconyColumn + 0.5) * size[0] / columns;
+  const balconyWidth = Math.min(2.15, size[0] / columns * 0.94);
+  const balconyFloorY = -size[1] / 2 + 3.38;
   return (
     <group position={position}>
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={size} />
+      <RoundedBox args={size} radius={0.055} smoothness={3} castShadow receiveShadow>
         <meshStandardMaterial
           color={color}
           map={surface.color}
@@ -554,11 +561,10 @@ function Building({
           emissive={color}
           emissiveIntensity={0.035}
         />
-      </mesh>
-      <mesh position={[0, size[1] / 2 - 0.08, 0]} castShadow receiveShadow>
-        <boxGeometry args={[size[0] + 0.22, 0.2, size[2] + 0.18]} />
+      </RoundedBox>
+      <RoundedBox args={[size[0] + 0.22, 0.2, size[2] + 0.18]} radius={0.045} smoothness={3} position={[0, size[1] / 2 - 0.08, 0]} castShadow receiveShadow>
         <meshStandardMaterial color="#55463d" roughness={0.82} />
-      </mesh>
+      </RoundedBox>
       {[-1, 1].map((side) => (
         <mesh
           key={`roof:${side}`}
@@ -568,15 +574,21 @@ function Building({
           receiveShadow
         >
           <boxGeometry args={[roofLength, 0.13, size[2] + 0.42]} />
-          <meshStandardMaterial color={seed % 2 ? "#51403a" : "#3e5050"} roughness={0.74} metalness={0.04} />
+          <meshStandardMaterial
+            color={seed % 2 ? "#6d625c" : "#596869"}
+            map={roofSurface.color}
+            normalMap={roofSurface.normal}
+            normalScale={new THREE.Vector2(0.58, 0.58)}
+            roughnessMap={roofSurface.arm}
+            roughness={0.84}
+          />
         </mesh>
       ))}
-      <mesh position={[0, -size[1] / 2 + 0.55, size[2] / 2 + 0.055]} castShadow>
-        <boxGeometry args={[size[0] * 0.94, 1.1, 0.11]} />
+      <RoundedBox args={[size[0] * 0.94, 1.1, 0.11]} radius={0.04} smoothness={3} position={[0, -size[1] / 2 + 0.55, size[2] / 2 + 0.055]} castShadow>
         <meshStandardMaterial color={trimColor} roughness={0.8} />
-      </mesh>
+      </RoundedBox>
       <group position={[size[0] * (seed % 2 ? -0.25 : 0.25), -size[1] / 2 + 1.12, size[2] / 2 + 0.13]}>
-        <mesh castShadow><boxGeometry args={[URBAN_HUMAN_SCALE.doorWidth, URBAN_HUMAN_SCALE.doorHeight, 0.14]} /><meshStandardMaterial color="#332a25" roughness={0.76} /></mesh>
+        <RoundedBox args={[URBAN_HUMAN_SCALE.doorWidth, URBAN_HUMAN_SCALE.doorHeight, 0.14]} radius={0.045} smoothness={4} castShadow><meshStandardMaterial color="#332a25" roughness={0.76} /></RoundedBox>
         <mesh position={[0, 0.02, 0.078]}><planeGeometry args={[0.78, 2.02]} /><meshStandardMaterial color="#72513e" roughness={0.84} /></mesh>
         <mesh position={[0.29, -0.02, 0.092]}><sphereGeometry args={[0.048, 12, 10]} /><meshStandardMaterial color="#c19859" metalness={0.72} roughness={0.34} /></mesh>
       </group>
@@ -589,51 +601,58 @@ function Building({
           </mesh>
         ))}
       </group>
-      {seed % 2 === 0 && (
-        <group position={[0, -size[1] / 2 + 3.38, size[2] / 2 + URBAN_HUMAN_SCALE.balconyCenterProjection]}>
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[size[0] * 0.74, 0.12, URBAN_HUMAN_SCALE.balconyDepth]} />
-            <meshStandardMaterial color="#403630" roughness={0.78} />
-          </mesh>
-          {[-0.3, 0, 0.3].map((factor) => (
-            <mesh key={factor} position={[size[0] * factor, 0.38, 0.38]} castShadow>
-              <boxGeometry args={[0.055, 0.76, 0.055]} />
-              <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+      {hasBalcony && (
+        <>
+          <group position={[balconyX, balconyFloorY + 1.08, size[2] / 2 + 0.085]}>
+            <RoundedBox args={[1.12, 2.16, 0.1]} radius={0.035} smoothness={3} castShadow>
+              <meshStandardMaterial color={trimColor} roughness={0.76} />
+            </RoundedBox>
+            {[-0.255, 0.255].map((x) => (
+              <group key={`french-door:${x}`} position={[x, 0, 0.058]}>
+                <mesh><planeGeometry args={[0.43, 1.91]} /><meshStandardMaterial color="#294951" emissive="#17313a" emissiveIntensity={0.36} roughness={0.24} /></mesh>
+                {[-0.48, 0, 0.48].map((factor) => <mesh key={factor} position={[0, factor * 1.55, 0.012]}><boxGeometry args={[0.43, 0.026, 0.025]} /><meshStandardMaterial color="#493a31" roughness={0.72} /></mesh>)}
+              </group>
+            ))}
+            <mesh position={[0, 1.18, -0.02]} rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[0.12, 0.12, 1.38, 20]} />
+              <meshStandardMaterial color="#6a5a4d" roughness={0.86} />
             </mesh>
-          ))}
-          <mesh position={[0, 0.76, 0.38]} castShadow>
-            <boxGeometry args={[size[0] * 0.72, 0.06, 0.06]} />
-            <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
-          </mesh>
-          {[-1, 1].map((side) => (
-            <group key={`balcony-side:${side}`} position={[side * size[0] * 0.36, 0.38, 0]}>
-              <mesh position={[0, 0.38, 0]} castShadow>
-                <boxGeometry args={[0.055, 0.06, 0.78]} />
-                <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
+          </group>
+          <group position={[balconyX, balconyFloorY, size[2] / 2 + URBAN_HUMAN_SCALE.balconyCenterProjection]}>
+            <RoundedBox args={[balconyWidth, 0.09, URBAN_HUMAN_SCALE.balconyDepth]} radius={0.025} smoothness={3} castShadow receiveShadow>
+              <meshStandardMaterial color="#51453d" roughness={0.82} />
+            </RoundedBox>
+            {[-0.44, 0, 0.44].map((factor) => (
+              <mesh key={factor} position={[balconyWidth * factor, 0.43, 0.13]} castShadow>
+                <cylinderGeometry args={[0.032, 0.032, 0.86, 12]} />
+                <meshStandardMaterial color="#3e3934" metalness={0.28} roughness={0.58} />
               </mesh>
-              <mesh position={[0, 0, 0.38]} castShadow>
-                <boxGeometry args={[0.055, 0.76, 0.055]} />
-                <meshStandardMaterial color="#3e3934" metalness={0.18} roughness={0.68} />
-              </mesh>
-            </group>
-          ))}
-          {[-0.24, 0.24].map((factor) => (
-            <mesh key={`balcony-bracket:${factor}`} position={[size[0] * factor, -0.32, -0.02]} rotation={[0.72, 0, 0]} castShadow>
-              <boxGeometry args={[0.09, 0.72, 0.09]} />
-              <meshStandardMaterial color="#4d3b31" roughness={0.84} />
+            ))}
+            <mesh position={[0, 0.86, 0.13]} rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[0.04, 0.04, balconyWidth, 14]} />
+              <meshStandardMaterial color="#3e3934" metalness={0.28} roughness={0.58} />
             </mesh>
-          ))}
-        </group>
+            {[-1, 1].map((side) => (
+              <group key={`balcony-side:${side}`} position={[side * balconyWidth / 2, 0.43, 0]}>
+                <mesh position={[0, 0.43, 0.065]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                  <cylinderGeometry args={[0.038, 0.038, 0.13, 12]} />
+                  <meshStandardMaterial color="#3e3934" metalness={0.28} roughness={0.58} />
+                </mesh>
+                <mesh position={[0, 0, 0.13]} castShadow><cylinderGeometry args={[0.032, 0.032, 0.86, 12]} /><meshStandardMaterial color="#3e3934" metalness={0.28} roughness={0.58} /></mesh>
+              </group>
+            ))}
+          </group>
+        </>
       )}
       {Array.from({ length: columns * rows }, (_, index) => {
         const column = index % columns;
         const row = Math.floor(index / columns);
+        if (hasBalcony && row === 0 && column === balconyColumn) return null;
         return (
           <group key={index} position={[-size[0] / 2 + (column + 0.5) * size[0] / columns, -size[1] / 2 + 3.55 + row * 2.05, size[2] / 2 + 0.035]}>
-            <mesh castShadow receiveShadow>
-              <boxGeometry args={[0.82, 1.24, 0.09]} />
+            <RoundedBox args={[0.82, 1.24, 0.09]} radius={0.035} smoothness={3} castShadow receiveShadow>
               <meshStandardMaterial color={trimColor} roughness={0.72} metalness={0.08} />
-            </mesh>
+            </RoundedBox>
             <mesh position={[0, 0, 0.032]}>
               <planeGeometry args={[0.61, 1.01]} />
               <meshStandardMaterial color={(index + seed) % 5 === 0 ? "#d7b56a" : "#28444c"} emissive={(index + seed) % 5 === 0 ? "#d49748" : "#102126"} emissiveIntensity={(index + seed) % 5 === 0 ? 0.72 : 0.22} roughness={0.32} />
@@ -655,10 +674,12 @@ export function UrbanStreetKit({
   bounds,
   presentation,
   hasCanal = false,
+  canalWidth,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
   hasCanal?: boolean;
+  canalWidth?: number;
 }) {
   const surfaces = useMemo(() => {
     const loader = new THREE.TextureLoader();
@@ -676,6 +697,21 @@ export function UrbanStreetKit({
         color: load("/textures/polyhaven/plastered_wall_03_diff_1k.jpg", [1.2, 2.4], true),
         normal: load("/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg", [1.2, 2.4]),
         arm: load("/textures/polyhaven/plastered_wall_03_arm_1k.jpg", [1.2, 2.4]),
+      },
+      brick: {
+        color: load("/textures/polyhaven/brick_wall_08_diff_1k.jpg", [1.8, 3.2], true),
+        normal: load("/textures/polyhaven/brick_wall_08_nor_gl_1k.jpg", [1.8, 3.2]),
+        arm: load("/textures/polyhaven/brick_wall_08_arm_1k.jpg", [1.8, 3.2]),
+      },
+      damaged: {
+        color: load("/textures/polyhaven/damaged_plaster_diff_1k.jpg", [1.7, 3.1], true),
+        normal: load("/textures/polyhaven/damaged_plaster_nor_gl_1k.jpg", [1.7, 3.1]),
+        arm: load("/textures/polyhaven/damaged_plaster_arm_1k.jpg", [1.7, 3.1]),
+      },
+      roof: {
+        color: load("/textures/polyhaven/grey_roof_tiles_diff_1k.jpg", [2.2, 2.8], true),
+        normal: load("/textures/polyhaven/grey_roof_tiles_nor_gl_1k.jpg", [2.2, 2.8]),
+        arm: load("/textures/polyhaven/grey_roof_tiles_arm_1k.jpg", [2.2, 2.8]),
       },
       street: {
         color: load("/textures/polyhaven/patterned_cobblestone_diff_1k.jpg", [4.5, 8], true),
@@ -696,23 +732,31 @@ export function UrbanStreetKit({
       position: [side * (bounds[0] / 2 - depth / 2), height / 2, -bounds[2] / 2 + (index + 0.5) * bounds[2] / 6] as Vector3Tuple,
       size: [width, height, depth] as Vector3Tuple,
       rotation: [0, side < 0 ? Math.PI / 2 : -Math.PI / 2, 0] as Vector3Tuple,
-      color: ["#b49a7f", "#8ca09b", "#b38a72", "#829693", "#c1aa89", "#917a70"][index % 6]!,
+      color: ["#e1c9ad", "#c5d4ce", "#ddb99f", "#bdd0ca", "#e4cfad", "#cab8ae"][index % 6]!,
       seed: index + (side > 0 ? 11 : 0),
     };
   })), [bounds]);
+  const reservedCanalWidth = Math.min(bounds[0] * 0.46, Math.max(4.8, canalWidth ?? bounds[0] * 0.28));
+  const canalSideWidth = (bounds[0] - reservedCanalWidth) / 2;
   return (
     <group>
-      <mesh position={[0, 0.018, 0]} receiveShadow>
-        <boxGeometry args={[bounds[0], 0.1, bounds[2]]} />
-        <meshStandardMaterial
-          color={presentation.palette.floor}
-          map={surfaces.street.color}
-          normalMap={surfaces.street.normal}
-          normalScale={new THREE.Vector2(0.46, 0.46)}
-          roughnessMap={surfaces.street.arm}
-          roughness={0.94}
-        />
-      </mesh>
+      {(hasCanal ? [-1, 1] : [0]).map((side) => (
+        <mesh
+          key={`urban-ground:${side}`}
+          position={[hasCanal ? side * (reservedCanalWidth / 2 + canalSideWidth / 2) : 0, 0.018, 0]}
+          receiveShadow
+        >
+          <boxGeometry args={[hasCanal ? canalSideWidth : bounds[0], 0.1, bounds[2]]} />
+          <meshStandardMaterial
+            color={presentation.palette.floor}
+            map={surfaces.street.color}
+            normalMap={surfaces.street.normal}
+            normalScale={new THREE.Vector2(0.46, 0.46)}
+            roughnessMap={surfaces.street.arm}
+            roughness={0.94}
+          />
+        </mesh>
+      ))}
       {!hasCanal && (
         <mesh position={[0, 0.08, 0]} receiveShadow>
           <boxGeometry args={[bounds[0] * 0.42, 0.06, bounds[2]]} />
@@ -737,7 +781,14 @@ export function UrbanStreetKit({
       ))}
       {facades.map((building, index) => (
         <group key={index} position={building.position} rotation={building.rotation}>
-          <Building position={[0, 0, 0]} size={building.size} color={building.color} seed={building.seed} surface={surfaces.wall} />
+          <Building
+            position={[0, 0, 0]}
+            size={building.size}
+            color={building.color}
+            seed={building.seed}
+            surface={[surfaces.wall, surfaces.brick, surfaces.damaged][building.seed % 3]!}
+            roofSurface={surfaces.roof}
+          />
         </group>
       ))}
       {([[-0.25, -0.38], [0.25, -0.12], [-0.25, 0.15], [0.25, 0.4]] as const).map(([x, z]) => (

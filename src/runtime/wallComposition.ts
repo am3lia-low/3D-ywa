@@ -5,6 +5,6 @@ export const WALL_COMPOSITION = Object.freeze({
   trimDepth: 0.08,
   archiveTrimCenterInset: 0.065,
   archiveTrimDepth: 0.12,
-  // Furniture meets the face of the skirting instead of intersecting it.
-  dressingClearance: 0.145,
+  // Trim is segmented around furniture, so its back can meet the plaster.
+  dressingClearance: 0.072,
 });

@@ -10,6 +10,7 @@
     "contracts:generate": "node scripts/generate-contract-schemas.mjs",
     "models:generate": "node scripts/generate-models.mjs",
     "assets:import:polyhaven": "node scripts/import-polyhaven-assets.mjs",
+    "textures:import:polyhaven": "node scripts/import-polyhaven-textures.mjs",
     "assets:prepare:quality": "node scripts/prepare-polyhaven-lods.mjs",
     "assets:convert:glb": "node scripts/convert-external-glb.mjs",
     "assets:support:generate": "node scripts/generate-safe-mesh-support.mjs",

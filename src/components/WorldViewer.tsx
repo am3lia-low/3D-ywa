@@ -56,8 +56,6 @@ import {
 } from "../runtime/assetRegistry";
 import type { LayoutItem, WorldLayout } from "../runtime/layoutEngine";
 import {
-  ARCHIVE_SHELF_LEVELS,
-  createArchiveShelfBookSlots,
   createWornBookshelfBookSlots,
 } from "../runtime/shelfComposition";
 import { PatchVersionError } from "../runtime/applyScenePatch";
@@ -120,6 +118,7 @@ import {
 } from "../runtime/dressingResolver";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import { createWallTrimSegments } from "../runtime/wallTrimLayout";
 import {
   advanceSpatialRuntime,
   clearSpatialRuntimeExits,
@@ -1690,13 +1689,13 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
           varying float elevation;
           varying vec2 waterUv;
           void main() {
-            float crest = smoothstep(0.018, 0.086, elevation);
-            float ripple = sin(waterUv.y * 92.0 + sin(waterUv.x * 16.0) * 2.2 - time * 1.45);
-            float crestLine = smoothstep(0.76, 1.0, ripple);
-            float shimmer = pow(max(0.0, sin(waterUv.y * 121.0 - time * 1.1)), 18.0) * 0.2;
-            vec3 color = mix(deepColor, surfaceColor, 0.26 + crest * 0.56 + shimmer);
-            color = mix(color, vec3(0.55, 0.82, 0.84), crestLine * 0.34);
-            gl_FragColor = vec4(color, 0.96);
+            float longRipple = sin(waterUv.y * 68.0 - time * 1.2) * sin(waterUv.x * 19.0 + time * 0.38);
+            float fineRipple = sin(waterUv.y * 137.0 + waterUv.x * 25.0 - time * 1.65);
+            float surfaceMix = 0.3 + longRipple * 0.035 + fineRipple * 0.012;
+            float shimmer = pow(max(0.0, fineRipple), 28.0) * 0.055;
+            vec3 color = mix(deepColor, surfaceColor, surfaceMix);
+            color = mix(color, vec3(0.65, 0.82, 0.82), shimmer);
+            gl_FragColor = vec4(color, 0.94);
           }
         `}
       />
@@ -1705,11 +1704,19 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
 }
 
 function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const waterVolumeTop = URBAN_HUMAN_SCALE.canalWaterLevel
+    - URBAN_HUMAN_SCALE.canalWaveAmplitude
+    - URBAN_HUMAN_SCALE.canalVolumeClearance;
+  const waterDepth = waterVolumeTop - URBAN_HUMAN_SCALE.canalBedTop;
   return (
     <group>
       <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop - 0.04, 0]} receiveShadow>
         <boxGeometry args={[0.78, 0.08, 1]} />
         <meshStandardMaterial color="#243f44" roughness={0.96} />
+      </mesh>
+      <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop + waterDepth / 2, 0]} receiveShadow>
+        <boxGeometry args={[0.78, waterDepth, 1]} />
+        <meshStandardMaterial color="#123c48" roughness={0.24} transparent opacity={0.9} />
       </mesh>
       <StoryCanalWater highlighted={highlighted} highlightColor={highlightColor} />
       {[-0.45, 0.45].map((x) => (
@@ -1719,10 +1726,9 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
             <meshStandardMaterial color="#77766e" roughness={0.96} />
           </mesh>
           {Array.from({ length: 18 }, (_, index) => (
-            <mesh key={`canal-cap-${index}`} position={[0, 0.095, -0.47 + index * 0.055]} rotation={[0, (index % 3 - 1) * 0.03, 0]} castShadow>
-              <boxGeometry args={[0.19, 0.1, 0.05]} />
+            <RoundedBox key={`canal-cap-${index}`} args={[0.19, 0.1, 0.05]} radius={0.008} smoothness={2} position={[0, 0.095, -0.47 + index * 0.055]} rotation={[0, (index % 3 - 1) * 0.03, 0]} castShadow>
               <meshStandardMaterial color={index % 2 ? "#99978c" : "#85857d"} roughness={0.94} />
-            </mesh>
+            </RoundedBox>
           ))}
         </group>
       ))}
@@ -3203,17 +3209,21 @@ function HistoricalInteriorDetails({
   bounds,
   presentation,
   overview,
+  layout,
+  dressingInstances,
 }: {
   bounds: Vector3Tuple;
   presentation: ScenePresentation;
   overview: boolean;
+  layout: WorldLayout;
+  dressingInstances: readonly ResolvedDressingInstance[];
 }) {
   const timber = presentation.palette.timber;
-  const rearPanels = Array.from({ length: 9 }, (_, index) => -bounds[0] / 2 + bounds[0] * ((index + 0.5) / 9));
-  const sidePanels = Array.from({ length: 10 }, (_, index) => -bounds[2] / 2 + bounds[2] * ((index + 0.5) / 10));
-  const panelWidth = bounds[0] / 9 - 0.12;
-  const sidePanelWidth = bounds[2] / 10 - 0.12;
   const panelHeight = Math.min(1.55, bounds[1] * 0.24);
+  const obstacles = useMemo(
+    () => collectWallObstacles(layout, dressingInstances, panelHeight + 0.22),
+    [dressingInstances, layout, panelHeight],
+  );
 
   const panel = (key: string, position: Vector3Tuple, width: number, yaw = 0) => (
     <group key={key} position={position} rotation={[0, yaw, 0]}>
@@ -3236,21 +3246,66 @@ function HistoricalInteriorDetails({
     </group>
   );
 
+  const wallPanels = (wall: RuntimeWall) => {
+    const horizontal = wall === "north" || wall === "south";
+    const span = horizontal ? bounds[0] : bounds[2];
+    const runs = createWallTrimSegments(span, obstacles[wall], 0.08, 0.09);
+    return runs.flatMap((run, runIndex) => {
+      const runLength = run.length;
+      const runStart = run.center - run.length / 2;
+      const cellCount = Math.max(1, Math.ceil(runLength / 1.42));
+      const cellWidth = runLength / cellCount;
+      return Array.from({ length: cellCount }, (_, cellIndex) => {
+        const along = runStart + cellWidth * (cellIndex + 0.5);
+        const width = Math.max(0.12, cellWidth - 0.055);
+        const key = `${wall}-panel-${runIndex}-${cellIndex}`;
+        if (wall === "north") return panel(key, [along, panelHeight / 2 + 0.12, -bounds[2] / 2 + 0.095], width);
+        if (wall === "south") return panel(key, [along, panelHeight / 2 + 0.12, bounds[2] / 2 - 0.095], width, Math.PI);
+        if (wall === "west") return panel(key, [-bounds[0] / 2 + 0.095, panelHeight / 2 + 0.12, along], width, Math.PI / 2);
+        return panel(key, [bounds[0] / 2 - 0.095, panelHeight / 2 + 0.12, along], width, -Math.PI / 2);
+      });
+    });
+  };
+
+  const wallRails = (wall: RuntimeWall) => {
+    const horizontal = wall === "north" || wall === "south";
+    const span = horizontal ? bounds[0] : bounds[2];
+    return createWallTrimSegments(span, obstacles[wall], 0.08, 0.09).map((run, index) => {
+      const length = run.length;
+      const along = run.center;
+      const position: Vector3Tuple = wall === "north"
+        ? [along, panelHeight + 0.16, -bounds[2] / 2 + 0.12]
+        : wall === "south"
+          ? [along, panelHeight + 0.16, bounds[2] / 2 - 0.12]
+          : wall === "west"
+            ? [-bounds[0] / 2 + 0.12, panelHeight + 0.16, along]
+            : [bounds[0] / 2 - 0.12, panelHeight + 0.16, along];
+      const dimensions: Vector3Tuple = horizontal ? [length, 0.12, 0.14] : [0.14, 0.12, length];
+      return (
+        <RoundedBox key={`${wall}-rail-${index}`} args={dimensions} radius={0.025} smoothness={3} position={position} castShadow>
+          <meshStandardMaterial color={timber} roughness={0.84} />
+        </RoundedBox>
+      );
+    });
+  };
+
   return (
     <group userData={{ decorativeOnly: true, module: "historical-interior-details" }}>
-      {rearPanels.map((x, index) => panel(`rear-panel-${index}`, [x, panelHeight / 2 + 0.12, -bounds[2] / 2 + 0.095], panelWidth))}
-      {sidePanels.map((z, index) => panel(`left-panel-${index}`, [-bounds[0] / 2 + 0.095, panelHeight / 2 + 0.12, z], sidePanelWidth, Math.PI / 2))}
-      {!overview && rearPanels.map((x, index) => panel(`front-panel-${index}`, [x, panelHeight / 2 + 0.12, bounds[2] / 2 - 0.095], panelWidth, Math.PI))}
-      {!overview && sidePanels.map((z, index) => panel(`right-panel-${index}`, [bounds[0] / 2 - 0.095, panelHeight / 2 + 0.12, z], sidePanelWidth, -Math.PI / 2))}
+      {wallPanels("north")}
+      {wallPanels("west")}
+      {!overview && wallPanels("south")}
+      {!overview && wallPanels("east")}
+      {wallRails("north")}
+      {wallRails("west")}
+      {!overview && wallRails("south")}
+      {!overview && wallRails("east")}
       {[
-        [[0, panelHeight + 0.16, -bounds[2] / 2 + 0.12], [bounds[0], 0.12, 0.14]],
-        [[-bounds[0] / 2 + 0.12, panelHeight + 0.16, 0], [0.14, 0.12, bounds[2]]],
         [[0, bounds[1] - 0.18, -bounds[2] / 2 + 0.13], [bounds[0], 0.2, 0.18]],
         [[-bounds[0] / 2 + 0.13, bounds[1] - 0.18, 0], [0.18, 0.2, bounds[2]]],
       ].map(([position, dimensions], index) => (
         <mesh key={`estate-moulding-${index}`} position={position as Vector3Tuple} castShadow>
           <boxGeometry args={dimensions as Vector3Tuple} />
-          <meshStandardMaterial color={index < 2 ? timber : "#8d765e"} roughness={0.84} />
+          <meshStandardMaterial color="#8d765e" roughness={0.84} />
         </mesh>
       ))}
       {!overview && Array.from({ length: 6 }, (_, index) => (
@@ -3267,15 +3322,114 @@ function HistoricalInteriorDetails({
   );
 }
 
+type RuntimeWall = "north" | "south" | "west" | "east";
+
+function rotatedFootprint(dimensions: Vector3Tuple, yaw: number): [number, number] {
+  const sine = Math.abs(Math.sin(yaw));
+  const cosine = Math.abs(Math.cos(yaw));
+  return [
+    dimensions[0] * cosine + dimensions[2] * sine,
+    dimensions[0] * sine + dimensions[2] * cosine,
+  ];
+}
+
+function collectWallObstacles(
+  layout: WorldLayout,
+  dressingInstances: readonly ResolvedDressingInstance[],
+  maximumBottom: number,
+): Record<RuntimeWall, Array<{ center: number; width: number }>> {
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const byWall: Record<RuntimeWall, Array<{ center: number; width: number }>> = {
+    north: [], south: [], west: [], east: [],
+  };
+  for (const item of layout.items) {
+    const bottom = item.position[1] - item.dimensions[1] / 2;
+    if (bottom > maximumBottom || item.dimensions[1] < 0.18) continue;
+    const [footprintX, footprintZ] = rotatedFootprint(item.dimensions, item.rotation[1]);
+    const candidates: Array<{ wall: RuntimeWall; distance: number }> = [
+      { wall: "north", distance: Math.abs(item.position[2] - footprintZ / 2 + bounds[2] / 2) },
+      { wall: "south", distance: Math.abs(bounds[2] / 2 - item.position[2] - footprintZ / 2) },
+      { wall: "west", distance: Math.abs(item.position[0] - footprintX / 2 + bounds[0] / 2) },
+      { wall: "east", distance: Math.abs(bounds[0] / 2 - item.position[0] - footprintX / 2) },
+    ];
+    const nearest = candidates.sort((left, right) => left.distance - right.distance)[0]!;
+    if (nearest.distance > 0.24) continue;
+    byWall[nearest.wall].push({
+      center: nearest.wall === "north" || nearest.wall === "south" ? item.position[0] : item.position[2],
+      width: nearest.wall === "north" || nearest.wall === "south" ? footprintX : footprintZ,
+    });
+  }
+  for (const instance of dressingInstances) {
+    if (!instance.wall) continue;
+    const [footprintX, footprintZ] = rotatedFootprint(instance.dimensions, instance.rotation[1]);
+    byWall[instance.wall].push({
+      center: instance.wall === "north" || instance.wall === "south" ? instance.position[0] : instance.position[2],
+      width: instance.wall === "north" || instance.wall === "south" ? footprintX : footprintZ,
+    });
+  }
+  return byWall;
+}
+
+function SegmentedWallTrim({
+  layout,
+  dressingInstances,
+  walls,
+  color,
+  height = 0.24,
+  depth = WALL_COMPOSITION.trimDepth,
+  centerInset = WALL_COMPOSITION.trimCenterInset,
+}: {
+  layout: WorldLayout;
+  dressingInstances: readonly ResolvedDressingInstance[];
+  walls: readonly RuntimeWall[];
+  color: string;
+  height?: number;
+  depth?: number;
+  centerInset?: number;
+}) {
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const obstacles = useMemo(
+    () => collectWallObstacles(layout, dressingInstances, height + 0.08),
+    [dressingInstances, height, layout],
+  );
+
+  return (
+    <group userData={{ decorativeOnly: true, module: "segmented-wall-trim" }}>
+      {walls.flatMap((wall) => {
+        const span = wall === "north" || wall === "south" ? bounds[0] : bounds[2];
+        return createWallTrimSegments(span, obstacles[wall]).map((segment, index) => {
+          const position: Vector3Tuple = wall === "north"
+            ? [segment.center, height / 2, -bounds[2] / 2 + centerInset]
+            : wall === "south"
+              ? [segment.center, height / 2, bounds[2] / 2 - centerInset]
+              : wall === "west"
+                ? [-bounds[0] / 2 + centerInset, height / 2, segment.center]
+                : [bounds[0] / 2 - centerInset, height / 2, segment.center];
+          const dimensions: Vector3Tuple = wall === "north" || wall === "south"
+            ? [segment.length, height, depth]
+            : [depth, height, segment.length];
+          return (
+            <RoundedBox key={`${wall}:${index}`} args={dimensions} radius={0.018} smoothness={2} position={position} castShadow receiveShadow>
+              <meshStandardMaterial color={color} roughness={0.78} />
+            </RoundedBox>
+          );
+        });
+      })}
+    </group>
+  );
+}
+
 function Room({
   layout,
   presentation,
+  dressingInstances,
   onGroundNavigate,
   overview,
   renderQuality,
 }: {
   layout: WorldLayout;
   presentation: ScenePresentation;
+  dressingInstances: readonly ResolvedDressingInstance[];
   onGroundNavigate: (target: Vector3Tuple) => void;
   overview: boolean;
   renderQuality: RenderQuality;
@@ -3323,17 +3477,30 @@ function Room({
 
     return {
       wallColor: load(
-        "/textures/polyhaven/plastered_wall_03_diff_1k.jpg",
+        "/textures/polyhaven/damaged_plaster_diff_1k.jpg",
         [2.7, 1.45],
         true,
       ),
       wallNormal: load(
-        "/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg",
+        "/textures/polyhaven/damaged_plaster_nor_gl_1k.jpg",
         [2.7, 1.45],
       ),
       wallArm: load(
-        "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
+        "/textures/polyhaven/damaged_plaster_arm_1k.jpg",
         [2.7, 1.45],
+      ),
+      ceilingColor: load(
+        "/textures/polyhaven/plastered_wall_03_diff_1k.jpg",
+        [3.4, 3.4],
+        true,
+      ),
+      ceilingNormal: load(
+        "/textures/polyhaven/plastered_wall_03_nor_gl_1k.jpg",
+        [3.4, 3.4],
+      ),
+      ceilingArm: load(
+        "/textures/polyhaven/plastered_wall_03_arm_1k.jpg",
+        [3.4, 3.4],
       ),
       floorColor: load(
         "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
@@ -3347,6 +3514,19 @@ function Room({
       floorArm: load(
         "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
         [3.2, 3.2],
+      ),
+      stoneColor: load(
+        "/textures/polyhaven/castle_wall_slates_diff_1k.jpg",
+        [4.2, 4.2],
+        true,
+      ),
+      stoneNormal: load(
+        "/textures/polyhaven/castle_wall_slates_nor_gl_1k.jpg",
+        [4.2, 4.2],
+      ),
+      stoneArm: load(
+        "/textures/polyhaven/castle_wall_slates_arm_1k.jpg",
+        [4.2, 4.2],
       ),
     };
   }, []);
@@ -3363,7 +3543,6 @@ function Room({
   }));
   const archiveShelfCenters = [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]
     .map((factor) => bounds[0] * factor);
-  const archiveShelfLevels = ARCHIVE_SHELF_LEVELS;
   const atticGableShape = useMemo(() => {
     const eaveY = bounds[1] * 0.72;
     const ridgeY = bounds[1] - 0.16;
@@ -3453,11 +3632,11 @@ function Room({
           <mesh position={[0, bounds[1] - wallThickness / 2, 0]} receiveShadow>
             <boxGeometry args={[bounds[0], wallThickness, bounds[2]]} />
             <meshStandardMaterial
-              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
-              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
-              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
-              normalScale={new THREE.Vector2(0.36, 0.36)}
-              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              color={presentation.architecture.plasterWalls ? "#d8d0bf" : presentation.palette.wall}
+              map={presentation.architecture.plasterWalls ? roomTextures.ceilingColor : undefined}
+              normalMap={presentation.architecture.plasterWalls ? roomTextures.ceilingNormal : undefined}
+              normalScale={new THREE.Vector2(0.28, 0.28)}
+              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.ceilingArm : undefined}
               roughness={0.98}
               side={THREE.DoubleSide}
             />
@@ -3465,31 +3644,21 @@ function Room({
         </>
       )}
       {usesGenericKit && (
-        <group>
-          <mesh position={[0, 0.12, -bounds[2] / 2 + WALL_COMPOSITION.trimCenterInset]} castShadow receiveShadow>
-            <boxGeometry args={[bounds[0] - 0.18, 0.24, WALL_COMPOSITION.trimDepth]} />
-            <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
-          </mesh>
-          <mesh position={[-bounds[0] / 2 + WALL_COMPOSITION.trimCenterInset, 0.12, 0]} castShadow receiveShadow>
-            <boxGeometry args={[WALL_COMPOSITION.trimDepth, 0.24, bounds[2] - 0.18]} />
-            <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
-          </mesh>
-          {!overview && (
-            <>
-              <mesh position={[0, 0.12, bounds[2] / 2 - WALL_COMPOSITION.trimCenterInset]} castShadow receiveShadow>
-                <boxGeometry args={[bounds[0] - 0.18, 0.24, WALL_COMPOSITION.trimDepth]} />
-                <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
-              </mesh>
-              <mesh position={[bounds[0] / 2 - WALL_COMPOSITION.trimCenterInset, 0.12, 0]} castShadow receiveShadow>
-                <boxGeometry args={[WALL_COMPOSITION.trimDepth, 0.24, bounds[2] - 0.18]} />
-                <meshStandardMaterial color={presentation.palette.timber} roughness={0.78} />
-              </mesh>
-            </>
-          )}
-        </group>
+        <SegmentedWallTrim
+          layout={layout}
+          dressingInstances={dressingInstances}
+          walls={overview ? ["north", "west"] : ["north", "south", "west", "east"]}
+          color={presentation.palette.timber}
+        />
       )}
       {usesGenericKit && presentation.location.architectureTags.includes("estate-paneling") && (
-        <HistoricalInteriorDetails bounds={bounds} presentation={presentation} overview={overview} />
+        <HistoricalInteriorDetails
+          bounds={bounds}
+          presentation={presentation}
+          overview={overview}
+          layout={layout}
+          dressingInstances={dressingInstances}
+        />
       )}
       {presentation.architecture.industrialShell && (
         <IndustrialInteriorKit bounds={bounds} presentation={presentation} />
@@ -3686,71 +3855,43 @@ function Room({
                 <boxGeometry args={[tileWidth - 0.035, 0.028, tileDepth - 0.035]} />
                 <meshStandardMaterial
                   color={(tile.x + tile.z) % 3 === 0 ? "#263a39" : "#2d4240"}
+                  map={roomTextures.stoneColor}
+                  normalMap={roomTextures.stoneNormal}
+                  normalScale={new THREE.Vector2(0.42, 0.42)}
+                  roughnessMap={roomTextures.stoneArm}
                   roughness={0.98}
                 />
               </mesh>
             );
           })}
-          <mesh position={[0, 0.16, -bounds[2] / 2 + WALL_COMPOSITION.archiveTrimCenterInset]} receiveShadow>
-            <boxGeometry args={[bounds[0], 0.32, WALL_COMPOSITION.archiveTrimDepth]} />
-            <meshStandardMaterial color="#263534" roughness={1} />
-          </mesh>
-          <mesh position={[-bounds[0] / 2 + WALL_COMPOSITION.archiveTrimCenterInset, 0.16, 0]} receiveShadow>
-            <boxGeometry args={[WALL_COMPOSITION.archiveTrimDepth, 0.32, bounds[2]]} />
-            <meshStandardMaterial color="#263534" roughness={1} />
-          </mesh>
+          <SegmentedWallTrim
+            layout={layout}
+            dressingInstances={dressingInstances}
+            walls={["west"]}
+            color="#263534"
+            height={0.32}
+            depth={WALL_COMPOSITION.archiveTrimDepth}
+            centerInset={WALL_COMPOSITION.archiveTrimCenterInset}
+          />
           {archiveShelfCenters.map((center, shelfIndex) => (
-            <group key={`archive-shelf-${shelfIndex}`} position={[center, 0, -bounds[2] / 2 + 0.24]}>
-              <mesh position={[0, 2.28, -0.05]} castShadow receiveShadow>
-                <boxGeometry args={[2.55, 4.56, 0.16]} />
-                <meshStandardMaterial color="#253633" roughness={0.96} />
-              </mesh>
-              <mesh position={[-1.21, 2.28, 0.12]} castShadow>
-                <boxGeometry args={[0.14, 4.7, 0.54]} />
-                <meshStandardMaterial color="#3a2920" roughness={0.92} />
-              </mesh>
-              <mesh position={[1.21, 2.28, 0.12]} castShadow>
-                <boxGeometry args={[0.14, 4.7, 0.54]} />
-                <meshStandardMaterial color="#3a2920" roughness={0.92} />
-              </mesh>
-              <mesh position={[0, 4.58, 0.14]} castShadow>
-                <boxGeometry args={[2.58, 0.18, 0.58]} />
-                <meshStandardMaterial color="#60452f" roughness={0.84} />
-              </mesh>
-              {archiveShelfLevels.map((level, levelIndex) => (
-                <group key={`archive-shelf-level-${levelIndex}`}>
-                  <mesh position={[0, level, 0.12]} castShadow>
-                    <boxGeometry args={[2.55, 0.11, 0.56]} />
-                    <meshStandardMaterial color="#4b3326" roughness={0.9} />
-                  </mesh>
-                  {createArchiveShelfBookSlots(level, levelIndex).map((slot, bookIndex) => {
-                    return (
-                      <mesh
-                        key={`archive-book-${bookIndex}`}
-                        position={[
-                          slot.x,
-                          slot.y,
-                          0.17,
-                        ]}
-                        rotation={[0, 0, bookIndex % 4 === 0 ? -0.045 : 0]}
-                        castShadow
-                      >
-                        <boxGeometry args={[slot.width, slot.height, slot.depth]} />
-                        <meshStandardMaterial
-                          color={["#78594a", "#657165", "#6f4a45", "#88714c"][
-                            (bookIndex + levelIndex) % 4
-                          ]}
-                          roughness={0.94}
-                        />
-                      </mesh>
-                    );
-                  })}
-                  <mesh position={[0, level - 0.085, 0.41]} castShadow>
-                    <boxGeometry args={[0.36, 0.11, 0.025]} />
-                    <meshStandardMaterial color="#b1884c" roughness={0.46} metalness={0.55} />
-                  </mesh>
-                </group>
-              ))}
+            <group
+              key={`archive-shelf-${shelfIndex}`}
+              position={[center, 1.92, -bounds[2] / 2 + 0.31]}
+              scale={[2.28 + (shelfIndex % 2) * 0.08, 3.84, 0.68]}
+            >
+              <Suspense
+                fallback={(
+                  <RoundedBox args={[1, 1, 1]} radius={0.025} smoothness={2} castShadow receiveShadow>
+                    <meshStandardMaterial color="#493528" map={roomTextures.floorColor} roughness={0.92} />
+                  </RoundedBox>
+                )}
+              >
+                <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+                <BookcaseContents />
+              </Suspense>
+              <RoundedBox args={[0.22, 0.035, 0.025]} radius={0.008} smoothness={2} position={[0, -0.54, 0.53]} castShadow>
+                <meshStandardMaterial color="#b1884c" roughness={0.42} metalness={0.58} />
+              </RoundedBox>
             </group>
           ))}
           {sideStuds.map((z, index) => (
@@ -3771,11 +3912,17 @@ function Room({
       ) : usesLandscapeKit && landscapeFamily ? (
         <UniversalLandscapeKit bounds={bounds} family={landscapeFamily} presentation={presentation} />
       ) : usesUrbanKit ? (
-        <UrbanStreetKit
-          bounds={bounds}
-          presentation={presentation}
-          hasCanal={layout.items.some((item) => item.asset.proceduralModel === "canal")}
-        />
+        (() => {
+          const canal = layout.items.find((item) => item.asset.proceduralModel === "canal");
+          return (
+            <UrbanStreetKit
+              bounds={bounds}
+              presentation={presentation}
+              hasCanal={Boolean(canal)}
+              canalWidth={canal?.dimensions[0]}
+            />
+          );
+        })()
       ) : usesCourtyardKit ? (
         <CourtyardKit bounds={bounds} presentation={presentation} />
       ) : (
@@ -4590,6 +4737,7 @@ function WorldScene({
       <Room
         layout={layout}
         presentation={presentation}
+        dressingInstances={dressingInstances}
         onGroundNavigate={(target) => onCameraCommand("travel", target)}
         overview={cameraView === "overview"}
         renderQuality={renderQuality}
