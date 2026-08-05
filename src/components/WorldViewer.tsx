@@ -1663,7 +1663,7 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
   });
   return (
     <mesh position={[0, URBAN_HUMAN_SCALE.canalWaterLevel, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <planeGeometry args={[0.78, 1, 32, 128]} />
+      <planeGeometry args={[0.78, 1, 48, 192]} />
       <shaderMaterial
         ref={water}
         uniforms={uniforms}
@@ -1673,15 +1673,28 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
           uniform float time;
           varying float elevation;
           varying vec2 waterUv;
+          varying vec3 waterNormal;
+          varying vec3 viewDirection;
           void main() {
             vec3 displaced = position;
-            float broad = sin(position.y * 31.0 - time * 1.35) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.52};
-            float cross = sin(position.x * 18.0 + position.y * 12.0 + time * 1.8) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude / 3};
-            float detail = cos(position.y * 67.0 + time * 0.72) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.148};
+            float broadPhase = position.y * 15.0 - time * 0.82;
+            float crossPhase = position.x * 8.0 + position.y * 5.0 + time * 1.02;
+            float detailPhase = position.y * 27.0 - position.x * 6.0 + time * 0.52;
+            float broad = sin(broadPhase) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.34};
+            float cross = sin(crossPhase) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.2};
+            float detail = cos(detailPhase) * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.06};
             elevation = broad + cross + detail;
             displaced.z += elevation;
             waterUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+            float dzdx = cos(crossPhase) * 8.0 * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.2}
+              + sin(detailPhase) * 6.0 * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.06};
+            float dzdy = cos(broadPhase) * 15.0 * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.34}
+              + cos(crossPhase) * 5.0 * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.2}
+              - sin(detailPhase) * 27.0 * ${URBAN_HUMAN_SCALE.canalWaveAmplitude * 0.06};
+            waterNormal = normalize(normalMatrix * vec3(-dzdx, -dzdy, 1.0));
+            vec4 viewPosition = modelViewMatrix * vec4(displaced, 1.0);
+            viewDirection = normalize(-viewPosition.xyz);
+            gl_Position = projectionMatrix * viewPosition;
           }
         `}
         fragmentShader={`
@@ -1690,14 +1703,19 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
           uniform float time;
           varying float elevation;
           varying vec2 waterUv;
+          varying vec3 waterNormal;
+          varying vec3 viewDirection;
           void main() {
-            float longRipple = sin(waterUv.y * 68.0 - time * 1.2) * sin(waterUv.x * 19.0 + time * 0.38);
-            float fineRipple = sin(waterUv.y * 137.0 + waterUv.x * 25.0 - time * 1.65);
-            float surfaceMix = 0.3 + longRipple * 0.035 + fineRipple * 0.012;
-            float shimmer = pow(max(0.0, fineRipple), 28.0) * 0.055;
-            vec3 color = mix(deepColor, surfaceColor, surfaceMix);
-            color = mix(color, vec3(0.65, 0.82, 0.82), shimmer);
-            gl_FragColor = vec4(color, 0.94);
+            vec3 normal = normalize(waterNormal);
+            float fresnel = pow(1.0 - max(dot(normal, normalize(viewDirection)), 0.0), 3.0);
+            vec3 lightDirection = normalize(vec3(-0.34, 0.72, 0.58));
+            float diffuse = max(dot(normal, lightDirection), 0.0);
+            float sparkle = pow(max(dot(reflect(-lightDirection, normal), normalize(viewDirection)), 0.0), 46.0);
+            float depthVariation = 0.08 * sin(waterUv.y * 8.0 + time * 0.18) + elevation * 0.9;
+            vec3 color = mix(deepColor, surfaceColor, 0.28 + diffuse * 0.25 + depthVariation);
+            color = mix(color, vec3(0.43, 0.61, 0.65), fresnel * 0.46);
+            color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
+            gl_FragColor = vec4(color, 0.97);
           }
         `}
       />
@@ -1733,12 +1751,6 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
             </RoundedBox>
           ))}
         </group>
-      ))}
-      {Array.from({ length: 11 }, (_, index) => (
-        <mesh key={`canal-glint-${index}`} position={[(index % 3 - 1) * 0.18, URBAN_HUMAN_SCALE.canalWaterLevel + URBAN_HUMAN_SCALE.canalWaveAmplitude + 0.015, -0.45 + index * 0.09]} rotation={[-Math.PI / 2, 0, index * 0.21]}>
-          <planeGeometry args={[0.16, 0.012]} />
-          <meshBasicMaterial color="#b6e2df" transparent opacity={0.28} depthWrite={false} />
-        </mesh>
       ))}
     </group>
   );
@@ -3226,6 +3238,10 @@ function HistoricalInteriorDetails({
     () => collectWallObstacles(layout, dressingInstances, panelHeight + 0.22),
     [dressingInstances, layout, panelHeight],
   );
+  const artObstacles = useMemo(
+    () => collectWallObstacles(layout, dressingInstances, bounds[1]),
+    [bounds, dressingInstances, layout],
+  );
 
   const panel = (key: string, position: Vector3Tuple, width: number, yaw = 0) => (
     <group key={key} position={position} rotation={[0, yaw, 0]}>
@@ -3291,6 +3307,26 @@ function HistoricalInteriorDetails({
     });
   };
 
+  const wallArt = (wall: RuntimeWall) => {
+    const horizontal = wall === "north" || wall === "south";
+    const span = horizontal ? bounds[0] : bounds[2];
+    return createWallTrimSegments(span, artObstacles[wall], 0.42, 0.6)
+      .filter((run) => run.length >= 2.25)
+      .slice(0, 3)
+      .map((run, index) => {
+        const width = Math.min(1.25, run.length * 0.46);
+        const position: Vector3Tuple = wall === "north"
+          ? [run.center, 3.28, -bounds[2] / 2 + 0.135]
+          : wall === "south"
+            ? [run.center, 3.28, bounds[2] / 2 - 0.135]
+            : wall === "west"
+              ? [-bounds[0] / 2 + 0.135, 3.28, run.center]
+              : [bounds[0] / 2 - 0.135, 3.28, run.center];
+        const yaw = wall === "north" ? 0 : wall === "south" ? Math.PI : wall === "west" ? Math.PI / 2 : -Math.PI / 2;
+        return <DecorativeWallPortrait key={`${wall}-gallery-${index}`} position={position} yaw={yaw} width={width} seed={index + wall.length} />;
+      });
+  };
+
   return (
     <group userData={{ decorativeOnly: true, module: "historical-interior-details" }}>
       {wallPanels("north")}
@@ -3301,6 +3337,26 @@ function HistoricalInteriorDetails({
       {wallRails("west")}
       {!overview && wallRails("south")}
       {!overview && wallRails("east")}
+      {wallArt("north")}
+      {wallArt("west")}
+      {!overview && wallArt("south")}
+      {!overview && wallArt("east")}
+      {[-0.34, 0.34].map((factor, index) => (
+        <DecorativeWallSconce
+          key={`north-sconce-${factor}`}
+          position={[bounds[0] * factor, 3.05, -bounds[2] / 2 + 0.18]}
+          yaw={0}
+          lit={index === 0}
+        />
+      ))}
+      {[-0.3, 0.3].map((factor, index) => (
+        <DecorativeWallSconce
+          key={`west-sconce-${factor}`}
+          position={[-bounds[0] / 2 + 0.18, 3.05, bounds[2] * factor]}
+          yaw={Math.PI / 2}
+          lit={index === 1}
+        />
+      ))}
       {[
         [[0, bounds[1] - 0.18, -bounds[2] / 2 + 0.13], [bounds[0], 0.2, 0.18]],
         [[-bounds[0] / 2 + 0.13, bounds[1] - 0.18, 0], [0.18, 0.2, bounds[2]]],
@@ -3320,6 +3376,77 @@ function HistoricalInteriorDetails({
           <meshStandardMaterial color={timber} roughness={0.9} />
         </mesh>
       ))}
+      {!overview && [-0.28, 0, 0.28].map((factor) => (
+        <mesh key={`estate-longitudinal-beam-${factor}`} position={[bounds[0] * factor, bounds[1] - 0.1, 0]} castShadow>
+          <boxGeometry args={[0.18, 0.16, bounds[2]]} />
+          <meshStandardMaterial color={timber} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function DecorativeWallSconce({
+  position,
+  yaw,
+  lit = false,
+}: {
+  position: Vector3Tuple;
+  yaw: number;
+  lit?: boolean;
+}) {
+  return (
+    <group position={position} rotation={[0, yaw, 0]} userData={{ decorativeOnly: true }}>
+      <RoundedBox args={[0.24, 0.38, 0.07]} radius={0.055} smoothness={4} castShadow>
+        <meshStandardMaterial color="#8d6638" metalness={0.68} roughness={0.38} />
+      </RoundedBox>
+      <mesh position={[0, -0.02, 0.2]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.035, 0.045, 0.34, 12]} />
+        <meshStandardMaterial color="#a77b42" metalness={0.72} roughness={0.34} />
+      </mesh>
+      <mesh position={[0, 0.13, 0.37]} castShadow>
+        <cylinderGeometry args={[0.075, 0.09, 0.34, 14]} />
+        <meshStandardMaterial color="#eee0bd" roughness={0.88} />
+      </mesh>
+      <mesh position={[0, 0.38, 0.37]} scale={[0.075, 0.16, 0.075]}>
+        <sphereGeometry args={[1, 14, 10]} />
+        <meshStandardMaterial color="#ffd17a" emissive="#ef8d35" emissiveIntensity={2.1} roughness={0.2} />
+      </mesh>
+      {lit && <pointLight position={[0, 0.42, 0.5]} color="#f2b36a" intensity={0.72} distance={5.2} decay={2} />}
+    </group>
+  );
+}
+
+function DecorativeWallPortrait({
+  position,
+  yaw,
+  width,
+  seed,
+}: {
+  position: Vector3Tuple;
+  yaw: number;
+  width: number;
+  seed: number;
+}) {
+  const height = width * 1.18;
+  const canvas = ["#30424a", "#51443d", "#3f4c3b"][seed % 3]!;
+  return (
+    <group position={position} rotation={[0, yaw, 0]} userData={{ decorativeOnly: true }}>
+      <RoundedBox args={[width, height, 0.075]} radius={0.035} smoothness={4} castShadow>
+        <meshStandardMaterial color="#9a7440" metalness={0.38} roughness={0.5} />
+      </RoundedBox>
+      <mesh position={[0, 0, 0.045]} castShadow>
+        <planeGeometry args={[width - 0.16, height - 0.16]} />
+        <meshStandardMaterial color={canvas} roughness={0.96} />
+      </mesh>
+      <mesh position={[0, -height * 0.08, 0.06]} scale={[width * 0.21, height * 0.3, 0.045]} castShadow>
+        <sphereGeometry args={[1, 18, 12]} />
+        <meshStandardMaterial color={seed % 2 ? "#8f6d58" : "#697b76"} roughness={0.9} />
+      </mesh>
+      <mesh position={[0, height * 0.18, 0.07]} scale={[width * 0.105, width * 0.125, 0.05]} castShadow>
+        <sphereGeometry args={[1, 16, 12]} />
+        <meshStandardMaterial color="#b9a48a" roughness={0.88} />
+      </mesh>
     </group>
   );
 }
@@ -3417,6 +3544,109 @@ function SegmentedWallTrim({
           );
         });
       })}
+    </group>
+  );
+}
+
+function ArchiveGalleryDetails({
+  bounds,
+  overview,
+  roomTextures,
+}: {
+  bounds: Vector3Tuple;
+  overview: boolean;
+  roomTextures: { floorColor: THREE.Texture };
+}) {
+  const sideShelf = (side: -1 | 1, factor: number) => (
+    <group
+      key={`archive-side-shelf:${side}:${factor}`}
+      position={[side * (bounds[0] / 2 - 0.31), 1.82, bounds[2] * factor]}
+      rotation={[0, side < 0 ? Math.PI / 2 : -Math.PI / 2, 0]}
+      scale={[2.2, 3.64, 0.66]}
+    >
+      <Suspense fallback={null}>
+        <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+        <BookcaseContents />
+      </Suspense>
+    </group>
+  );
+
+  return (
+    <group userData={{ decorativeOnly: true, module: "archive-gallery-details" }}>
+      {[-0.33, 0.33].map((factor) => sideShelf(-1, factor))}
+      {!overview && [-0.33, 0.33].map((factor) => sideShelf(1, factor))}
+      {[-0.34, 0, 0.34].map((factor, index) => (
+        <group key={`archive-rear-sconce:${factor}`}>
+          <DecorativeWallSconce
+            position={[bounds[0] * factor, 5.15, -bounds[2] / 2 + 0.2]}
+            yaw={0}
+            lit={index !== 1}
+          />
+        </group>
+      ))}
+      <RoundedBox args={[2.8, 0.56, 0.15]} radius={0.08} smoothness={4} position={[0, 5.92, -bounds[2] / 2 + 0.17]} castShadow>
+        <meshStandardMaterial color="#654a36" roughness={0.86} />
+      </RoundedBox>
+      <mesh position={[0, 5.93, -bounds[2] / 2 + 0.26]}>
+        <planeGeometry args={[2.18, 0.3]} />
+        <meshStandardMaterial color="#c2a66e" metalness={0.3} roughness={0.52} />
+      </mesh>
+      {[-0.39, -0.13, 0.13, 0.39].map((factor) => (
+        <RoundedBox
+          key={`archive-cross-rib:${factor}`}
+          args={[0.18, 0.2, bounds[2] - 0.25]}
+          radius={0.035}
+          smoothness={3}
+          position={[bounds[0] * factor, bounds[1] - 0.14, 0]}
+          castShadow
+        >
+          <meshStandardMaterial color="#654f3e" roughness={0.9} />
+        </RoundedBox>
+      ))}
+      {!overview && [-0.35, 0, 0.35].map((factor) => (
+        <RoundedBox
+          key={`archive-width-rib:${factor}`}
+          args={[bounds[0] - 0.25, 0.18, 0.2]}
+          radius={0.035}
+          smoothness={3}
+          position={[0, bounds[1] - 0.12, bounds[2] * factor]}
+          castShadow
+        >
+          <meshStandardMaterial color="#654f3e" roughness={0.9} />
+        </RoundedBox>
+      ))}
+      {[-0.2, 0.2].map((factor, index) => (
+        <group key={`archive-reading-pool:${factor}`} position={[bounds[0] * factor, 3.55, 0]}>
+          <mesh position={[0, (bounds[1] - 3.55) / 2 - 0.08, 0]} castShadow>
+            <cylinderGeometry args={[0.018, 0.018, bounds[1] - 3.55 - 0.16, 8]} />
+            <meshStandardMaterial color="#3a2c25" metalness={0.42} roughness={0.6} />
+          </mesh>
+          <mesh position={[0, bounds[1] - 3.55 - 0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.14, 0.18, 0.08, 18]} />
+            <meshStandardMaterial color="#76532f" metalness={0.62} roughness={0.38} />
+          </mesh>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.32, 0.46, 0.24, 24, 1, true]} />
+            <meshStandardMaterial color="#9c7544" metalness={0.58} roughness={0.4} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh position={[0, -0.08, 0]}>
+            <cylinderGeometry args={[0.045, 0.045, 0.7, 12]} />
+            <meshStandardMaterial color="#76532f" metalness={0.68} roughness={0.34} />
+          </mesh>
+          <pointLight position={[0, -0.2, 0]} color="#efb36a" intensity={index ? 0.62 : 0.76} distance={5.8} decay={2} />
+        </group>
+      ))}
+      <group position={[bounds[0] * 0.26, 0.6, bounds[2] * 0.17]} rotation={[0, -0.08, 0]} userData={{ decorativeOnly: true, module: "archive-reading-island" }}>
+        <group scale={[2.4, 1.2, 1.1]}>
+          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf" /></Suspense>
+        </group>
+        <group position={[0.42, 0.78, 1.25]} rotation={[0, Math.PI, 0]} scale={[0.95, 1.55, 0.95]}>
+          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf" /></Suspense>
+        </group>
+        <group position={[-0.46, 0.72, 0.04]} rotation={[0, 0.18, 0]} scale={[0.3, 0.13, 0.24]}>
+          <Suspense fallback={null}><LoadedModel url="/models/kenney/furniture/books.glb" /></Suspense>
+        </group>
+      </group>
     </group>
   );
 }
@@ -3905,9 +4135,10 @@ function Room({
               receiveShadow
             >
               <boxGeometry args={[0.2, bounds[1], 0.28]} />
-              <meshStandardMaterial color="#354a48" roughness={1} />
+              <meshStandardMaterial color="#5d493a" map={roomTextures.floorColor} roughness={0.94} />
             </mesh>
           ))}
+          <ArchiveGalleryDetails bounds={bounds} overview={overview} roomTextures={roomTextures} />
         </>
       ) : usesConservatoryKit ? (
         <ConservatoryKit bounds={bounds} presentation={presentation} overview={overview} />

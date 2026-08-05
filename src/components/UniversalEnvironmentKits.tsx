@@ -941,6 +941,41 @@ export function UrbanStreetKit({
           />
         </group>
       ))}
+      {hasCanal && [-0.4, 0.4].map((factor, bridgeIndex) => (
+        <group key={`canal-bridge:${factor}`} position={[0, 0, bounds[2] * factor]} userData={{ decorativeOnly: true, module: "canal-bridge" }}>
+          <RoundedBox args={[reservedCanalWidth + 2.2, 0.32, 1.75]} radius={0.11} smoothness={5} position={[0, 0.34, 0]} castShadow receiveShadow>
+            <meshStandardMaterial color="#a59d90" emissive="#3c3833" emissiveIntensity={0.16} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.26, 0.26)} roughnessMap={surfaces.street.arm} roughness={0.94} />
+          </RoundedBox>
+          <RoundedBox args={[reservedCanalWidth + 1.8, 0.18, 1.92]} radius={0.08} smoothness={4} position={[0, 0.16, 0]} castShadow>
+            <meshStandardMaterial color="#777168" emissive="#292725" emissiveIntensity={0.14} roughness={0.98} />
+          </RoundedBox>
+          {[-0.91, 0.91].flatMap((edge) => Array.from({ length: 13 }, (_, index) => {
+            const progress = index / 12;
+            const x = -(reservedCanalWidth + 1.9) / 2 + progress * (reservedCanalWidth + 1.9);
+            const crest = Math.sin(progress * Math.PI);
+            return (
+              <RoundedBox
+                key={`bridge-parapet:${edge}:${index}`}
+                args={[(reservedCanalWidth + 1.9) / 13 - 0.035, 0.17 + crest * 0.11, 0.13]}
+                radius={0.025}
+                smoothness={3}
+                position={[x, 0.53 + crest * 0.055, edge]}
+                rotation={[0, (index % 3 - 1) * 0.012, 0]}
+                castShadow
+              >
+                <meshStandardMaterial color={index % 2 ? "#b0a89b" : "#9b9387"} emissive="#3d3934" emissiveIntensity={0.18} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.18, 0.18)} roughnessMap={surfaces.street.arm} roughness={0.96} />
+              </RoundedBox>
+            );
+          }))}
+          {[-1, 1].map((side) => (
+            <group key={`bridge-lamp:${side}`} position={[side * (reservedCanalWidth / 2 + 0.62), 1.9, bridgeIndex ? 0.63 : -0.63]}>
+              <mesh position={[0, -0.78, 0]} castShadow><cylinderGeometry args={[0.045, 0.07, 1.55, 12]} /><meshStandardMaterial color="#2d3434" metalness={0.72} roughness={0.38} /></mesh>
+              <mesh castShadow><cylinderGeometry args={[0.16, 0.11, 0.32, 8]} /><meshStandardMaterial color="#d7a95b" emissive="#d78531" emissiveIntensity={1.4} roughness={0.36} /></mesh>
+              <pointLight color={presentation.palette.practical} intensity={0.58} distance={4.8} decay={2} />
+            </group>
+          ))}
+        </group>
+      ))}
       {([[-0.25, -0.38], [0.25, -0.12], [-0.25, 0.15], [0.25, 0.4]] as const).map(([x, z]) => (
         <pointLight
           key={`street-light:${x}:${z}`}

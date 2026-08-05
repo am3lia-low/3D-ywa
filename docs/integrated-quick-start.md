@@ -10,6 +10,11 @@ root; teammates do not need to start two development servers.
 - pnpm 10.34 or newer (`pnpm --version`; pnpm 11 is also verified)
 - Git LFS is not required. The approved web assets are ordinary repository files.
 
+All models, textures, environment maps, safe meshes and external glTF
+dependencies required by the prepared worlds are committed with the repository.
+Teammates do not need to run an asset importer or download anything manually.
+ComfyUI and TripoSR remain optional development tools, not runtime requirements.
+
 If testing the work before it is merged, check out the shared integration branch:
 
 ```bash
@@ -75,6 +80,10 @@ final demo, also run:
 ```bash
 pnpm verify
 ```
+
+`pnpm verify` includes `pnpm assets:runtime:check`. That portability gate scans
+runtime source references, follows local `.gltf` buffer and image dependencies,
+and fails if any required asset is missing, empty or not tracked by Git.
 
 For a production build of only the combined UI:
 

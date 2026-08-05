@@ -19,6 +19,7 @@
     "assets:convert:glb": "node scripts/convert-external-glb.mjs",
     "assets:support:generate": "node scripts/generate-safe-mesh-support.mjs",
     "assets:support:check": "node scripts/generate-safe-mesh-support.mjs --check",
+    "assets:runtime:check": "node scripts/validate-runtime-assets.mjs",
     "assets:validate": "node scripts/validate-asset-kits.mjs",
     "assets:report": "node scripts/validate-asset-kits.mjs --write",
     "docs:check": "node scripts/check-team-contract-docs.mjs",
@@ -34,7 +35,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "verify": "pnpm test && pnpm typecheck && pnpm docs:check && pnpm assets:support:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check && pnpm check:integrated"
+    "verify": "pnpm test && pnpm typecheck && pnpm docs:check && pnpm assets:support:check && pnpm assets:runtime:check && pnpm scenes:preflight && pnpm assets:validate && pnpm build && pnpm bundle:check && pnpm check:integrated"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
