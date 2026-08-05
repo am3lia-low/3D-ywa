@@ -1530,14 +1530,16 @@ function StoryLanternAsset({
 
 function StoryPortraitAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
   const frameGlow = highlighted ? highlightColor : "#2b170c";
+  const portraitTexture = useStoryTexture("/textures/story/ashwood-woman-portrait-v1.png");
   return (
     <group>
       <RoundedBox args={[0.98, 1, 0.2]} radius={0.035} smoothness={3} castShadow receiveShadow>
         <meshStandardMaterial color="#4b2d20" roughness={0.72} metalness={0.12} />
       </RoundedBox>
-      <RoundedBox args={[0.79, 0.82, 0.22]} radius={0.025} smoothness={3} position={[0, 0, 0.04]} castShadow>
-        <meshStandardMaterial color="#182c30" emissive="#101e22" emissiveIntensity={0.16} roughness={0.84} />
-      </RoundedBox>
+      <mesh position={[0, 0, 0.16]} castShadow>
+        <planeGeometry args={[0.79, 0.82]} />
+        <meshStandardMaterial map={portraitTexture} emissive={highlighted ? highlightColor : "#000000"} emissiveIntensity={highlighted ? 0.14 : 0} roughness={0.9} />
+      </mesh>
       {[-0.44, 0.44].map((x) => (
         <RoundedBox key={`portrait-side-${x}`} args={[0.105, 0.93, 0.24]} radius={0.022} smoothness={3} position={[x, 0, 0.08]} castShadow>
           <meshStandardMaterial color="#9b7140" emissive={frameGlow} emissiveIntensity={highlighted ? 0.22 : 0.03} roughness={0.48} metalness={0.42} />
@@ -1548,22 +1550,6 @@ function StoryPortraitAsset({ highlighted, highlightColor }: { highlighted: bool
           <meshStandardMaterial color="#aa7d46" emissive={frameGlow} emissiveIntensity={highlighted ? 0.22 : 0.03} roughness={0.46} metalness={0.45} />
         </RoundedBox>
       ))}
-      <mesh position={[0, 0.15, 0.18]} castShadow>
-        <sphereGeometry args={[0.12, 24, 18]} />
-        <meshStandardMaterial color="#b5967d" roughness={0.82} />
-      </mesh>
-      <mesh position={[0, 0.255, 0.16]} scale={[0.14, 0.11, 0.08]} castShadow>
-        <sphereGeometry args={[1, 18, 12]} />
-        <meshStandardMaterial color="#392a27" roughness={0.88} />
-      </mesh>
-      <mesh position={[0, -0.14, 0.17]} scale={[0.31, 0.34, 0.09]} castShadow>
-        <sphereGeometry args={[1, 24, 16]} />
-        <meshStandardMaterial color="#342b3d" emissive="#17111d" emissiveIntensity={0.12} roughness={0.9} />
-      </mesh>
-      <mesh position={[0, -0.3, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.17, 0.012, 8, 28, Math.PI]} />
-        <meshStandardMaterial color="#bd965e" roughness={0.42} metalness={0.54} />
-      </mesh>
     </group>
   );
 }
@@ -1650,6 +1636,52 @@ function StoryAmberPendantAsset({ highlighted, highlightColor }: { highlighted: 
   );
 }
 
+function StorybookLampAsset({
+  highlighted,
+  highlightColor,
+  table = false,
+}: {
+  highlighted: boolean;
+  highlightColor: string;
+  table?: boolean;
+}) {
+  const brass = highlighted ? highlightColor : "#9b703a";
+  const stemBottom = table ? -0.32 : -0.46;
+  const stemHeight = table ? 0.5 : 0.72;
+  const shadeY = table ? 0.19 : 0.27;
+  const shadeHeight = table ? 0.34 : 0.38;
+  return (
+    <group userData={{ authoredAsset: table ? "storybook-table-lamp" : "storybook-floor-lamp" }}>
+      <mesh position={[0, stemBottom, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[table ? 0.23 : 0.27, table ? 0.26 : 0.3, table ? 0.075 : 0.065, 32]} />
+        <meshStandardMaterial color={brass} metalness={0.72} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, stemBottom + stemHeight / 2, 0]} castShadow>
+        <cylinderGeometry args={[0.024, 0.034, stemHeight, 18]} />
+        <meshStandardMaterial color={brass} metalness={0.76} roughness={0.28} />
+      </mesh>
+      {[stemBottom + 0.12, shadeY - shadeHeight * 0.55].map((y) => (
+        <mesh key={`lamp-collar:${y}`} position={[0, y, 0]} castShadow>
+          <sphereGeometry args={[0.055, 18, 12]} />
+          <meshStandardMaterial color="#c09856" metalness={0.7} roughness={0.32} />
+        </mesh>
+      ))}
+      <mesh position={[0, shadeY, 0]} castShadow>
+        <cylinderGeometry args={[table ? 0.18 : 0.2, table ? 0.36 : 0.38, shadeHeight, 40, 1, true]} />
+        <meshStandardMaterial color="#c8a36d" emissive="#5f3518" emissiveIntensity={0.16} roughness={0.82} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, shadeY + 0.015, 0]}>
+        <sphereGeometry args={[0.085, 20, 14]} />
+        <meshStandardMaterial color="#ffd790" emissive="#f0a048" emissiveIntensity={1.8} roughness={0.25} />
+      </mesh>
+      <mesh position={[0, shadeY + shadeHeight / 2 + 0.045, 0]} castShadow>
+        <sphereGeometry args={[0.038, 16, 10]} />
+        <meshStandardMaterial color={brass} metalness={0.72} roughness={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
 function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
   const water = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
@@ -1712,8 +1744,8 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
             float diffuse = max(dot(normal, lightDirection), 0.0);
             float sparkle = pow(max(dot(reflect(-lightDirection, normal), normalize(viewDirection)), 0.0), 46.0);
             float depthVariation = 0.08 * sin(waterUv.y * 8.0 + time * 0.18) + elevation * 0.9;
-            vec3 color = mix(deepColor, surfaceColor, 0.28 + diffuse * 0.25 + depthVariation);
-            color = mix(color, vec3(0.43, 0.61, 0.65), fresnel * 0.46);
+            vec3 color = mix(deepColor, surfaceColor, 0.22 + diffuse * 0.2 + depthVariation);
+            color = mix(color, vec3(0.25, 0.42, 0.46), fresnel * 0.34);
             color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
             gl_FragColor = vec4(color, 0.97);
           }
@@ -1794,6 +1826,12 @@ function EntityAsset({
   }
   if (asset.proceduralModel === "door") {
     return <StoryDoorAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+  if (asset.key === "storybook-floor-lamp") {
+    return <StorybookLampAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+  if (asset.key === "storybook-table-lamp") {
+    return <StorybookLampAsset highlighted={highlighted} highlightColor={highlightColor} table />;
   }
 
   if (asset.key === "fallback:instrument") {
@@ -3429,7 +3467,19 @@ function DecorativeWallPortrait({
   seed: number;
 }) {
   const height = width * 1.18;
-  const canvas = ["#30424a", "#51443d", "#3f4c3b"][seed % 3]!;
+  const atlas = useStoryTexture("/textures/story/storybook-gallery-atlas-v1.png");
+  const painting = useMemo(() => {
+    const texture = atlas.clone();
+    const quadrant = seed % 4;
+    texture.repeat.set(0.5, 0.5);
+    texture.offset.set((quadrant % 2) * 0.5, quadrant < 2 ? 0.5 : 0);
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }, [atlas, seed]);
+  useEffect(() => () => painting.dispose(), [painting]);
   return (
     <group position={position} rotation={[0, yaw, 0]} userData={{ decorativeOnly: true }}>
       <RoundedBox args={[width, height, 0.075]} radius={0.035} smoothness={4} castShadow>
@@ -3437,15 +3487,7 @@ function DecorativeWallPortrait({
       </RoundedBox>
       <mesh position={[0, 0, 0.045]} castShadow>
         <planeGeometry args={[width - 0.16, height - 0.16]} />
-        <meshStandardMaterial color={canvas} roughness={0.96} />
-      </mesh>
-      <mesh position={[0, -height * 0.08, 0.06]} scale={[width * 0.21, height * 0.3, 0.045]} castShadow>
-        <sphereGeometry args={[1, 18, 12]} />
-        <meshStandardMaterial color={seed % 2 ? "#8f6d58" : "#697b76"} roughness={0.9} />
-      </mesh>
-      <mesh position={[0, height * 0.18, 0.07]} scale={[width * 0.105, width * 0.125, 0.05]} castShadow>
-        <sphereGeometry args={[1, 16, 12]} />
-        <meshStandardMaterial color="#b9a48a" roughness={0.88} />
+        <meshStandardMaterial map={painting} roughness={0.9} />
       </mesh>
     </group>
   );
@@ -3584,13 +3626,25 @@ function ArchiveGalleryDetails({
           />
         </group>
       ))}
-      <RoundedBox args={[2.8, 0.56, 0.15]} radius={0.08} smoothness={4} position={[0, 5.92, -bounds[2] / 2 + 0.17]} castShadow>
-        <meshStandardMaterial color="#654a36" roughness={0.86} />
-      </RoundedBox>
-      <mesh position={[0, 5.93, -bounds[2] / 2 + 0.26]}>
-        <planeGeometry args={[2.18, 0.3]} />
-        <meshStandardMaterial color="#c2a66e" metalness={0.3} roughness={0.52} />
-      </mesh>
+      <group position={[0, 5.88, -bounds[2] / 2 + 0.25]} userData={{ decorativeOnly: true, motif: "archive-clock" }}>
+        <mesh castShadow>
+          <torusGeometry args={[0.42, 0.075, 14, 48]} />
+          <meshStandardMaterial color="#a77d43" metalness={0.62} roughness={0.38} />
+        </mesh>
+        <mesh position={[0, 0, -0.012]}>
+          <circleGeometry args={[0.36, 48]} />
+          <meshStandardMaterial color="#c9b98e" roughness={0.78} />
+        </mesh>
+        <mesh position={[-0.06, 0.09, 0.018]} rotation={[0, 0, -0.52]} castShadow>
+          <boxGeometry args={[0.035, 0.25, 0.025]} />
+          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
+        </mesh>
+        <mesh position={[0.1, -0.035, 0.02]} rotation={[0, 0, 1.18]} castShadow>
+          <boxGeometry args={[0.03, 0.28, 0.024]} />
+          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0, 0.035]} castShadow><sphereGeometry args={[0.045, 16, 10]} /><meshStandardMaterial color="#8d6739" metalness={0.64} roughness={0.36} /></mesh>
+      </group>
       {[-0.39, -0.13, 0.13, 0.39].map((factor) => (
         <RoundedBox
           key={`archive-cross-rib:${factor}`}
@@ -3636,15 +3690,12 @@ function ArchiveGalleryDetails({
           <pointLight position={[0, -0.2, 0]} color="#efb36a" intensity={index ? 0.62 : 0.76} distance={5.8} decay={2} />
         </group>
       ))}
-      <group position={[bounds[0] * 0.26, 0.6, bounds[2] * 0.17]} rotation={[0, -0.08, 0]} userData={{ decorativeOnly: true, module: "archive-reading-island" }}>
+      <group position={[bounds[0] * 0.19, 0.6, bounds[2] * 0.02]} rotation={[0, -0.08, 0]} userData={{ decorativeOnly: true, module: "archive-reading-island" }}>
         <group scale={[2.4, 1.2, 1.1]}>
           <Suspense fallback={null}><LoadedModel url="/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf" /></Suspense>
         </group>
         <group position={[0.42, 0.78, 1.25]} rotation={[0, Math.PI, 0]} scale={[0.95, 1.55, 0.95]}>
           <Suspense fallback={null}><LoadedModel url="/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf" /></Suspense>
-        </group>
-        <group position={[-0.46, 0.72, 0.04]} rotation={[0, 0.18, 0]} scale={[0.3, 0.13, 0.24]}>
-          <Suspense fallback={null}><LoadedModel url="/models/kenney/furniture/books.glb" /></Suspense>
         </group>
       </group>
     </group>
@@ -3762,6 +3813,19 @@ function Room({
       ),
     };
   }, []);
+  const usesEstatePaneling = presentation.location.architectureTags.includes("estate-paneling");
+  const genericWallColor = usesArchiveKit
+    ? "#81877a"
+    : usesEstatePaneling
+      ? "#b9ad98"
+      : presentation.architecture.plasterWalls
+        ? "#d3c5aa"
+        : presentation.palette.wall;
+  const genericWallMaps = presentation.architecture.plasterWalls || usesArchiveKit;
+  const usesCleanPlaster = usesArchiveKit || usesEstatePaneling;
+  const genericWallColorMap = usesCleanPlaster ? roomTextures.ceilingColor : roomTextures.wallColor;
+  const genericWallNormalMap = usesCleanPlaster ? roomTextures.ceilingNormal : roomTextures.wallNormal;
+  const genericWallRoughnessMap = usesCleanPlaster ? roomTextures.ceilingArm : roomTextures.wallArm;
   const rearStuds = Array.from({ length: 7 }, (_, index) =>
     -bounds[0] / 2 + (bounds[0] / 6) * index,
   );
@@ -3773,7 +3837,7 @@ function Room({
     x: index % 8,
     z: Math.floor(index / 8),
   }));
-  const archiveShelfCenters = [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42]
+  const archiveShelfCenters = [-0.41, -0.255, -0.1, 0.1, 0.255, 0.41]
     .map((factor) => bounds[0] * factor);
   const atticGableShape = useMemo(() => {
     const eaveY = bounds[1] * 0.72;
@@ -3818,22 +3882,22 @@ function Room({
       {usesGenericKit && <mesh position={[0, bounds[1] / 2, -bounds[2] / 2]} receiveShadow>
         <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
         <meshStandardMaterial
-          color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
-          map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
-          normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+          color={genericWallColor}
+          map={genericWallMaps ? genericWallColorMap : undefined}
+          normalMap={genericWallMaps ? genericWallNormalMap : undefined}
           normalScale={new THREE.Vector2(0.48, 0.48)}
-          roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+          roughnessMap={genericWallMaps ? genericWallRoughnessMap : undefined}
           roughness={0.98}
         />
       </mesh>}
       {usesGenericKit && <mesh position={[-bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
         <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
         <meshStandardMaterial
-          color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
-          map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
-          normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+          color={genericWallColor}
+          map={genericWallMaps ? genericWallColorMap : undefined}
+          normalMap={genericWallMaps ? genericWallNormalMap : undefined}
           normalScale={new THREE.Vector2(0.48, 0.48)}
-          roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+          roughnessMap={genericWallMaps ? genericWallRoughnessMap : undefined}
           roughness={0.98}
         />
       </mesh>}
@@ -3842,22 +3906,22 @@ function Room({
           <mesh position={[0, bounds[1] / 2, bounds[2] / 2]} receiveShadow>
             <boxGeometry args={[bounds[0], bounds[1], wallThickness]} />
             <meshStandardMaterial
-              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
-              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
-              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+              color={genericWallColor}
+              map={genericWallMaps ? genericWallColorMap : undefined}
+              normalMap={genericWallMaps ? genericWallNormalMap : undefined}
               normalScale={new THREE.Vector2(0.48, 0.48)}
-              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              roughnessMap={genericWallMaps ? genericWallRoughnessMap : undefined}
               roughness={0.98}
             />
           </mesh>
           <mesh position={[bounds[0] / 2, bounds[1] / 2, 0]} receiveShadow>
             <boxGeometry args={[wallThickness, bounds[1], bounds[2]]} />
             <meshStandardMaterial
-              color={presentation.architecture.plasterWalls ? "#d3c5aa" : presentation.palette.wall}
-              map={presentation.architecture.plasterWalls ? roomTextures.wallColor : undefined}
-              normalMap={presentation.architecture.plasterWalls ? roomTextures.wallNormal : undefined}
+              color={genericWallColor}
+              map={genericWallMaps ? genericWallColorMap : undefined}
+              normalMap={genericWallMaps ? genericWallNormalMap : undefined}
               normalScale={new THREE.Vector2(0.48, 0.48)}
-              roughnessMap={presentation.architecture.plasterWalls ? roomTextures.wallArm : undefined}
+              roughnessMap={genericWallMaps ? genericWallRoughnessMap : undefined}
               roughness={0.98}
             />
           </mesh>

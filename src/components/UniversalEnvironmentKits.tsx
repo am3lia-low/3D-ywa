@@ -941,6 +941,29 @@ export function UrbanStreetKit({
           />
         </group>
       ))}
+      {[-1, 1].flatMap((end) => Array.from({ length: 5 }, (_, index) => {
+        if (index === 2) return null;
+        const width = bounds[0] / 5 - 0.34;
+        const height = URBAN_HUMAN_SCALE.minimumBuildingHeight * 0.86 + ((index * 5 + (end > 0 ? 2 : 0)) % 3) * 1.2;
+        const depth = 3.1 + (index % 2) * 0.45;
+        return (
+          <group
+            key={`urban-horizon:${end}:${index}`}
+            position={[-bounds[0] / 2 + (index + 0.5) * bounds[0] / 5, height / 2 - 0.05, end * bounds[2] * 0.69]}
+            rotation={[0, end > 0 ? Math.PI : 0, 0]}
+            userData={{ decorativeOnly: true, depthLayer: "urban-horizon" }}
+          >
+            <Building
+              position={[0, 0, 0]}
+              size={[width, height, depth]}
+              color={["#ac9e8d", "#9baaa6", "#b49a82", "#8f9f9d", "#aa9a8d"][index]!}
+              seed={31 + index + (end > 0 ? 9 : 0)}
+              surface={[surfaces.damaged, surfaces.wall, surfaces.brick][index % 3]!}
+              roofSurface={surfaces.roof}
+            />
+          </group>
+        );
+      }))}
       {hasCanal && [-0.4, 0.4].map((factor, bridgeIndex) => (
         <group key={`canal-bridge:${factor}`} position={[0, 0, bounds[2] * factor]} userData={{ decorativeOnly: true, module: "canal-bridge" }}>
           <RoundedBox args={[reservedCanalWidth + 2.2, 0.32, 1.75]} radius={0.11} smoothness={5} position={[0, 0.34, 0]} castShadow receiveShadow>

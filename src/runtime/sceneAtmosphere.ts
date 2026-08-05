@@ -90,7 +90,13 @@ export function createSceneAtmosphereProfile(
 
   const fogNearFactor = family === "cavern" ? 0.18 : family === "aquatic" ? 0.24 : family === "woodland" ? 0.3 : family === "coastal" ? 0.38 : family === "courtyard" || family === "urban" ? 0.42 : 0.46;
   const fogFarFactor = family === "cavern" ? 1.25 : family === "aquatic" ? 1.48 : family === "woodland" ? 1.62 : family === "coastal" ? 2.35 : family === "arid" || family === "volcanic" ? 2.6 : family === "courtyard" || family === "urban" ? 2.05 : 1.9;
-  const ambientScale = family === "glasshouse" ? 0.72 : openAir ? 0.82 : 1;
+  const ambientScale = family === "glasshouse"
+    ? 0.72
+    : openAir
+      ? 0.82
+      : family === "interior" && highContrast
+        ? 0.72
+        : 0.9;
   const hemisphereIntensity =
     family === "glasshouse" ? 0.48
         : family === "cavern" ? 0.34
@@ -102,7 +108,7 @@ export function createSceneAtmosphereProfile(
           : family === "arid" ? 0.82
             : openAir ? 0.68
               : family === "industrial" ? 0.58
-                : highContrast ? 0.78 : 0.95;
+                : highContrast ? 0.58 : 0.82;
   const keyPosition: Vector3Tuple =
     family === "glasshouse"
       ? [3.8, 8.5, -3.4]
@@ -142,7 +148,7 @@ export function createSceneAtmosphereProfile(
     fillPosition,
     fillIntensity: presentation.location.lighting.keyIntensity * (night ? 0.16 : 0.11),
     environmentIntensity: (
-      family === "glasshouse" ? 0.5 : family === "interior" ? 0.44 : family === "cavern" ? 0.22 : family === "aquatic" ? 0.36 : family === "volcanic" ? 0.28 : family === "celestial" ? 0.3 : family === "industrial" ? 0.34 : family === "courtyard" || family === "urban" ? 0.38 : family === "alpine" ? 0.42 : 0.32
+      family === "glasshouse" ? 0.5 : family === "interior" ? 0.36 : family === "cavern" ? 0.22 : family === "aquatic" ? 0.36 : family === "volcanic" ? 0.28 : family === "celestial" ? 0.3 : family === "industrial" ? 0.34 : family === "courtyard" || family === "urban" ? 0.38 : family === "alpine" ? 0.42 : 0.32
     ) * (night ? 0.78 : 1) * (highContrast ? 0.9 : 1),
     exposure: night ? (highContrast ? 1.12 : 1.08) : rainy ? 1.03 : 1.08,
     contactShadow: {

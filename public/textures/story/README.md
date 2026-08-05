@@ -13,3 +13,16 @@ crimson/burgundy, hand-painted storybook realism, no border or surrounding room.
 
 Prompt summary: orthographic old parchment map with inked paths, rivers,
 mountains, forests and fold creases, with no readable words or modern labels.
+
+## `storybook-gallery-atlas-v1.png`
+
+Prompt summary: four decorative, character-free storybook landscape paintings
+in a two-by-two texture atlas: woodland, moonlit manor garden, coast and alpine
+valley. The runtime crops quadrants deterministically for non-narrative wall art.
+
+## `ashwood-woman-portrait-v1.png`
+
+Prompt summary: a vertical oil portrait of the passage-explicit seated woman in
+a dark period dress, with her hands arranged carefully in her lap. This is the
+prepared demo's resolved hero texture; future stories resolve their own portrait
+surface through the asynchronous asset pipeline.

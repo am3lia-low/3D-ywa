@@ -31,6 +31,8 @@ describe("camera navigation", () => {
     expect(Math.abs(pose.position[2])).toBeLessThan(7);
     expect(pose.target[2]).toBeLessThan(pose.position[2]);
     expect(pose.target[1]).toBeLessThan(pose.position[1]);
+    expect(pose.position[2]).toBeCloseTo(3.64);
+    expect(pose.target[2]).toBeCloseTo(-3.36);
   });
 
   it("starts an exterior scene looking toward its open boundary", () => {
