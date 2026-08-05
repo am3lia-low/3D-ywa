@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: storyworld-narrative-engine
+Version: 0.1.0
+Summary: Persistent narrative world-state extraction pipeline for StoryWorld 3D
+Requires-Python: >=3.11
+Requires-Dist: fastapi
+Requires-Dist: openai
+Requires-Dist: pydantic>=2
+Requires-Dist: uvicorn[standard]
