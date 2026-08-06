@@ -1079,6 +1079,461 @@
       }
     },
     {
+      "catalogId": "polyhaven:antique-ceramic-vase-01-optimized",
+      "registryKey": "antique-ceramic-vase",
+      "roles": ["surface-decor", "hero-prop", "period-dressing"],
+      "assetKeys": ["antique-ceramic-vase", "victorian-vase", "porcelain-vase"],
+      "semanticKinds": ["vase", "ceramic", "decor"],
+      "tags": ["antique", "ceramic", "vase", "porcelain", "floral", "victorian", "ornate", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/antique_ceramic_vase_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "antique-ceramic-vase", "geometry": "cylinder", "dimensions": [0.27, 0.4, 0.27],
+        "color": "#d9d0bb",
+        "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb", "minimumDistance": 10 },
+          { "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod2.glb", "minimumDistance": 20 }
+        ],
+        "roughness": 0.42, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 600000, "maxTriangles": 14000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.25, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:chinese-tea-table-optimized",
+      "registryKey": "ornate-tea-table",
+      "roles": ["accent-table", "conversation-dressing", "period-furniture"],
+      "assetKeys": ["ornate-tea-table", "victorian-tea-table", "accent-table"],
+      "semanticKinds": ["table", "tea-table", "accent-table"],
+      "tags": ["ornate", "tea", "table", "antique", "wood", "carved", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/chinese_tea_table",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "ornate-tea-table", "geometry": "box", "dimensions": [0.82, 0.58, 0.82],
+        "color": "#593923",
+        "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.68, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1700000, "maxTriangles": 10000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.25, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:potted-plant-01-optimized",
+      "registryKey": "victorian-potted-plant",
+      "roles": ["botanical-dressing", "corner-furnishing", "period-decor"],
+      "assetKeys": ["victorian-potted-plant", "estate-potted-plant", "large-houseplant"],
+      "semanticKinds": ["plant", "potted-plant", "botanical"],
+      "tags": ["plant", "potted", "terracotta", "lush", "botanical", "victorian", "interior", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/potted_plant_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-potted-plant", "geometry": "cylinder", "dimensions": [0.9, 1.4, 0.9],
+        "color": "#54704d",
+        "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.78
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 3600000, "maxTriangles": 90000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.5, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:side-table-tall-01-optimized",
+      "registryKey": "victorian-tall-side-table",
+      "roles": ["side-table", "conversation-dressing", "period-furniture"],
+      "assetKeys": ["victorian-tall-side-table", "antique-side-table", "tall-side-table"],
+      "semanticKinds": ["table", "side-table", "accent-table"],
+      "tags": ["vintage", "antique", "worn", "wood", "side-table", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/side_table_tall_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-tall-side-table", "geometry": "box", "dimensions": [0.68, 0.82, 0.58],
+        "color": "#60442d",
+        "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.7, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 650000, "maxTriangles": 10000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.3, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "Validator accessor bounds omit the table's authored node transforms; runtime normalization preserves its intentionally tall, slender proportions."
+      }
+    },
+    {
+      "catalogId": "polyhaven:brass-candleholders-optimized",
+      "registryKey": "ornate-brass-candleholders",
+      "roles": ["surface-decor", "practical-light", "period-dressing"],
+      "assetKeys": ["ornate-brass-candleholders", "antique-candles", "brass-candelabra"],
+      "semanticKinds": ["candleholder", "candelabra", "light"],
+      "tags": ["brass", "candle", "ornate", "antique", "warm", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Tina",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/brass_candleholders",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "ornate-brass-candleholders", "geometry": "cylinder", "dimensions": [0.62, 0.7, 0.34],
+        "color": "#a77a35",
+        "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.38, "metalness": 0.72, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 10000000, "maxTriangles": 45000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.45, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms."
+      }
+    },
+    {
+      "catalogId": "polyhaven:potted-plant-04-optimized",
+      "registryKey": "antique-table-succulent",
+      "roles": ["surface-decor", "botanical-dressing", "period-decor"],
+      "assetKeys": ["antique-table-succulent", "small-potted-plant", "ceramic-succulent"],
+      "semanticKinds": ["plant", "potted-plant", "decor"],
+      "tags": ["plant", "potted", "ceramic", "succulent", "botanical", "interior", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/potted_plant_04",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "antique-table-succulent", "geometry": "cylinder", "dimensions": [0.28, 0.32, 0.28],
+        "color": "#667653",
+        "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod1.glb", "minimumDistance": 10 },
+          { "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod2.glb", "minimumDistance": 20 }
+        ],
+        "roughness": 0.78, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2300000, "maxTriangles": 12000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.4, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:ornate-mirror-01-optimized",
+      "registryKey": "victorian-ornate-mirror",
+      "roles": ["wall-decor", "hero-prop", "period-dressing"],
+      "assetKeys": ["victorian-ornate-mirror", "gilded-mirror", "antique-mirror"],
+      "semanticKinds": ["mirror", "wall-decoration", "decor"],
+      "tags": ["mirror", "ornate", "gilded", "floral", "victorian", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-ornate-mirror", "geometry": "box", "dimensions": [0.82, 1.2, 0.12],
+        "color": "#b28b45",
+        "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod1.glb", "minimumDistance": 10 },
+          { "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod2.glb", "minimumDistance": 20 }
+        ],
+        "roughness": 0.4, "metalness": 0.35
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 800000, "maxTriangles": 20000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.4, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The mirror is deliberately shallow wall decor; runtime dimensions preserve its thin profile while accessor bounds omit authored transforms."
+      }
+    },
+    {
+      "catalogId": "polyhaven:vintage-wooden-drawer-01-optimized",
+      "registryKey": "victorian-document-drawers",
+      "roles": ["storage", "archive-dressing", "period-furniture"],
+      "assetKeys": ["victorian-document-drawers", "vintage-drawer-cabinet", "filing-drawers"],
+      "semanticKinds": ["cabinet", "drawer", "storage"],
+      "tags": ["vintage", "drawer", "cabinet", "archive", "wood", "brass", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_wooden_drawer_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-document-drawers", "geometry": "box", "dimensions": [1.05, 1.12, 0.58],
+        "color": "#62472f",
+        "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.72, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 850000, "maxTriangles": 10000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.4, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The reported 1.40x threshold crossing is rounding from accessor bounds that omit authored node transforms; runtime dimensions retain the measured drawer proportions."
+      }
+    },
+    {
+      "catalogId": "polyhaven:vintage-cabinet-01-optimized",
+      "registryKey": "victorian-glass-cabinet",
+      "roles": ["storage", "display-cabinet", "period-furniture"],
+      "assetKeys": ["victorian-glass-cabinet", "vintage-display-cabinet", "antique-cabinet"],
+      "semanticKinds": ["cabinet", "bookcase", "display-case"],
+      "tags": ["vintage", "cabinet", "glass", "carved", "dark-wood", "victorian", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_cabinet_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-glass-cabinet", "geometry": "box", "dimensions": [1.2, 2.35, 0.64],
+        "color": "#493426",
+        "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.6
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2200000, "maxTriangles": 50000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.5, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms."
+      }
+    },
+    {
+      "catalogId": "polyhaven:tea-set-01-optimized",
+      "registryKey": "victorian-tea-service",
+      "roles": ["surface-decor", "tea-service", "period-decor"],
+      "assetKeys": ["victorian-tea-service", "porcelain-tea-set", "antique-tea-service"],
+      "semanticKinds": ["tea-set", "tableware", "tea-service"],
+      "tags": ["tea", "porcelain", "ceramic", "victorian", "floral", "gold-trim", "tableware", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "James Ray Cock, Jurita Burger, and Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/tea_set_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-tea-service", "geometry": "cylinder", "dimensions": [0.38, 0.33, 0.54],
+        "color": "#d8cfb4",
+        "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod1.glb", "minimumDistance": 10 },
+          { "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod2.glb", "minimumDistance": 20 }
+        ],
+        "roughness": 0.32, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 5600000, "maxTriangles": 34000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.2, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:chinese-console-table-optimized",
+      "registryKey": "carved-story-console",
+      "roles": ["console-table", "period-furniture", "wall-dressing"],
+      "assetKeys": ["carved-story-console", "carved-console-table", "ornate-console"],
+      "semanticKinds": ["console-table", "sideboard", "wall-console"],
+      "tags": ["console", "table", "carved", "ornate", "dark-wood", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/chinese_console_table",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "carved-story-console", "geometry": "box", "dimensions": [1.72, 0.66, 0.34],
+        "color": "#4e3022",
+        "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod1.glb", "minimumDistance": 13 },
+          { "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod2.glb", "minimumDistance": 26 }
+        ],
+        "roughness": 0.58, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 8000000, "maxTriangles": 15000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.12, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:sofa-01-optimized",
+      "registryKey": "victorian-carved-settee",
+      "roles": ["seating", "parlor-furniture", "period-furniture"],
+      "assetKeys": ["victorian-carved-settee", "victorian-settee", "gothic-sofa"],
+      "semanticKinds": ["settee", "sofa", "couch"],
+      "tags": ["victorian", "gothic", "carved", "upholstered", "parlor", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Sofa_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-carved-settee", "geometry": "box", "dimensions": [1.57, 0.8, 0.66],
+        "color": "#53352c",
+        "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod1.glb", "minimumDistance": 13 },
+          { "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod2.glb", "minimumDistance": 26 }
+        ],
+        "roughness": 0.58
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1500000, "maxTriangles": 4500,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:ottoman-01-optimized",
+      "registryKey": "victorian-leather-ottoman",
+      "roles": ["seating", "footstool", "parlor-furniture"],
+      "assetKeys": ["victorian-leather-ottoman", "leather-ottoman", "parlor-footstool"],
+      "semanticKinds": ["ottoman", "footstool", "pouffe"],
+      "tags": ["leather", "upholstered", "parlor", "lounge", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Caspian Fortune",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Ottoman_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-leather-ottoman", "geometry": "box", "dimensions": [0.88, 0.62, 0.62],
+        "color": "#4a3029",
+        "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.48
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 1900000, "maxTriangles": 4500,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:gothic-coffee-table-optimized",
+      "registryKey": "gothic-parlor-table",
+      "roles": ["coffee-table", "parlor-furniture", "period-furniture"],
+      "assetKeys": ["gothic-parlor-table", "gothic-coffee-table", "ornate-low-table"],
+      "semanticKinds": ["coffee-table", "cocktail-table", "low-table"],
+      "tags": ["gothic", "ornate", "dark", "antique", "medieval", "parlor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/gothic_coffee_table",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "gothic-parlor-table", "geometry": "box", "dimensions": [1.44, 0.56, 1.44],
+        "color": "#3f2b23",
+        "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod1.glb", "minimumDistance": 13 },
+          { "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod2.glb", "minimumDistance": 26 }
+        ],
+        "roughness": 0.66, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 8600000, "maxTriangles": 20000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:gallinera-table-optimized",
+      "registryKey": "carved-arrival-table",
+      "roles": ["accent-table", "foyer-furniture", "period-furniture"],
+      "assetKeys": ["carved-arrival-table", "antique-accent-table", "gallinera-table"],
+      "semanticKinds": ["occasional-table", "accent-table", "arrival-table"],
+      "tags": ["antique", "carved", "floral", "traditional", "foyer", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Ulan Cabanilla",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/gallinera_table",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "carved-arrival-table", "geometry": "box", "dimensions": [0.83, 0.49, 0.52],
+        "color": "#533a29",
+        "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.7, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 5500000, "maxTriangles": 6000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "roles": ["storage", "archive-dressing"],

@@ -120,6 +120,141 @@ const reviewedAssets = {
       { level: 2, ratio: 0.2, error: 0.025 },
     ],
   },
+  antique_ceramic_vase_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/antique_ceramic_vase_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  chinese_tea_table: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/chinese_tea_table",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  potted_plant_01: {
+    author: "Rico Cilliers",
+    sourceUrl: "https://polyhaven.com/a/potted_plant_01",
+    lods: [
+      { level: 0, ratio: 0.42, error: 0.003 },
+      { level: 1, ratio: 0.2, error: 0.012 },
+      { level: 2, ratio: 0.08, error: 0.03 },
+    ],
+  },
+  side_table_tall_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/side_table_tall_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  brass_candleholders: {
+    author: "Tina",
+    sourceUrl: "https://polyhaven.com/a/brass_candleholders",
+    lods: [
+      { level: 0, ratio: 0.8, error: 0.003 },
+      { level: 1, ratio: 0.4, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  potted_plant_04: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/potted_plant_04",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  ornate_mirror_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/ornate_mirror_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  vintage_wooden_drawer_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/vintage_wooden_drawer_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  vintage_cabinet_01: {
+    author: "Rico Cilliers",
+    sourceUrl: "https://polyhaven.com/a/vintage_cabinet_01",
+    lods: [
+      { level: 0, ratio: 0.65, error: 0.003 },
+      { level: 1, ratio: 0.35, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  tea_set_01: {
+    author: "James Ray Cock, Jurita Burger, and Rico Cilliers",
+    sourceUrl: "https://polyhaven.com/a/tea_set_01",
+    lods: [
+      { level: 0, ratio: 0.8, error: 0.003 },
+      { level: 1, ratio: 0.4, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  chinese_console_table: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/chinese_console_table",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  Sofa_01: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/Sofa_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  Ottoman_01: {
+    author: "Caspian Fortune",
+    sourceUrl: "https://polyhaven.com/a/Ottoman_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  gothic_coffee_table: {
+    author: "Ulan Cabanilla",
+    sourceUrl: "https://polyhaven.com/a/gothic_coffee_table",
+    lods: [
+      { level: 0, ratio: 0.8, error: 0.003 },
+      { level: 1, ratio: 0.4, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  gallinera_table: {
+    author: "Ulan Cabanilla",
+    sourceUrl: "https://polyhaven.com/a/gallinera_table",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);
@@ -191,9 +326,24 @@ function runGltfpack(input, output, lod) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, { cwd: root, stdio: "inherit" });
     child.once("error", reject);
-    child.once("exit", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`gltfpack exited with code ${code}.`));
+    child.once("exit", async (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      if (process.platform === "win32" && code === 3221226505) {
+        try {
+          const bytes = await readFile(output);
+          if (bytes.length > 20 && bytes.subarray(0, 4).toString("ascii") === "glTF") {
+            console.warn(`gltfpack emitted a Windows libuv shutdown assertion after writing valid output: ${output}`);
+            resolve();
+            return;
+          }
+        } catch {
+          // Missing output remains a hard failure below.
+        }
+      }
+      reject(new Error(`gltfpack exited with code ${code}.`));
     });
   });
 }
@@ -206,6 +356,20 @@ const manifest = {
   texturePolicy: "Original 1K PBR textures are preserved; geometric LODs are selected before loading.",
   assets: [],
 };
+
+if (requested.length) {
+  try {
+    const existingManifest = JSON.parse(await readFile(
+      path.join(outputRoot, "optimization-manifest.json"),
+      "utf8",
+    ));
+    manifest.assets.push(
+      ...(existingManifest.assets ?? []).filter((asset) => !slugs.includes(asset.slug)),
+    );
+  } catch {
+    // A first targeted import has no previous manifest to preserve.
+  }
+}
 
 for (const slug of slugs) {
   const configuration = reviewed(slug);
