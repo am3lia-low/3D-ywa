@@ -544,6 +544,16 @@ function StoryWritingDesk({ asset }: { asset: AssetDefinition }) {
           <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
         </Suspense>
       </group>
+      <group
+        position={[0.22, 0.528, 0.06]}
+        rotation={[0, 0.18, 0]}
+        scale={[0.22, 0.025, 0.26]}
+        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+      >
+        <Suspense fallback={null}>
+          <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
+        </Suspense>
+      </group>
     </group>
   );
 }
@@ -972,7 +982,7 @@ function StoryFireplace({ highlighted, highlightColor }: {
       >
         <meshStandardMaterial color="#302d2a" roughness={0.62} metalness={0.12} />
       </RoundedBox>
-      {[-0.41, -0.27, 0.37].map((x, index) => (
+      {[-0.41, -0.27].map((x, index) => (
         <group key={`mantel-photo-${x}`} position={[x, 0.65 + index * 0.012, 0.13]} rotation={[0, 0, (index - 1) * 0.045]}>
           <RoundedBox args={[index === 2 ? 0.17 : 0.14, index === 2 ? 0.23 : 0.19, 0.035]} radius={0.012} smoothness={2} castShadow>
             <meshStandardMaterial color={index === 1 ? "#79613f" : "#aa8950"} roughness={0.5} metalness={0.34} />
@@ -988,6 +998,16 @@ function StoryFireplace({ highlighted, highlightColor }: {
           {defaultAssetRegistry["victorian-mantel-clock"] && (
             <AdaptiveLoadedModel asset={defaultAssetRegistry["victorian-mantel-clock"]} />
           )}
+        </Suspense>
+      </group>
+      <group
+        position={[0.355, 0.72, 0.19]}
+        rotation={[0, -0.22, 0]}
+        scale={[0.17, 0.26, 0.13]}
+        userData={{ decorativeOnly: true, placementValidated: true, surface: "mantel" }}
+      >
+        <Suspense fallback={null}>
+          <LoadedModel url="/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb" />
         </Suspense>
       </group>
       <pointLight position={[0.025, 0.82, 0.48]} color="#e9b96f" intensity={0.22} distance={1.7} decay={2} />
@@ -3413,6 +3433,7 @@ function EstateFurnitureComposition({
   const westGalleryCenterZ = bounds[2] * 0.16;
   const westGallerySideTablePosition: Vector3Tuple = [-bounds[0] / 2 + 0.58, 0.41, westGalleryCenterZ + 1.8];
   const arrivalTablePosition: Vector3Tuple = [-bounds[0] * 0.09, 0.4, bounds[2] * 0.19];
+  const readingNookPosition: Vector3Tuple = [bounds[0] * 0.34, 0.56, bounds[2] * 0.3];
   const furniture = [
     {
       key: "estate-conversation-sofa",
@@ -3495,11 +3516,11 @@ function EstateFurnitureComposition({
       scale: [0.65, 0.82, 0.56] as Vector3Tuple,
     },
     {
-      key: "estate-east-parlor-vase",
-      url: "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb",
-      position: [eastParlorTablePosition[0] + 0.2, 0.765, eastParlorTablePosition[2] - 0.12] as Vector3Tuple,
+      key: "estate-east-parlor-brass-vase",
+      url: "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb",
+      position: [eastParlorTablePosition[0] + 0.46, 0.78, eastParlorTablePosition[2] - 0.2] as Vector3Tuple,
       rotation: [0, 0.38, 0] as Vector3Tuple,
-      scale: [0.27, 0.41, 0.27] as Vector3Tuple,
+      scale: [0.24, 0.44, 0.24] as Vector3Tuple,
     },
     {
       key: "estate-east-parlor-candleholders",
@@ -3509,11 +3530,11 @@ function EstateFurnitureComposition({
       scale: [0.42, 0.62, 0.3] as Vector3Tuple,
     },
     {
-      key: "estate-east-parlor-books",
-      url: "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
-      position: [eastParlorTablePosition[0] - 0.38, 0.685, eastParlorTablePosition[2] + 0.18] as Vector3Tuple,
-      rotation: [0, 0.24, 0] as Vector3Tuple,
-      scale: [0.52, 0.25, 0.18] as Vector3Tuple,
+      key: "estate-east-parlor-chess-set",
+      url: "/models/optimized/polyhaven/chess_set/chess_set_lod1.glb",
+      position: [eastParlorTablePosition[0] - 0.08, 0.635, eastParlorTablePosition[2] + 0.04] as Vector3Tuple,
+      rotation: [0, 0.2, 0] as Vector3Tuple,
+      scale: [0.58, 0.15, 0.58] as Vector3Tuple,
     },
     {
       key: "estate-east-parlor-plant",
@@ -3579,6 +3600,20 @@ function EstateFurnitureComposition({
       scale: [0.38, 0.58, 0.28] as Vector3Tuple,
     },
     {
+      key: "estate-reading-rocker",
+      url: "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb",
+      position: readingNookPosition,
+      rotation: [0, -2.42, 0] as Vector3Tuple,
+      scale: [0.82, 1.12, 1.02] as Vector3Tuple,
+    },
+    {
+      key: "estate-reading-basket",
+      url: "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb",
+      position: [readingNookPosition[0] - 0.92, 0.21, readingNookPosition[2] + 0.74] as Vector3Tuple,
+      rotation: [0, 0.34, 0] as Vector3Tuple,
+      scale: [0.5, 0.42, 0.45] as Vector3Tuple,
+    },
+    {
       key: "estate-east-bookshelf",
       url: "/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod0.glb",
       position: [bounds[0] / 2 - 0.5, 1.1, bounds[2] * 0.05] as Vector3Tuple,
@@ -3621,11 +3656,11 @@ function EstateFurnitureComposition({
       scale: [0.38, 0.33, 0.54] as Vector3Tuple,
     },
     {
-      key: "estate-console-vase",
-      url: "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb",
-      position: [southConsolePosition[0] + 0.46, 0.86, southConsolePosition[2]] as Vector3Tuple,
+      key: "estate-console-jug",
+      url: "/models/optimized/polyhaven/jug_01/jug_01_lod1.glb",
+      position: [southConsolePosition[0] + 0.52, 0.87, southConsolePosition[2]] as Vector3Tuple,
       rotation: [0, 0.32, 0] as Vector3Tuple,
-      scale: [0.27, 0.4, 0.27] as Vector3Tuple,
+      scale: [0.3, 0.42, 0.3] as Vector3Tuple,
     },
     {
       key: "estate-side-table-succulent",
@@ -3669,6 +3704,20 @@ function EstateFurnitureComposition({
       rotation: [0, -0.12, 0] as Vector3Tuple,
       scale: [0.22, 0.64, 0.22] as Vector3Tuple,
     },
+    {
+      key: "estate-grandfather-clock",
+      url: "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb",
+      position: [-bounds[0] * 0.34, 1.1, bounds[2] / 2 - 0.42] as Vector3Tuple,
+      rotation: [0, Math.PI, 0] as Vector3Tuple,
+      scale: [0.72, 2.2, 0.42] as Vector3Tuple,
+    },
+    {
+      key: "estate-south-gallery-painting",
+      url: "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb",
+      position: [bounds[0] * 0.35, 3.35, bounds[2] / 2 - 0.18] as Vector3Tuple,
+      rotation: [0, Math.PI, 0] as Vector3Tuple,
+      scale: [1.08, 0.82, 0.055] as Vector3Tuple,
+    },
   ] as const;
   const hiddenWithCutawayWalls = new Set([
     "estate-east-bookshelf",
@@ -3676,10 +3725,12 @@ function EstateFurnitureComposition({
     "estate-east-ornate-mirror",
     "estate-south-console",
     "estate-west-vintage-glass-cabinet",
-    "estate-console-vase",
+    "estate-console-jug",
     "estate-console-candleholders",
     "estate-console-books",
     "estate-south-console-oil-lamp",
+    "estate-grandfather-clock",
+    "estate-south-gallery-painting",
   ]);
 
   return (
