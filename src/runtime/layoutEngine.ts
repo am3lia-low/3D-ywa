@@ -238,6 +238,44 @@ function relationPosition(
   const xGap = target.dimensions[0] / 2 + item.dimensions[0] / 2 + distance;
   const zGap = target.dimensions[2] / 2 + item.dimensions[2] / 2 + distance;
 
+  const nearWallArchitecture = (): Vector3Tuple | undefined => {
+    if (relation.predicate !== "near" || target.entity.kind !== "architecture") return undefined;
+    const furnitureClearance = Math.max(distance, 0.68);
+    const nearNorth = Math.abs(target.position[2] + bounds[2] / 2) < 1.6;
+    const nearSouth = Math.abs(target.position[2] - bounds[2] / 2) < 1.6;
+    const nearWest = Math.abs(target.position[0] + bounds[0] / 2) < 1.6;
+    const nearEast = Math.abs(target.position[0] - bounds[0] / 2) < 1.6;
+    if (nearNorth) {
+      return [
+        target.position[0] + xGap,
+        baseY,
+        target.position[2] + target.dimensions[2] / 2 + item.dimensions[2] / 2 + furnitureClearance,
+      ];
+    }
+    if (nearSouth) {
+      return [
+        target.position[0] - xGap,
+        baseY,
+        target.position[2] - target.dimensions[2] / 2 - item.dimensions[2] / 2 - furnitureClearance,
+      ];
+    }
+    if (nearWest) {
+      return [
+        target.position[0] + target.dimensions[2] / 2 + item.dimensions[2] / 2 + furnitureClearance,
+        baseY,
+        target.position[2] - zGap,
+      ];
+    }
+    if (nearEast) {
+      return [
+        target.position[0] - target.dimensions[2] / 2 - item.dimensions[2] / 2 - furnitureClearance,
+        baseY,
+        target.position[2] + zGap,
+      ];
+    }
+    return undefined;
+  };
+
   switch (relation.predicate) {
     case "left_of":
       return [target.position[0] - xGap, baseY, target.position[2]];
@@ -248,7 +286,8 @@ function relationPosition(
     case "behind":
       return [target.position[0], baseY, target.position[2] - zGap];
     case "near":
-      return [target.position[0] + xGap, baseY, target.position[2] + distance / 2];
+      return nearWallArchitecture()
+        ?? [target.position[0] + xGap, baseY, target.position[2] + distance / 2];
     case "on":
       {
         const [offsetX, offsetZ] = surfaceOffset(item, target);
@@ -358,8 +397,10 @@ function orientFurnitureTowardRelation(
 
   const target = placedById.get(relation.objectId);
   if (!target) return draft;
-  const directionX = target.position[0] - position[0];
-  const directionZ = target.position[2] - position[2];
+  const evidence = `${draft.entity.provenance?.sentence ?? ""} ${JSON.stringify(draft.entity.state ?? {})}`;
+  const explicitlyFacesRoom = /(?:angled|facing|turned)\s+(?:in)?toward(?:s)?\s+the\s+room/i.test(evidence);
+  const directionX = explicitlyFacesRoom ? -position[0] : target.position[0] - position[0];
+  const directionZ = explicitlyFacesRoom ? -position[2] : target.position[2] - position[2];
   if (Math.abs(directionX) + Math.abs(directionZ) < Number.EPSILON) return draft;
 
   return {

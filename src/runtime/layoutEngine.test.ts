@@ -195,6 +195,56 @@ describe("createWorldLayout", () => {
     expect(alignment).toBeGreaterThan(0.99);
   });
 
+  it("keeps furniture beside wall architecture clear of the wall and honors explicit room-facing evidence", () => {
+    const hallSnapshot: WorldSnapshot = {
+      storyId: "wall-furniture-clearance",
+      version: 1,
+      passageId: "P1",
+      locations: [{ id: "hall", name: "Hall", bounds: [18, 6, 16] }],
+      entities: [
+        {
+          id: "hearth",
+          name: "Stone hearth",
+          kind: "architecture",
+          locationId: "hall",
+          assetKey: "fireplace",
+          dimensions: [3.8, 3.35, 1.05],
+        },
+        {
+          id: "armchair",
+          name: "Red armchair",
+          kind: "furniture",
+          locationId: "hall",
+          assetKey: "victorian-armchair",
+          dimensions: [1.15, 1.45, 1.04],
+          provenance: {
+            passageId: "P1",
+            confidence: 0.98,
+            sentence: "A red armchair stood beside the fireplace, angled toward the room rather than the hearth.",
+          },
+        },
+      ],
+      relations: [
+        { id: "hearth-wall", subjectId: "hearth", predicate: "against_wall", metadata: { wall: "north" } },
+        { id: "chair-near-hearth", subjectId: "armchair", predicate: "near", objectId: "hearth", distance: 0.42 },
+      ],
+      conflicts: [],
+    };
+    const layout = createWorldLayout(hallSnapshot);
+    const hearth = layout.items.find((item) => item.entity.id === "hearth")!;
+    const chair = layout.items.find((item) => item.entity.id === "armchair")!;
+
+    expect(chair.position[2] - chair.dimensions[2] / 2).toBeGreaterThan(
+      hearth.position[2] + hearth.dimensions[2] / 2 + 0.6,
+    );
+    const toRoomX = -chair.position[0];
+    const toRoomZ = -chair.position[2];
+    const alignment = (
+      Math.sin(chair.rotation[1]) * toRoomX + Math.cos(chair.rotation[1]) * toRoomZ
+    ) / Math.hypot(toRoomX, toRoomZ);
+    expect(alignment).toBeGreaterThan(0.99);
+  });
+
   it("uses the visual safe zone when a prop rests on an irregular support", () => {
     const layout = createWorldLayout(woodlandSnapshotFixture as unknown as WorldSnapshot);
     const log = layout.items.find((item) => item.entity.id === "fallen-cedar-1")!;
