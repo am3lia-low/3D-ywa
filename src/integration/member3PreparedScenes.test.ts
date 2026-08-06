@@ -35,12 +35,29 @@ describe("Member 3 prepared story scenes", () => {
           expect(layout.items.find((item) => item.entity.id === "armchair")?.dimensions[1]).toBeGreaterThanOrEqual(1.4);
         }
 
+        if (uiSnapshot.entities.some((entity) => entity.id === "clock")) {
+          expect(recipe.assetRegistry.clock?.key).toBe("victorian-mantel-clock");
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "clock",
+            predicate: "on",
+            objectId: "fireplace",
+          }));
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "schoolroom")) {
+          expect(scene.spatialSnapshot.entities.some((entity) => entity.id === "schoolroom")).toBe(false);
+          expect(recipe.assetRegistry.schoolroom).toBeUndefined();
+        }
+
         for (const item of layout.items) {
           expect(Number.isFinite(item.position[0] + item.position[1] + item.position[2])).toBe(true);
           expect(Math.abs(item.position[0])).toBeLessThanOrEqual(bounds[0] / 2 + 0.01);
           expect(Math.abs(item.position[2])).toBeLessThanOrEqual(bounds[2] / 2 + 0.01);
           const asset = recipe.assetRegistry[item.entity.id]!;
-          expect(relativeScaleSpread(item.dimensions, asset.dimensions)).toBeLessThanOrEqual(1.2);
+          expect(
+            relativeScaleSpread(item.dimensions, asset.dimensions),
+            `${item.entity.id} -> ${asset.key} must preserve the approved asset proportions`,
+          ).toBeLessThanOrEqual(1.2);
         }
 
         for (const relation of scene.spatialSnapshot.relations.filter((candidate) => candidate.predicate === "against_wall")) {
