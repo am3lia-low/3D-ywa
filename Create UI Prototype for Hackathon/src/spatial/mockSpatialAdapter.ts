@@ -54,11 +54,11 @@ function dimensions(entity: WorldEntity): [number, number, number] {
   const text = `${entity.id} ${entity.name}`.toLowerCase()
   if (/canal|waterway|channel/.test(text)) return [6.2, 0.65, 27.4]
   if (/amber.*pendant|pendant|necklace/.test(text)) return [0.22, 0.38, 0.08]
-  if (/fireplace|hearth/.test(text)) return [2.2, 2.2, 0.65]
-  if (/window/.test(text)) return [2.5, 2.1, 0.25]
-  if (/portrait|painting/.test(text)) return [1.4, 1.8, 0.14]
+  if (/fireplace|hearth/.test(text)) return [3.8, 3.35, 1.05]
+  if (/window/.test(text)) return [3.25, 2.73, 0.33]
+  if (/portrait|painting/.test(text)) return [2.1, 2.7, 0.21]
   if (/hidden.*door|doorway/.test(text)) return [1.8, 2.9, 0.25]
-  if (/door/.test(text)) return [1.3, 2.7, 0.3]
+  if (/door/.test(text)) return [1.44, 2.9, 0.18]
   if (/armchair|easy.*chair|lounge.*chair/.test(text)) return [1.15, 1.45, 1.04]
   if (/chair|seat/.test(text)) return [0.95, 1.55, 0.95]
   if (/desk|table/.test(text)) return [2.4, 1.2, 1.1]
@@ -109,9 +109,10 @@ function wallPosition(
   wall: 'north' | 'south' | 'east' | 'west',
 ): Vector3Tuple {
   const axis = wallAxisPosition(entity, wall)
+  const baseOffset = /window/.test(semanticPlacementText(entity)) ? 1.18 : 0
   return wall === 'north' || wall === 'south'
-    ? [axis, size[1] / 2, 0]
-    : [0, size[1] / 2, axis]
+    ? [axis, size[1] / 2 + baseOffset, 0]
+    : [0, size[1] / 2 + baseOffset, axis]
 }
 
 function fallbackFloorPosition(entity: WorldEntity, size: Vector3Tuple): Vector3Tuple {
@@ -258,7 +259,7 @@ function environment(text: string): {
       dressingDensity: 'rich',
       mood: 'elegant, secretive and melancholy',
       timeOfDay: 'moonlit evening',
-      palette: { background: '#10151a', fog: '#293238', floor: '#44362f', wall: '#a79b89', timber: '#382b25', ambient: '#b5b1a8', keyLight: '#c8d9e4', practical: '#efa45b' },
+      palette: { background: '#10151a', fog: '#293238', floor: '#7a6250', wall: '#a79b89', timber: '#382b25', ambient: '#c4b8a7', keyLight: '#c8d9e4', practical: '#efa45b' },
       lighting: { warmth: 'neutral', contrast: 'high', ambientIntensity: 0.6, keyIntensity: 1.55, atmosphericEffects: ['window-shaft', 'dust-motes'] },
     },
     colors: { floorColor: '#44362f', wallColor: '#a79b89', ambientColor: '#b5b1a8' },

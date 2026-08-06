@@ -40,8 +40,8 @@ export function createPovCameraPose(
 ): CameraPose {
   const eyeHeight = Math.min(1.68, Math.max(1.5, bounds[1] * 0.34));
   return {
-    position: [bounds[0] * 0.11, eyeHeight, bounds[2] * 0.26],
-    target: [-bounds[0] * 0.025, Math.min(1.38, eyeHeight - 0.12), -bounds[2] * 0.24],
+    position: [bounds[0] * 0.18, eyeHeight, bounds[2] * 0.03],
+    target: [-bounds[0] * 0.08, Math.min(1.38, eyeHeight - 0.12), -bounds[2] * 0.37],
   };
 }
 

@@ -4,9 +4,9 @@
   "summary": {
     "kits": 5,
     "completeKits": 5,
-    "assets": 47,
-    "passed": 41,
-    "warnings": 6,
+    "assets": 49,
+    "passed": 44,
+    "warnings": 5,
     "environmentAssets": 15,
     "failed": 0
   },
@@ -1013,6 +1013,120 @@
       ]
     },
     {
+      "catalogId": "polyhaven:sofa-03-optimized",
+      "registryKey": "victorian-lounge-sofa",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb"
+      ],
+      "totalBytes": 818008,
+      "triangles": 8004,
+      "materialCount": 2,
+      "sourceBounds": [
+        2.7312,
+        1.1183,
+        0.9251
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb",
+          "totalBytes": 818008,
+          "triangles": 8004,
+          "sourceBounds": [
+            2.7312,
+            1.1183,
+            0.9251
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod1.glb",
+          "totalBytes": 724800,
+          "triangles": 4400,
+          "sourceBounds": [
+            2.7312,
+            1.1183,
+            0.9244
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod2.glb",
+          "totalBytes": 658012,
+          "triangles": 2000,
+          "sourceBounds": [
+            2.7225,
+            1.1183,
+            0.9237
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:mantel-clock-01-optimized",
+      "registryKey": "victorian-mantel-clock",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb"
+      ],
+      "totalBytes": 3125308,
+      "triangles": 25721,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.3423,
+        0.2149,
+        0.1262
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb",
+          "totalBytes": 3125308,
+          "triangles": 25721,
+          "sourceBounds": [
+            0.3423,
+            0.2149,
+            0.1262
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod1.glb",
+          "totalBytes": 2815484,
+          "triangles": 12859,
+          "sourceBounds": [
+            0.3423,
+            0.2149,
+            0.1262
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod2.glb",
+          "totalBytes": 2626596,
+          "triangles": 5143,
+          "sourceBounds": [
+            0.3423,
+            0.2149,
+            0.1262
+          ]
+        }
+      ]
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "status": "warning",
@@ -1132,24 +1246,26 @@
       ]
     },
     {
-      "catalogId": "kenney:furniture-doorway-front",
+      "catalogId": "project:story-door-v2",
       "registryKey": "story-door",
-      "status": "warning",
+      "status": "pass",
       "files": [
-        "public/models/kenney/furniture/doorwayFront.glb"
+        "public/models/polyhaven/large_castle_door/large_castle_door.bin",
+        "public/models/polyhaven/large_castle_door/large_castle_door_2k.gltf",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_arm_2k.jpg",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_diff_2k.jpg",
+        "public/models/polyhaven/large_castle_door/textures/large_castle_door_nor_gl_2k.jpg"
       ],
-      "totalBytes": 13016,
-      "triangles": 156,
-      "materialCount": 4,
+      "totalBytes": 11539413,
+      "triangles": 12640,
+      "materialCount": 1,
       "sourceBounds": [
-        0.486,
-        1.0095,
-        0.1458
+        2.0121,
+        4.0623,
+        0.1764
       ],
-      "aspectDistortion": 1.3,
-      "warnings": [
-        "Runtime normalization distortion is 1.30x; limit is 1.15x. Waiver: Validator accessor bounds omit Kenney node transforms; measured scene bounds confirm proportional runtime scaling."
-      ],
+      "aspectDistortion": 1.43,
+      "warnings": [],
       "errors": [],
       "lods": []
     },

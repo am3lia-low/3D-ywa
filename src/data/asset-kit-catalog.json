@@ -1019,6 +1019,66 @@
       }
     },
     {
+      "catalogId": "polyhaven:sofa-03-optimized",
+      "registryKey": "victorian-lounge-sofa",
+      "roles": ["seat", "hero-furniture", "lounge-dressing"],
+      "assetKeys": ["victorian-lounge-sofa", "period-sofa", "upholstered-sofa"],
+      "semanticKinds": ["sofa", "couch", "seat"],
+      "tags": ["sofa", "couch", "lounge", "victorian", "upholstered", "classic", "wood", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "Fran Calvente",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-lounge-sofa", "geometry": "box", "dimensions": [2.73, 1.12, 0.93],
+        "color": "#6d4942",
+        "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/sofa_03/sofa_03_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.78
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 900000, "maxTriangles": 12000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.15, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:mantel-clock-01-optimized",
+      "registryKey": "victorian-mantel-clock",
+      "roles": ["timepiece", "mantel-dressing", "hero-prop"],
+      "assetKeys": ["victorian-mantel-clock", "mantel-clock", "antique-clock"],
+      "semanticKinds": ["clock", "timepiece", "decor"],
+      "tags": ["clock", "mantel", "vintage", "antique", "ornate", "wood", "brass", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Rico Cilliers and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-mantel-clock", "geometry": "box", "dimensions": [0.5, 0.314, 0.184],
+        "color": "#61452f",
+        "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.72
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 3300000, "maxTriangles": 32000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.3, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "roles": ["storage", "archive-dressing"],
@@ -1088,24 +1148,25 @@
       "tags": ["door", "wood", "panelled", "entry", "historical", "storybook"],
       "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
       "placement": "wall",
-      "source": "project",
-      "author": "Persistent StoryWorld 3D team",
-      "license": "Project-owned original asset",
+      "source": "cc0",
+      "author": "Tina",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/large_castle_door",
       "quality": "hero",
       "runtimeAsset": {
         "key": "story-door",
         "geometry": "box",
-        "dimensions": [1.3, 2.7, 0.3],
+        "dimensions": [1.44, 2.9, 0.18],
         "color": "#6d4935",
-        "proceduralModel": "door",
+        "modelUrl": "/models/polyhaven/large_castle_door/large_castle_door_closed_2k.gltf",
         "roughness": 0.86
       },
       "qualityGate": {
-        "profile": "stylized-project",
-        "maxTotalBytes": 50000,
-        "maxTriangles": 5000,
-        "requirePbrTextures": false,
-        "maxAspectDistortion": 1.15,
+        "profile": "textured-pbr",
+        "maxTotalBytes": 11600000,
+        "maxTriangles": 15000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.5,
         "expectedUpAxis": "Y",
         "expectedForwardAxis": "+Z"
       }

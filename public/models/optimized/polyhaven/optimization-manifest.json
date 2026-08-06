@@ -334,6 +334,72 @@
           "sha256": "059358fb483edb822015827aba6c254b5be2cf6c21dd733999fb9c203451fb34"
         }
       ]
+    },
+    {
+      "slug": "sofa_03",
+      "author": "Fran Calvente",
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "sourceResolution": "1k",
+      "sourceBytes": 668033,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.004,
+          "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb",
+          "bytes": 818008,
+          "sha256": "43ad45e90e292edeacb6c13eb3d40fa1f512bf188012f0c15830d9ebbd823ad6"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod1.glb",
+          "bytes": 724800,
+          "sha256": "cc398c49519a9807608d7b0e1509cae159442422335ffac14506e04cbd8d44cc"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod2.glb",
+          "bytes": 658012,
+          "sha256": "7a384d34b1b7a2df27ce87c965fb0b5b108c5e7fbd9d1bb4529b9b7021bb16c9"
+        }
+      ]
+    },
+    {
+      "slug": "mantel_clock_01",
+      "author": "Rico Cilliers and Yann Kervran",
+      "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 2427220,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.003,
+          "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb",
+          "bytes": 3125308,
+          "sha256": "cfceee140d517033477f6bec060ed0379aa545d3a1d1d287ffaf472f1ad2eb8f"
+        },
+        {
+          "level": 1,
+          "ratio": 0.5,
+          "maximumGeometricError": 0.01,
+          "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod1.glb",
+          "bytes": 2815484,
+          "sha256": "c918612df7ff6c346269be383e36fef94cbb212100df5a01e1b8fe5eba04044a"
+        },
+        {
+          "level": 2,
+          "ratio": 0.2,
+          "maximumGeometricError": 0.025,
+          "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod2.glb",
+          "bytes": 2626596,
+          "sha256": "33188466aa8c32ceb60a9b474db2f602ade37a5436268e9ef8091d841c35957f"
+        }
+      ]
     }
   ]
 }

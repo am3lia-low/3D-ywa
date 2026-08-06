@@ -447,13 +447,73 @@
       "sha256": "059358fb483edb822015827aba6c254b5be2cf6c21dd733999fb9c203451fb34"
     },
     {
-      "key": "story-door",
-      "url": "/models/kenney/furniture/doorwayFront.glb",
-      "format": "glTF 2.0 binary",
-      "author": "Kenney",
+      "key": "sofa_03-lod0",
+      "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Fran Calvente",
       "license": "CC0 1.0 Universal",
-      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
-      "bytes": 13016
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "bytes": 818008,
+      "sha256": "43ad45e90e292edeacb6c13eb3d40fa1f512bf188012f0c15830d9ebbd823ad6"
+    },
+    {
+      "key": "sofa_03-lod1",
+      "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Fran Calvente",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "bytes": 724800,
+      "sha256": "cc398c49519a9807608d7b0e1509cae159442422335ffac14506e04cbd8d44cc"
+    },
+    {
+      "key": "sofa_03-lod2",
+      "url": "/models/optimized/polyhaven/sofa_03/sofa_03_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Fran Calvente",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "bytes": 658012,
+      "sha256": "7a384d34b1b7a2df27ce87c965fb0b5b108c5e7fbd9d1bb4529b9b7021bb16c9"
+    },
+    {
+      "key": "mantel_clock_01-lod0",
+      "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rico Cilliers and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+      "bytes": 3125308,
+      "sha256": "cfceee140d517033477f6bec060ed0379aa545d3a1d1d287ffaf472f1ad2eb8f"
+    },
+    {
+      "key": "mantel_clock_01-lod1",
+      "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rico Cilliers and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+      "bytes": 2815484,
+      "sha256": "c918612df7ff6c346269be383e36fef94cbb212100df5a01e1b8fe5eba04044a"
+    },
+    {
+      "key": "mantel_clock_01-lod2",
+      "url": "/models/optimized/polyhaven/mantel_clock_01/mantel_clock_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rico Cilliers and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+      "bytes": 2626596,
+      "sha256": "33188466aa8c32ceb60a9b474db2f602ade37a5436268e9ef8091d841c35957f"
+    },
+    {
+      "key": "story-door",
+      "url": "/models/polyhaven/large_castle_door/large_castle_door_closed_2k.gltf",
+      "format": "glTF 2.0",
+      "author": "Tina",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/large_castle_door",
+      "bytes": 6044
     },
     {
       "key": "storybook-bookcase",
