@@ -7,6 +7,7 @@ import {
   PerformanceMonitor,
   RoundedBox,
   useGLTF,
+  useProgress,
 } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer, N8AO, Vignette } from "@react-three/postprocessing";
@@ -51,6 +52,7 @@ import type {
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import {
   defaultAssetRegistry,
+  resolveAsset,
   type AssetDefinition,
   type AssetRegistry,
 } from "../runtime/assetRegistry";
@@ -153,6 +155,10 @@ export interface WorldViewerProps {
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
+  /** Fires only after the active location's loader queue has settled. */
+  onSceneReady?: () => void;
+  /** Use demand rendering while preloading off-screen so reading stays smooth. */
+  renderMode?: "continuous" | "on-demand";
   onPatchApplied?: (snapshot: WorldSnapshot, patch: ScenePatch) => void;
   onLocationRequest?: (locationId: string) => void;
   /** Optional reader action shown while the viewer owns the fullscreen surface. */
@@ -517,12 +523,60 @@ function StoryDoorAsset({ highlighted, highlightColor }: { highlighted: boolean;
           <meshStandardMaterial color="#281d16" roughness={0.7} />
         </mesh>
       </group>
+      <group position={[-0.34, -0.015, -0.015]} rotation={[0, Math.PI, 0]} userData={{ role: "interior-brass-door-handle" }}>
+        <mesh position={[0, 0.035, 0.02]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.052, 0.052, 0.025, 28]} />
+          <meshPhysicalMaterial color="#9d7438" metalness={0.82} roughness={0.3} clearcoat={0.24} />
+        </mesh>
+        <mesh position={[0, 0.035, 0.075]} scale={[0.054, 0.054, 0.05]} castShadow>
+          <sphereGeometry args={[1, 28, 18]} />
+          <meshPhysicalMaterial color="#c39a50" metalness={0.86} roughness={0.22} clearcoat={0.34} />
+        </mesh>
+      </group>
       {highlighted && (
         <mesh position={[0, 0, 0.72]}>
           <planeGeometry args={[0.9, 0.94]} />
           <meshBasicMaterial color={highlightColor} transparent opacity={0.08} depthWrite={false} />
         </mesh>
       )}
+    </group>
+  );
+}
+
+function StoryStaircaseAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const timber = usePbrSurface(
+    "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_nor_gl_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
+    [1.2, 2.8],
+  );
+  return (
+    <group userData={{ module: "partial-story-staircase", supportSurface: "steps" }}>
+      {Array.from({ length: 5 }, (_, index) => {
+        const height = (index + 1) / 5;
+        return (
+          <RoundedBox
+            key={`story-step-${index}`}
+            args={[0.94, height, 0.2]}
+            radius={0.018}
+            smoothness={4}
+            position={[0, -0.5 + height / 2, 0.4 - index * 0.2]}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial
+              color={index % 2 ? "#66452f" : "#755139"}
+              map={timber.color}
+              normalMap={timber.normal}
+              normalScale={new THREE.Vector2(0.22, 0.22)}
+              roughnessMap={timber.arm}
+              roughness={0.86}
+              emissive={highlighted ? highlightColor : "#000000"}
+              emissiveIntensity={highlighted ? 0.18 : 0}
+            />
+          </RoundedBox>
+        );
+      })}
     </group>
   );
 }
@@ -2224,6 +2278,9 @@ function EntityAsset({
   }
   if (asset.key === "story-door" || asset.proceduralModel === "door") {
     return <StoryDoorAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+  if (asset.proceduralModel === "staircase") {
+    return <StoryStaircaseAsset highlighted={highlighted} highlightColor={highlightColor} />;
   }
   if (asset.key === "storybook-floor-lamp") {
     return <StorybookLampAsset highlighted={highlighted} highlightColor={highlightColor} />;
@@ -5603,15 +5660,19 @@ function Firelight({ item }: { item: LayoutItem }) {
 
 function StoryEffects({
   layout,
+  portalItemOverride,
   portalDestination,
+  portalIsReturn,
   onLocationRequest,
 }: {
   layout: WorldLayout;
+  portalItemOverride?: LayoutItem;
   portalDestination?: Location;
+  portalIsReturn?: boolean;
   onLocationRequest?: (locationId: string) => void;
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
-  const portalItem = layout.items.find((item) => isPortalItem(item));
+  const portalItem = layout.items.find((item) => isPortalItem(item)) ?? portalItemOverride;
 
   return (
     <>
@@ -5634,7 +5695,7 @@ function StoryEffects({
                   onLocationRequest(portalDestination.id);
                 }}
               >
-                Enter {portalDestination.name}
+                {portalIsReturn ? "Return to" : "Enter"} {portalDestination.name}
               </button>
             </Html>
           )}
@@ -5648,6 +5709,61 @@ function isPortalItem(item: LayoutItem): boolean {
   return /\b(?:door|gate|portal|hatch)\b/i.test(
     `${item.asset.key} ${item.entity.kind} ${item.entity.name}`,
   );
+}
+
+function oppositeWall(wall: RuntimeWall): RuntimeWall {
+  if (wall === "north") return "south";
+  if (wall === "south") return "north";
+  if (wall === "east") return "west";
+  return "east";
+}
+
+/**
+ * Builds the destination-side face of one factual doorway. The cloned render
+ * item keeps the canonical entity ID and is never persisted into world state.
+ */
+function createReturnPortalItem(
+  snapshot: WorldSnapshot,
+  layout: WorldLayout,
+  presentation: ScenePresentation,
+  registry: AssetRegistry,
+): LayoutItem | undefined {
+  if (!presentation.portalIsReturn || !presentation.portalSourceEntityId) return undefined;
+  if (layout.items.some((item) => isPortalItem(item))) return undefined;
+
+  const sourceEntity = snapshot.entities.find(
+    (entity) => entity.id === presentation.portalSourceEntityId,
+  );
+  if (!sourceEntity) return undefined;
+  const sourceWall = snapshot.relations.find(
+    (relation) => relation.subjectId === sourceEntity.id && relation.predicate === "against_wall",
+  )?.metadata?.wall ?? "east";
+  const wall = oppositeWall(sourceWall);
+  const asset = resolveAsset(sourceEntity, registry);
+  const dimensions = sourceEntity.dimensions ?? asset.dimensions;
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const halfDepth = dimensions[2] / 2;
+  const position: Vector3Tuple = wall === "north"
+    ? [0, dimensions[1] / 2, -bounds[2] / 2 + halfDepth]
+    : wall === "south"
+      ? [0, dimensions[1] / 2, bounds[2] / 2 - halfDepth]
+      : wall === "west"
+        ? [-bounds[0] / 2 + halfDepth, dimensions[1] / 2, 0]
+        : [bounds[0] / 2 - halfDepth, dimensions[1] / 2, 0];
+  const rotation: Vector3Tuple = [
+    0,
+    wall === "north" ? 0 : wall === "south" ? Math.PI : wall === "west" ? Math.PI / 2 : -Math.PI / 2,
+    0,
+  ];
+
+  return {
+    entity: { ...sourceEntity, locationId: layout.location.id },
+    asset,
+    position,
+    rotation,
+    scale: [1, 1, 1],
+    dimensions,
+  };
 }
 
 function SceneCamera({
@@ -5915,6 +6031,7 @@ function WorldScene({
   openConflicts,
   enableShadows,
   portalDestination,
+  returnPortalItem,
   onLocationRequest,
   cameraView,
   walkMode,
@@ -5933,6 +6050,7 @@ function WorldScene({
   openConflicts: readonly Conflict[];
   enableShadows: boolean;
   portalDestination?: Location;
+  returnPortalItem?: LayoutItem;
   onLocationRequest?: (locationId: string) => void;
   cameraView: CameraViewMode;
   walkMode: boolean;
@@ -6060,9 +6178,30 @@ function WorldScene({
       )}
       <StoryEffects
         layout={layout}
+        portalItemOverride={returnPortalItem}
         portalDestination={portalDestination}
+        portalIsReturn={presentation.portalIsReturn}
         onLocationRequest={onLocationRequest}
       />
+      {returnPortalItem && (
+        <WorldEntity
+          item={returnPortalItem}
+          selected={selectedEntityId === returnPortalItem.entity.id}
+          change={undefined}
+          onSelect={onEntitySelect
+            ? (event) => {
+                event.stopPropagation();
+                onEntitySelect(returnPortalItem.entity.id);
+              }
+            : undefined}
+          onActivate={portalDestination && onLocationRequest
+            ? (event) => {
+                event.stopPropagation();
+                onLocationRequest(portalDestination.id);
+              }
+            : undefined}
+        />
+      )}
       {layout.items.map((item) => (
         <WorldEntity
           key={item.entity.id}
@@ -6154,6 +6293,8 @@ export function WorldViewer({
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
+  onSceneReady,
+  renderMode = "continuous",
   onPatchApplied,
   onLocationRequest,
   onPassageAdvance,
@@ -6171,6 +6312,16 @@ export function WorldViewer({
   const [cameraView, setCameraView] = useState<CameraViewMode>("pov");
   const [walkMode, setWalkMode] = useState(false);
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
+  const { active: assetsLoading, loaded: assetsLoaded, total: assetTotal } = useProgress();
+  const reportedReadyKey = useRef("");
+  const sceneReadyCallback = useRef(onSceneReady);
+  const readinessWindow = useRef({
+    key: "",
+    startedAt: 0,
+    lastProgressAt: 0,
+    loaded: -1,
+    total: -1,
+  });
   const [webGlContextLost, setWebGlContextLost] = useState(false);
   const viewerElement = useRef<HTMLDivElement>(null);
   const cameraCommandId = useRef(0);
@@ -6402,6 +6553,12 @@ export function WorldViewer({
           (location) => location.id === presentation.portalTargetLocationId,
         )
       : undefined;
+  const returnPortalItem = useMemo(
+    () => runtime && presentation
+      ? createReturnPortalItem(runtime.snapshot, runtime.layout, presentation, assetRegistry)
+      : undefined,
+    [assetRegistry, presentation, runtime],
+  );
   const dressingInstances = useMemo(() => {
     if (!runtime || !presentation) return [];
     const compiledLocation = sceneRecipe?.locations[runtime.layout.location.id];
@@ -6426,12 +6583,75 @@ export function WorldViewer({
     ? "balanced"
     : renderQuality;
   const qualityProfile = renderQualityProfiles[effectiveRenderQuality];
+  const readinessKey = runtime
+    ? `${runtime.snapshot.storyId}:${runtime.snapshot.version}:${runtime.layout.location.id}`
+    : "";
+
+  useEffect(() => {
+    sceneReadyCallback.current = onSceneReady;
+  }, [onSceneReady]);
+
+  useEffect(() => {
+    const now = performance.now();
+    if (readinessWindow.current.key !== readinessKey) {
+      readinessWindow.current = {
+        key: readinessKey,
+        startedAt: now,
+        lastProgressAt: now,
+        loaded: assetsLoaded,
+        total: assetTotal,
+      };
+    } else if (
+      readinessWindow.current.loaded !== assetsLoaded
+      || readinessWindow.current.total !== assetTotal
+      || assetsLoading
+    ) {
+      readinessWindow.current.lastProgressAt = now;
+      readinessWindow.current.loaded = assetsLoaded;
+      readinessWindow.current.total = assetTotal;
+    }
+
+    if (
+      !readinessKey ||
+      !runtime ||
+      !presentation ||
+      webGlContextLost ||
+      assetsLoading ||
+      assetsLoaded < assetTotal ||
+      reportedReadyKey.current === readinessKey
+    ) return;
+
+    // LoadingManager can briefly report an empty queue before Suspense mounts
+    // its first GLTF request. Require both a real mount window and a quiet
+    // progress window, then present two rendered frames. This is stabilization,
+    // not a simulated product delay.
+    const mountedFor = now - readinessWindow.current.startedAt;
+    const quietFor = now - readinessWindow.current.lastProgressAt;
+    const waitFor = Math.max(0, 1400 - mountedFor, 650 - quietFor);
+    let settleTimer = 0;
+    let frameOne = 0;
+    let frameTwo = 0;
+    settleTimer = window.setTimeout(() => {
+      frameOne = requestAnimationFrame(() => {
+        frameTwo = requestAnimationFrame(() => {
+          if (readinessWindow.current.key !== readinessKey) return;
+          reportedReadyKey.current = readinessKey;
+          sceneReadyCallback.current?.();
+        });
+      });
+    }, waitFor);
+    return () => {
+      window.clearTimeout(settleTimer);
+      cancelAnimationFrame(frameOne);
+      cancelAnimationFrame(frameTwo);
+    };
+  }, [assetTotal, assetsLoaded, assetsLoading, presentation, readinessKey, runtime, webGlContextLost]);
 
   return (
     <div
       ref={viewerElement}
       className={["world-viewer", className].filter(Boolean).join(" ")}
-      data-runtime-status={viewer.error ? "error" : "ready"}
+      data-runtime-status={viewer.error ? "error" : assetsLoading ? "loading" : "ready"}
       data-story-id={runtime?.snapshot.storyId ?? "invalid"}
       data-world-version={runtime?.snapshot.version ?? "invalid"}
       data-location-id={runtime?.layout.location.id ?? "invalid"}
@@ -6450,6 +6670,7 @@ export function WorldViewer({
     >
       {runtime && presentation ? (
         <Canvas
+          frameloop={renderMode === "on-demand" ? "demand" : "always"}
           shadows={qualityProfile.shadows}
           dpr={qualityProfile.dpr}
           gl={{
@@ -6480,6 +6701,7 @@ export function WorldViewer({
             openConflicts={openConflicts}
             enableShadows={qualityProfile.shadows}
             portalDestination={portalDestination}
+            returnPortalItem={returnPortalItem}
             onLocationRequest={onLocationRequest}
             cameraView={cameraView}
             walkMode={walkMode}

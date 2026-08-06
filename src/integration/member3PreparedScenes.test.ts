@@ -47,6 +47,81 @@ describe("Member 3 prepared story scenes", () => {
         if (uiSnapshot.entities.some((entity) => entity.id === "schoolroom")) {
           expect(scene.spatialSnapshot.entities.some((entity) => entity.id === "schoolroom")).toBe(false);
           expect(recipe.assetRegistry.schoolroom).toBeUndefined();
+          const schoolroom = scene.spatialSnapshot.locations.find((location) => location.id.endsWith(":schoolroom"))!;
+          const schoolroomLayout = createWorldLayout(
+            scene.spatialSnapshot,
+            recipe.assetRegistry,
+            [],
+            schoolroom.id,
+          );
+          const table = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-table")!;
+          const ledger = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-ledger")!;
+          const shelf = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-shelf")!;
+          const photograph = schoolroomLayout.items.find((item) => item.entity.id === "small-photograph")!;
+          const schoolroomRecipe = recipe.locations[schoolroom.id]!;
+
+          expect(scene.spatialSnapshot.locations).toHaveLength(2);
+          expect(scene.spatialSnapshot.entities.filter((entity) => entity.locationId === schoolroom.id).map((entity) => entity.id))
+            .toEqual(expect.arrayContaining(["schoolroom-table", "schoolroom-shelf", "schoolroom-ledger", "horse-figurine", "small-photograph"]));
+          expect(recipe.locations[locationId]!.presentation.portalTargetLocationId).toBe(schoolroom.id);
+          expect(schoolroomRecipe.presentation.portalTargetLocationId).toBe(locationId);
+          expect(schoolroomRecipe.presentation.portalSourceEntityId).toBe("east-hall-door");
+          expect(schoolroomRecipe.presentation.portalIsReturn).toBe(true);
+          expect(schoolroomRecipe.presentation.location.architectureTags).not.toContain("estate-paneling");
+          expect(ledger.position[1] - ledger.dimensions[1] / 2)
+            .toBeCloseTo(table.position[1] + table.dimensions[1] / 2 + 0.008, 3);
+          expect(Math.abs(photograph.position[0] - shelf.position[0])).toBeLessThan(shelf.dimensions[0] / 2);
+          expect(photograph.position[1] - photograph.dimensions[1] / 2)
+            .toBeCloseTo(shelf.position[1] + shelf.dimensions[1] / 2 + 0.008, 3);
+          expect(Math.abs(photograph.position[2] - shelf.position[2])).toBeLessThan(0.5);
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .toEqual(expect.arrayContaining(["schoolroom-chair-west", "schoolroom-chair-east"]));
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("schoolroom-copybook-shelf");
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("west-floor-lamp");
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("east-floor-lamp");
+        }
+
+        const deskPortrait = uiSnapshot.entities.find((entity) =>
+          entity.id === "small-photograph" && /desk/i.test(entity.currentLocation ?? ""),
+        );
+        if (deskPortrait) {
+          const desk = layout.items.find((item) => item.entity.id === "desk")!;
+          const photograph = layout.items.find((item) => item.entity.id === "small-photograph")!;
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "small-photograph",
+            predicate: "on",
+            objectId: "desk",
+          }));
+          expect(photograph.position[1] - photograph.dimensions[1] / 2)
+            .toBeCloseTo(desk.position[1] - desk.dimensions[1] / 2 + desk.dimensions[1] * (desk.asset.supportSurfaceY ?? 1) + 0.008, 3);
+        }
+
+        const stairMap = uiSnapshot.entities.find((entity) =>
+          entity.id === "hand-drawn-map" && /stair/i.test(entity.currentLocation ?? ""),
+        );
+        if (stairMap) {
+          const stairs = layout.items.find((item) => item.entity.id === "staircase-steps")!;
+          const map = layout.items.find((item) => item.entity.id === "hand-drawn-map")!;
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "hand-drawn-map",
+            predicate: "on",
+            objectId: "staircase-steps",
+          }));
+          expect(map.position[1] - map.dimensions[1] / 2)
+            .toBeCloseTo(stairs.position[1] + stairs.dimensions[1] / 2 + 0.008, 3);
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "staircase-door")) {
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "staircase-door",
+            predicate: "against_wall",
+            metadata: { wall: "west" },
+          }));
+          expect(Math.abs(layout.items.find((item) => item.entity.id === "staircase-door")!.position[0]))
+            .toBeGreaterThan(bounds[0] * 0.4);
         }
 
         for (const item of layout.items) {

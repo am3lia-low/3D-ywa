@@ -4,7 +4,9 @@ This is the canonical Member 2 missing-asset path. It prepares optional visual
 upgrades while the reader continues to use a complete world. It does not own
 reader notifications, passage controls or the final loading experience.
 
-The shareable overview is [`member-2-asset-generation-flow.png`](member-2-asset-generation-flow.png).
+The shareable overview is [`member-2-asset-generation-flow.png`](member-2-asset-generation-flow.png),
+with an editable source in
+[`member-2-asset-generation-flow.svg`](member-2-asset-generation-flow.svg).
 
 ## Reader-safe resolution outcomes
 

@@ -27,7 +27,7 @@ export interface AssetDefinition {
   /** Normalized image crop in top-left coordinates: left, top, right, bottom. */
   surfaceCrop?: [number, number, number, number];
   /** Project-authored renderer used when a semantic object is better than a generic mesh. */
-  proceduralModel?: "portrait" | "bay-window" | "silver-key" | "amber-pendant" | "canal" | "door";
+  proceduralModel?: "portrait" | "bay-window" | "silver-key" | "amber-pendant" | "canal" | "door" | "staircase";
   /** Actual stable support height measured from the asset's normalized bottom (0..1). */
   supportSurfaceY?: number;
   roughness?: number;

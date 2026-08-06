@@ -1,4 +1,5 @@
 import type {
+  CompiledSceneRecipe,
   ScenePatch as SpatialScenePatch,
   VisualScenePlan,
   WorldSnapshot as SpatialWorldSnapshot,
@@ -39,6 +40,7 @@ export interface ChapterProcessingResult {
   spatialSnapshot: SpatialWorldSnapshot
   spatialPatch: SpatialScenePatch | null
   visualPlan: VisualScenePlan
+  sceneRecipe: CompiledSceneRecipe
   summary: ChapterUpdateSummary
   conflicts: Conflict[]
 }

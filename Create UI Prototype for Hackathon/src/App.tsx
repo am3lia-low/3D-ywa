@@ -3,7 +3,7 @@ import * as api from './api/mockApi'
 import WorldViewer from './components/WorldViewer'
 import type {
   AppMode, Book, Chapter, ChapterProcessingResult, ChapterUpdateSummary, Conflict, ConflictResolution,
-  EntityInspectionData, EntityStatus, ProcessingStage, ScenePatch, UserRole, WorldEntity, WorldSnapshot,
+  EntityInspectionData, EntityStatus, ProcessingStage, UserRole, WorldEntity, WorldSnapshot,
 } from './types'
 import { PROCESSING_STAGE_LABEL } from './types'
 
@@ -82,6 +82,8 @@ function ProcessingPill({ stage }: { stage: ProcessingStage }) {
 
 function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity: WorldEntity; onClose: () => void }) {
   const data = toInspectionData(entity)
+  const sourceChapterId = data.latestUpdatedChapterId ?? data.introducedInChapterId
+  const sourceChapter = book?.chapters.find(chapter => chapter.id === sourceChapterId)
   return (
     <div className="animate-slide-up absolute bottom-20 left-6 z-30 w-72 rounded-xl border p-5"
       style={{ background: 'rgba(13,11,20,0.97)', borderColor: 'rgba(201,165,90,0.18)', backdropFilter: 'blur(16px)' }}>
@@ -93,6 +95,18 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
         <button onClick={onClose} className="text-lg leading-none opacity-40 hover:opacity-80 transition-opacity" style={{ color: '#e0d6c8' }}>✕</button>
       </div>
       <div className="space-y-3 text-xs" style={{ color: '#a89e8e' }}>
+        {book && (
+          <div className="rounded-lg border px-3 py-2.5"
+            style={{ background: 'rgba(201,165,90,0.06)', borderColor: 'rgba(201,165,90,0.16)' }}>
+            <div className="font-mono uppercase tracking-wider text-[10px] mb-1" style={{ color: '#6e6354' }}>From the story</div>
+            <div className="font-serif text-sm" style={{ color: '#e0d6c8' }}>{book.title}</div>
+            {sourceChapter && (
+              <div className="mt-0.5" style={{ color: '#c9a55a' }}>
+                Chapter {sourceChapter.index} — {sourceChapter.title}
+              </div>
+            )}
+          </div>
+        )}
         {data.currentLocation && (
           <div>
             <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Current location</div>
@@ -120,7 +134,7 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
         {data.currentEvidence && (
           <>
             <div>
-              <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Source</div>
+              <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Passage evidence</div>
               <div className="italic leading-relaxed" style={{ color: '#c9b88e' }}>"{data.currentEvidence.sourceSentence}"</div>
             </div>
             <div>
@@ -672,59 +686,31 @@ function ReaderScreen({
 // ─── Explorer Screen ──────────────────────────────────────────────────────────
 
 function ExplorerScreen({
-  book, chapter, snapshot, patch, spatialScene, summary,
-  selectedEntityId, highlightedEntityIds, onSelectEntity,
+  book, chapter, snapshot, summary,
+  selectedEntityId, onSelectEntity,
   drawerOpen, onToggleDrawer, displayedTextChapterId, onViewChapter,
   summaryOpen, onToggleSummary,
   userRole, onToggleRole,
   conflicts, adminPanelOpen, onOpenAdminPanel, onCloseAdminPanel, onResolveConflict,
-  onBack, onNextChapter, isFinalChapter,
+  onBack, onNextChapter, onResetCamera, isFinalChapter,
 }: {
-  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; patch: ScenePatch | null; spatialScene: ChapterProcessingResult | null; summary: ChapterUpdateSummary | null;
-  selectedEntityId: string | null; highlightedEntityIds: string[]; onSelectEntity: (id: string | null) => void;
+  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; summary: ChapterUpdateSummary | null;
+  selectedEntityId: string | null; onSelectEntity: (id: string | null) => void;
   drawerOpen: boolean; onToggleDrawer: () => void; displayedTextChapterId: string; onViewChapter: (id: string) => void;
   summaryOpen: boolean; onToggleSummary: () => void;
   userRole: UserRole; onToggleRole: () => void;
   conflicts: Conflict[]; adminPanelOpen: boolean; onOpenAdminPanel: () => void; onCloseAdminPanel: () => void;
   onResolveConflict: (conflictId: string, resolution: ConflictResolution) => void;
-  onBack: () => void; onNextChapter: () => void; isFinalChapter: boolean;
+  onBack: () => void; onNextChapter: () => void; onResetCamera: () => void; isFinalChapter: boolean;
 }) {
   const selectedEntity = snapshot?.entities.find(e => e.id === selectedEntityId) ?? null
   const openConflicts = conflicts.filter(c => c.status === 'open')
   const activeConflict = conflicts.find(c => c.status === 'open') ?? conflicts[conflicts.length - 1] ?? null
-  const [sceneError, setSceneError] = useState<string | null>(null)
-  const [cameraResetKey, setCameraResetKey] = useState(0)
 
   return (
-    <div className="relative h-screen overflow-hidden" style={{ background: '#06050c' }}>
-      <div className="absolute inset-0">
-        {sceneError ? (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
-            <div className="text-sm" style={{ color: '#c05050' }}>{sceneError}</div>
-            <button onClick={() => setSceneError(null)}
-              className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-              style={{ background: '#c9a55a', color: '#0a0910' }}>
-              Retry Viewer
-            </button>
-          </div>
-        ) : (
-          <WorldViewer
-            key={cameraResetKey}
-            snapshot={spatialScene?.spatialSnapshot ?? null}
-            patch={spatialScene?.spatialPatch ?? null}
-            visualPlan={spatialScene?.visualPlan ?? null}
-            selectedEntityId={selectedEntityId}
-            highlightedEntityIds={highlightedEntityIds}
-            showChapterChanges
-            onEntitySelect={onSelectEntity}
-            onSceneReady={() => setSceneError(null)}
-            onSceneError={msg => setSceneError(msg)}
-            onPassageAdvance={isFinalChapter ? undefined : onNextChapter}
-          />
-        )}
-      </div>
+    <div className="pointer-events-none relative z-10 h-screen overflow-hidden">
 
-      <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
+      <div className="pointer-events-auto absolute top-5 left-5 z-20 flex flex-col gap-2">
         <button onClick={onBack}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all hover:opacity-90"
           style={{ background: 'rgba(10,9,16,0.85)', borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e', backdropFilter: 'blur(12px)' }}>
@@ -736,14 +722,14 @@ function ExplorerScreen({
           <div className="font-mono text-[10px]">Chapter {chapter.index} · 3D World</div>
         </div>
         <button
-          onClick={() => setCameraResetKey(key => key + 1)}
+          onClick={onResetCamera}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-mono transition-all hover:opacity-80"
           style={{ background: 'rgba(10,9,16,0.7)', borderColor: 'rgba(201,165,90,0.1)', color: '#6e6354', backdropFilter: 'blur(12px)' }}>
           ⊙ Reset camera
         </button>
       </div>
 
-      <div className="absolute top-5 right-5 z-20 flex items-start gap-2">
+      <div className="pointer-events-auto absolute top-5 right-5 z-20 flex items-start gap-2">
         {userRole === 'admin' && (
           <button onClick={onOpenAdminPanel}
             className="relative flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all hover:opacity-90"
@@ -775,48 +761,56 @@ function ExplorerScreen({
       </div>
 
       {summaryOpen && summary && snapshot && (
-        <UpdateSummary
-          open={summaryOpen}
-          book={book}
-          chapter={chapter}
-          summary={summary}
-          snapshot={snapshot}
-          onClose={onToggleSummary}
-          onSelectEntity={id => onSelectEntity(id)}
-        />
+        <div className="pointer-events-auto">
+          <UpdateSummary
+            open={summaryOpen}
+            book={book}
+            chapter={chapter}
+            summary={summary}
+            snapshot={snapshot}
+            onClose={onToggleSummary}
+            onSelectEntity={id => onSelectEntity(id)}
+          />
+        </div>
       )}
 
       {selectedEntity && (
-        <ObjectInspector book={book} entity={selectedEntity} onClose={() => onSelectEntity(null)} />
+        <div className="pointer-events-auto">
+          <ObjectInspector book={book} entity={selectedEntity} onClose={() => onSelectEntity(null)} />
+        </div>
       )}
 
       {!drawerOpen && (
         <button onClick={onToggleDrawer}
-          className="absolute top-1/2 -translate-y-1/2 right-0 z-20 flex items-center gap-2 pl-3 pr-2 py-3 rounded-l-xl border border-r-0 text-xs font-mono transition-all hover:opacity-90"
+          className="pointer-events-auto absolute top-1/2 -translate-y-1/2 right-0 z-20 flex items-center gap-2 pl-3 pr-2 py-3 rounded-l-xl border border-r-0 text-xs font-mono transition-all hover:opacity-90"
           style={{ background: 'rgba(10,9,16,0.85)', borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e', backdropFilter: 'blur(12px)', writingMode: 'vertical-rl' }}>
           View Chapter
         </button>
       )}
 
-      <ChapterDrawer
-        open={drawerOpen}
-        book={book}
-        latestProcessedChapterId={chapter.id}
-        displayedTextChapterId={displayedTextChapterId}
-        onClose={onToggleDrawer}
-        onViewChapter={onViewChapter}
-      />
+      <div className="pointer-events-auto">
+        <ChapterDrawer
+          open={drawerOpen}
+          book={book}
+          latestProcessedChapterId={chapter.id}
+          displayedTextChapterId={displayedTextChapterId}
+          onClose={onToggleDrawer}
+          onViewChapter={onViewChapter}
+        />
+      </div>
 
       {adminPanelOpen && userRole === 'admin' && activeConflict && (
-        <ConflictPanel
-          book={book}
-          conflict={activeConflict}
-          onResolve={resolution => onResolveConflict(activeConflict.id, resolution)}
-          onClose={onCloseAdminPanel}
-        />
+        <div className="pointer-events-auto">
+          <ConflictPanel
+            book={book}
+            conflict={activeConflict}
+            onResolve={resolution => onResolveConflict(activeConflict.id, resolution)}
+            onClose={onCloseAdminPanel}
+          />
+        </div>
       )}
 
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4">
+      <div className="pointer-events-auto absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4">
         <div className="flex items-center gap-3 px-6 py-3 rounded-2xl border"
           style={{ background: 'rgba(10,9,16,0.9)', borderColor: 'rgba(201,165,90,0.15)', backdropFilter: 'blur(16px)' }}>
           <span className="text-xs" style={{ color: '#6e6354' }}>World locked to Ch {chapter.index}</span>
@@ -834,6 +828,100 @@ function ExplorerScreen({
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
+function PreparedWorldSurface({
+  result,
+  visible,
+  resetToken,
+  selectedEntityId,
+  highlightedEntityIds,
+  onEntitySelect,
+  onReady,
+  onError,
+  onPassageAdvance,
+}: {
+  result: ChapterProcessingResult
+  visible: boolean
+  resetToken: number
+  selectedEntityId: string | null
+  highlightedEntityIds: string[]
+  onEntitySelect: (id: string | null) => void
+  onReady: (result: ChapterProcessingResult) => void
+  onError: (result: ChapterProcessingResult, message: string) => void
+  onPassageAdvance?: () => void
+}) {
+  const locationIds = result.spatialSnapshot.locations.map(location => location.id)
+  const [locationIndex, setLocationIndex] = useState(0)
+  const [warmupComplete, setWarmupComplete] = useState(false)
+  const warmedLocations = useRef(new Set<string>())
+  const pendingWarmupAdvance = useRef<number | null>(null)
+  const activeLocationId = locationIds[locationIndex] ?? locationIds[0] ?? ''
+
+  useEffect(() => {
+    if (pendingWarmupAdvance.current !== null) {
+      if ('cancelIdleCallback' in window) window.cancelIdleCallback(pendingWarmupAdvance.current)
+      else window.clearTimeout(pendingWarmupAdvance.current)
+      pendingWarmupAdvance.current = null
+    }
+    warmedLocations.current.clear()
+    setLocationIndex(0)
+    setWarmupComplete(false)
+  }, [result.chapterId])
+
+  useEffect(() => () => {
+    if (pendingWarmupAdvance.current === null) return
+    if ('cancelIdleCallback' in window) window.cancelIdleCallback(pendingWarmupAdvance.current)
+    else window.clearTimeout(pendingWarmupAdvance.current)
+  }, [])
+
+  const handleLocationReady = useCallback(() => {
+    if (warmupComplete) return
+    if (!activeLocationId || warmedLocations.current.has(activeLocationId)) return
+    warmedLocations.current.add(activeLocationId)
+    if (locationIndex < locationIds.length - 1) {
+      const advance = () => {
+        pendingWarmupAdvance.current = null
+        setLocationIndex(index => index + 1)
+      }
+      pendingWarmupAdvance.current = 'requestIdleCallback' in window
+        ? window.requestIdleCallback(advance, { timeout: 900 })
+        : window.setTimeout(advance, 80)
+    }
+    else {
+      setWarmupComplete(true)
+      onReady(result)
+    }
+  }, [activeLocationId, locationIds.length, locationIndex, onReady, result, warmupComplete])
+
+  return (
+    <div
+      aria-hidden={!visible}
+      data-scene-warmup={result.chapterId}
+      data-warmup-location={activeLocationId}
+      data-warmup-complete={warmupComplete}
+      style={visible
+        ? { position: 'fixed', inset: 0, zIndex: 0, opacity: 1, pointerEvents: 'auto', overflow: 'hidden' }
+        : { position: 'fixed', left: -10000, top: 0, width: 96, height: 96, opacity: 0.001, pointerEvents: 'none', overflow: 'hidden' }}
+    >
+      <WorldViewer
+        resetToken={resetToken}
+        renderMode={visible ? 'continuous' : 'on-demand'}
+        snapshot={result.spatialSnapshot}
+        patch={result.spatialPatch}
+        visualPlan={result.visualPlan}
+        sceneRecipe={result.sceneRecipe}
+        activeLocationId={warmupComplete ? undefined : activeLocationId}
+        selectedEntityId={selectedEntityId}
+        highlightedEntityIds={highlightedEntityIds}
+        showChapterChanges={visible}
+        onEntitySelect={onEntitySelect}
+        onSceneReady={handleLocationReady}
+        onSceneError={message => onError(result, message)}
+        onPassageAdvance={onPassageAdvance}
+      />
+    </div>
+  )
+}
+
 export default function App() {
   const [books, setBooks] = useState<Book[]>([])
   const [chapterResults, setChapterResults] = useState<Record<string, ChapterProcessingResult>>({})
@@ -845,7 +933,6 @@ export default function App() {
   const [displayedTextChapterId, setDisplayedTextChapterId] = useState<string | null>(null)
 
   const [activeSnapshot, setActiveSnapshot] = useState<WorldSnapshot | null>(null)
-  const [activePatch, setActivePatch] = useState<ChapterProcessingResult['patch'] | null>(null)
   const [activeSummary, setActiveSummary] = useState<ChapterUpdateSummary | null>(null)
 
   const [processingStage, setProcessingStage] = useState<ProcessingStage>('idle')
@@ -853,6 +940,7 @@ export default function App() {
 
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
   const [highlightedEntityIds] = useState<string[]>([])
+  const [viewerResetToken, setViewerResetToken] = useState(0)
 
   const [chapterDrawerOpen, setChapterDrawerOpen] = useState(false)
   const [updateSummaryOpen, setUpdateSummaryOpen] = useState(false)
@@ -886,19 +974,16 @@ export default function App() {
     api.processChapter(bookId, chapterId, stage => setProcessingStage(stage))
       .then(result => {
         processingTrackRef.current = null
-        setBooks(prev => prev.map(b => b.id !== bookId ? b : {
-          ...b, chapters: b.chapters.map(c => c.id === chapterId ? { ...c, processingStatus: 'ready' } : c),
-        }))
         setChapterResults(prev => ({ ...prev, [chapterId]: result }))
         setActiveSnapshot(result.snapshot)
-        setActivePatch(result.patch)
         setActiveSummary(result.summary)
-        setLatestProcessedChapterId(chapterId)
         setConflicts(prev => {
           const incomingIds = new Set(result.conflicts.map(c => c.id))
           return [...prev.filter(c => !incomingIds.has(c.id)), ...result.conflicts]
         })
-        setProcessingStage('ready')
+        // Compilation is complete. A hidden renderer now loads every location
+        // before the reader is allowed to enter the world.
+        setProcessingStage('preparing_scene')
       })
       .catch((err: unknown) => {
         processingTrackRef.current = null
@@ -909,6 +994,31 @@ export default function App() {
         setProcessingStage('failed')
         setProcessingError(err instanceof Error ? err.message : 'Scene processing failed.')
       })
+  }, [])
+
+  const finishScenePreparation = useCallback((result: ChapterProcessingResult) => {
+    setBooks(prev => prev.map(book => !book.chapters.some(chapter => chapter.id === result.chapterId) ? book : {
+      ...book,
+      chapters: book.chapters.map(chapter => chapter.id === result.chapterId
+        ? { ...chapter, processingStatus: 'ready' }
+        : chapter),
+    }))
+    setActiveSnapshot(result.snapshot)
+    setActiveSummary(result.summary)
+    setLatestProcessedChapterId(result.chapterId)
+    setProcessingStage('ready')
+    setProcessingError(null)
+  }, [])
+
+  const failScenePreparation = useCallback((result: ChapterProcessingResult, message: string) => {
+    setBooks(prev => prev.map(book => !book.chapters.some(chapter => chapter.id === result.chapterId) ? book : {
+      ...book,
+      chapters: book.chapters.map(chapter => chapter.id === result.chapterId
+        ? { ...chapter, processingStatus: 'failed' }
+        : chapter),
+    }))
+    setProcessingStage('failed')
+    setProcessingError(message)
   }, [])
 
   const startReading = (book: Book) => {
@@ -922,16 +1032,16 @@ export default function App() {
     setAppMode('reading')
 
     const cached = chapterResults[entry.id]
-    if (cached) {
+    if (cached && entry.processingStatus === 'ready') {
       setLatestProcessedChapterId(entry.id)
       setActiveSnapshot(cached.snapshot)
-      setActivePatch(cached.patch)
       setActiveSummary(cached.summary)
       setProcessingStage('ready')
+    } else if (cached) {
+      setProcessingStage('preparing_scene')
     } else if (entry.processingStatus === 'not_started' || entry.processingStatus === 'failed') {
       setLatestProcessedChapterId(null)
       setActiveSnapshot(null)
-      setActivePatch(null)
       setActiveSummary(null)
       triggerProcessing(book.id, entry.id)
     }
@@ -1002,16 +1112,32 @@ export default function App() {
   }
 
   if (appMode === 'reading' && activeBook && readerChapter) {
+    const preparedResult = chapterResults[readerChapter.id] ?? null
     return (
-      <ReaderScreen
-        book={activeBook}
-        chapter={readerChapter}
-        processingStage={readerChapter.id === latestProcessedChapterId ? 'ready' : processingStage}
-        processingError={processingError}
-        onExplore={openExplore}
-        onRetry={() => triggerProcessing(activeBook.id, readerChapter.id)}
-        onBack={() => setAppMode('library')}
-      />
+      <>
+        {preparedResult && (
+          <PreparedWorldSurface
+            key={`prepared-world:${readerChapter.id}`}
+            result={preparedResult}
+            visible={false}
+            resetToken={viewerResetToken}
+            selectedEntityId={selectedEntityId}
+            highlightedEntityIds={highlightedEntityIds}
+            onEntitySelect={setSelectedEntityId}
+            onReady={finishScenePreparation}
+            onError={failScenePreparation}
+          />
+        )}
+        <ReaderScreen
+          book={activeBook}
+          chapter={readerChapter}
+          processingStage={readerChapter.id === latestProcessedChapterId ? 'ready' : processingStage}
+          processingError={processingError}
+          onExplore={openExplore}
+          onRetry={() => triggerProcessing(activeBook.id, readerChapter.id)}
+          onBack={() => setAppMode('library')}
+        />
+      </>
     )
   }
 
@@ -1019,33 +1145,47 @@ export default function App() {
     const isFinalChapter = activeBook.chapters.findIndex(c => c.id === latestProcessedChapterId) === activeBook.chapters.length - 1
     const activeSpatialScene = chapterResults[latestProcessedChapter.id] ?? null
     return (
-      <ExplorerScreen
-        book={activeBook}
-        chapter={latestProcessedChapter}
-        snapshot={activeSnapshot}
-        patch={activePatch}
-        spatialScene={activeSpatialScene}
-        summary={activeSummary}
-        selectedEntityId={selectedEntityId}
-        highlightedEntityIds={highlightedEntityIds}
-        onSelectEntity={setSelectedEntityId}
-        drawerOpen={chapterDrawerOpen}
-        onToggleDrawer={() => setChapterDrawerOpen(d => !d)}
-        displayedTextChapterId={displayedTextChapterId}
-        onViewChapter={setDisplayedTextChapterId}
-        summaryOpen={updateSummaryOpen}
-        onToggleSummary={() => setUpdateSummaryOpen(s => !s)}
-        userRole={userRole}
-        onToggleRole={() => setUserRole(r => (r === 'reader' ? 'admin' : 'reader'))}
-        conflicts={conflicts}
-        adminPanelOpen={adminPanelOpen}
-        onOpenAdminPanel={() => { setAdminPanelOpen(true); setAppMode('admin_review') }}
-        onCloseAdminPanel={() => { setAdminPanelOpen(false); setAppMode('exploring') }}
-        onResolveConflict={handleResolveConflict}
-        onBack={() => setAppMode('reading')}
-        onNextChapter={proceedToNextChapter}
-        isFinalChapter={isFinalChapter}
-      />
+      <>
+        {activeSpatialScene && (
+          <PreparedWorldSurface
+            key={`prepared-world:${latestProcessedChapter.id}`}
+            result={activeSpatialScene}
+            visible
+            resetToken={viewerResetToken}
+            selectedEntityId={selectedEntityId}
+            highlightedEntityIds={highlightedEntityIds}
+            onEntitySelect={setSelectedEntityId}
+            onReady={finishScenePreparation}
+            onError={failScenePreparation}
+            onPassageAdvance={isFinalChapter ? undefined : proceedToNextChapter}
+          />
+        )}
+        <ExplorerScreen
+          book={activeBook}
+          chapter={latestProcessedChapter}
+          snapshot={activeSnapshot}
+          summary={activeSummary}
+          selectedEntityId={selectedEntityId}
+          onSelectEntity={setSelectedEntityId}
+          drawerOpen={chapterDrawerOpen}
+          onToggleDrawer={() => setChapterDrawerOpen(d => !d)}
+          displayedTextChapterId={displayedTextChapterId}
+          onViewChapter={setDisplayedTextChapterId}
+          summaryOpen={updateSummaryOpen}
+          onToggleSummary={() => setUpdateSummaryOpen(s => !s)}
+          userRole={userRole}
+          onToggleRole={() => setUserRole(r => (r === 'reader' ? 'admin' : 'reader'))}
+          conflicts={conflicts}
+          adminPanelOpen={adminPanelOpen}
+          onOpenAdminPanel={() => { setAdminPanelOpen(true); setAppMode('admin_review') }}
+          onCloseAdminPanel={() => { setAdminPanelOpen(false); setAppMode('exploring') }}
+          onResolveConflict={handleResolveConflict}
+          onBack={() => setAppMode('reading')}
+          onNextChapter={proceedToNextChapter}
+          onResetCamera={() => setViewerResetToken(token => token + 1)}
+          isFinalChapter={isFinalChapter}
+        />
+      </>
     )
   }
 

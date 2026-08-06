@@ -13,6 +13,9 @@ valid JSON examples, and the acceptance commands before integration.
 Detailed implementation references remain in:
 
 - [`docs/integrated-quick-start.md`](docs/integrated-quick-start.md) for starting the combined Member 3 UI and Member 2 world from a fresh clone.
+- [`docs/member-1-and-3-brief.md`](docs/member-1-and-3-brief.md) for the short interactivity, provenance, and real-loading handoff update.
+- [`docs/member-2-asset-generation-flow.png`](docs/member-2-asset-generation-flow.png) for the shareable Member 2 resolution and generation flow.
+- [`docs/multi-location-traversal.md`](docs/multi-location-traversal.md) for enabling factual room-to-room door traversal and assigning cross-team ownership.
 - [`docs/part1-live-adapter.md`](docs/part1-live-adapter.md) for live passage responses.
 - [`docs/story-package.md`](docs/story-package.md) for batch/offline story packages.
 - [`docs/member-3-handoff.md`](docs/member-3-handoff.md) for the reader integration.
