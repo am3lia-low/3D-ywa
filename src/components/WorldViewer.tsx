@@ -531,23 +531,19 @@ function StoryWritingDesk({ asset }: { asset: AssetDefinition }) {
   return (
     <group>
       <AdaptiveLoadedModel asset={asset} />
-      <RoundedBox args={[0.88, 0.035, 0.72]} radius={0.025} smoothness={3} position={[0, 0.515, 0]} castShadow receiveShadow>
+      <RoundedBox args={[0.82, 0.018, 0.64]} radius={0.012} smoothness={3} position={[0, 0.506, 0]} castShadow receiveShadow>
         <meshPhysicalMaterial color="#4c281f" roughness={0.58} clearcoat={0.28} clearcoatRoughness={0.52} />
       </RoundedBox>
-      {[-0.29, 0.29].map((x) => (
-        <group key={`desk-drawer-${x}`} position={[x, 0.34, 0.43]}>
-          <RoundedBox args={[0.38, 0.19, 0.09]} radius={0.025} smoothness={3} castShadow>
-            <meshStandardMaterial color="#69442f" roughness={0.8} />
-          </RoundedBox>
-          <mesh position={[0, 0, 0.06]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.035, 0.009, 8, 18]} />
-            <meshStandardMaterial color="#b18a4d" metalness={0.74} roughness={0.32} />
-          </mesh>
-        </group>
-      ))}
-      <RoundedBox args={[0.92, 0.08, 0.12]} radius={0.025} smoothness={3} position={[0, 0.43, 0.4]} castShadow>
-        <meshStandardMaterial color="#563724" roughness={0.82} />
-      </RoundedBox>
+      <group
+        position={[-0.18, 0.58, -0.08]}
+        rotation={[0, -0.1, 0]}
+        scale={[0.32, 0.13, 0.19]}
+        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+      >
+        <Suspense fallback={null}>
+          <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
+        </Suspense>
+      </group>
     </group>
   );
 }
@@ -1340,6 +1336,33 @@ class ModelErrorBoundary extends Component<
   render() {
     return this.state.failed ? this.props.fallback : this.props.children;
   }
+}
+
+function WebGlContextGuard({
+  onContextLost,
+  onContextRestored,
+}: {
+  onContextLost: () => void;
+  onContextRestored: () => void;
+}) {
+  const renderer = useThree((state) => state.gl);
+
+  useEffect(() => {
+    const canvas = renderer.domElement;
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      onContextLost();
+    };
+    const handleContextRestored = () => onContextRestored();
+    canvas.addEventListener("webglcontextlost", handleContextLost, false);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored, false);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", handleContextLost, false);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored, false);
+    };
+  }, [onContextLost, onContextRestored, renderer]);
+
+  return null;
 }
 
 function DesignedFallbackAsset({
@@ -3486,16 +3509,23 @@ function EstateFurnitureComposition({
       scale: [0.42, 0.62, 0.3] as Vector3Tuple,
     },
     {
+      key: "estate-east-parlor-books",
+      url: "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
+      position: [eastParlorTablePosition[0] - 0.38, 0.685, eastParlorTablePosition[2] + 0.18] as Vector3Tuple,
+      rotation: [0, 0.24, 0] as Vector3Tuple,
+      scale: [0.52, 0.25, 0.18] as Vector3Tuple,
+    },
+    {
       key: "estate-east-parlor-plant",
       url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb",
-      position: [eastParlorCenterX + 3.25, 0.69, eastParlorCenterZ - 2.05] as Vector3Tuple,
+      position: [eastParlorCenterX + 3.72, 0.69, eastParlorCenterZ - 2.55] as Vector3Tuple,
       rotation: [0, -0.28, 0] as Vector3Tuple,
-      scale: [0.86, 1.38, 0.86] as Vector3Tuple,
+      scale: [0.82, 1.32, 0.82] as Vector3Tuple,
     },
     {
       key: "estate-west-gallery-settee",
       url: "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod1.glb",
-      position: [-bounds[0] / 2 + 0.48, 0.525, westGalleryCenterZ] as Vector3Tuple,
+      position: [-bounds[0] / 2 + 0.72, 0.525, westGalleryCenterZ] as Vector3Tuple,
       rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
       scale: [2.3, 1.05, 0.86] as Vector3Tuple,
     },
@@ -3514,11 +3544,11 @@ function EstateFurnitureComposition({
       scale: [0.64, 0.82, 0.55] as Vector3Tuple,
     },
     {
-      key: "estate-west-gallery-succulent",
-      url: "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod1.glb",
-      position: [westGallerySideTablePosition[0], 0.98, westGallerySideTablePosition[2]] as Vector3Tuple,
-      rotation: [0, -0.32, 0] as Vector3Tuple,
-      scale: [0.27, 0.31, 0.27] as Vector3Tuple,
+      key: "estate-west-gallery-candleholders",
+      url: "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod1.glb",
+      position: [westGallerySideTablePosition[0], 1.12, westGallerySideTablePosition[2]] as Vector3Tuple,
+      rotation: [0, Math.PI / 2 - 0.12, 0] as Vector3Tuple,
+      scale: [0.4, 0.58, 0.3] as Vector3Tuple,
     },
     {
       key: "estate-west-gallery-plant",
@@ -3547,13 +3577,6 @@ function EstateFurnitureComposition({
       position: [arrivalTablePosition[0] + 0.24, 1.12, arrivalTablePosition[2]] as Vector3Tuple,
       rotation: [0, -0.08, 0] as Vector3Tuple,
       scale: [0.38, 0.58, 0.28] as Vector3Tuple,
-    },
-    {
-      key: "estate-west-display-cabinet",
-      url: "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
-      position: [-bounds[0] / 2 + 0.5, 1.1, bounds[2] * 0.1] as Vector3Tuple,
-      rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
-      scale: [1.35, 2.2, 0.78] as Vector3Tuple,
     },
     {
       key: "estate-east-bookshelf",
@@ -3591,20 +3614,6 @@ function EstateFurnitureComposition({
       scale: [1.72, 0.66, 0.34] as Vector3Tuple,
     },
     {
-      key: "estate-window-plant-west",
-      url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb",
-      position: [-bounds[0] / 2 + 0.76, 0.7, bounds[2] * 0.2] as Vector3Tuple,
-      rotation: [0, 0.24, 0] as Vector3Tuple,
-      scale: [0.9, 1.4, 0.9] as Vector3Tuple,
-    },
-    {
-      key: "estate-window-plant-east",
-      url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb",
-      position: [bounds[0] / 2 - 0.76, 0.7, bounds[2] * 0.22] as Vector3Tuple,
-      rotation: [0, -0.36, 0] as Vector3Tuple,
-      scale: [0.82, 1.32, 0.82] as Vector3Tuple,
-    },
-    {
       key: "estate-tea-table-service",
       url: "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb",
       position: [teaTablePosition[0], 0.745, teaTablePosition[2]] as Vector3Tuple,
@@ -3639,16 +3648,38 @@ function EstateFurnitureComposition({
       rotation: [0, Math.PI + 0.05, 0] as Vector3Tuple,
       scale: [0.5, 0.66, 0.34] as Vector3Tuple,
     },
+    {
+      key: "estate-console-books",
+      url: "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
+      position: [southConsolePosition[0], 0.79, southConsolePosition[2]] as Vector3Tuple,
+      rotation: [0, Math.PI - 0.08, 0] as Vector3Tuple,
+      scale: [0.56, 0.25, 0.18] as Vector3Tuple,
+    },
+    {
+      key: "estate-west-gallery-painting",
+      url: "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+      position: [-bounds[0] / 2 + 0.18, 3.45, westGalleryCenterZ] as Vector3Tuple,
+      rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
+      scale: [1.05, 0.82, 0.055] as Vector3Tuple,
+    },
+    {
+      key: "estate-south-console-oil-lamp",
+      url: "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb",
+      position: [southConsolePosition[0] + 0.05, 0.98, southConsolePosition[2]] as Vector3Tuple,
+      rotation: [0, -0.12, 0] as Vector3Tuple,
+      scale: [0.22, 0.64, 0.22] as Vector3Tuple,
+    },
   ] as const;
   const hiddenWithCutawayWalls = new Set([
     "estate-east-bookshelf",
     "estate-east-document-drawers",
     "estate-east-ornate-mirror",
-    "estate-window-plant-east",
     "estate-south-console",
     "estate-west-vintage-glass-cabinet",
     "estate-console-vase",
     "estate-console-candleholders",
+    "estate-console-books",
+    "estate-south-console-oil-lamp",
   ]);
 
   return (
@@ -3701,6 +3732,9 @@ function EstateFurnitureComposition({
           <Suspense fallback={null}>
             <LoadedModel url={item.url} tint={"tint" in item ? item.tint : undefined} />
           </Suspense>
+          {item.key.includes("oil-lamp") && (
+            <pointLight position={[0, 0.24, 0]} color="#f2ad61" intensity={0.75} distance={4.2} decay={2} />
+          )}
         </group>
       ))}
     </group>
@@ -3991,10 +4025,9 @@ function EstateWallpaperPanel({
   );
 }
 
-function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
-  const dimensions: Vector3Tuple = [1.25, 1.9, 1.25];
+function EstateChandelier({ bounds, z }: { bounds: Vector3Tuple; z: number }) {
+  const dimensions: Vector3Tuple = [1.65, 2.1, 1.65];
   const x = 0;
-  const z = -bounds[2] * 0.08;
   const centerY = bounds[1] - dimensions[1] / 2 - 2.15;
   const fixtureTop = centerY + dimensions[1] / 2;
   const ceilingAnchor = bounds[1] - 0.16;
@@ -4003,7 +4036,7 @@ function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
     <group userData={{ decorativeOnly: true, module: "ceiling-mounted-estate-chandelier" }}>
       <group position={[x, centerY, z]} scale={dimensions}>
         <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb" />
+          <LoadedModel url="/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb" />
         </Suspense>
       </group>
       <mesh position={[x, bounds[1] - 0.085, z]} rotation={[Math.PI / 2, 0, 0]} castShadow>
@@ -4017,7 +4050,7 @@ function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
       <pointLight
         position={[x, centerY - dimensions[1] * 0.28, z]}
         color="#f2b36a"
-        intensity={3.1}
+        intensity={2.25}
         distance={Math.max(bounds[0], bounds[2]) * 0.72}
         decay={2}
       />
@@ -4124,8 +4157,10 @@ function HistoricalInteriorDetails({
   const wallArt = (wall: RuntimeWall) => {
     const horizontal = wall === "north" || wall === "south";
     const span = horizontal ? bounds[0] : bounds[2];
+    const importedWestGalleryCenter = bounds[2] * 0.16;
     return createWallTrimSegments(span, artObstacles[wall], 0.42, 0.6)
       .filter((run) => run.length >= 2.25)
+      .filter((run) => wall !== "west" || Math.abs(run.center - importedWestGalleryCenter) >= 2.1)
       .slice(0, 3)
       .map((run, index) => {
         const width = Math.min(1.25, run.length * 0.46);
@@ -4138,6 +4173,26 @@ function HistoricalInteriorDetails({
               : [bounds[0] / 2 - 0.135, 3.28, run.center];
         const yaw = wall === "north" ? 0 : wall === "south" ? Math.PI : wall === "west" ? Math.PI / 2 : -Math.PI / 2;
         return <DecorativeWallPortrait key={`${wall}-gallery-${index}`} position={position} yaw={yaw} width={width} seed={index + wall.length} />;
+      });
+  };
+
+  const wallSconces = (wall: "north" | "west") => {
+    const span = wall === "north" ? bounds[0] : bounds[2];
+    return createWallTrimSegments(span, artObstacles[wall], 0.7, 0.72)
+      .filter((run) => run.length >= 1.05 && run.length < 2.25)
+      .slice(0, 2)
+      .map((run, index) => {
+        const position: Vector3Tuple = wall === "north"
+          ? [run.center, 3.05, -bounds[2] / 2 + 0.18]
+          : [-bounds[0] / 2 + 0.18, 3.05, run.center];
+        return (
+          <DecorativeWallSconce
+            key={`${wall}-sconce-${index}`}
+            position={position}
+            yaw={wall === "north" ? 0 : Math.PI / 2}
+            lit={index === 0}
+          />
+        );
       });
   };
 
@@ -4170,7 +4225,12 @@ function HistoricalInteriorDetails({
           />
         </>
       )}
-      {!overview && <EstateChandelier bounds={bounds} />}
+      {!overview && (
+        <>
+          <EstateChandelier bounds={bounds} z={-bounds[2] * 0.2} />
+          <EstateChandelier bounds={bounds} z={bounds[2] * 0.18} />
+        </>
+      )}
       {wallPanels("north")}
       {wallPanels("west")}
       {!overview && wallPanels("south")}
@@ -4192,22 +4252,8 @@ function HistoricalInteriorDetails({
           <meshStandardMaterial color="#aa8a5b" roughness={0.64} metalness={0.12} />
         </mesh>
       </group>
-      {[-0.34, 0.34].map((factor, index) => (
-        <DecorativeWallSconce
-          key={`north-sconce-${factor}`}
-          position={[bounds[0] * factor, 3.05, -bounds[2] / 2 + 0.18]}
-          yaw={0}
-          lit={index === 0}
-        />
-      ))}
-      {[-0.3, 0.3].map((factor, index) => (
-        <DecorativeWallSconce
-          key={`west-sconce-${factor}`}
-          position={[-bounds[0] / 2 + 0.18, 3.05, bounds[2] * factor]}
-          yaw={Math.PI / 2}
-          lit={index === 1}
-        />
-      ))}
+      {wallSconces("north")}
+      {wallSconces("west")}
       {[
         [[0, bounds[1] - 0.18, -bounds[2] / 2 + 0.13], [bounds[0], 0.2, 0.18]],
         [[-bounds[0] / 2 + 0.13, bounds[1] - 0.18, 0], [0.18, 0.2, bounds[2]]],
@@ -5999,25 +6045,27 @@ function WorldScene({
         />
       )}
       <RelationAwareness edges={relationEdges} />
-      {renderQuality !== "low" && !usesGhibliWoodland && postProcessingSafe && (
-        <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
-          <N8AO
-            aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
-            distanceFalloff={0.72}
-            intensity={renderQuality === "high" ? 2.15 : 1.65}
-            quality={renderQuality === "high" ? "high" : "medium"}
-            halfRes={renderQuality !== "high"}
-            color="#14201e"
-          />
-          <Bloom
-            mipmapBlur
-            luminanceThreshold={1.05}
-            luminanceSmoothing={0.28}
-            intensity={0.34}
-            radius={0.55}
-          />
-          <Vignette offset={0.22} darkness={0.34} />
-        </EffectComposer>
+      {renderQuality !== "low" && !usesGhibliWoodland && !usesEstateFurniture && postProcessingSafe && (
+        <ModelErrorBoundary key={`post-processing-${renderQuality}`} fallback={null}>
+          <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
+            <N8AO
+              aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
+              distanceFalloff={0.72}
+              intensity={renderQuality === "high" ? 2.15 : 1.65}
+              quality={renderQuality === "high" ? "high" : "medium"}
+              halfRes={renderQuality !== "high"}
+              color="#14201e"
+            />
+            <Bloom
+              mipmapBlur
+              luminanceThreshold={1.05}
+              luminanceSmoothing={0.28}
+              intensity={0.34}
+              radius={0.55}
+            />
+            <Vignette offset={0.22} darkness={0.34} />
+          </EffectComposer>
+        </ModelErrorBoundary>
       )}
       <ConflictMarkers layout={layout} conflicts={openConflicts} />
       {cameraCommand?.kind === "travel" && (
@@ -6069,6 +6117,7 @@ export function WorldViewer({
   const [cameraView, setCameraView] = useState<CameraViewMode>("pov");
   const [walkMode, setWalkMode] = useState(false);
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
+  const [webGlContextLost, setWebGlContextLost] = useState(false);
   const viewerElement = useRef<HTMLDivElement>(null);
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
@@ -6086,6 +6135,15 @@ export function WorldViewer({
     cameraCommandId.current += 1;
     setCameraView(view);
     setCameraCommand({ id: cameraCommandId.current, kind: view });
+  }, []);
+
+  const recoverLostWebGlContext = useCallback(() => {
+    setRenderQuality("low");
+    setWebGlContextLost(true);
+  }, []);
+
+  const acknowledgeRestoredWebGlContext = useCallback(() => {
+    setWebGlContextLost(false);
   }, []);
 
   const enterWalkMode = useCallback(async () => {
@@ -6260,7 +6318,6 @@ export function WorldViewer({
     () => runtime?.snapshot.conflicts.filter((conflict) => conflict.status === "open") ?? [],
     [runtime?.snapshot.conflicts],
   );
-  const qualityProfile = renderQualityProfiles[renderQuality];
   const presentation = useMemo(() => {
     if (!runtime) return null;
     const compiled = sceneRecipe?.locations[runtime.layout.location.id]?.presentation;
@@ -6307,6 +6364,14 @@ export function WorldViewer({
       sceneRecipe?.styleKit.id ?? "generic-grounded",
     );
   }, [presentation, runtime?.layout, runtime?.snapshot.storyId, runtime?.snapshot.version, sceneRecipe]);
+  const denseEstateScene = Boolean(
+    presentation?.location.dressingTags.includes("estate-furnishings")
+      || presentation?.location.dressingTags.includes("period-interior"),
+  );
+  const effectiveRenderQuality: RenderQuality = denseEstateScene && renderQuality === "high"
+    ? "balanced"
+    : renderQuality;
+  const qualityProfile = renderQualityProfiles[effectiveRenderQuality];
 
   return (
     <div
@@ -6319,7 +6384,7 @@ export function WorldViewer({
       data-navigation-mode={walkMode ? "walk" : "map"}
       data-visible-relations={relationEdges.length}
       data-open-conflicts={openConflicts.length}
-      data-render-quality={renderQuality}
+      data-render-quality={effectiveRenderQuality}
       data-visual-plan-version={presentation?.planVersion ?? 0}
       data-visual-style={presentation?.styleLabel ?? "unavailable"}
       data-asset-requests={presentation?.assetRequests.length ?? 0}
@@ -6335,6 +6400,7 @@ export function WorldViewer({
           dpr={qualityProfile.dpr}
           gl={{
             antialias: true,
+            powerPreference: "high-performance",
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.08,
           }}
@@ -6342,6 +6408,10 @@ export function WorldViewer({
           style={{ touchAction: "none" }}
           onPointerMissed={() => onEntitySelect?.(null)}
         >
+          <WebGlContextGuard
+            onContextLost={recoverLostWebGlContext}
+            onContextRestored={acknowledgeRestoredWebGlContext}
+          />
           <WorldScene
             layout={runtime.layout}
             presentation={presentation}
@@ -6359,7 +6429,7 @@ export function WorldViewer({
             onLocationRequest={onLocationRequest}
             cameraView={cameraView}
             walkMode={walkMode}
-            renderQuality={renderQuality}
+            renderQuality={effectiveRenderQuality}
           />
           <PerformanceMonitor
             ms={250}
@@ -6373,6 +6443,11 @@ export function WorldViewer({
         </Canvas>
       ) : (
         <div className="world-runtime-empty">The supplied world snapshot cannot be rendered.</div>
+      )}
+      {webGlContextLost && (
+        <div className="world-webgl-recovery" role="status">
+          Restoring the 3D renderer...
+        </div>
       )}
       {runtime && (
         <div className="world-camera-modes" role="group" aria-label="Camera view">

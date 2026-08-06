@@ -255,6 +255,42 @@ const reviewedAssets = {
       { level: 2, ratio: 0.3, error: 0.025 },
     ],
   },
+  Chandelier_03: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/Chandelier_03",
+    lods: [
+      { level: 0, ratio: 0.8, error: 0.003 },
+      { level: 1, ratio: 0.4, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  book_encyclopedia_set_01: {
+    author: "John Malcolm",
+    sourceUrl: "https://polyhaven.com/a/book_encyclopedia_set_01",
+    lods: [
+      { level: 0, ratio: 0.5, error: 0.003 },
+      { level: 1, ratio: 0.25, error: 0.012 },
+      { level: 2, ratio: 0.1, error: 0.03 },
+    ],
+  },
+  vintage_oil_lamp: {
+    author: "Monsta3D",
+    sourceUrl: "https://polyhaven.com/a/vintage_oil_lamp",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  fancy_picture_frame_01: {
+    author: "Rico Cilliers and Rob Tuytel",
+    sourceUrl: "https://polyhaven.com/a/fancy_picture_frame_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.65, error: 0.01 },
+      { level: 2, ratio: 0.35, error: 0.025 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);
