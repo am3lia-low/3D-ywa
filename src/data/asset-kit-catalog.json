@@ -1534,6 +1534,129 @@
       }
     },
     {
+      "catalogId": "polyhaven:chandelier-03-optimized",
+      "registryKey": "victorian-crystal-chandelier",
+      "roles": ["practical-light", "ceiling-light", "hero-light"],
+      "assetKeys": ["victorian-crystal-chandelier", "crystal-chandelier", "brass-candle-chandelier"],
+      "semanticKinds": ["crystal-chandelier", "candle-chandelier", "ornate-chandelier"],
+      "tags": ["crystal", "chandelier", "ceiling", "brass", "ornate", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "free",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Chandelier_03",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-crystal-chandelier", "geometry": "cylinder", "dimensions": [0.78, 1.04, 0.79],
+        "color": "#b58a50",
+        "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.36, "metalness": 0.46
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2900000, "maxTriangles": 24000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "Transparent crystal and bulb primitives intentionally use physical material constants while the brass fixture retains its PBR texture set."
+      }
+    },
+    {
+      "catalogId": "polyhaven:book-encyclopedia-set-01-optimized",
+      "registryKey": "victorian-encyclopedia-set",
+      "roles": ["books", "surface-decor", "library-dressing"],
+      "assetKeys": ["victorian-encyclopedia-set", "leather-encyclopedias", "antique-book-set"],
+      "semanticKinds": ["encyclopedia-set", "book-set", "books"],
+      "tags": ["books", "leather-bound", "gold-embossed", "library", "reading", "archive", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "John Malcolm",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-encyclopedia-set", "geometry": "box", "dimensions": [0.6, 0.25, 0.18],
+        "color": "#624033",
+        "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.72, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 7200000, "maxTriangles": 43000,
+        "requirePbrTextures": true, "maxAspectDistortion": 2.5, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set."
+      }
+    },
+    {
+      "catalogId": "polyhaven:vintage-oil-lamp-optimized",
+      "registryKey": "victorian-porcelain-oil-lamp",
+      "roles": ["practical-light", "surface-decor", "period-decor"],
+      "assetKeys": ["victorian-porcelain-oil-lamp", "antique-oil-lamp", "porcelain-table-lamp"],
+      "semanticKinds": ["oil-lamp", "parlor-lamp", "table-lamp"],
+      "tags": ["lamp", "oil", "porcelain", "brass", "glass", "victorian", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Monsta3D",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_oil_lamp",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-porcelain-oil-lamp", "geometry": "cylinder", "dimensions": [0.28, 0.82, 0.28],
+        "color": "#d1bd8a",
+        "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.38, "metalness": 0.18, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 6400000, "maxTriangles": 7500,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures."
+      }
+    },
+    {
+      "catalogId": "polyhaven:fancy-picture-frame-01-optimized",
+      "registryKey": "victorian-framed-landscape",
+      "roles": ["wall-art", "period-decor", "gallery-dressing"],
+      "assetKeys": ["victorian-framed-landscape", "ornate-landscape-painting", "gilt-picture-frame"],
+      "semanticKinds": ["framed-painting", "picture-frame", "wall-art"],
+      "tags": ["painting", "landscape", "gilt", "ornate", "gallery", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-framed-landscape", "geometry": "box", "dimensions": [0.72, 0.56, 0.024],
+        "color": "#9c7740",
+        "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.46, "metalness": 0.18
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2300000, "maxTriangles": 1000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "roles": ["storage", "archive-dressing"],
