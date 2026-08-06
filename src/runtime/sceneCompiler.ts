@@ -104,7 +104,11 @@ export type SceneDressingModuleId =
   | "dressing:grass-tufts"
   | "dressing:wild-mushrooms"
   | "dressing:fallen-logs"
-  | "dressing:forest-rocks";
+  | "dressing:forest-rocks"
+  | "dressing:tavern-interior"
+  | "dressing:nautical-interior"
+  | "dressing:bedroom-interior"
+  | "dressing:modern-interior";
 
 export interface SceneModuleSelection<TModuleId extends string> {
   moduleId: TModuleId;
@@ -232,6 +236,10 @@ const DRESSING_MODULE_RULES: ReadonlyArray<{
   { moduleId: "dressing:wild-mushrooms", anyTags: ["wild-mushrooms", "forest-fungi"] },
   { moduleId: "dressing:fallen-logs", anyTags: ["fallen-logs", "deadwood"] },
   { moduleId: "dressing:forest-rocks", anyTags: ["forest-rocks", "mossy-rocks"] },
+  { moduleId: "dressing:tavern-interior", anyTags: ["tavern-interior", "inn-common-room", "alehouse"] },
+  { moduleId: "dressing:nautical-interior", anyTags: ["nautical-interior", "ship-cabin", "signal-room"] },
+  { moduleId: "dressing:bedroom-interior", anyTags: ["bedroom-interior", "bedchamber"] },
+  { moduleId: "dressing:modern-interior", anyTags: ["modern-interior", "contemporary-interior"] },
 ];
 
 function semanticText(values: readonly string[]): string {
@@ -395,7 +403,29 @@ function expandSemanticTags(location: VisualLocationPlan): {
     architecture.has("glasshouse-panels") ||
     architecture.has("archive-shelving") ||
     hasSemantic(atmosphereText, /\b(?:attic|archive|library|conservatory|glasshouse|greenhouse)\b/);
-  const hasGroundedInterior = hasExplicitIndoorShell && !hasIndustrialInterior && !hasSpecializedInterior && hasSemantic(
+  const hasTavernInterior = hasExplicitIndoorShell && hasSemantic(
+    atmosphereText,
+    /\b(?:tavern|alehouse|taproom|inn[ -]common[ -]room|public[ -]house)\w*\b/,
+  );
+  const hasNauticalInterior = hasExplicitIndoorShell && hasSemantic(
+    atmosphereText,
+    /\b(?:ship[ -]cabin|captain(?:'s)?[ -]cabin|signal[ -]room|lighthouse[ -]room|chart[ -]room|wheelhouse|belowdecks|naval[ -]cabin)\w*\b/,
+  );
+  const hasBedroomInterior = hasExplicitIndoorShell && hasSemantic(
+    atmosphereText,
+    /\b(?:bedroom|bedchamber|sleeping[ -]chamber|guest[ -]room|nursery)\w*\b/,
+  );
+  const hasModernInterior = hasExplicitIndoorShell && hasSemantic(
+    atmosphereText,
+    /\b(?:modern|contemporary|minimalist|twenty-first-century|glass-and-steel|corporate|coworking|open-plan[ -]office)\w*\b/,
+  );
+  const hasGroundedInterior = hasExplicitIndoorShell &&
+    !hasIndustrialInterior &&
+    !hasSpecializedInterior &&
+    !hasTavernInterior &&
+    !hasNauticalInterior &&
+    !hasBedroomInterior &&
+    !hasModernInterior && hasSemantic(
     atmosphereText,
     /\b(?:house|home|room|hall|chamber|manor|estate|parlour|parlor|gallery|archive|library|study|bedroom|inn|tavern|office|school|palace|castle)\w*\b/,
   );
@@ -478,10 +508,45 @@ function expandSemanticTags(location: VisualLocationPlan): {
     dressing.add("storage-crates");
     dressing.add("industrial-pipes");
   }
+  if (hasTavernInterior) {
+    dressing.add("tavern-interior");
+    dressing.add("interior-lighting");
+  }
+  if (hasNauticalInterior) {
+    dressing.add("nautical-interior");
+    dressing.add("storage-crates");
+    dressing.add("interior-lighting");
+  }
+  if (hasBedroomInterior) {
+    dressing.add("bedroom-interior");
+    dressing.add("interior-rugs");
+    dressing.add("interior-lighting");
+  }
+  if (hasModernInterior) {
+    dressing.add("modern-interior");
+  }
   if (hasGroundedInterior) {
     dressing.add("period-interior");
     dressing.add("interior-rugs");
     dressing.add("interior-lighting");
+  }
+  if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:study|office|writing[ -]room|writing[ -]desk|scribe|workroom)\w*\b/)) {
+    dressing.add("writing-room");
+  }
+  if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:reading[ -]nook|reading[ -]room|fireside[ -]reading)\w*\b/)) {
+    dressing.add("reading-nook");
+  }
+  if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:parlour|parlor|drawing[ -]room|salon|sitting[ -]room|conversation[ -]room|lounge)\w*\b/)) {
+    dressing.add("parlor");
+  }
+  if (
+    (hasGroundedInterior || hasTavernInterior || hasNauticalInterior || hasBedroomInterior) &&
+    hasSemantic(atmosphereText, /\b(?:mantel|mantelpiece|fireplace|hearth)\w*\b/)
+  ) {
+    dressing.add("mantel-display");
+  }
+  if (hasExplicitIndoorShell && !hasIndustrialInterior && hasSemantic(atmosphereText, /\b(?:picture[ -]wall|portrait[ -]wall|wall[ -]gallery|framed[ -]art|paintings?)\w*\b/)) {
+    dressing.add("wall-gallery");
   }
   if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:storybook|historical|historic|antique|victorian|gothic|manor|estate|old-world|period)\w*\b/)) {
     architecture.add("estate-paneling");

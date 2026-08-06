@@ -15,12 +15,239 @@ import courtyardPlan2Fixture from "../../fixtures/visual_scene_plan_courtyard_2.
 import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
 import worldFamiliesFixture from "../../fixtures/story_package_world_families_demo.json";
+import interiorStressFixture from "../../fixtures/interior_scene_stress_cases.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { ScenePatch, WorldSnapshot } from "../contracts/world";
 import { applyScenePatch } from "./applyScenePatch";
 import { compileSceneRecipe } from "./sceneRecipeCompiler";
 
 describe("scene recipe compiler", () => {
+  it("turns unfamiliar interior prose into deterministic floor, wall, and surface decoration", () => {
+    const snapshot: WorldSnapshot = {
+      storyId: "story-unfamiliar-study",
+      version: 1,
+      passageId: "P1",
+      locations: [{ id: "blue-study", name: "The Blue Study", bounds: [24, 6, 20] }],
+      entities: [
+        {
+          id: "study-desk",
+          name: "Walnut writing desk",
+          kind: "furniture",
+          locationId: "blue-study",
+          assetKey: "desk",
+          aliases: ["writing table"],
+        },
+        {
+          id: "study-hearth",
+          name: "Carved stone fireplace and mantel",
+          kind: "architecture",
+          locationId: "blue-study",
+          assetKey: "fireplace",
+        },
+      ],
+      relations: [
+        {
+          id: "study-hearth:north-wall",
+          subjectId: "study-hearth",
+          predicate: "against_wall",
+          metadata: { wall: "north" },
+        },
+      ],
+      conflicts: [],
+    };
+    const plan: VisualScenePlan = {
+      schemaVersion: "1.0",
+      storyId: snapshot.storyId,
+      segmentId: "blue-study-opening",
+      sourcePassageIds: ["P1"],
+      snapshotVersion: 1,
+      planVersion: 1,
+      artDirection: {
+        styleLabel: "painterly historical storybook",
+        stylePrompt: "A warm, grounded old-world interior with tactile natural materials.",
+        negativePrompt: ["empty room", "floating props"],
+        materialVocabulary: ["walnut", "aged brass", "woven wool"],
+      },
+      locations: [{
+        locationId: "blue-study",
+        archetype: "unfamiliar blue writer's study",
+        visualDescription: "An indoor historical writing room, parlor and reading nook arranged around a carved fireplace.",
+        architectureTags: ["aged-plaster", "wood-floorboards"],
+        dressingTags: [],
+        dressingDensity: "rich",
+        mood: "warm and contemplative",
+        timeOfDay: "evening",
+        palette: {
+          background: "#171a20", fog: "#23262d", floor: "#49382e", wall: "#7c807f",
+          timber: "#39251d", ambient: "#c9bea9", keyLight: "#e0d8c9", practical: "#f0a85d",
+        },
+        lighting: {
+          warmth: "warm",
+          contrast: "medium",
+          ambientIntensity: 0.72,
+          keyIntensity: 1.4,
+          atmosphericEffects: ["dust-motes"],
+        },
+        evidence: { passageIds: ["P1"], confidence: 0.62, basis: "cross_passage_inference" },
+      }],
+      entities: snapshot.entities.map((entity) => ({
+        entityId: entity.id,
+        visualDescription: entity.name,
+        importance: "hero" as const,
+        materials: ["natural material"],
+        colors: ["warm brown"],
+        assetSearchTags: [entity.assetKey ?? entity.kind],
+        evidence: { passageIds: ["P1"], confidence: 0.9, basis: "explicit_text" as const },
+      })),
+      presentationConnections: [],
+      unresolvedQuestions: [],
+    };
+
+    const first = compileSceneRecipe(snapshot, plan).locations["blue-study"]!;
+    const second = compileSceneRecipe(snapshot, plan).locations["blue-study"]!;
+    const anchors = new Set(first.dressingInstances.map((instance) => instance.placementAnchor));
+    const supported = first.dressingInstances.filter((instance) => instance.placementAnchor === "surface");
+
+    expect(first.presentation.location.dressingTags).toEqual(expect.arrayContaining([
+      "period-interior",
+      "writing-room",
+      "reading-nook",
+      "parlor",
+      "mantel-display",
+    ]));
+    expect(anchors).toEqual(new Set(["floor", "surface", "wall"]));
+    expect(supported.length).toBeGreaterThanOrEqual(4);
+    expect(supported.every((instance) => Boolean(instance.supportId))).toBe(true);
+    expect(supported
+      .map((instance) => instance.supportId!)
+      .filter((supportId) => !/(?:desk|hearth|side-table|console|coffee-table)/.test(supportId)))
+      .toEqual([]);
+    expect(supported.some((instance) => instance.supportId === "study-desk")).toBe(true);
+    expect(supported.some((instance) => instance.supportId === "study-hearth")).toBe(true);
+    expect(first.dressingInstances
+      .filter((instance) => instance.placementAnchor === "floor")
+      .every((instance) => Math.abs(instance.position[1] - instance.dimensions[1] / 2) < 0.001))
+      .toBe(true);
+    expect(supported.every(
+      (instance) => instance.position[1] - instance.dimensions[1] / 2 > 0.5,
+    )).toBe(true);
+    const rotatedFootprint = (dimensions: [number, number, number], yaw: number) => [
+      dimensions[0] * Math.abs(Math.cos(yaw)) + dimensions[2] * Math.abs(Math.sin(yaw)),
+      dimensions[1],
+      dimensions[0] * Math.abs(Math.sin(yaw)) + dimensions[2] * Math.abs(Math.cos(yaw)),
+    ] as const;
+    for (let leftIndex = 0; leftIndex < first.dressingInstances.length; leftIndex += 1) {
+      const left = first.dressingInstances[leftIndex]!;
+      const leftSize = rotatedFootprint(left.dimensions, left.rotation[1]);
+      for (let rightIndex = leftIndex + 1; rightIndex < first.dressingInstances.length; rightIndex += 1) {
+        const right = first.dressingInstances[rightIndex]!;
+        if (left.supportId === right.dressingId || right.supportId === left.dressingId) continue;
+        const rightSize = rotatedFootprint(right.dimensions, right.rotation[1]);
+        const overlaps = Math.abs(left.position[0] - right.position[0]) < (leftSize[0] + rightSize[0]) / 2 + 0.15 &&
+          Math.abs(left.position[1] - right.position[1]) < (leftSize[1] + rightSize[1]) / 2 + 0.07 &&
+          Math.abs(left.position[2] - right.position[2]) < (leftSize[2] + rightSize[2]) / 2 + 0.15;
+        expect(overlaps, `${left.dressingId} overlaps ${right.dressingId}`).toBe(false);
+      }
+    }
+    expect(first.dressingInstances.map(({ dressingId, position, supportId }) => ({ dressingId, position, supportId })))
+      .toEqual(second.dressingInstances.map(({ dressingId, position, supportId }) => ({ dressingId, position, supportId })));
+  });
+
+  it.each(interiorStressFixture.cases)(
+    "keeps $id decoration applicable and rejects incompatible interior kits",
+    (stressCase) => {
+      const locationId = stressCase.id;
+      const snapshot: WorldSnapshot = {
+        storyId: `story-${stressCase.id}`,
+        version: 1,
+        passageId: "P1",
+        locations: [{ id: locationId, name: stressCase.archetype, bounds: [24, 6, 20] }],
+        entities: [
+          {
+            id: `${locationId}:desk`,
+            name: "Story work desk",
+            kind: "furniture",
+            locationId,
+            assetKey: "desk",
+            aliases: ["chart table", "writing table"],
+          },
+          {
+            id: `${locationId}:hearth`,
+            name: "Stone fireplace mantel",
+            kind: "architecture",
+            locationId,
+            assetKey: "fireplace",
+          },
+        ],
+        relations: [{
+          id: `${locationId}:hearth:north-wall`,
+          subjectId: `${locationId}:hearth`,
+          predicate: "against_wall",
+          metadata: { wall: "north" },
+        }],
+        conflicts: [],
+      };
+      const plan: VisualScenePlan = {
+        schemaVersion: "1.0",
+        storyId: snapshot.storyId,
+        segmentId: `${stressCase.id}:opening`,
+        sourcePassageIds: ["P1"],
+        snapshotVersion: 1,
+        planVersion: 1,
+        artDirection: {
+          styleLabel: stressCase.id === "modern-office"
+            ? "contemporary grounded realism"
+            : "painterly historical storybook",
+          stylePrompt: stressCase.visualDescription,
+          negativePrompt: ["floating props", "incompatible furniture"],
+          materialVocabulary: ["tactile materials"],
+        },
+        locations: [{
+          locationId,
+          archetype: stressCase.archetype,
+          visualDescription: stressCase.visualDescription,
+          architectureTags: ["enclosed room"],
+          dressingTags: [],
+          dressingDensity: "rich",
+          mood: "narrative and atmospheric",
+          timeOfDay: "evening",
+          palette: {
+            background: "#171a20", fog: "#252b31", floor: "#493a31", wall: "#858078",
+            timber: "#3b2d25", ambient: "#c8c0b2", keyLight: "#e2ddd0", practical: "#eda95f",
+          },
+          lighting: {
+            warmth: "warm",
+            contrast: "medium",
+            ambientIntensity: 0.7,
+            keyIntensity: 1.4,
+            atmosphericEffects: [],
+          },
+          evidence: { passageIds: ["P1"], confidence: 0.62, basis: "cross_passage_inference" },
+        }],
+        entities: snapshot.entities.map((entity) => ({
+          entityId: entity.id,
+          visualDescription: entity.name,
+          importance: "hero" as const,
+          materials: ["natural materials"],
+          colors: ["grounded neutral"],
+          assetSearchTags: [entity.assetKey ?? entity.kind],
+          evidence: { passageIds: ["P1"], confidence: 0.9, basis: "explicit_text" as const },
+        })),
+        presentationConnections: [],
+        unresolvedQuestions: [],
+      };
+
+      const location = compileSceneRecipe(snapshot, plan).locations[locationId]!;
+      expect(location.presentation.location.dressingTags)
+        .toEqual(expect.arrayContaining(stressCase.expectedTags));
+      expect(stressCase.forbiddenTags.filter(
+        (tag) => location.presentation.location.dressingTags.includes(tag),
+      )).toEqual([]);
+      expect(location.dressingInstances.length).toBeGreaterThanOrEqual(stressCase.minimumDecorations);
+      expect(location.dressingInstances.every((instance) => instance.decorativeOnly)).toBe(true);
+    },
+  );
+
   it("compiles the attic from semantic modules without story-specific recipe code", () => {
     const recipe = compileSceneRecipe(
       atticSnapshotFixture as unknown as WorldSnapshot,

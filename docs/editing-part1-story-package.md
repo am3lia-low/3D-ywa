@@ -35,7 +35,17 @@ valid one-passage Part 1 output, so it can be imported before or after editing.
   `winding-path` and `woodland-edge`.
 - `dressingTags`: woodland options include `broadleaf-trees`, `pine-trees`,
   `forest-undergrowth`, `grass-tufts`, `wild-mushrooms`, `fallen-logs` and
-  `forest-rocks`.
+  `forest-rocks`. Interior options include `writing-room`, `reading-nook`,
+  `parlor`, `mantel-display`, `wall-gallery`, `interior-rugs` and
+  `interior-lighting`. Descriptive prose such as "writer's study",
+  "drawing room" or "fireplace mantel" also expands to those recipes.
+  Specialized prose routes automatically: taverns and taprooms use
+  `tavern-interior`; signal rooms, chart rooms and ship cabins use
+  `nautical-interior`; bedchambers use `bedroom-interior`; contemporary
+  offices use `modern-interior`. Do not add `period-interior` to those scene
+  families unless the passage explicitly calls for period domestic furniture.
+  Reserve `estate-furnishings` for the explicitly authored country-estate demo;
+  ordinary historical rooms should use the reusable interior tags instead.
 - `palette` and `lighting`: control the overall color story, time and mood.
 - `assetKey`: optional exact approved assets include `desk`, `chair`,
   `wooden-bench`, `wooden-crate`, `lantern`, `map`, `rug`, `hidden-door`,
@@ -51,3 +61,8 @@ east or west `metadata.wall` for doors and wall objects.
 
 Import the edited JSON using **Import story package** above the viewer. Imports
 are session-only, so re-import the file after a page refresh.
+
+For compiler-level examples of six unrelated indoor scene families, see
+`fixtures/interior_scene_stress_cases.json`. These are deliberately descriptive
+inputs rather than authored coordinates; the runtime owns their repeatable
+dressing selection and placement.

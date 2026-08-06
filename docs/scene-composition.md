@@ -23,6 +23,30 @@ uses the same path: `broadleaf-trees`, `hedges` and `verge-rocks` select the
 catalogued nature assets and deterministic approach slots. Removing a tag from
 the next visual-plan version removes only that decorative set.
 
+Grounded interior prose now expands into reusable `period-interior` composition
+rather than the authored estate room. Optional `writing-room`, `reading-nook`,
+`parlor`, `mantel-display` and `wall-gallery` signals enrich compatible rooms
+with approved furniture and props. Each resolved decorative instance records a
+`placementAnchor` of `floor`, `wall`, `surface` or `ceiling`. Surface props also
+record the canonical or decorative `supportId`; the resolver measures the real
+support height, searches bounded tabletop slots and skips a prop when it cannot
+place it without collision. Only an explicit `estate-furnishings` tag selects
+the hand-authored estate composition.
+
+Specialized interior prose is classified before that generic period rule.
+`tavern-interior`, `nautical-interior`, `bedroom-interior` and
+`modern-interior` prevent unrelated domestic furniture from leaking into a
+taproom, signal room, ship cabin, bedchamber or contemporary office. The first
+three currently select purpose-specific approved clusters (tables and barrels,
+nautical storage and lanterns, or bedside storage and lighting). Modern rooms
+remain intentionally sparse until an approved modern PBR kit is added; the
+runtime will not disguise historical furniture as contemporary assets.
+
+`fixtures/interior_scene_stress_cases.json` is the coverage matrix for this
+classifier. It exercises a coastal signal room, harbor tavern, old bedchamber,
+captain's cabin, modern office and fantasy study and asserts both required and
+forbidden module tags, decorative density and stable presentation-only IDs.
+
 Exterior slots deliberately live in the recipe's `approach` placement region,
 outside the canonical location bounds but inside the walkable presentation
 ground. They remain `decorativeOnly`, retain stable IDs across patches, and do
