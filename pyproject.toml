@@ -11,6 +11,7 @@ dependencies = [
   "fastapi",
   "openai",
   "pydantic>=2",
+  "python-dotenv",
   "uvicorn[standard]",
 ]
 
@@ -19,4 +20,3 @@ storyworld = "storyworld.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["storyworld*"]
-

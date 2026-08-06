@@ -44,12 +44,28 @@ class Predicate(str, Enum):
     BEHIND = "behind"
     OPPOSITE = "opposite"
     AGAINST_WALL = "against_wall"
+    AGAINST = "against"
     CONNECTED_TO = "connected_to"
     LEADS_TO = "leads_to"
     HAS_PROPERTY = "has_property"
     NOT_ON = "not_on"
     NOT_INSIDE = "not_inside"
     NOT_PRESENT_IN = "not_present_in"
+
+
+class PropertyName(str, Enum):
+    STATE = "state"
+    COLOR = "color"
+    MATERIAL = "material"
+    CONDITION = "condition"
+    ORIENTATION = "orientation"
+    SIZE = "size"
+    SHAPE = "shape"
+    TEMPERATURE = "temperature"
+    LIGHTING = "lighting"
+    LENGTH = "length"
+    DIRECTION = "direction"
+    FRAME_STYLE = "frame_style"
 
 
 class EntityStatus(str, Enum):
@@ -98,7 +114,7 @@ class ExtractedObservation(StrictModel):
     subject_mention_id: str
     predicate: Predicate
     object_mention_id: str | None
-    property_name: str | None
+    property_name: PropertyName | None
     literal_value: str | None
     change_type: ChangeType
     evidence_ids: list[str] = Field(min_length=1)

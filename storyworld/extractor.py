@@ -4,6 +4,8 @@ import json
 import os
 from typing import Protocol
 
+from dotenv import load_dotenv
+
 from .models import ExtractionResult, SentenceUnit, WorldSnapshot
 
 
@@ -20,19 +22,35 @@ Rules:
    entity in the supplied world catalogue. Otherwise return null.
 4. Give each mention a short semantic_type such as study, desk, armchair, key,
    window, door, portrait, corridor, or person. Do not include adjectives in it.
-5. Extract semantic relations only. Never invent coordinates, rotations, asset
+5. Do not create separate entities for directional room walls. Convert phrases
+   such as "against the east wall" into against_wall with literal_value "east".
+6. Do not create separate entities for inseparable components such as a picture
+   frame or a desk drawer unless the component is independently manipulated.
+   Store frame appearance as a property. Represent "in the top drawer" as the
+   entity being inside the desk with literal_value "top drawer".
+7. Extract every explicitly stated renderer-relevant trait using has_property:
+   colors, materials, condition, state, orientation, size, shape, temperature,
+   lighting, length, direction, and frame style. Use the schema's canonical
+   property names; for example locked/open/closed use property_name "state" and
+   crooked/tilted use "orientation".
+8. Extract semantic relations only. Never invent coordinates, rotations, asset
    paths, dimensions, or visual details not present in the text.
-6. Use has_property with property_name and literal_value for attributes or states.
+9. Use has_property with property_name and literal_value for attributes or states.
    For spatial predicates, property_name must be null. Use literal_value only when
    the relation targets a literal such as east or north.
-7. "No longer on X" means not_on; it does not mean the entity was destroyed.
+10. When a doorway opens or leads into another location, extract a leads_to
+    relation from the doorway to that location. Also connect a newly revealed
+    location to the current location when the passage supports that connection.
+11. Ignore transient viewpoint phrases such as "behind her" or "in front of him"
+    unless they describe a stable object-to-object placement needed by the scene.
+12. "No longer on X" means not_on; it does not mean the entity was destroyed.
    A missing new position should stay unknown.
-8. Use move/update/remove/reveal only when the passage contains a real transition
+13. Use move/update/remove/reveal only when the passage contains a real transition
    cue. Use reaffirm when the passage repeats an unchanged fact. Use unknown when
    a new claim about an existing entity lacks a transition cue.
-9. Do not silently resolve contradictions with the previous world. Extract the
+14. Do not silently resolve contradictions with the previous world. Extract the
    new claim faithfully and let deterministic code decide whether it conflicts.
-10. Aliases belong to the same entity only when the context supports that match.
+15. Aliases belong to the same entity only when the context supports that match.
 """
 
 
@@ -69,6 +87,7 @@ class OpenAIExtractor:
     """GPT-backed observation extractor using Pydantic constrained outputs."""
 
     def __init__(self, model: str | None = None, client: object | None = None) -> None:
+        load_dotenv()
         self.model = model or os.getenv("STORYWORLD_MODEL", "gpt-5.6-terra")
         if client is None:
             try:
@@ -92,19 +111,25 @@ class OpenAIExtractor:
             "current_world": self._compact_world(snapshot),
         }
 
-        response = self.client.responses.parse(
-            model=self.model,
-            reasoning={"effort": "low"},
-            store=False,
-            input=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": json.dumps(payload, ensure_ascii=False),
-                },
-            ],
-            text_format=ExtractionResult,
-        )
+        try:
+            response = self.client.responses.parse(
+                model=self.model,
+                reasoning={"effort": "low"},
+                store=False,
+                input=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {
+                        "role": "user",
+                        "content": json.dumps(payload, ensure_ascii=False),
+                    },
+                ],
+                text_format=ExtractionResult,
+            )
+        except Exception as exc:
+            safe_message = self._safe_api_error(type(exc).__name__)
+            if safe_message:
+                raise RuntimeError(safe_message) from exc
+            raise
 
         extraction = response.output_parsed
         if extraction is None:
@@ -116,6 +141,33 @@ class OpenAIExtractor:
         validate_extraction_references(extraction)
         self._validate_evidence(extraction, sentences)
         return extraction
+
+    @staticmethod
+    def _safe_api_error(error_name: str) -> str | None:
+        messages = {
+            "AuthenticationError": (
+                "OpenAI authentication failed. Replace OPENAI_API_KEY in .env "
+                "with an active Platform API key."
+            ),
+            "PermissionDeniedError": (
+                "The OpenAI project does not have permission to use the selected model."
+            ),
+            "NotFoundError": (
+                "The selected OpenAI model is not available to this API project."
+            ),
+            "RateLimitError": (
+                "OpenAI rate limit or project quota was reached. Check project billing "
+                "and usage limits before retrying."
+            ),
+            "APIConnectionError": (
+                "Could not connect to OpenAI. Check the network and retry."
+            ),
+            "APITimeoutError": "The OpenAI request timed out. Retry the passage.",
+            "InternalServerError": (
+                "OpenAI returned a temporary server error. Retry the passage."
+            ),
+        }
+        return messages.get(error_name)
 
     @staticmethod
     def _compact_world(snapshot: WorldSnapshot) -> dict[str, object]:

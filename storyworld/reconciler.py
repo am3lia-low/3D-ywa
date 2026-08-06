@@ -29,6 +29,7 @@ PLACEMENT_PREDICATES = {
     Predicate.BEHIND,
     Predicate.OPPOSITE,
     Predicate.AGAINST_WALL,
+    Predicate.AGAINST,
 }
 
 NEGATIVE_TO_POSITIVE = {
@@ -158,10 +159,11 @@ class WorldStateReconciler:
     ) -> Conflict | None:
         if not property_name or value is None:
             raise ValueError("has_property requires property_name and literal_value")
+        property_key = property_name.value
         target = self._find_world_item(snapshot, subject_id)
         if target is None:
             raise ValueError(f"Unknown world item: {subject_id}")
-        old_value = target.properties.get(property_name)
+        old_value = target.properties.get(property_key)
         if old_value == value:
             return None
 
@@ -177,19 +179,19 @@ class WorldStateReconciler:
             return self._make_property_conflict(
                 snapshot,
                 subject_id,
-                property_name,
+                property_key,
                 old_value,
                 value,
                 evidence,
             )
 
-        target.properties[property_name] = value
+        target.properties[property_key] = value
         target.evidence.append(evidence)
         operations.append(
             PatchOperation(
                 operation=PatchOperationType.UPDATE_PROPERTY,
                 entity_id=subject_id,
-                property_name=property_name,
+                property_name=property_key,
                 old_value=old_value,
                 new_value=value,
                 evidence_ids=evidence.sentence_ids,
@@ -271,7 +273,10 @@ class WorldStateReconciler:
             if relation.subject_id == subject_id
             and relation.predicate in PLACEMENT_PREDICATES
         ]
-        is_move = change_type == ChangeType.MOVE
+        # A first placement is an addition, even when the passage says the
+        # subject "moved" into the scene. Only remove prior placements when
+        # the entity already has somewhere to move from.
+        is_move = change_type == ChangeType.MOVE and bool(existing_placements)
         is_new_subject = not existing_placements
 
         if predicate in PLACEMENT_PREDICATES and existing_placements and not is_move:

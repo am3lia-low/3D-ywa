@@ -28,16 +28,16 @@ py -m venv .venv
 python -m pip install -e .
 ```
 
-Set your API key in the current PowerShell session. Do not commit it:
+Create `.env` from the provided template and add your API key. `.env` is ignored
+by Git and loaded automatically:
 
 ```powershell
-$env:OPENAI_API_KEY="your-key"
-$env:STORYWORLD_MODEL="gpt-5.6-terra"
+Copy-Item .env.example .env
+# Edit .env and replace OPENAI_API_KEY=replace_me with your real key.
 ```
 
 `STORYWORLD_MODEL` is optional because `gpt-5.6-terra` is already the default.
-Copy `.env.example` only as a reference; the CLI reads process environment
-variables directly.
+Process environment variables still override values loaded from `.env`.
 
 ## Process the four demo passages
 
@@ -118,6 +118,19 @@ They verify that:
 - Passage 4 preserves the established desk position and records a conflict.
 - The OpenAI call uses `gpt-5.6-terra` with `ExtractionResult` as its constrained
   Pydantic output schema.
+
+### Optional live evaluation
+
+The live evaluator sends all four passages to the configured model, scores 26
+handoff requirements, and writes the complete run artifacts to an ignored test
+directory. It uses API credits, so choose a new directory for each run:
+
+```powershell
+python scripts/run_live_evaluation.py --data-dir test_runs/live_eval --story-id study-live-eval
+```
+
+The summary is saved as
+`test_runs/live_eval/study-live-eval/evaluation_report.json`.
 
 ## Main code locations
 

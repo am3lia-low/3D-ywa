@@ -33,12 +33,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     pipeline = NarrativePipeline(storage=storage)
-    response = pipeline.process_file(
-        story_id=args.story_id,
-        passage_id=args.passage_id,
-        path=args.file,
-        replay_cached_extraction=args.replay_cached_extraction,
-    )
+    try:
+        response = pipeline.process_file(
+            story_id=args.story_id,
+            passage_id=args.passage_id,
+            path=args.file,
+            replay_cached_extraction=args.replay_cached_extraction,
+        )
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        print(f"StoryWorld error: {exc}", file=sys.stderr)
+        return 1
     print(response.model_dump_json(indent=2))
     return 0
 

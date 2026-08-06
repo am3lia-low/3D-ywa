@@ -19,6 +19,12 @@ class FakeResponses:
         return SimpleNamespace(output_parsed=self.output)
 
 
+class FailingResponses:
+    def parse(self, **kwargs):
+        error_type = type("AuthenticationError", (Exception,), {})
+        raise error_type("secret-bearing provider error")
+
+
 class OpenAIExtractorTests(unittest.TestCase):
     def test_uses_terra_and_constrained_pydantic_output(self) -> None:
         responses = FakeResponses(extraction_p1())
@@ -36,6 +42,14 @@ class OpenAIExtractorTests(unittest.TestCase):
         self.assertIs(responses.kwargs["text_format"], ExtractionResult)
         self.assertFalse(responses.kwargs["store"])
         self.assertEqual(responses.kwargs["reasoning"], {"effort": "low"})
+
+    def test_authentication_errors_are_sanitized(self) -> None:
+        client = SimpleNamespace(responses=FailingResponses())
+        extractor = OpenAIExtractor(client=client)
+        sentences = segment_passage("P1", "Mara entered the study.")
+        with self.assertRaisesRegex(RuntimeError, "authentication failed") as raised:
+            extractor.extract("P1", sentences, WorldSnapshot.empty("demo"))
+        self.assertNotIn("secret-bearing", str(raised.exception))
 
 
 if __name__ == "__main__":

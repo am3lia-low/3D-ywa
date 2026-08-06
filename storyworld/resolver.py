@@ -99,7 +99,10 @@ class EntityResolver:
             for candidate in candidates
             if _normalize(candidate[1]) == _normalize(mention.semantic_type)
         ]
-        if len(same_kind) == 1:
+        generic_name = _normalize(mention.canonical_name) == _normalize(
+            mention.semantic_type
+        )
+        if len(same_kind) == 1 and generic_name:
             return same_kind[0][0]
 
         mention_names = [mention.surface, mention.canonical_name, *mention.aliases]
