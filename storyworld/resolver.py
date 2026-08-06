@@ -23,6 +23,9 @@ def _slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_") or "entity"
 
 
+ROOM_SURFACE_TYPES = {"ceiling", "floor", "wall"}
+
+
 @dataclass
 class ResolutionResult:
     snapshot: WorldSnapshot
@@ -44,19 +47,38 @@ class EntityResolver:
         for mention in extraction.mentions:
             resolved_id = self._resolve_existing(updated, mention)
             if resolved_id is None:
-                resolved_id = self._create_entity(updated, extraction, mention)
-                if mention.entity_type == EntityType.LOCATION:
+                resolved_id = self._create_entity(
+                    updated,
+                    extraction,
+                    mention,
+                    create_location=(
+                        mention.entity_type == EntityType.LOCATION
+                        and not updated.locations
+                        and (
+                            extraction.location_mention_id is None
+                            or mention.mention_id == extraction.location_mention_id
+                        )
+                    ),
+                )
+                if any(location.id == resolved_id for location in updated.locations):
                     added_locations.append(resolved_id)
                 else:
                     added_entities.append(resolved_id)
             else:
-                self._record_aliases(updated, resolved_id, mention)
+                resolved_to_surface = (
+                    mention.entity_type != EntityType.LOCATION
+                    and any(location.id == resolved_id for location in updated.locations)
+                )
+                if not resolved_to_surface:
+                    self._record_aliases(updated, resolved_id, mention)
             mapping[mention.mention_id] = resolved_id
 
         active_location_id = None
         if extraction.location_mention_id:
-            active_location_id = mapping.get(extraction.location_mention_id)
-        if active_location_id is None and len(updated.locations) == 1:
+            candidate = mapping.get(extraction.location_mention_id)
+            if any(location.id == candidate for location in updated.locations):
+                active_location_id = candidate
+        if active_location_id is None and updated.locations:
             active_location_id = updated.locations[0].id
 
         for entity_id in added_entities:
@@ -73,10 +95,27 @@ class EntityResolver:
         )
 
     def _resolve_existing(self, snapshot: WorldSnapshot, mention: object) -> str | None:
+        semantic_type = _normalize(mention.semantic_type)
+        if semantic_type in ROOM_SURFACE_TYPES and snapshot.locations:
+            return snapshot.locations[0].id
+        if semantic_type == "panel" and "hidden" in _normalize(mention.surface):
+            doorways = [
+                entity.id
+                for entity in snapshot.entities
+                if _normalize(entity.semantic_type)
+                in {"door", "doorway", "hidden doorway"}
+            ]
+            if len(doorways) == 1:
+                return doorways[0]
+
         existing_id = mention.existing_entity_id
         if existing_id:
             if mention.entity_type == EntityType.LOCATION:
                 if any(location.id == existing_id for location in snapshot.locations):
+                    return existing_id
+                # After the opening setting, later location-like discoveries are
+                # deliberately represented as architecture in the one-scene MVP.
+                if any(entity.id == existing_id for entity in snapshot.entities):
                     return existing_id
             elif any(entity.id == existing_id for entity in snapshot.entities):
                 return existing_id
@@ -87,6 +126,15 @@ class EntityResolver:
                 (location.id, location.semantic_type, [location.canonical_name, *location.aliases])
                 for location in snapshot.locations
             ]
+            candidates.extend(
+                (
+                    entity.id,
+                    entity.semantic_type,
+                    [entity.canonical_name, *entity.aliases],
+                )
+                for entity in snapshot.entities
+                if entity.entity_type == EntityType.STRUCTURE
+            )
         else:
             candidates = [
                 (entity.id, entity.semantic_type, [entity.canonical_name, *entity.aliases])
@@ -120,7 +168,12 @@ class EntityResolver:
         return best_id if best_score >= 0.88 else None
 
     def _create_entity(
-        self, snapshot: WorldSnapshot, extraction: ExtractionResult, mention: object
+        self,
+        snapshot: WorldSnapshot,
+        extraction: ExtractionResult,
+        mention: object,
+        *,
+        create_location: bool,
     ) -> str:
         prefix_source = (
             mention.canonical_name
@@ -142,7 +195,7 @@ class EntityResolver:
         )
         aliases = sorted({mention.surface, *mention.aliases} - {mention.canonical_name})
 
-        if mention.entity_type == EntityType.LOCATION:
+        if create_location:
             snapshot.locations.append(
                 Location(
                     id=entity_id,
@@ -156,10 +209,17 @@ class EntityResolver:
             snapshot.entities.append(
                 Entity(
                     id=entity_id,
-                    entity_type=mention.entity_type,
+                    entity_type=(
+                        EntityType.STRUCTURE
+                        if mention.entity_type == EntityType.LOCATION
+                        else mention.entity_type
+                    ),
                     semantic_type=mention.semantic_type,
                     canonical_name=mention.canonical_name,
                     aliases=aliases,
+                    location_id=(
+                        snapshot.locations[0].id if snapshot.locations else None
+                    ),
                     evidence=[evidence],
                 )
             )

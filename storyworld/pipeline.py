@@ -6,6 +6,7 @@ from pathlib import Path
 from .extractor import (
     NarrativeExtractor,
     OpenAIExtractor,
+    exclude_character_mentions,
     validate_extraction_references,
 )
 from .models import PassageResponse
@@ -52,6 +53,8 @@ class NarrativePipeline:
             extraction = self.extractor.extract(
                 passage_id, sentences, previous_snapshot
             )
+        validate_extraction_references(extraction)
+        extraction = exclude_character_mentions(extraction)
         validate_extraction_references(extraction)
 
         response = self.reconciler.apply(previous_snapshot, extraction)

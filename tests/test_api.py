@@ -37,19 +37,67 @@ class ApiTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_process_passage_contract(self) -> None:
-        response = self.client.post(
-            "/api/stories/study-demo/passages",
-            json={
-                "passage_id": "P1",
-                "text": (ROOT / "passage_1.txt").read_text(encoding="utf-8"),
-                "replay_cached_extraction": False,
-            },
+        bodies = []
+        for number in range(1, 5):
+            response = self.client.post(
+                "/api/stories/study-demo/passages",
+                json={
+                    "passage_id": f"P{number}",
+                    "text": (ROOT / f"passage_{number}.txt").read_text(encoding="utf-8"),
+                    "replay_cached_extraction": False,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            bodies.append(response.json())
+
+        opening = bodies[0]
+        self.assertEqual(opening["snapshot"]["storyId"], "study-demo")
+        self.assertEqual(opening["snapshot"]["passageId"], "P1")
+        self.assertEqual(opening["snapshot"]["version"], 1)
+        self.assertIsNone(opening.get("patch"))
+        self.assertIn("visual_plan", opening)
+        self.assertEqual(opening["visual_plan"]["snapshotVersion"], 1)
+        self.assertEqual(len(opening["snapshot"]["locations"]), 1)
+        self.assertIn("locationId", opening["snapshot"]["entities"][0])
+        self.assertNotIn("location_id", opening["snapshot"]["entities"][0])
+        self.assertFalse(
+            any(entity["kind"] == "character" for entity in opening["snapshot"]["entities"])
         )
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertEqual(body["snapshot"]["version"], 1)
-        self.assertEqual(body["patch"]["from_version"], 0)
-        self.assertIn("processing_summary", body)
+        self.assertFalse(
+            any(
+                entity["entityId"] == "mara_01"
+                for entity in opening["visual_plan"]["entities"]
+            )
+        )
+
+        for index, body in enumerate(bodies[1:], start=2):
+            self.assertEqual(body["patch"]["fromVersion"], index - 1)
+            self.assertEqual(body["patch"]["toVersion"], index)
+            self.assertEqual(body["visual_plan"]["planVersion"], index)
+            self.assertEqual(len(body["snapshot"]["locations"]), 1)
+
+        final = bodies[-1]["snapshot"]
+        self.assertTrue(
+            any(entity["id"] == "corridor_01" for entity in final["entities"])
+        )
+        allowed = {
+            "left_of",
+            "right_of",
+            "in_front_of",
+            "behind",
+            "near",
+            "on",
+            "inside",
+            "against_wall",
+            "centered",
+        }
+        self.assertTrue(
+            all(relation["predicate"] in allowed for relation in final["relations"])
+        )
+        latest = self.client.get("/api/stories/study-demo/snapshots/latest")
+        self.assertEqual(latest.status_code, 200)
+        self.assertEqual(latest.json()["storyId"], "study-demo")
+        self.assertEqual(latest.json()["version"], 4)
 
 
 if __name__ == "__main__":

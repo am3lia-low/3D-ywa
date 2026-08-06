@@ -248,29 +248,47 @@ class PipelineTests(unittest.TestCase):
         p1 = self.process(1)
         self.assertEqual(p1.snapshot.version, 1)
         self.assertEqual(len(p1.snapshot.locations), 1)
-        self.assertEqual(len(p1.snapshot.entities), 8)
+        self.assertEqual(len(p1.snapshot.entities), 7)
+        self.assertFalse(
+            any(entity.entity_type == EntityType.CHARACTER for entity in p1.snapshot.entities)
+        )
         self.assertTrue(self.has_relation(p1.snapshot, "key_01", Predicate.ON, "desk_01"))
 
         p2 = self.process(2)
         self.assertEqual(p2.snapshot.version, 2)
-        self.assertTrue(self.has_relation(p2.snapshot, "armchair_01", Predicate.BESIDE, "window_01"))
-        self.assertFalse(self.has_relation(p2.snapshot, "armchair_01", Predicate.BESIDE, "fireplace_01"))
+        self.assertTrue(self.has_relation(p2.snapshot, "armchair_01", Predicate.NEAR, "window_01"))
+        self.assertFalse(self.has_relation(p2.snapshot, "armchair_01", Predicate.NEAR, "fireplace_01"))
         self.assertFalse(self.has_relation(p2.snapshot, "key_01", Predicate.ON, "desk_01"))
         portrait = next(entity for entity in p2.snapshot.entities if entity.id == "portrait_01")
         self.assertEqual(portrait.properties["orientation"], "crooked")
 
         p3 = self.process(3)
         self.assertEqual(p3.snapshot.version, 3)
-        self.assertTrue(any(location.id == "corridor_01" for location in p3.snapshot.locations))
+        self.assertEqual([location.id for location in p3.snapshot.locations], ["study_01"])
+        corridor = next(entity for entity in p3.snapshot.entities if entity.id == "corridor_01")
+        self.assertEqual(corridor.entity_type, EntityType.STRUCTURE)
+        self.assertEqual(corridor.location_id, "study_01")
         self.assertTrue(any(entity.id == "hidden_doorway_01" for entity in p3.snapshot.entities))
-        self.assertTrue(self.has_relation(p3.snapshot, "key_01", Predicate.BESIDE, "hidden_doorway_01"))
+        self.assertTrue(self.has_relation(p3.snapshot, "key_01", Predicate.NEAR, "hidden_doorway_01"))
 
         p4 = self.process(4)
         self.assertEqual(p4.snapshot.version, 4)
         self.assertEqual(len(p4.conflicts), 1)
         self.assertEqual(p4.conflicts[0].kind, "spatial_contradiction")
-        self.assertFalse(self.has_relation(p4.snapshot, "desk_01", Predicate.BENEATH, "window_01"))
+        self.assertFalse(self.has_relation(p4.snapshot, "desk_01", Predicate.NEAR, "window_01"))
         self.assertTrue(self.has_relation(p4.snapshot, "key_01", Predicate.INSIDE, "desk_01"))
+        allowed = {
+            Predicate.LEFT_OF,
+            Predicate.RIGHT_OF,
+            Predicate.IN_FRONT_OF,
+            Predicate.BEHIND,
+            Predicate.NEAR,
+            Predicate.ON,
+            Predicate.INSIDE,
+            Predicate.AGAINST_WALL,
+            Predicate.CENTERED,
+        }
+        self.assertTrue(all(relation.predicate in allowed for relation in p4.snapshot.relations))
         self.assertEqual(self.storage.load_latest_snapshot("study-demo").version, 4)
 
     def test_extraction_schema_is_strict(self) -> None:

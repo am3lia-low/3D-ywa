@@ -439,8 +439,19 @@ passage text
   -> versioned snapshot + scene patch + conflicts
 ```
 
-The LLM never produces coordinates or asset paths. Member 2 receives stable IDs,
-semantic properties, and relations such as `beside window_01`.
+The LLM never produces coordinates or asset paths. Internal artifacts retain
+evidence-rich snake-case fields, while the HTTP API translates them into the
+camelCase contract validated by Member 2.
+
+The current MVP deliberately keeps one persistent renderer location. Later
+rooms or corridors become architectural entities in that scene. Renderer-facing
+relations are limited to `left_of`, `right_of`, `in_front_of`, `behind`, `near`,
+`on`, `inside`, `against_wall`, and `centered`.
+
+The team has also chosen an environment-only MVP: Member 1 does not extract or
+emit characters for rendering. Character actions may motivate object changes in
+the prose, but people and character-to-object spatial relations are omitted from
+snapshots, patches, and visual plans.
 
 ### Setup
 
@@ -524,6 +535,10 @@ GET /api/stories/{story_id}/snapshots/latest
 ```
 
 Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
+The opening response omits its patch and includes `visual_plan`; later responses
+include an ordered `ScenePatch` that reproduces the supplied camelCase snapshot.
+Development CORS defaults allow the integrated UI on ports 8443 and 5173 and
+can be overridden with `STORYWORLD_CORS_ORIGINS`.
 
 ### Tests
 
@@ -545,9 +560,10 @@ They verify that:
 
 #### Optional live evaluation
 
-The live evaluator sends all four passages to the configured model, scores 26
-handoff requirements, and writes the complete run artifacts to an ignored test
-directory. It uses API credits, so choose a new directory for each run:
+The live evaluator sends all four passages to the configured model, scores the
+handoff requirements, and writes internal artifacts plus Member 2-compatible
+responses to an ignored test directory. It uses API credits, so choose a new
+directory for each run:
 
 ```powershell
 python scripts/run_live_evaluation.py --data-dir test_runs/live_eval --story-id study-live-eval
@@ -560,6 +576,8 @@ The summary is saved as
 
 - `storyworld/models.py`: constrained extraction, snapshot, patch, and conflict schemas.
 - `storyworld/extractor.py`: GPT-5.6 Terra prompt and Responses API call.
+- `storyworld/handoff.py`: deterministic translation into the shared main contract.
+- `storyworld/handoff_models.py`: camelCase snapshot, patch, conflict, and visual-plan schemas.
 - `storyworld/resolver.py`: stable identity and alias resolution.
 - `storyworld/reconciler.py`: deterministic state updates and conflicts.
 - `storyworld/storage.py`: versioned JSON persistence and cached extractions.

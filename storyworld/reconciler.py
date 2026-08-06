@@ -17,12 +17,17 @@ from .models import (
     WorldSnapshot,
 )
 from .resolver import EntityResolver
+from .semantics import normalize_property, simplify_predicate
 
 
 PLACEMENT_PREDICATES = {
     Predicate.INSIDE,
     Predicate.ON,
     Predicate.NEAR,
+    Predicate.LEFT_OF,
+    Predicate.RIGHT_OF,
+    Predicate.IN_FRONT_OF,
+    Predicate.CENTERED,
     Predicate.BESIDE,
     Predicate.ABOVE,
     Predicate.BENEATH,
@@ -95,7 +100,7 @@ class WorldStateReconciler:
                     operations,
                 )
                 if conflict:
-                    new_conflicts.append(conflict)
+                    self._collect_conflict(updated, new_conflicts, conflict)
                 continue
 
             if observation.predicate in NEGATIVE_TO_POSITIVE:
@@ -112,7 +117,7 @@ class WorldStateReconciler:
             conflict = self._apply_positive_relation(
                 updated,
                 subject_id,
-                observation.predicate,
+                simplify_predicate(observation.predicate),
                 object_id,
                 observation.literal_value,
                 observation.change_type,
@@ -120,7 +125,7 @@ class WorldStateReconciler:
                 operations,
             )
             if conflict:
-                new_conflicts.append(conflict)
+                self._collect_conflict(updated, new_conflicts, conflict)
 
         for conflict in new_conflicts:
             updated.conflicts.append(conflict)
@@ -159,10 +164,14 @@ class WorldStateReconciler:
     ) -> Conflict | None:
         if not property_name or value is None:
             raise ValueError("has_property requires property_name and literal_value")
-        property_key = property_name.value
         target = self._find_world_item(snapshot, subject_id)
         if target is None:
             raise ValueError(f"Unknown world item: {subject_id}")
+        property_key, value = normalize_property(
+            property_name.value,
+            value,
+            getattr(target, "semantic_type", None),
+        )
         old_value = target.properties.get(property_key)
         if old_value == value:
             return None
@@ -439,6 +448,20 @@ class WorldStateReconciler:
             ),
             None,
         )
+
+    @classmethod
+    def _collect_conflict(
+        cls,
+        snapshot: WorldSnapshot,
+        pending: list[Conflict],
+        conflict: Conflict,
+    ) -> None:
+        existing = {item.id for item in snapshot.conflicts} | {
+            item.id for item in pending
+        }
+        if conflict.id in existing:
+            conflict.id = cls._next_id("conflict", len(existing) + 1, existing)
+        pending.append(conflict)
 
     @staticmethod
     def _entity_location(snapshot: WorldSnapshot, entity_id: str) -> str | None:

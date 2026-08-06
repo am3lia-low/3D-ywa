@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from storyworld.extractor import OpenAIExtractor
+from storyworld.handoff import MainContractAdapter
 from storyworld.models import Predicate, WorldSnapshot
 from storyworld.pipeline import NarrativePipeline
 from storyworld.storage import JsonStoryStorage
@@ -70,6 +71,10 @@ def score_snapshots(snapshots: dict[str, WorldSnapshot]) -> dict[str, object]:
     corridor_id = find_id(p3, "corridor")
     checks = [
         ("P1 required entities", all(p1_ids.values())),
+        (
+            "P1 no character entities",
+            not any(entity.entity_type.value == "character" for entity in p1.entities),
+        ),
         ("P1 no directional-wall entity", find_id(p1, "wall") is None),
         ("P1 no frame component entity", find_id(p1, "frame") is None),
         ("P1 desk material", property_matches(p1, "desk", "material", {"wood", "wooden"})),
@@ -78,21 +83,22 @@ def score_snapshots(snapshots: dict[str, WorldSnapshot]) -> dict[str, object]:
         ("P1 fireplace material", property_matches(p1, "fireplace", "material", {"stone"})),
         ("P1 desk against east wall", has_relation(p1, p1_ids["desk"], Predicate.AGAINST_WALL, literal_value="east")),
         ("P1 key on desk", has_relation(p1, p1_ids["key"], Predicate.ON, p1_ids["desk"])),
-        ("P1 window opposite desk", has_relation(p1, p1_ids["window"], Predicate.OPPOSITE, p1_ids["desk"])),
-        ("P1 chair beside fireplace", has_relation(p1, p1_ids["armchair"], Predicate.BESIDE, p1_ids["fireplace"])),
-        ("P1 portrait above fireplace", has_relation(p1, p1_ids["portrait"], Predicate.ABOVE, p1_ids["fireplace"])),
+        ("P1 window in front of desk", has_relation(p1, p1_ids["window"], Predicate.IN_FRONT_OF, p1_ids["desk"])),
+        ("P1 chair near fireplace", has_relation(p1, p1_ids["armchair"], Predicate.NEAR, p1_ids["fireplace"])),
+        ("P1 portrait near fireplace", has_relation(p1, p1_ids["portrait"], Predicate.NEAR, p1_ids["fireplace"])),
         ("P2 stable core IDs", all(find_id(p2, semantic) == item_id for semantic, item_id in p1_ids.items())),
-        ("P2 chair beside window", has_relation(p2, p1_ids["armchair"], Predicate.BESIDE, p1_ids["window"])),
+        ("P2 chair near window", has_relation(p2, p1_ids["armchair"], Predicate.NEAR, p1_ids["window"])),
         ("P2 key removed from desk", not has_relation(p2, p1_ids["key"], Predicate.ON, p1_ids["desk"])),
         ("P2 portrait crooked", property_matches(p2, "portrait", "orientation", {"crooked", "tilted"})),
         ("P3 corridor discovered", corridor_id is not None),
+        ("P3 keeps one location", len(p3.locations) == 1),
         ("P3 doorway discovered", doorway_id is not None),
-        ("P3 key beside doorway", has_relation(p3, p1_ids["key"], Predicate.BESIDE, doorway_id)),
-        ("P3 doorway leads to corridor", has_relation(p3, doorway_id, Predicate.LEADS_TO, corridor_id)),
+        ("P3 key near doorway", has_relation(p3, p1_ids["key"], Predicate.NEAR, doorway_id)),
+        ("P3 doorway near corridor", has_relation(p3, doorway_id, Predicate.NEAR, corridor_id)),
         ("P4 desk conflict detected", any(conflict.kind == "spatial_contradiction" for conflict in p4.conflicts)),
-        ("P4 contradictory desk relation not applied", not has_relation(p4, p1_ids["desk"], Predicate.BENEATH, p1_ids["window"])),
+        ("P4 contradictory desk relation not applied", not has_relation(p4, p1_ids["desk"], Predicate.NEAR, p1_ids["window"])),
         ("P4 key in desk top drawer", has_relation(p4, p1_ids["key"], Predicate.INSIDE, p1_ids["desk"], "top drawer")),
-        ("P4 portrait against fireplace", has_relation(p4, p1_ids["portrait"], Predicate.AGAINST, p1_ids["fireplace"])),
+        ("P4 portrait near fireplace", has_relation(p4, p1_ids["portrait"], Predicate.NEAR, p1_ids["fireplace"])),
         ("P4 no drawer component entity", find_id(p4, "drawer") is None),
         ("P4 doorway open", property_matches(p4, "doorway", "state", {"open"}) or property_matches(p4, "hidden_doorway", "state", {"open"})),
     ]
@@ -122,17 +128,26 @@ def main() -> int:
 
     extractor = OpenAIExtractor()
     pipeline = NarrativePipeline(extractor=extractor, storage=storage)
+    handoff_adapter = MainContractAdapter()
     run_summary: list[dict[str, object]] = []
     snapshots: dict[str, WorldSnapshot] = {}
 
     for number in range(1, 5):
         started = time.perf_counter()
+        previous_snapshot = storage.load_latest_snapshot(args.story_id)
         response = pipeline.process_file(
             story_id=args.story_id,
             passage_id=f"P{number}",
             path=ROOT / f"passage_{number}.txt",
         )
         snapshots[f"P{number}"] = response.snapshot
+        handoff = handoff_adapter.passage_response(previous_snapshot, response)
+        handoff_dir = Path(args.data_dir) / args.story_id / "handoffs"
+        handoff_dir.mkdir(parents=True, exist_ok=True)
+        (handoff_dir / f"P{number}.json").write_text(
+            handoff.model_dump_json(indent=2, exclude_none=True) + "\n",
+            encoding="utf-8",
+        )
         run_summary.append(
             {
                 "passage_id": f"P{number}",
@@ -145,6 +160,7 @@ def main() -> int:
                 "new_conflicts": [conflict.kind for conflict in response.conflicts],
                 "entity_ids": [entity.id for entity in response.snapshot.entities],
                 "location_ids": [location.id for location in response.snapshot.locations],
+                "handoff_path": str((handoff_dir / f"P{number}.json").resolve()),
             }
         )
 
