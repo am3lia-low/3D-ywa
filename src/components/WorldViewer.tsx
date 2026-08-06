@@ -3372,6 +3372,8 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
       decorativeOnly: true,
       placementStatus: instance.placementStatus,
       placementRegion: instance.placementRegion,
+      placementAnchor: instance.placementAnchor,
+      ...(instance.supportId ? { supportId: instance.supportId } : {}),
       ...(instance.renderKind === "asset"
         ? { catalogId: instance.catalogId }
         : { moduleKey: instance.moduleKey }),
@@ -5949,8 +5951,9 @@ function WorldScene({
     && !presentation.architecture.aridTerrain
     && !presentation.architecture.coastalTerrain
     && !presentation.architecture.grassland;
-  const usesEstateFurniture = presentation.location.dressingTags.includes("estate-furnishings")
-    || presentation.location.dressingTags.includes("period-interior");
+  // Only an explicitly requested estate receives the authored Ashwood set.
+  // Generic historical interiors use the reusable, collision-aware resolver.
+  const usesEstateFurniture = presentation.location.dressingTags.includes("estate-furnishings");
   const visibleDressingInstances = usesEstateFurniture
     ? dressingInstances.filter(
         (instance) => instance.sourceTag !== "estate-furnishings"
