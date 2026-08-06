@@ -17,6 +17,7 @@ const approved = new Set([
   "sparse_grass",
   "rock_ground",
   "metal_plate_02",
+  "marble_01",
 ]);
 const slugs = process.argv.slice(2);
 const requested = slugs.length ? slugs : [...approved];

@@ -102,6 +102,24 @@ const reviewedAssets = {
       { level: 2, ratio: 0.25, error: 0.03 },
     ],
   },
+  sofa_03: {
+    author: "Fran Calvente",
+    sourceUrl: "https://polyhaven.com/a/sofa_03",
+    lods: [
+      { level: 0, ratio: 1, error: 0.004 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  mantel_clock_01: {
+    author: "Rico Cilliers and Yann Kervran",
+    sourceUrl: "https://polyhaven.com/a/mantel_clock_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.5, error: 0.01 },
+      { level: 2, ratio: 0.2, error: 0.025 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);
