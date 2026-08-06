@@ -20,8 +20,17 @@ import {
   auditSceneComposition,
   type SceneCompositionAudit,
 } from "./sceneCompositionAudit";
+import {
+  createSceneAssetOutcomeReport,
+  type SceneAssetOutcomeReport,
+} from "./sceneAssetOutcome";
 import { resolveDressingInstances, type ResolvedDressingInstance } from "./dressingResolver";
 import { createWorldLayout } from "./layoutEngine";
+import {
+  resolvePromotedStoryAssets,
+  type PromotedStoryAssetCatalog,
+  type PromotedStoryAsset,
+} from "./promotedStoryAssets";
 
 export type PlacementConstraintKind =
   | "avoid_overlap"
@@ -68,11 +77,17 @@ export interface CompiledSceneRecipe {
   locations: Readonly<Record<string, LocationSceneRecipe>>;
   assetRegistry: AssetRegistry;
   approvedAssets: ApprovedAssetSelection[];
+  promotedAssets: PromotedStoryAsset[];
+  assetOutcomes: SceneAssetOutcomeReport;
   fallbackEntityIds: string[];
   generationJobs: SceneAssetGenerationJob[];
   placementConstraints: ScenePlacementConstraint[];
   composition: SceneCompositionAudit;
   coverage: SceneAssetCoverage;
+}
+
+export interface CompileSceneRecipeOptions {
+  promotedAssetCatalog?: PromotedStoryAssetCatalog;
 }
 
 const FACING_PREDICATES = new Set(["left_of", "right_of", "in_front_of", "behind", "near"]);
@@ -156,9 +171,24 @@ export function compilePlacementConstraints(snapshot: WorldSnapshot): ScenePlace
 export function compileSceneRecipe(
   snapshot: WorldSnapshot,
   plan: VisualScenePlan,
+  options: CompileSceneRecipeOptions = {},
 ): CompiledSceneRecipe {
   const approved = resolveApprovedAssetLibrary(snapshot, plan);
-  const manifest = buildSceneManifest(snapshot, plan, [], approved.assetRegistry);
+  const promoted = resolvePromotedStoryAssets(snapshot, options.promotedAssetCatalog);
+  const baseRegistry = { ...approved.assetRegistry, ...promoted.assetRegistry };
+  const promotedByEntityId = new Map(
+    promoted.selections.map((selection) => [selection.entityId, selection]),
+  );
+  const builtManifest = buildSceneManifest(snapshot, plan, [], baseRegistry);
+  const manifest = {
+    ...builtManifest,
+    resolvedAssets: builtManifest.resolvedAssets.map((resolved) => {
+      const selection = promotedByEntityId.get(resolved.entityId);
+      return selection
+        ? { ...resolved, source: "generated" as const, catalogId: selection.promotionId }
+        : resolved;
+    }),
+  };
   const locations = Object.fromEntries(
     Object.entries(manifest.presentations).map(([locationId, presentation]) => {
       const layout = createWorldLayout(snapshot, manifest.assetRegistry, [], locationId);
@@ -175,7 +205,18 @@ export function compileSceneRecipe(
     }),
   );
   const total = snapshot.entities.length;
-  const approvedCount = approved.selections.length;
+  const approvedEntityIds = new Set([
+    ...approved.selections.map((selection) => selection.entityId),
+    ...promoted.selections.map((selection) => selection.entityId),
+  ]);
+  const promotedEntityIds = new Set(promoted.selections.map((selection) => selection.entityId));
+  const activeApprovedSelections = approved.selections.filter(
+    (selection) => !promotedEntityIds.has(selection.entityId),
+  );
+  const fallbackEntityIds = approved.unresolvedEntityIds.filter(
+    (entityId) => !promotedEntityIds.has(entityId),
+  );
+  const approvedCount = approvedEntityIds.size;
   const composition = auditSceneComposition(
     snapshot,
     manifest.presentations,
@@ -192,15 +233,17 @@ export function compileSceneRecipe(
     styleKit: approved.styleKit,
     locations,
     assetRegistry: manifest.assetRegistry,
-    approvedAssets: approved.selections,
-    fallbackEntityIds: approved.unresolvedEntityIds,
+    approvedAssets: activeApprovedSelections,
+    promotedAssets: promoted.selections,
+    assetOutcomes: createSceneAssetOutcomeReport(snapshot, plan, manifest),
+    fallbackEntityIds,
     generationJobs: manifest.generationJobs,
     placementConstraints: compilePlacementConstraints(snapshot),
     composition,
     coverage: {
       total,
       approved: approvedCount,
-      designedFallback: approved.unresolvedEntityIds.length,
+      designedFallback: fallbackEntityIds.length,
       queuedForGeneration: manifest.generationJobs.length,
       approvedPercent: total === 0 ? 100 : Math.round((approvedCount / total) * 100),
     },

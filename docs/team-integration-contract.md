@@ -305,6 +305,7 @@ Member 2 outputs to Member 3:
 | `onLocationRequest(locationId)` | A door/portal requested canonical navigation |
 | `onRuntimeError(error)` | Typed error for retry or resynchronization UI |
 | `compileSceneRecipe(...).composition` | Preflight status, score, warnings, and blocking issues |
+| `compileSceneRecipe(...).assetOutcomes` | Per-entity approved, fallback, pending, review, rejected, failed, or promoted status |
 
 Member 2 owns coordinates, support surfaces, wall clearances, asset selection,
 fallbacks, LODs, rendering, object picking, camera modes, and transitions. It
@@ -371,6 +372,7 @@ requires a patch. Import and live modes feed the same runtime contracts.
 | Blocking composition issue | `validateStoryPackage` / preflight | Reject package or hold scene for review |
 | Missing approved asset | Part 2 asset pipeline | Render designed fallback; queue offline resolution |
 | Generated asset failure | Part 2 build pipeline | Preserve fallback and expose retry/review status |
+| Reviewed generated asset | Part 2 promotion tool | Export twice-reviewed bundle, materialize under `public/generated/promoted/`, reuse by canonical story/entity ID |
 | Viewer runtime error | `onRuntimeError` | Member 3 shows recovery UI; never silently reset chronology |
 
 ## Acceptance commands

@@ -113,6 +113,13 @@ The reader's API or WebSocket adapter feeds validated updates into
 snapshot and call `stream.resynchronize(snapshot)`. Never skip versions or set
 `patch` back to `null` manually while an update is being applied.
 
+`recipe.assetOutcomes` contains one reader-safe asset result per canonical
+entity. Member 3 may summarize its counts as “Preparing optional scene details”
+while still enabling Explore: approved assets, designed fallbacks, queued work,
+review, failure and rejection are all renderable states. Provider controls,
+candidate review and `pnpm assets:promote` remain internal Member 2 tooling and
+must not appear in the reader UI.
+
 ## Ownership of viewer props
 
 | Prop | Owner | Rule |
@@ -174,6 +181,8 @@ registry and deployment.
 - Run `pnpm handoff:check`.
 - Run `pnpm scenes:preflight` for all built-in story moments.
 - Run `pnpm assets:validate` and retain the three public asset directories.
+- Retain `src/data/promoted-story-assets.json`; its story-specific entries point
+  to reviewed artifacts beneath `public/generated/promoted/`.
 - Feed patches through `useWorldStream`; handle `resync_required`.
 - Keep canonical story, location, and entity IDs unchanged.
 - Update the visual plan alongside its matching snapshot version.
