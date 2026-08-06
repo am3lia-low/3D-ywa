@@ -170,6 +170,10 @@ export interface ScenePresentation {
     groundMist: boolean;
   };
   portalTargetLocationId?: string;
+  /** Canonical entrance entity used for both faces of a factual connection. */
+  portalSourceEntityId?: string;
+  /** True when this location renders the destination-side face of that entrance. */
+  portalIsReturn?: boolean;
   assetRequests: AssetGenerationRequest[];
 }
 
@@ -548,7 +552,15 @@ function expandSemanticTags(location: VisualLocationPlan): {
   if (hasExplicitIndoorShell && !hasIndustrialInterior && hasSemantic(atmosphereText, /\b(?:picture[ -]wall|portrait[ -]wall|wall[ -]gallery|framed[ -]art|paintings?)\w*\b/)) {
     dressing.add("wall-gallery");
   }
-  if (hasGroundedInterior && hasSemantic(atmosphereText, /\b(?:storybook|historical|historic|antique|victorian|gothic|manor|estate|old-world|period)\w*\b/)) {
+  const isCompactUtilityInterior = hasSemantic(
+    atmosphereText,
+    /\b(?:schoolroom|classroom|nursery|servants?[ -]room|box[ -]room|store[ -]room|storage[ -]room)\w*\b/,
+  );
+  if (
+    hasGroundedInterior
+    && !isCompactUtilityInterior
+    && hasSemantic(atmosphereText, /\b(?:storybook|historical|historic|antique|victorian|gothic|manor|estate|old-world|period)\w*\b/)
+  ) {
     architecture.add("estate-paneling");
   }
   if (hasSemantic(atmosphereText, /\b(?:path|trail|track|woodland-road)\b/)) {
@@ -725,9 +737,19 @@ export function compileScenePresentation(
   const semanticTags = expandSemanticTags(location);
   const architectureTags = semanticTags.architecture;
   const dressingTags = semanticTags.dressing;
-  const connection = plan.presentationConnections.find(
+  const forwardConnection = plan.presentationConnections.find(
     (candidate) => candidate.fromLocationId === locationId,
   );
+  // A factual physical doorway has two usable faces. Reuse the same canonical
+  // entity on the destination side instead of minting a second story identity.
+  // Presentation-only portals remain directional because their reverse route
+  // is not established narrative truth.
+  const returnConnection = forwardConnection
+    ? undefined
+    : plan.presentationConnections.find(
+        (candidate) => !candidate.presentationOnly && candidate.targetLocationId === locationId,
+      );
+  const connection = forwardConnection ?? returnConnection;
   const selectedEnvironmentModules = environmentModules(architectureTags);
   const selectedDressingModules = selectModules(dressingTags, DRESSING_MODULE_RULES);
   const resolvedLocation: VisualLocationPlan = {
@@ -794,7 +816,11 @@ export function compileScenePresentation(
       groundMist: location.lighting.atmosphericEffects.includes("ground-mist") ||
         hasSemantic(semanticTags.atmosphereText, /\b(?:mist|misty|fog|foggy|ground-haze)\w*\b/),
     },
-    portalTargetLocationId: connection?.targetLocationId,
+    portalTargetLocationId: returnConnection
+      ? returnConnection.fromLocationId
+      : forwardConnection?.targetLocationId,
+    portalSourceEntityId: connection?.entityId,
+    portalIsReturn: Boolean(returnConnection),
     assetRequests: createAssetRequests(plan.entities, snapshot),
   };
 }

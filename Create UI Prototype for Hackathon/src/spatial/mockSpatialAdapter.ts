@@ -17,6 +17,7 @@ export interface MockSpatialScene {
 }
 
 const BOUNDS: [number, number, number] = [24, 8, 28]
+const SCHOOLROOM_BOUNDS: [number, number, number] = [10, 5, 9]
 
 function semanticText(book: Book, chapter: Chapter): string {
   return `${book.title} ${book.description ?? ''} ${chapter.title} ${chapter.content}`.toLowerCase()
@@ -27,8 +28,19 @@ function entityKind(entity: WorldEntity): EntityKind {
   if (/door|window|fireplace|hearth|stair/.test(text)) return 'architecture'
   if (/chair|desk|table|bench|shelf/.test(text)) return 'furniture'
   if (/lamp|lantern|candle|light/.test(text)) return 'light'
-  if (/box|chest|crate|cabinet/.test(text)) return 'container'
+  if (/box|chest|crate|cabinet|drawer/.test(text)) return 'container'
   return 'decor'
+}
+
+function isSpatialContainer(entity: WorldEntity): boolean {
+  if (entityKind(entity) === 'architecture') return false
+  const text = entity.name.toLowerCase()
+  return /\b(?:[a-z-]*room|hall|corridor|street|quarter|district|forest|wood|garden|courtyard|square)\b/.test(text)
+}
+
+function belongsInSchoolroom(entity: WorldEntity): boolean {
+  const text = `${entity.id} ${entity.name} ${entity.currentLocation ?? ''}`.toLowerCase()
+  return /schoolroom/.test(text) || entity.id === 'horse-figurine' || entity.id === 'small-photograph'
 }
 
 function assetKey(entity: WorldEntity): string | undefined {
@@ -36,6 +48,7 @@ function assetKey(entity: WorldEntity): string | undefined {
   if (/canal|waterway|channel/.test(text)) return 'storybook-canal'
   if (/amber.*pendant|pendant|necklace/.test(text)) return 'amber-pendant'
   if (/portrait|painting/.test(text)) return 'storybook-portrait'
+  if (/clock/.test(text)) return 'victorian-mantel-clock'
   if (/window/.test(text)) return 'storybook-bay-window'
   if (/silver.*key|\bkey\b/.test(text)) return 'silver-key'
   if (/fireplace|hearth/.test(text)) return 'fireplace'
@@ -46,6 +59,9 @@ function assetKey(entity: WorldEntity): string | undefined {
   if (/door/.test(text)) return 'story-door'
   if (/lantern|lamp/.test(text)) return 'lantern'
   if (/map|chart|document/.test(text)) return 'map'
+  if (/ledger|notebook|journal/.test(text)) return 'aged-leather-notebook'
+  if (/horse.*figurine|figurine.*horse/.test(text)) return 'porcelain-horse-figurine'
+  if (/drawer/.test(text)) return 'victorian-document-drawers'
   if (/crate|box|chest/.test(text)) return 'crate'
   return undefined
 }
@@ -56,12 +72,18 @@ function dimensions(entity: WorldEntity): [number, number, number] {
   if (/amber.*pendant|pendant|necklace/.test(text)) return [0.22, 0.38, 0.08]
   if (/fireplace|hearth/.test(text)) return [3.8, 3.35, 1.05]
   if (/window/.test(text)) return [3.25, 2.73, 0.33]
+  if (/small.*(?:photograph|portrait)|(?:photograph|portrait).*small/.test(text)) return [0.35, 0.45, 0.035]
   if (/portrait|painting/.test(text)) return [2.1, 2.7, 0.21]
+  if (/clock/.test(text)) return [0.5, 0.314, 0.184]
   if (/hidden.*door|doorway/.test(text)) return [1.8, 2.9, 0.25]
   if (/door/.test(text)) return [1.44, 2.9, 0.18]
   if (/armchair|easy.*chair|lounge.*chair/.test(text)) return [1.15, 1.45, 1.04]
   if (/chair|seat/.test(text)) return [0.95, 1.55, 0.95]
   if (/desk|table/.test(text)) return [2.4, 1.2, 1.1]
+  if (/map|chart/.test(text)) return [0.46, 0.0125, 0.32]
+  if (/ledger|notebook|journal/.test(text)) return [0.28, 0.045, 0.36]
+  if (/horse.*figurine|figurine.*horse/.test(text)) return [0.34, 0.46, 0.2]
+  if (/drawer/.test(text)) return [1.05, 1.12, 0.58]
   if (/\bkey\b/.test(text)) return [0.3, 0.08, 0.12]
   return [0.9, 0.9, 0.9]
 }
@@ -78,8 +100,20 @@ function wallFor(entity: WorldEntity): 'north' | 'south' | 'east' | 'west' | und
     if (/\bwest(?:ern)?\b/.test(text)) return 'west' as const
     return undefined
   }
-  return resolve((entity.currentLocation ?? '').toLowerCase())
+  const explicitWall = resolve((entity.currentLocation ?? '').toLowerCase())
     ?? resolve((entity.sourceSentence ?? '').toLowerCase())
+  if (explicitWall) return explicitWall
+
+  // The inspection UI sometimes preserves narrator-relative placement rather
+  // than a compass direction. For architectural openings, "to her left" and
+  // "to her right" still imply a side wall; leaving them as floor objects
+  // produces a freestanding door in the middle of the room.
+  if (entityKind(entity) === 'architecture') {
+    const text = semanticPlacementText(entity)
+    if (/\b(?:to (?:her|his|their) )?left(?: side)?\b/.test(text)) return 'west'
+    if (/\b(?:to (?:her|his|their) )?right(?: side)?\b/.test(text)) return 'east'
+  }
+  return undefined
 }
 
 function anchorsToWall(entity: WorldEntity): boolean {
@@ -88,11 +122,31 @@ function anchorsToWall(entity: WorldEntity): boolean {
 }
 
 function namedTarget(entity: WorldEntity, entities: readonly WorldEntity[]): WorldEntity | undefined {
-  const location = (entity.currentLocation ?? '').toLowerCase()
-  return entities.find((candidate) => {
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+  const location = normalize(entity.currentLocation ?? '')
+  const directlyNamed = entities.find((candidate) => {
     if (candidate.id === entity.id) return false
-    return location.includes(candidate.name.toLowerCase()) || location.includes(candidate.id.toLowerCase())
+    return location.includes(normalize(candidate.name)) || location.includes(normalize(candidate.id))
   })
+  if (directlyNamed) return directlyNamed
+  if (/\bmantel(?:piece)?\b/.test(location)) {
+    return entities.find((candidate) => /fireplace|hearth/.test(`${candidate.id} ${candidate.name}`.toLowerCase()))
+  }
+  if (/\bsill\b/.test(location)) {
+    return entities.find((candidate) => /window/.test(`${candidate.id} ${candidate.name}`.toLowerCase()))
+  }
+  if (/\bstair\b/.test(location)) {
+    return entities.find((candidate) => /stair/.test(`${candidate.id} ${candidate.name}`.toLowerCase()) && !/door/.test(`${candidate.id} ${candidate.name}`.toLowerCase()))
+      ?? entities.find((candidate) => /stair/.test(`${candidate.id} ${candidate.name}`.toLowerCase()))
+  }
+  return undefined
+}
+
+function isSurfacePlacementText(text: string): boolean {
+  if (/\b(?:beneath|under|below|inside)\b/.test(text)) return false
+  return /\b(?:mantel(?:piece)?|sill|on top of|atop)\b/.test(text)
+    || /\b(?:on|among|across)\b.*\b(?:desk|table|shelf|stair|step|counter|bench|chest)\b/.test(text)
+    || /\b(?:desk|table|shelf|stair|step|counter|bench|chest)\b.*\b(?:surface|top)\b/.test(text)
 }
 
 function wallAxisPosition(entity: WorldEntity, wall: 'north' | 'south' | 'east' | 'west'): number {
@@ -139,6 +193,8 @@ function plannedPosition(
   const target = namedTarget(entity, entities)
   const targetSize = target ? dimensions(target) : undefined
   const targetWall = target ? wallFor(target) : undefined
+  const isSurfacePlacement = isSurfacePlacementText((entity.currentLocation ?? '').toLowerCase())
+    || isSurfacePlacementText(text)
 
   // A city waterway is a scene-scale circulation feature, not a loose prop.
   // Center it and let the urban kit reserve the corresponding corridor.
@@ -159,7 +215,7 @@ function plannedPosition(
 
   // Small discoveries described beneath furniture belong on its floor plane,
   // not at the height of their legacy 2D diagram marker.
-  if (/\b(beneath|under|below)\b/.test(text) && target && targetSize) {
+  if (/\b(beneath|under|below)\b/.test((entity.currentLocation ?? '').toLowerCase()) && target && targetSize) {
     const targetPosition = plannedPosition(target, entities, targetSize) ?? fallbackFloorPosition(target, targetSize)
     return [targetPosition[0] + targetSize[0] * 0.22, size[1] / 2, targetPosition[2] + targetSize[2] * 0.22]
   }
@@ -173,6 +229,8 @@ function plannedPosition(
     const shelfLevel = /\b(?:third|3rd)\b/.test(text) ? 1.9 : /\b(?:fourth|4th)\b/.test(text) ? 2.55 : 1.22
     return [x, shelfLevel + size[1] / 2 + 0.05, -BOUNDS[2] / 2 + 0.62]
   }
+
+  if (target && isSurfacePlacement) return undefined
 
   const wall = wallFor(entity)
   if (wall && anchorsToWall(entity)) return wallPosition(entity, size, wall)
@@ -206,6 +264,17 @@ function spatialRelations(entities: readonly WorldEntity[]): SpatialRelation[] {
         predicate: 'near',
         objectId: target.id,
         distance: 0.42,
+      })
+    }
+    const stairDoorPlaceholder = /\bstair\b/.test(text) && /door/.test(`${target?.id ?? ''} ${target?.name ?? ''}`.toLowerCase())
+    const supportedPlacement = isSurfacePlacementText((entity.currentLocation ?? '').toLowerCase())
+      || isSurfacePlacementText(text)
+    if (target && supportedPlacement && !stairDoorPlaceholder) {
+      relations.push({
+        id: `${entity.id}:on:${target.id}`,
+        subjectId: entity.id,
+        predicate: 'on',
+        objectId: target.id,
       })
     }
     return relations
@@ -266,14 +335,29 @@ function environment(text: string): {
   }
 }
 
-function spatialEntity(entity: WorldEntity, chapter: Chapter, entities: readonly WorldEntity[]): Entity {
+function schoolroomPosition(entity: WorldEntity, size: Vector3Tuple): Vector3Tuple | undefined {
+  const text = `${entity.id} ${entity.name}`.toLowerCase()
+  if (/horse.*figurine|figurine.*horse/.test(text)) return [1.28, size[1] / 2, 0.18]
+  if (/small.*(?:photograph|portrait)|(?:photograph|portrait).*small/.test(text)) {
+    return undefined
+  }
+  return undefined
+}
+
+function spatialEntity(
+  entity: WorldEntity,
+  chapter: Chapter,
+  entities: readonly WorldEntity[],
+  locationId = `${chapter.id}:scene`,
+  positionOverride?: Vector3Tuple,
+): Entity {
   const size = dimensions(entity)
-  const position = plannedPosition(entity, entities, size)
+  const position = positionOverride ?? plannedPosition(entity, entities, size)
   return {
     id: entity.id,
     name: entity.name,
     kind: entityKind(entity),
-    locationId: `${chapter.id}:scene`,
+    locationId,
     assetKey: assetKey(entity),
     transform: position ? { position } : undefined,
     dimensions: size,
@@ -312,14 +396,125 @@ export function buildMockSpatialScene(
 ): MockSpatialScene {
   const version = Math.max(1, chapter.index)
   const sceneId = `${chapter.id}:scene`
-  const generatedEnvironment = environment(semanticText(book, chapter))
+  const schoolroomNode = uiSnapshot.entities.find((entity) => /schoolroom/.test(`${entity.id} ${entity.name}`.toLowerCase()))
+  const schoolroomId = schoolroomNode ? `${chapter.id}:schoolroom` : null
+  const generatedEnvironment = environment(
+    schoolroomNode ? `${book.title} ${book.description ?? ''} ${chapter.title}`.toLowerCase() : semanticText(book, chapter),
+  )
+  // Member 3's inspection graph can contain places as WorldEntity nodes. The
+  // 3D contract represents those as locations, not selectable prop meshes.
+  // Keeping them out of the entity registry prevents a room from being
+  // semantically matched to an unrelated decorative asset.
+  const renderableEntities = uiSnapshot.entities.filter((entity) => !isSpatialContainer(entity))
+  const hallEntities = renderableEntities.filter((entity) => !schoolroomId || !belongsInSchoolroom(entity))
+  const schoolroomEntities = schoolroomId
+    ? renderableEntities.filter((entity) => belongsInSchoolroom(entity))
+    : []
+  const schoolroomTable: Entity | null = schoolroomId ? {
+    id: 'schoolroom-table',
+    name: 'Low Schoolroom Table',
+    kind: 'furniture',
+    locationId: schoolroomId,
+    assetKey: 'desk',
+    transform: { position: [0, 0.45, 0] },
+    dimensions: [1.8, 0.9, 0.825],
+    provenance: {
+      passageId: chapter.id,
+      sentence: 'A small schoolroom had been folded into the eastern side of the house: a low table, two chairs.',
+      confidence: 0.96,
+    },
+  } : null
+  const staircaseDoor = hallEntities.find((entity) => entity.id === 'staircase-door')
+  const staircaseSteps: Entity | null = staircaseDoor ? {
+    id: 'staircase-steps',
+    name: 'Partial Staircase',
+    kind: 'architecture',
+    locationId: sceneId,
+    assetKey: 'story-staircase',
+    transform: {
+      position: [-BOUNDS[0] / 2 + 1.25, 0.45, wallAxisPosition(staircaseDoor, 'west')],
+      rotation: [0, Math.PI / 2, 0],
+    },
+    dimensions: [1.4, 0.9, 2.5],
+    provenance: {
+      passageId: chapter.id,
+      sentence: staircaseDoor.sourceSentence,
+      confidence: 0.94,
+    },
+  } : null
+  const schoolroomShelf: Entity | null = schoolroomId ? {
+    id: 'schoolroom-shelf',
+    name: 'Damp Copybook Shelf',
+    kind: 'furniture',
+    locationId: schoolroomId,
+    assetKey: 'worn-story-bookshelf',
+    transform: { position: [-3.1, 1.1, -SCHOOLROOM_BOUNDS[2] / 2 + 0.34] },
+    dimensions: [1.46, 2.2, 0.62],
+    provenance: {
+      passageId: chapter.id,
+      sentence: 'Shelves of copybooks gone soft with damp stood inside the former schoolroom.',
+      confidence: 0.96,
+    },
+  } : null
+  const locations: SpatialWorldSnapshot['locations'] = [{
+    id: sceneId,
+    name: schoolroomId ? 'Front Hall' : `${book.title} — ${chapter.title}`,
+    bounds: BOUNDS,
+    environment: generatedEnvironment.colors,
+  }]
+  if (schoolroomId) {
+    locations.push({
+      id: schoolroomId,
+      name: 'The Former Schoolroom',
+      bounds: SCHOOLROOM_BOUNDS,
+      environment: { floorColor: '#574635', wallColor: '#a99b80', ambientColor: '#c6b89e' },
+    })
+  }
   const spatialSnapshot: SpatialWorldSnapshot = {
     storyId: book.id,
     version,
     passageId: chapter.id,
-    locations: [{ id: sceneId, name: `${book.title} — ${chapter.title}`, bounds: BOUNDS, environment: generatedEnvironment.colors }],
-    entities: uiSnapshot.entities.map((entity) => spatialEntity(entity, chapter, uiSnapshot.entities)),
-    relations: spatialRelations(uiSnapshot.entities),
+    locations,
+    entities: [
+      ...hallEntities.map((entity) => {
+        const spatial = spatialEntity(entity, chapter, hallEntities, sceneId)
+        return staircaseSteps && entity.id === 'hand-drawn-map' && /\bstair\b/i.test(entity.currentLocation ?? '')
+          ? { ...spatial, transform: undefined }
+          : spatial
+      }),
+      ...schoolroomEntities.map((entity) => {
+        const size = dimensions(entity)
+        const spatial = spatialEntity(entity, chapter, schoolroomEntities, schoolroomId!, schoolroomPosition(entity, size))
+        return entity.id === 'schoolroom-ledger' || entity.id === 'small-photograph'
+          ? { ...spatial, transform: undefined }
+          : spatial
+      }),
+      ...(staircaseSteps ? [staircaseSteps] : []),
+      ...(schoolroomTable ? [schoolroomTable] : []),
+      ...(schoolroomShelf ? [schoolroomShelf] : []),
+    ],
+    relations: [
+      ...spatialRelations(hallEntities),
+      ...spatialRelations(schoolroomEntities),
+      ...(staircaseSteps && hallEntities.some((entity) => entity.id === 'hand-drawn-map' && /\bstair\b/i.test(entity.currentLocation ?? '')) ? [{
+        id: 'hand-drawn-map:on:staircase-steps',
+        subjectId: 'hand-drawn-map',
+        predicate: 'on' as const,
+        objectId: staircaseSteps.id,
+      }] : []),
+      ...(schoolroomId && schoolroomEntities.some((entity) => entity.id === 'schoolroom-ledger') ? [{
+        id: 'schoolroom-ledger:on:schoolroom-table',
+        subjectId: 'schoolroom-ledger',
+        predicate: 'on' as const,
+        objectId: 'schoolroom-table',
+      }] : []),
+      ...(schoolroomShelf && schoolroomEntities.some((entity) => entity.id === 'small-photograph') ? [{
+        id: 'small-photograph:on:schoolroom-shelf',
+        subjectId: 'small-photograph',
+        predicate: 'on' as const,
+        objectId: schoolroomShelf.id,
+      }] : []),
+    ],
     conflicts: [],
   }
   const visualPlan: VisualScenePlan = {
@@ -339,9 +534,59 @@ export function buildMockSpatialScene(
       locationId: sceneId,
       ...generatedEnvironment.location,
       evidence: { passageIds: [chapter.id], confidence: 0.55, basis: 'art_direction_default' },
-    }],
-    entities: uiSnapshot.entities.map((entity) => visualEntity(entity, chapter)),
-    presentationConnections: [],
+    }, ...(schoolroomId ? [{
+      locationId: schoolroomId,
+      archetype: 'forgotten estate schoolroom',
+      visualDescription: 'A small disused schoolroom with a low writing table, two child-sized chairs, damp-softened lesson papers and a narrow path through the dust.',
+      architectureTags: ['aged-plaster', 'wood-floorboards', 'small-window'],
+      dressingTags: ['schoolroom-furnishings', 'interior-lighting'],
+      dressingDensity: 'rich' as const,
+      mood: 'hushed, intimate and recently disturbed',
+      timeOfDay: 'cool morning light',
+      palette: { background: '#171512', fog: '#302b24', floor: '#574635', wall: '#a99b80', timber: '#4a3426', ambient: '#c6b89e', keyLight: '#c9d8d2', practical: '#d99a58' },
+      lighting: { warmth: 'neutral' as const, contrast: 'medium' as const, ambientIntensity: 0.68, keyIntensity: 1.32, atmosphericEffects: ['dust-motes', 'window-shaft'] },
+      evidence: { passageIds: [chapter.id], confidence: 0.96, basis: 'explicit_text' as const },
+    }] : [])],
+    entities: [
+      ...renderableEntities.map((entity) => visualEntity(entity, chapter)),
+      ...(schoolroomTable ? [{
+        entityId: schoolroomTable.id,
+        visualDescription: 'A low, worn oak schoolroom table sized for children and softened by years of use.',
+        importance: 'supporting' as const,
+        materials: ['worn oak'],
+        colors: ['warm brown'],
+        condition: 'dusty except around the open ledger',
+        assetSearchTags: ['low wooden table', 'worn oak desk'],
+        evidence: { passageIds: [chapter.id], confidence: 0.96, basis: 'explicit_text' as const },
+      }] : []),
+      ...(staircaseSteps ? [{
+        entityId: staircaseSteps.id,
+        visualDescription: 'A short dark-wood staircase rising just beyond the west hall door.',
+        importance: 'supporting' as const,
+        materials: ['aged dark wood'],
+        colors: ['deep walnut brown'],
+        condition: 'worn along the tread edges',
+        assetSearchTags: ['partial wooden staircase', 'victorian stair steps'],
+        evidence: { passageIds: [chapter.id], confidence: 0.94, basis: 'explicit_text' as const },
+      }] : []),
+      ...(schoolroomShelf ? [{
+        entityId: schoolroomShelf.id,
+        visualDescription: 'A narrow worn shelf filled with damp-softened copybooks.',
+        importance: 'supporting' as const,
+        materials: ['worn wood', 'aged paper'],
+        colors: ['faded brown'],
+        condition: 'damp and dusty',
+        assetSearchTags: ['worn wooden bookshelf', 'old schoolroom shelf'],
+        evidence: { passageIds: [chapter.id], confidence: 0.96, basis: 'explicit_text' as const },
+      }] : []),
+    ],
+    presentationConnections: schoolroomId ? [{
+      entityId: 'east-hall-door',
+      fromLocationId: sceneId,
+      targetLocationId: schoolroomId,
+      presentationOnly: false,
+      evidence: { passageIds: [chapter.id], confidence: 0.97, basis: 'explicit_text' },
+    }] : [],
     unresolvedQuestions: [],
   }
   return { spatialSnapshot, spatialPatch: null, visualPlan }

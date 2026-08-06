@@ -133,10 +133,33 @@ function woodlandAssetSlots(
  */
 const DRESSING_RULES: readonly DressingRule[] = [
   {
+    anyTags: ["schoolroom-furnishings", "classroom-furnishings"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-west",
+        minimumDensity: "sparse", positionFactor: [-0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: 2.72,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-east",
+        minimumDensity: "moderate", positionFactor: [0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: -2.72,
+      },
+      {
+        renderKind: "asset", searchTags: ["leather", "books", "antique", "lesson"], slotId: "schoolroom-copybooks",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.54, 0.18, 0.24],
+        placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "candlestick", "antique", "school"], slotId: "schoolroom-candlestick",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: 0.12,
+      },
+    ],
+  },
+  {
     // Estate scenes have a dedicated authored composition in WorldViewer.
     // This rule is the reusable equivalent for every other grounded interior.
     anyTags: ["period-interior"],
-    excludeTags: ["estate-furnishings"],
+    excludeTags: ["estate-furnishings", "schoolroom-furnishings"],
     slots: [
       {
         renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "east-side-table",
@@ -369,7 +392,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   },
   {
     anyTags: ["interior-lighting"],
-    excludeTags: ["estate-furnishings", "tavern-interior", "nautical-interior", "bedroom-interior"],
+    excludeTags: ["estate-furnishings", "schoolroom-furnishings", "tavern-interior", "nautical-interior", "bedroom-interior"],
     slots: [
       {
         renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "west-floor-lamp",

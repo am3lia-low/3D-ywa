@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0",
+  "bundleId": "story-attic-study:attic-opening:snapshot-1:plan-1:r6",
+  "exportedAt": "2026-08-07T00:00:00.000Z",
+  "storyId": "story-attic-study",
+  "segmentId": "attic-opening",
+  "snapshotVersion": 1,
+  "planVersion": 1,
+  "queueRevision": 6,
+  "assets": [
+    {
+      "promotionId": "story-attic-study--map-1--s1--p1--surface-map-1-v1",
+      "entityId": "map-1",
+      "job": {
+        "entityId": "map-1",
+        "locationId": "attic-study",
+        "entityKind": "document",
+        "strategy": "surface_template",
+        "prompt": "An aged folded parchment map with readable ink lines.",
+        "searchTags": ["antique map", "parchment chart"],
+        "priority": "supporting",
+        "reason": "no_catalog_match"
+      },
+      "reference": {
+        "mimeType": "image/png",
+        "base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        "artifactId": "reference:map-1:v1",
+        "providerId": "fixture-reference",
+        "generatedAt": "2026-08-07T00:00:00.000Z"
+      },
+      "referenceReview": {
+        "decision": "approved",
+        "reviewer": "human",
+        "reviewedAt": "2026-08-07T00:01:00.000Z"
+      },
+      "reconstructionProviderId": "inline-surface-template",
+      "reconstructionSource": "generated",
+      "artifactId": "surface:map-1:v1",
+      "runtimeAsset": {
+        "key": "generated-surface:document",
+        "geometry": "box",
+        "dimensions": [0.92, 0.03, 0.64],
+        "color": "#ffffff",
+        "surfaceTextureUrl": "storyworld-candidate://approved-reference",
+        "roughness": 0.88
+      },
+      "assetReview": {
+        "decision": "approved",
+        "reviewer": "human",
+        "reviewedAt": "2026-08-07T00:03:00.000Z"
+      }
+    }
+  ]
+}

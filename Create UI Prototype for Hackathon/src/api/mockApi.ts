@@ -1,6 +1,7 @@
 // Thin adapter over the backend contract described in the PRD. Components do
-// not need to know that this development build uses local mock state and delay.
+// not need to know that this development build uses local mock state.
 
+import { compileSceneRecipe } from '@spatial-runtime'
 import { BOOKS, CONFLICTS, PATCHES, SNAPSHOTS, summaryFromPatch } from '../data/mockData'
 import { buildMockSpatialScene } from '../spatial/mockSpatialAdapter'
 import type { Book, ChapterProcessingResult, Conflict, ConflictResolution, ProcessingStage } from '../types'
@@ -31,8 +32,14 @@ export async function importBook(input: { title: string; text: string }): Promis
   }
 }
 
-const STAGE_SEQUENCE: ProcessingStage[] = ['understanding_chapter', 'matching_entities', 'updating_world', 'preparing_scene']
-const STAGE_DELAYS_MS = [900, 1500, 1700, 1500]
+async function beginStage(stage: ProcessingStage, onStage?: (stage: ProcessingStage) => void) {
+  onStage?.(stage)
+  // Yield once so the reader sees the stage whose real work is about to run.
+  await new Promise<void>(resolve => {
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => resolve())
+    else setTimeout(resolve, 0)
+  })
+}
 
 // POST /api/books/{bookId}/chapters/{chapterId}/process
 export async function processChapter(
@@ -40,27 +47,32 @@ export async function processChapter(
   chapterId: string,
   onStage?: (stage: ProcessingStage) => void,
 ): Promise<ChapterProcessingResult> {
-  for (let i = 0; i < STAGE_SEQUENCE.length; i++) {
-    await delay(STAGE_DELAYS_MS[i])
-    onStage?.(STAGE_SEQUENCE[i])
-  }
-  await delay(500)
-
+  await beginStage('understanding_chapter', onStage)
   const snapshot = SNAPSHOTS[chapterId]
   const patch = PATCHES[chapterId]
   if (!snapshot || !patch) throw new Error(`No processing result is available for chapter ${chapterId}.`)
   const book = BOOKS.find(candidate => candidate.id === bookId)
   const chapter = book?.chapters.find(candidate => candidate.id === chapterId)
   if (!book || !chapter) throw new Error(`No story metadata is available for chapter ${chapterId}.`)
+
+  await beginStage('matching_entities', onStage)
   const spatial = buildMockSpatialScene(book, chapter, snapshot)
+
+  await beginStage('updating_world', onStage)
+  const summary = summaryFromPatch(patch, snapshot)
+  const conflicts = CONFLICTS[chapterId] ?? []
+
+  await beginStage('preparing_scene', onStage)
+  const sceneRecipe = compileSceneRecipe(spatial.spatialSnapshot, spatial.visualPlan)
 
   return {
     chapterId,
     snapshot,
     patch,
     ...spatial,
-    summary: summaryFromPatch(patch, snapshot),
-    conflicts: CONFLICTS[chapterId] ?? [],
+    sceneRecipe,
+    summary,
+    conflicts,
   }
 }
 

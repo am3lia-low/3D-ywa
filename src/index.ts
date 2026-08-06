@@ -47,11 +47,18 @@ export {
   compilePlacementConstraints,
   compileSceneRecipe,
   type CompiledSceneRecipe,
+  type CompileSceneRecipeOptions,
   type LocationSceneRecipe,
   type PlacementConstraintKind,
   type SceneAssetCoverage,
   type ScenePlacementConstraint,
 } from "./runtime/sceneRecipeCompiler";
+export {
+  type SceneAssetOutcome,
+  type SceneAssetOutcomeAction,
+  type SceneAssetOutcomeKind,
+  type SceneAssetOutcomeReport,
+} from "./runtime/sceneAssetOutcome";
 
 export {
   OrderedWorldStream,

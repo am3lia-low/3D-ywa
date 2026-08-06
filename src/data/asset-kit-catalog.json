@@ -2134,6 +2134,38 @@
       }
     },
     {
+      "catalogId": "project:story-staircase",
+      "registryKey": "story-staircase",
+      "roles": ["architecture"],
+      "assetKeys": ["story-staircase", "staircase", "stairs", "steps"],
+      "semanticKinds": ["architecture", "staircase", "stairs"],
+      "tags": ["wooden", "staircase", "stairs", "steps", "historical", "interior"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "story-staircase",
+        "geometry": "box",
+        "dimensions": [1.4, 0.9, 2.5],
+        "color": "#65452f",
+        "proceduralModel": "staircase",
+        "supportSurfaceY": 1,
+        "roughness": 0.88
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 150000,
+        "maxTriangles": 12000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "project:storybook-portrait",
       "registryKey": "storybook-portrait",
       "roles": ["wall-art"],

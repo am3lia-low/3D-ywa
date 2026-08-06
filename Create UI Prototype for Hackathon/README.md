@@ -12,6 +12,8 @@ visual plans through `src/spatial/mockSpatialAdapter.ts`.
 
 For the supported fresh-clone workflow, start with
 [`../docs/integrated-quick-start.md`](../docs/integrated-quick-start.md).
+Room-to-room input, ownership, preloading, and door navigation are documented in
+[`../docs/multi-location-traversal.md`](../docs/multi-location-traversal.md).
 
 ## Prerequisites
 

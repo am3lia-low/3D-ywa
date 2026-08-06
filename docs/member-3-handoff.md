@@ -36,9 +36,10 @@ interface ChapterProcessingResult {
 
 Member 3's `highlightedEntityIds` remains product UI state. The authoritative
 added/moved/updated transition comes from `ScenePatch.operations`; do not build
-a second patch format from those highlight IDs. Its `onSceneReady` state can be
-set after `compileSceneRecipe` succeeds, and `onSceneError` should be wired to
-`WorldViewer.onRuntimeError`.
+a second patch format from those highlight IDs. Recipe compilation alone is not
+a readiness signal. Set the reader's ready state only from `WorldViewer`'s
+`onSceneReady`, after the active location's loader queue settles and rendered
+frames complete; wire `onSceneError` to `WorldViewer.onRuntimeError`.
 
 Recommended merge order:
 
@@ -113,6 +114,13 @@ The reader's API or WebSocket adapter feeds validated updates into
 snapshot and call `stream.resynchronize(snapshot)`. Never skip versions or set
 `patch` back to `null` manually while an update is being applied.
 
+`recipe.assetOutcomes` contains one reader-safe asset result per canonical
+entity. Member 3 may summarize its counts as “Preparing optional scene details”
+while still enabling Explore: approved assets, designed fallbacks, queued work,
+review, failure and rejection are all renderable states. Provider controls,
+candidate review and `pnpm assets:promote` remain internal Member 2 tooling and
+must not appear in the reader UI.
+
 ## Ownership of viewer props
 
 | Prop | Owner | Rule |
@@ -129,6 +137,40 @@ snapshot and call `stream.resynchronize(snapshot)`. Never skip versions or set
 | `onLocationRequest` | reader/navigation UI | Receives a canonical destination location ID from doors or portals. |
 | `onPassageAdvance` | timeline UI | Makes passage progression available inside fullscreen walk mode. |
 | `onRuntimeError` | product shell | Show recovery UI and request resynchronization when appropriate. |
+
+For two or more connected locations, Member 1 supplies the canonical locations,
+door entity, and `VisualScenePlan.presentationConnections`. Member 2 owns the
+clickable portal and spatial transition. Member 3 only preserves the controlled
+`activeLocationId` (or uses the included Member 3 adapter) and keeps the warmed
+canvas mounted across Reading -> Explore. See
+[`multi-location-traversal.md`](multi-location-traversal.md) for the complete
+input skeleton, ownership table, validation rules, and Ashwood Chapter 3 test.
+
+## Real scene preparation and readiness
+
+The integrated `wl` shell's **Preparing the 3D scene...** state is not a timer.
+For each chapter it keeps one hidden, on-demand canvas mounted and performs this
+sequence:
+
+1. validate and compile the snapshot, patch, and visual plan;
+2. mount the compiled room and begin actual model/texture loading;
+3. wait for the R3F loader queue to settle and render two frames;
+4. repeat the warm-up for every canonical location in the chapter;
+5. fire `onSceneReady`, mark the chapter ready, and reveal the same warmed
+   canvas when the reader chooses Explore.
+
+Do not report ready from API completion, a fixed delay, or recipe compilation.
+Do not unmount the warm canvas between the reader and 3D views. A runtime error
+must instead enter Member 3's retry/recovery state.
+
+## Story provenance in the object inspector
+
+Selectable story entities retain Member 1's canonical ID and provenance. Member
+3 should show the active book title, originating or latest-updated chapter,
+`provenance.sentence`/`sourceSentence`, confidence, and evidence classification.
+Decorative-only dressing must not claim novel provenance. The integrated
+inspector already presents this as **From the story** and **Passage evidence**;
+it does not generate an unsupported description in the browser.
 
 The spatial runtime owns rendering, deterministic placement, scene transitions,
 walk/overview controls, fullscreen behavior, exit interaction, and object picking.
@@ -174,6 +216,8 @@ registry and deployment.
 - Run `pnpm handoff:check`.
 - Run `pnpm scenes:preflight` for all built-in story moments.
 - Run `pnpm assets:validate` and retain the three public asset directories.
+- Retain `src/data/promoted-story-assets.json`; its story-specific entries point
+  to reviewed artifacts beneath `public/generated/promoted/`.
 - Feed patches through `useWorldStream`; handle `resync_required`.
 - Keep canonical story, location, and entity IDs unchanged.
 - Update the visual plan alongside its matching snapshot version.
