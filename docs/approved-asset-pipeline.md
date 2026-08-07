@@ -88,9 +88,13 @@ contains modular architecture, common furniture, small props, PBR materials,
 lighting/HDRI intent and a designed unknown-object fallback. New novels can reuse
 a kit while retaining different entity IDs and layouts.
 
-Generated hero assets must pass isolated and in-world review, then be copied to
-durable project storage and promoted into this approved library. Temporary local
-TripoSR previews are never normal application assets.
+Generated hero assets must pass reference review and final in-world review.
+`createReviewedAssetPromotionBundle` then exports the review evidence and
+artifact provenance; `pnpm assets:promote <bundle.json>` copies the artifact to
+`public/generated/promoted/` and records its exact story/entity join in
+`src/data/promoted-story-assets.json`. Temporary local TripoSR previews are
+never normal application assets. Story-specific promotions are reused by later
+passages but do not become global semantic catalog matches automatically.
 
 ## Generalization fixture
 
@@ -149,3 +153,9 @@ inspectable as constraints such as `anchor_to_surface`, `face_target`,
 `reserve_access_zone` and `center_in_room`. Unsupported important entities are
 listed both as designed fallbacks and generation jobs, so the scene stays usable
 while offline asset work continues.
+
+`CompiledSceneRecipe.assetOutcomes` makes every branch explicit for Member 3:
+approved catalog model, durable promoted model, background fallback, missing
+visual context, queued/generating/reviewing work, rejection, failure or
+ready-to-promote. Every asset outcome remains reader-renderable; only blocking
+spatial composition errors prevent the world from mounting.

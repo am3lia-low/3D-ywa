@@ -17,6 +17,7 @@
     "textures:import:polyhaven": "node scripts/import-polyhaven-textures.mjs",
     "assets:prepare:quality": "node scripts/prepare-polyhaven-lods.mjs",
     "assets:convert:glb": "node scripts/convert-external-glb.mjs",
+    "assets:promote": "node scripts/materialize-reviewed-assets.mjs",
     "assets:support:generate": "node scripts/generate-safe-mesh-support.mjs",
     "assets:support:check": "node scripts/generate-safe-mesh-support.mjs --check",
     "assets:runtime:check": "node scripts/validate-runtime-assets.mjs",

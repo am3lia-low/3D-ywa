@@ -1,9 +1,10 @@
 // Thin adapter over the backend contract described in the PRD. Components do
-// not need to know that this development build uses local mock state and delay.
+// not need to know that this development build uses local mock state.
 
+import { compileSceneRecipe } from '@spatial-runtime'
 import { BOOKS, CONFLICTS, PATCHES, SNAPSHOTS, summaryFromPatch } from '../data/mockData'
 import { buildMockSpatialScene } from '../spatial/mockSpatialAdapter'
-import type { Book, ChapterProcessingResult, Conflict, ConflictResolution, ProcessingStage } from '../types'
+import type { Book, Chapter, ChapterProcessingResult, Conflict, ConflictResolution, ProcessingStage, ScenePatch, WorldEntity, WorldSnapshot } from '../types'
 
 function delay(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms))
@@ -12,27 +13,80 @@ function delay(ms: number) {
 // GET /api/books
 export async function fetchBooks(): Promise<Book[]> {
   await delay(300)
-  return BOOKS
+  // A copy, not the live reference — otherwise a later importBook() push into
+  // BOOKS silently mutates whatever array App's `books` state already grabbed
+  // here, and its own setBooks(prev => [...prev, book]) double-adds the entry.
+  return [...BOOKS]
 }
 
 // POST /api/books/import
-export async function importBook(input: { title: string; text: string }): Promise<Book> {
+export async function importBook(input: { title: string; chapters: { title: string; content: string }[] }): Promise<Book> {
   await delay(1400)
-  if (!input.text.trim()) throw new Error('Book text is empty.')
-  const id = `imported-${input.title.trim().toLowerCase().replace(/\s+/g, '-') || 'story'}`
-  return {
+  if (input.chapters.length === 0 || !input.chapters.some(c => c.content.trim())) {
+    throw new Error('Book text is empty.')
+  }
+  let id = `imported-${input.title.trim().toLowerCase().replace(/\s+/g, '-') || 'story'}`
+  if (BOOKS.some(b => b.id === id)) id = `${id}-${Date.now()}`
+  const book: Book = {
     id,
     title: input.title.trim() || 'Untitled Story',
     description: 'Imported story',
-    chapters: [
-      // Until chapter-heading detection is connected, one import is one chapter.
-      { id: `${id}-ch1`, bookId: id, index: 1, title: 'Chapter 1', content: input.text, processingStatus: 'not_started' },
-    ],
+    chapters: input.chapters.map((chapter, i) => ({
+      id: `${id}-ch${i + 1}`, bookId: id, index: i + 1, title: chapter.title, content: chapter.content, processingStatus: 'not_started',
+    })),
+  }
+  // Mirrors a real backend persisting the book. Without this, processChapter
+  // can never find it — BOOKS is the mock API's only store, and this import
+  // only ever lived in the reader's React state otherwise.
+  BOOKS.push(book)
+  return book
+}
+
+// Arbitrary imported prose has no hand-authored SNAPSHOTS/PATCHES entry, since
+// those only cover the three prepared demo books. Falling back to a small
+// generic scene (rather than throwing) is what lets "Import Story" actually
+// reach the 3D world instead of failing processing every time.
+function fallbackSnapshotAndPatch(chapter: Chapter): { snapshot: WorldSnapshot; patch: ScenePatch } {
+  const firstSentence = chapter.content.trim().split(/(?<=[.!?])\s+/)[0]?.slice(0, 200)
+    || 'A room, freshly imagined from the opening of this story.'
+  const entities: WorldEntity[] = [
+    {
+      id: `${chapter.id}-desk`, name: 'Writing Desk', status: 'added',
+      position: { x: 620, y: 480 }, radius: 24, introducedInChapterId: chapter.id,
+      currentLocation: 'Center of the room', currentCondition: 'Freshly imagined',
+      sourceSentence: firstSentence, evidenceType: 'Visual default',
+    },
+    {
+      id: `${chapter.id}-window`, name: 'Window', status: 'added',
+      position: { x: 200, y: 260 }, radius: 20, introducedInChapterId: chapter.id,
+      currentLocation: 'North wall', currentCondition: 'Letting in pale light',
+      sourceSentence: firstSentence, evidenceType: 'Visual default',
+    },
+    {
+      id: `${chapter.id}-chair`, name: 'Chair', status: 'added',
+      position: { x: 560, y: 560 }, radius: 16, introducedInChapterId: chapter.id,
+      currentLocation: 'Beside the desk', currentCondition: 'Recently vacated',
+      sourceSentence: firstSentence, evidenceType: 'Visual default',
+    },
+  ]
+  return {
+    snapshot: { chapterId: chapter.id, entities },
+    patch: {
+      chapterId: chapter.id,
+      addedEntityIds: entities.map(e => e.id),
+      movedEntityIds: [], updatedEntityIds: [], removedEntityIds: [],
+    },
   }
 }
 
-const STAGE_SEQUENCE: ProcessingStage[] = ['understanding_chapter', 'matching_entities', 'updating_world', 'preparing_scene']
-const STAGE_DELAYS_MS = [900, 1500, 1700, 1500]
+async function beginStage(stage: ProcessingStage, onStage?: (stage: ProcessingStage) => void) {
+  onStage?.(stage)
+  // Yield once so the reader sees the stage whose real work is about to run.
+  await new Promise<void>(resolve => {
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => resolve())
+    else setTimeout(resolve, 0)
+  })
+}
 
 // POST /api/books/{bookId}/chapters/{chapterId}/process
 export async function processChapter(
@@ -40,27 +94,32 @@ export async function processChapter(
   chapterId: string,
   onStage?: (stage: ProcessingStage) => void,
 ): Promise<ChapterProcessingResult> {
-  for (let i = 0; i < STAGE_SEQUENCE.length; i++) {
-    await delay(STAGE_DELAYS_MS[i])
-    onStage?.(STAGE_SEQUENCE[i])
-  }
-  await delay(500)
-
-  const snapshot = SNAPSHOTS[chapterId]
-  const patch = PATCHES[chapterId]
-  if (!snapshot || !patch) throw new Error(`No processing result is available for chapter ${chapterId}.`)
+  await beginStage('understanding_chapter', onStage)
   const book = BOOKS.find(candidate => candidate.id === bookId)
   const chapter = book?.chapters.find(candidate => candidate.id === chapterId)
   if (!book || !chapter) throw new Error(`No story metadata is available for chapter ${chapterId}.`)
+  const { snapshot, patch } = SNAPSHOTS[chapterId] && PATCHES[chapterId]
+    ? { snapshot: SNAPSHOTS[chapterId], patch: PATCHES[chapterId] }
+    : fallbackSnapshotAndPatch(chapter)
+
+  await beginStage('matching_entities', onStage)
   const spatial = buildMockSpatialScene(book, chapter, snapshot)
+
+  await beginStage('updating_world', onStage)
+  const summary = summaryFromPatch(patch, snapshot)
+  const conflicts = CONFLICTS[chapterId] ?? []
+
+  await beginStage('preparing_scene', onStage)
+  const sceneRecipe = compileSceneRecipe(spatial.spatialSnapshot, spatial.visualPlan)
 
   return {
     chapterId,
     snapshot,
     patch,
     ...spatial,
-    summary: summaryFromPatch(patch, snapshot),
-    conflicts: CONFLICTS[chapterId] ?? [],
+    sceneRecipe,
+    summary,
+    conflicts,
   }
 }
 

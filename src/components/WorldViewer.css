@@ -36,6 +36,18 @@
   text-align: center;
 }
 
+.world-webgl-recovery {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  color: #eee6d7;
+  background: radial-gradient(circle at center, rgb(35 31 27 / 82%), rgb(10 12 14 / 96%));
+  font: 600 0.84rem/1.4 system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+
 .world-runtime-error {
   position: absolute;
   top: 1rem;

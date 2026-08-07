@@ -255,6 +255,132 @@ const reviewedAssets = {
       { level: 2, ratio: 0.3, error: 0.025 },
     ],
   },
+  Chandelier_03: {
+    author: "Kirill Sannikov",
+    sourceUrl: "https://polyhaven.com/a/Chandelier_03",
+    lods: [
+      { level: 0, ratio: 0.8, error: 0.003 },
+      { level: 1, ratio: 0.4, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  book_encyclopedia_set_01: {
+    author: "John Malcolm",
+    sourceUrl: "https://polyhaven.com/a/book_encyclopedia_set_01",
+    lods: [
+      { level: 0, ratio: 0.5, error: 0.003 },
+      { level: 1, ratio: 0.25, error: 0.012 },
+      { level: 2, ratio: 0.1, error: 0.03 },
+    ],
+  },
+  vintage_oil_lamp: {
+    author: "Monsta3D",
+    sourceUrl: "https://polyhaven.com/a/vintage_oil_lamp",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  fancy_picture_frame_01: {
+    author: "Rico Cilliers and Rob Tuytel",
+    sourceUrl: "https://polyhaven.com/a/fancy_picture_frame_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.65, error: 0.01 },
+      { level: 2, ratio: 0.35, error: 0.025 },
+    ],
+  },
+  vintage_grandfather_clock_01: {
+    author: "James Ray Cock and Yann Kervran",
+    sourceUrl: "https://polyhaven.com/a/vintage_grandfather_clock_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  binder_notebook: {
+    author: "DaDrood",
+    sourceUrl: "https://polyhaven.com/a/binder_notebook",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  wooden_candlestick: {
+    author: "Josh Dean",
+    sourceUrl: "https://polyhaven.com/a/wooden_candlestick",
+    lods: [
+      { level: 0, ratio: 0.7, error: 0.003 },
+      { level: 1, ratio: 0.35, error: 0.012 },
+      { level: 2, ratio: 0.16, error: 0.03 },
+    ],
+  },
+  fancy_picture_frame_02: {
+    author: "Rico Cilliers and Rob Tuytel",
+    sourceUrl: "https://polyhaven.com/a/fancy_picture_frame_02",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.65, error: 0.01 },
+      { level: 2, ratio: 0.35, error: 0.025 },
+    ],
+  },
+  jug_01: {
+    author: "Kuutti Siitonen",
+    sourceUrl: "https://polyhaven.com/a/jug_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  chess_set: {
+    author: "Riley Queen",
+    sourceUrl: "https://polyhaven.com/a/chess_set",
+    lods: [
+      { level: 0, ratio: 0.65, error: 0.003 },
+      { level: 1, ratio: 0.3, error: 0.012 },
+      { level: 2, ratio: 0.12, error: 0.03 },
+    ],
+  },
+  horse_statue_01: {
+    author: "Rico Cilliers",
+    sourceUrl: "https://polyhaven.com/a/horse_statue_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  wicker_basket_02: {
+    author: "Kuutti Siitonen",
+    sourceUrl: "https://polyhaven.com/a/wicker_basket_02",
+    lods: [
+      { level: 0, ratio: 0.75, error: 0.003 },
+      { level: 1, ratio: 0.38, error: 0.012 },
+      { level: 2, ratio: 0.18, error: 0.03 },
+    ],
+  },
+  brass_vase_02: {
+    author: "Rico Cilliers",
+    sourceUrl: "https://polyhaven.com/a/brass_vase_02",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
+  Rockingchair_01: {
+    author: "Jorge Camacho",
+    sourceUrl: "https://polyhaven.com/a/Rockingchair_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.01 },
+      { level: 2, ratio: 0.3, error: 0.025 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);

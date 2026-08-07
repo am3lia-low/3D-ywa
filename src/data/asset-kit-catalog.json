@@ -1534,6 +1534,220 @@
       }
     },
     {
+      "catalogId": "polyhaven:chandelier-03-optimized",
+      "registryKey": "victorian-crystal-chandelier",
+      "roles": ["practical-light", "ceiling-light", "hero-light"],
+      "assetKeys": ["victorian-crystal-chandelier", "crystal-chandelier", "brass-candle-chandelier"],
+      "semanticKinds": ["crystal-chandelier", "candle-chandelier", "ornate-chandelier"],
+      "tags": ["crystal", "chandelier", "ceiling", "brass", "ornate", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "free",
+      "source": "cc0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Chandelier_03",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-crystal-chandelier", "geometry": "cylinder", "dimensions": [0.78, 1.04, 0.79],
+        "color": "#b58a50",
+        "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod1.glb", "minimumDistance": 14 },
+          { "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod2.glb", "minimumDistance": 28 }
+        ],
+        "roughness": 0.36, "metalness": 0.46
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2900000, "maxTriangles": 24000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "Transparent crystal and bulb primitives intentionally use physical material constants while the brass fixture retains its PBR texture set."
+      }
+    },
+    {
+      "catalogId": "polyhaven:book-encyclopedia-set-01-optimized",
+      "registryKey": "victorian-encyclopedia-set",
+      "roles": ["books", "surface-decor", "library-dressing"],
+      "assetKeys": ["victorian-encyclopedia-set", "leather-encyclopedias", "antique-book-set"],
+      "semanticKinds": ["encyclopedia-set", "book-set", "books"],
+      "tags": ["books", "leather-bound", "gold-embossed", "library", "reading", "archive", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "John Malcolm",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-encyclopedia-set", "geometry": "box", "dimensions": [0.6, 0.25, 0.18],
+        "color": "#624033",
+        "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.72, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 7200000, "maxTriangles": 43000,
+        "requirePbrTextures": true, "maxAspectDistortion": 2.5, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set."
+      }
+    },
+    {
+      "catalogId": "polyhaven:vintage-oil-lamp-optimized",
+      "registryKey": "victorian-porcelain-oil-lamp",
+      "roles": ["practical-light", "surface-decor", "period-decor"],
+      "assetKeys": ["victorian-porcelain-oil-lamp", "antique-oil-lamp", "porcelain-table-lamp"],
+      "semanticKinds": ["oil-lamp", "parlor-lamp", "table-lamp"],
+      "tags": ["lamp", "oil", "porcelain", "brass", "glass", "victorian", "manor", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "Monsta3D",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_oil_lamp",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-porcelain-oil-lamp", "geometry": "cylinder", "dimensions": [0.28, 0.82, 0.28],
+        "color": "#d1bd8a",
+        "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod2.glb", "minimumDistance": 22 }
+        ],
+        "roughness": 0.38, "metalness": 0.18, "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 6400000, "maxTriangles": 7500,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z",
+        "waiver": "The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures."
+      }
+    },
+    {
+      "catalogId": "polyhaven:fancy-picture-frame-01-optimized",
+      "registryKey": "victorian-framed-landscape",
+      "roles": ["wall-art", "period-decor", "gallery-dressing"],
+      "assetKeys": ["victorian-framed-landscape", "ornate-landscape-painting", "gilt-picture-frame"],
+      "semanticKinds": ["framed-painting", "picture-frame", "wall-art"],
+      "tags": ["painting", "landscape", "gilt", "ornate", "gallery", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-framed-landscape", "geometry": "box", "dimensions": [0.72, 0.56, 0.024],
+        "color": "#9c7740",
+        "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod2.glb", "minimumDistance": 24 }
+        ],
+        "roughness": 0.46, "metalness": 0.18
+      },
+      "qualityGate": {
+        "profile": "textured-pbr", "maxTotalBytes": 2300000, "maxTriangles": 1000,
+        "requirePbrTextures": true, "maxAspectDistortion": 1.08, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:vintage-grandfather-clock-01-optimized", "registryKey": "victorian-grandfather-clock",
+      "roles": ["clock", "floor-decor", "period-decor"], "assetKeys": ["victorian-grandfather-clock", "grandfather-clock", "longcase-clock"],
+      "semanticKinds": ["grandfather-clock", "longcase-clock", "clock"],
+      "tags": ["clock", "grandfather", "longcase", "ornate", "wood", "brass", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "wall",
+      "source": "cc0", "author": "James Ray Cock and Yann Kervran", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/vintage_grandfather_clock_01", "quality": "hero",
+      "runtimeAsset": { "key": "victorian-grandfather-clock", "geometry": "box", "dimensions": [0.72, 2.2, 0.42], "color": "#5b3a28", "modelUrl": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod1.glb","minimumDistance":12},{"modelUrl":"/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod2.glb","minimumDistance":24}], "roughness": 0.62 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 7000000, "maxTriangles": 18000, "requirePbrTextures": true, "maxAspectDistortion": 2.6, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "Accessor bounds omit the longcase clock's authored node transforms; runtime dimensions preserve the measured tall cabinet proportions." }
+    },
+    {
+      "catalogId": "polyhaven:binder-notebook-optimized", "registryKey": "aged-leather-notebook",
+      "roles": ["document", "writing-prop", "surface-decor"], "assetKeys": ["aged-leather-notebook", "notebook", "journal", "ledger"],
+      "semanticKinds": ["notebook", "journal", "document"], "tags": ["notebook", "journal", "leather", "paper", "writing", "desk", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "DaDrood", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/binder_notebook", "quality": "hero",
+      "runtimeAsset": { "key": "aged-leather-notebook", "geometry": "box", "dimensions": [0.28, 0.045, 0.36], "color": "#5b3828", "modelUrl": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod0.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/binder_notebook/binder_notebook_lod0.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb","minimumDistance":9},{"modelUrl":"/models/optimized/polyhaven/binder_notebook/binder_notebook_lod2.glb","minimumDistance":18}], "roughness": 0.8, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 5700000, "maxTriangles": 20000, "requirePbrTextures": true, "maxAspectDistortion": 2.4, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "Authored transforms separate the cover, pages and pencil components; controlled surface dimensions preserve the closed journal footprint." }
+    },
+    {
+      "catalogId": "polyhaven:wooden-candlestick-optimized", "registryKey": "turned-wood-candlestick",
+      "roles": ["candleholder", "surface-decor", "period-decor"], "assetKeys": ["turned-wood-candlestick", "wooden-candlestick", "candlestick"],
+      "semanticKinds": ["candlestick", "candleholder"], "tags": ["candlestick", "candle", "wood", "turned", "antique", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "Josh Dean", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/wooden_candlestick", "quality": "supporting",
+      "runtimeAsset": { "key": "turned-wood-candlestick", "geometry": "cylinder", "dimensions": [0.18, 0.52, 0.18], "color": "#7b5236", "modelUrl": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod2.glb","minimumDistance":14}], "roughness": 0.72, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 14000000, "maxTriangles": 80000, "requirePbrTextures": true, "maxAspectDistortion": 1.35, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The close-range turned carving uses a dense authored silhouette; the runtime starts at optimized LOD1 and preserves its slender proportions." }
+    },
+    {
+      "catalogId": "polyhaven:fancy-picture-frame-02-optimized", "registryKey": "victorian-framed-riverscape",
+      "roles": ["wall-art", "period-decor", "gallery-dressing"], "assetKeys": ["victorian-framed-riverscape", "ornate-painting", "gilt-picture-frame"],
+      "semanticKinds": ["framed-painting", "picture-frame", "wall-art"], "tags": ["painting", "landscape", "gilt", "ornate", "gallery", "victorian", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "wall",
+      "source": "cc0", "author": "Rico Cilliers and Rob Tuytel", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_02", "quality": "hero",
+      "runtimeAsset": { "key": "victorian-framed-riverscape", "geometry": "box", "dimensions": [0.72, 0.56, 0.024], "color": "#9d7841", "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod1.glb","minimumDistance":12},{"modelUrl":"/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod2.glb","minimumDistance":24}], "roughness": 0.46, "metalness": 0.18 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 5200000, "maxTriangles": 40000, "requirePbrTextures": true, "maxAspectDistortion": 4.1, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The thin frame and inset canvas are authored as transformed components; wall placement supplies the measured picture-frame dimensions." }
+    },
+    {
+      "catalogId": "polyhaven:jug-01-optimized", "registryKey": "antique-ceramic-jug",
+      "roles": ["vessel", "surface-decor", "period-decor"], "assetKeys": ["antique-ceramic-jug", "ceramic-jug", "jug"],
+      "semanticKinds": ["jug", "vessel", "ceramic"], "tags": ["jug", "ceramic", "antique", "white", "tabletop", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "Kuutti Siitonen", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/jug_01", "quality": "supporting",
+      "runtimeAsset": { "key": "antique-ceramic-jug", "geometry": "cylinder", "dimensions": [0.3, 0.42, 0.3], "color": "#d8d0bd", "modelUrl": "/models/optimized/polyhaven/jug_01/jug_01_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/jug_01/jug_01_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/jug_01/jug_01_lod2.glb","minimumDistance":14}], "roughness": 0.58, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 3800000, "maxTriangles": 9000, "requirePbrTextures": true, "maxAspectDistortion": 1.9, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The handle and vessel use authored transforms; runtime surface placement preserves the measured ceramic jug proportions." }
+    },
+    {
+      "catalogId": "polyhaven:chess-set-optimized", "registryKey": "marble-chess-set",
+      "roles": ["game", "surface-decor", "story-prop"], "assetKeys": ["marble-chess-set", "chess-set", "chessboard"],
+      "semanticKinds": ["chess-set", "board-game", "game"], "tags": ["chess", "game", "marble", "tabletop", "antique", "parlor"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "Riley Queen", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/chess_set", "quality": "hero",
+      "runtimeAsset": { "key": "marble-chess-set", "geometry": "box", "dimensions": [0.58, 0.18, 0.58], "color": "#8c867d", "modelUrl": "/models/optimized/polyhaven/chess_set/chess_set_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/chess_set/chess_set_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/chess_set/chess_set_lod2.glb","minimumDistance":14}], "roughness": 0.34, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 17000000, "maxTriangles": 52000, "requirePbrTextures": true, "maxAspectDistortion": 1.9, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "Authored transforms arrange the individual chess pieces above the board; controlled tabletop dimensions preserve the complete set footprint." }
+    },
+    {
+      "catalogId": "polyhaven:horse-statue-01-optimized", "registryKey": "porcelain-horse-figurine",
+      "roles": ["figurine", "surface-decor", "period-decor"], "assetKeys": ["porcelain-horse-figurine", "horse-statue", "horse-figurine"],
+      "semanticKinds": ["figurine", "statue", "horse"], "tags": ["horse", "figurine", "porcelain", "sculpture", "ornamental", "mantel"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "Rico Cilliers", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/horse_statue_01", "quality": "supporting",
+      "runtimeAsset": { "key": "porcelain-horse-figurine", "geometry": "box", "dimensions": [0.34, 0.46, 0.2], "color": "#ddd4c3", "modelUrl": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod2.glb","minimumDistance":14}], "roughness": 0.42, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 3900000, "maxTriangles": 15000, "requirePbrTextures": true, "maxAspectDistortion": 1.2, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The porcelain base and figurine are authored as separate transforms; mantel placement preserves the measured silhouette." }
+    },
+    {
+      "catalogId": "polyhaven:wicker-basket-02-optimized", "registryKey": "woven-reading-basket",
+      "roles": ["basket", "floor-decor", "storage"], "assetKeys": ["woven-reading-basket", "wicker-basket", "basket"],
+      "semanticKinds": ["basket", "container", "storage"], "tags": ["basket", "wicker", "woven", "reading", "blanket", "rustic", "interior"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "floor",
+      "source": "cc0", "author": "Kuutti Siitonen", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/wicker_basket_02", "quality": "supporting",
+      "runtimeAsset": { "key": "woven-reading-basket", "geometry": "cylinder", "dimensions": [0.5, 0.42, 0.45], "color": "#8b694a", "modelUrl": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod2.glb","minimumDistance":14}], "roughness": 0.9 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 8700000, "maxTriangles": 24000, "requirePbrTextures": true, "maxAspectDistortion": 1.2, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The woven rim and body use authored transforms; runtime floor dimensions preserve the measured basket footprint." }
+    },
+    {
+      "catalogId": "polyhaven:brass-vase-02-optimized", "registryKey": "antique-brass-vase",
+      "roles": ["vessel", "surface-decor", "period-decor"], "assetKeys": ["antique-brass-vase", "brass-vase", "metal-vase"],
+      "semanticKinds": ["vase", "vessel", "artifact"], "tags": ["vase", "brass", "gold", "antique", "ornate", "tabletop"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "surface",
+      "source": "cc0", "author": "Rico Cilliers", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/brass_vase_02", "quality": "supporting",
+      "runtimeAsset": { "key": "antique-brass-vase", "geometry": "cylinder", "dimensions": [0.24, 0.44, 0.24], "color": "#a77d3d", "modelUrl": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod2.glb","minimumDistance":14}], "roughness": 0.4, "metalness": 0.66, "supportSurfaceY": 1 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 5500000, "maxTriangles": 9000, "requirePbrTextures": true, "maxAspectDistortion": 1.45, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The ornamental handles use authored transforms; runtime surface dimensions preserve the measured brass vase proportions." }
+    },
+    {
+      "catalogId": "polyhaven:rockingchair-01-optimized", "registryKey": "victorian-rocking-chair",
+      "roles": ["seat", "reading-nook", "period-furniture"], "assetKeys": ["victorian-rocking-chair", "rocking-chair", "wooden-rocker"],
+      "semanticKinds": ["rocking-chair", "chair", "seat"], "tags": ["chair", "rocking", "wood", "vintage", "reading", "historical"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "floor",
+      "source": "cc0", "author": "Jorge Camacho", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/Rockingchair_01", "quality": "hero",
+      "runtimeAsset": { "key": "victorian-rocking-chair", "geometry": "box", "dimensions": [0.78, 1.12, 1.02], "color": "#67452e", "modelUrl": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod1.glb","minimumDistance":12},{"modelUrl":"/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod2.glb","minimumDistance":24}], "roughness": 0.72 },
+      "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 2500000, "maxTriangles": 12000, "requirePbrTextures": true, "maxAspectDistortion": 1.12, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z" }
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "roles": ["storage", "archive-dressing"],
@@ -1920,6 +2134,38 @@
       }
     },
     {
+      "catalogId": "project:story-staircase",
+      "registryKey": "story-staircase",
+      "roles": ["architecture"],
+      "assetKeys": ["story-staircase", "staircase", "stairs", "steps"],
+      "semanticKinds": ["architecture", "staircase", "stairs"],
+      "tags": ["wooden", "staircase", "stairs", "steps", "historical", "interior"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "placement": "floor",
+      "source": "project",
+      "author": "Persistent StoryWorld 3D team",
+      "license": "Project-owned original asset",
+      "quality": "supporting",
+      "runtimeAsset": {
+        "key": "story-staircase",
+        "geometry": "box",
+        "dimensions": [1.4, 0.9, 2.5],
+        "color": "#65452f",
+        "proceduralModel": "staircase",
+        "supportSurfaceY": 0.6,
+        "roughness": 0.88
+      },
+      "qualityGate": {
+        "profile": "stylized-project",
+        "maxTotalBytes": 150000,
+        "maxTriangles": 12000,
+        "requirePbrTextures": false,
+        "maxAspectDistortion": 1.1,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
       "catalogId": "project:storybook-portrait",
       "registryKey": "storybook-portrait",
       "roles": ["wall-art"],
@@ -1969,6 +2215,7 @@
         "dimensions": [2.5, 2.1, 0.25],
         "color": "#5f4938",
         "proceduralModel": "bay-window",
+        "supportSurfaceY": 0.61,
         "roughness": 0.84
       },
       "qualityGate": {

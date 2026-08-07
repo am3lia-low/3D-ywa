@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { BOOKS, SNAPSHOTS } from "../../Create UI Prototype for Hackathon/src/data/mockData";
 import { buildMockSpatialScene } from "../../Create UI Prototype for Hackathon/src/spatial/mockSpatialAdapter";
 import { compileSceneRecipe } from "../runtime/sceneRecipeCompiler";
-import { createWorldLayout } from "../runtime/layoutEngine";
+import { createWorldLayout, supportSurfaceWorldY } from "../runtime/layoutEngine";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
+import { isPortalSourceEntity } from "../runtime/portalRouting";
 
 function relativeScaleSpread(
   target: readonly [number, number, number],
@@ -30,9 +31,163 @@ describe("Member 3 prepared story scenes", () => {
         expect(recipe.fallbackEntityIds).toEqual([]);
         expect(recipe.generationJobs).toEqual([]);
 
+        if (scene.visualPlan.locations[0]?.dressingTags.includes("estate-furnishings")) {
+          expect(
+            recipe.locations[locationId]!.dressingInstances.some(
+              (instance) => instance.dressingId.split(":").at(-1) === "central-room-rug",
+            ),
+          ).toBe(false);
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "hidden-drawer")) {
+          expect(scene.spatialSnapshot.entities.some((entity) => entity.id === "hidden-drawer")).toBe(false);
+          expect(
+            layout.items.filter((item) => item.asset.key === "desk").map((item) => item.entity.id),
+          ).toEqual(["desk"]);
+        }
+
         if (scene.spatialSnapshot.entities.some((entity) => entity.id === "armchair")) {
           expect(recipe.assetRegistry.armchair?.key).toBe("victorian-armchair");
           expect(layout.items.find((item) => item.entity.id === "armchair")?.dimensions[1]).toBeGreaterThanOrEqual(1.4);
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "clock")) {
+          expect(recipe.assetRegistry.clock?.key).toBe("victorian-mantel-clock");
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "clock",
+            predicate: "on",
+            objectId: "fireplace",
+          }));
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "schoolroom")) {
+          expect(scene.spatialSnapshot.entities.some((entity) => entity.id === "schoolroom")).toBe(false);
+          expect(recipe.assetRegistry.schoolroom).toBeUndefined();
+          const schoolroom = scene.spatialSnapshot.locations.find((location) => location.id.endsWith(":schoolroom"))!;
+          const schoolroomLayout = createWorldLayout(
+            scene.spatialSnapshot,
+            recipe.assetRegistry,
+            [],
+            schoolroom.id,
+          );
+          const table = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-table")!;
+          const ledger = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-ledger")!;
+          const shelf = schoolroomLayout.items.find((item) => item.entity.id === "schoolroom-shelf")!;
+          const photograph = schoolroomLayout.items.find((item) => item.entity.id === "small-photograph")!;
+          const schoolroomRecipe = recipe.locations[schoolroom.id]!;
+
+          expect(scene.spatialSnapshot.locations).toHaveLength(2);
+          expect(scene.spatialSnapshot.entities.filter((entity) => entity.locationId === schoolroom.id).map((entity) => entity.id))
+            .toEqual(expect.arrayContaining(["schoolroom-table", "schoolroom-shelf", "schoolroom-ledger", "horse-figurine", "small-photograph"]));
+          expect(recipe.locations[locationId]!.presentation.portalTargetLocationId).toBe(schoolroom.id);
+          expect(recipe.locations[locationId]!.presentation.portalSourceEntityId).toBe("east-hall-door");
+          expect(layout.items.some((item) => item.entity.id === "east-hall-door")).toBe(true);
+          expect(schoolroomRecipe.presentation.portalTargetLocationId).toBe(locationId);
+          expect(schoolroomRecipe.presentation.portalSourceEntityId).toBe("east-hall-door");
+          expect(isPortalSourceEntity("east-hall-door", schoolroomRecipe.presentation.portalSourceEntityId)).toBe(true);
+          expect(isPortalSourceEntity("staircase-door", schoolroomRecipe.presentation.portalSourceEntityId)).toBe(false);
+          expect(schoolroomRecipe.presentation.portalIsReturn).toBe(true);
+          expect(schoolroomRecipe.presentation.location.architectureTags).not.toContain("estate-paneling");
+          expect(ledger.position[1] - ledger.dimensions[1] / 2)
+            .toBeCloseTo(table.position[1] + table.dimensions[1] / 2 + 0.008, 3);
+          expect(Math.abs(ledger.position[0] - table.position[0]))
+            .toBeLessThan(table.dimensions[0] * 0.2);
+          expect(Math.abs(ledger.position[2] - table.position[2]))
+            .toBeLessThan(table.dimensions[2] * 0.2);
+          expect(Math.abs(photograph.position[0] - shelf.position[0])).toBeLessThan(shelf.dimensions[0] / 2);
+          expect(photograph.position[1] - photograph.dimensions[1] / 2)
+            .toBeCloseTo(
+              shelf.position[1] - shelf.dimensions[1] / 2 + shelf.dimensions[1] * 0.78 + 0.008,
+              3,
+            );
+          expect(Math.abs(photograph.position[2] - shelf.position[2])).toBeLessThan(0.5);
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .toEqual(expect.arrayContaining(["schoolroom-chair-west", "schoolroom-chair-east"]));
+          const schoolroomSupplyCabinet = schoolroomRecipe.dressingInstances.find((instance) =>
+            instance.dressingId.endsWith(":schoolroom-supply-cabinet"),
+          );
+          expect(schoolroomSupplyCabinet?.renderKind).toBe("asset");
+          if (schoolroomSupplyCabinet?.renderKind === "asset") {
+            expect(schoolroomSupplyCabinet.asset.key).toBe("victorian-document-drawers");
+          }
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("schoolroom-copybooks");
+          const schoolroomBasket = schoolroomRecipe.dressingInstances.find((instance) =>
+            instance.dressingId.endsWith(":schoolroom-copybook-basket"),
+          );
+          expect(schoolroomBasket?.renderKind).toBe("asset");
+          if (schoolroomBasket?.renderKind === "asset") {
+            expect(schoolroomBasket.asset.key).toBe("woven-reading-basket");
+          }
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("schoolroom-copybook-shelf");
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("west-floor-lamp");
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("east-floor-lamp");
+        }
+
+        const deskPortrait = uiSnapshot.entities.find((entity) =>
+          entity.id === "small-photograph" && /desk/i.test(entity.currentLocation ?? ""),
+        );
+        if (deskPortrait) {
+          const desk = layout.items.find((item) => item.entity.id === "desk")!;
+          const photograph = layout.items.find((item) => item.entity.id === "small-photograph")!;
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "small-photograph",
+            predicate: "on",
+            objectId: "desk",
+          }));
+          expect(photograph.position[1] - photograph.dimensions[1] / 2)
+            .toBeCloseTo(desk.position[1] - desk.dimensions[1] / 2 + desk.dimensions[1] * (desk.asset.supportSurfaceY ?? 1) + 0.008, 3);
+          expect(Math.abs(photograph.position[0] - desk.position[0])).toBeGreaterThan(desk.dimensions[0] * 0.3);
+          expect(Math.abs(photograph.position[2] - desk.position[2])).toBeGreaterThan(desk.dimensions[2] * 0.25);
+        }
+
+        const stairMap = uiSnapshot.entities.find((entity) =>
+          entity.id === "hand-drawn-map" && /stair/i.test(entity.currentLocation ?? ""),
+        );
+        if (stairMap) {
+          const stairs = layout.items.find((item) => item.entity.id === "staircase-steps")!;
+          const map = layout.items.find((item) => item.entity.id === "hand-drawn-map")!;
+          expect(stairs.entity.state?.presentationOccluded).toBe(true);
+          expect(map.entity.state?.presentationOccluded).toBe(true);
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "hand-drawn-map",
+            predicate: "on",
+            objectId: "staircase-steps",
+          }));
+          expect(map.position[1] - map.dimensions[1] / 2)
+            .toBeCloseTo(supportSurfaceWorldY(stairs) + 0.008, 3);
+          const staircaseDoor = layout.items.find((item) => item.entity.id === "staircase-door")!;
+          expect(Math.abs(stairs.position[0] - staircaseDoor.position[0])).toBeLessThan(2.2);
+          expect(Math.abs(stairs.position[2] - staircaseDoor.position[2])).toBeLessThan(0.1);
+        }
+
+        const sillMap = uiSnapshot.entities.find((entity) =>
+          entity.id === "hand-drawn-map" && /sill/i.test(entity.currentLocation ?? ""),
+        );
+        if (sillMap) {
+          const window = layout.items.find((item) => item.entity.id === "bay-window")!;
+          const map = layout.items.find((item) => item.entity.id === "hand-drawn-map")!;
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "hand-drawn-map",
+            predicate: "on",
+            objectId: "bay-window",
+          }));
+          expect(map.position[1] - map.dimensions[1] / 2)
+            .toBeCloseTo(supportSurfaceWorldY(window) + 0.008, 3);
+          expect(map.position[1]).toBeGreaterThan(1.5);
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "staircase-door")) {
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "staircase-door",
+            predicate: "against_wall",
+            metadata: { wall: "west" },
+          }));
+          expect(Math.abs(layout.items.find((item) => item.entity.id === "staircase-door")!.position[0]))
+            .toBeGreaterThan(bounds[0] * 0.4);
         }
 
         for (const item of layout.items) {
@@ -40,7 +195,10 @@ describe("Member 3 prepared story scenes", () => {
           expect(Math.abs(item.position[0])).toBeLessThanOrEqual(bounds[0] / 2 + 0.01);
           expect(Math.abs(item.position[2])).toBeLessThanOrEqual(bounds[2] / 2 + 0.01);
           const asset = recipe.assetRegistry[item.entity.id]!;
-          expect(relativeScaleSpread(item.dimensions, asset.dimensions)).toBeLessThanOrEqual(1.2);
+          expect(
+            relativeScaleSpread(item.dimensions, asset.dimensions),
+            `${item.entity.id} -> ${asset.key} must preserve the approved asset proportions`,
+          ).toBeLessThanOrEqual(1.2);
         }
 
         for (const relation of scene.spatialSnapshot.relations.filter((candidate) => candidate.predicate === "against_wall")) {
@@ -86,6 +244,12 @@ describe("Member 3 prepared story scenes", () => {
         const distortedDressing: string[] = [];
         for (const instance of recipe.locations[locationId]!.dressingInstances) {
           expect(instance.position[1] - instance.dimensions[1] / 2).toBeGreaterThanOrEqual(-0.01);
+          if (instance.placementAnchor === "floor") {
+            expect(
+              instance.position[1] - instance.dimensions[1] / 2,
+              `${instance.dressingId} must make exact floor contact`,
+            ).toBeCloseTo(0, 5);
+          }
           if (instance.renderKind === "asset") {
             const spread = relativeScaleSpread(instance.dimensions, instance.asset.dimensions);
             if (spread > 1.2) distortedDressing.push(`${instance.dressingId} -> ${instance.asset.key} (${spread.toFixed(2)}x)`);

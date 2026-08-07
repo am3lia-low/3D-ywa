@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "cases": [
+    {
+      "id": "coastal-signal-room",
+      "archetype": "coastal lighthouse signal room",
+      "visualDescription": "A compact enclosed signal room with a chart desk, storage, rain-clouded windows and a cold fireplace mantel.",
+      "expectedTags": ["nautical-interior", "storage-crates", "mantel-display"],
+      "forbiddenTags": ["period-interior", "tavern-interior", "bedroom-interior", "modern-interior"],
+      "minimumDecorations": 4
+    },
+    {
+      "id": "harbor-tavern",
+      "archetype": "harbor tavern common room",
+      "visualDescription": "A timber tavern common room with ale tables, benches, ceramic jugs and soot-dark barrels.",
+      "expectedTags": ["tavern-interior"],
+      "forbiddenTags": ["period-interior", "nautical-interior", "bedroom-interior", "modern-interior"],
+      "minimumDecorations": 5
+    },
+    {
+      "id": "old-bedchamber",
+      "archetype": "old guest bedchamber",
+      "visualDescription": "An enclosed bedroom with a curtained bed, paired bedside tables, a wardrobe and a woven rug.",
+      "expectedTags": ["bedroom-interior", "interior-rugs"],
+      "forbiddenTags": ["period-interior", "tavern-interior", "nautical-interior", "modern-interior"],
+      "minimumDecorations": 4
+    },
+    {
+      "id": "captains-cabin",
+      "archetype": "captain's ship cabin",
+      "visualDescription": "A cramped ship cabin belowdecks with a chart table, storage lockers and a brass work lantern.",
+      "expectedTags": ["nautical-interior", "storage-crates"],
+      "forbiddenTags": ["period-interior", "tavern-interior", "bedroom-interior", "modern-interior"],
+      "minimumDecorations": 4
+    },
+    {
+      "id": "modern-office",
+      "archetype": "modern design office",
+      "visualDescription": "A contemporary open-plan office made from pale glass, steel, acoustic panels and modular workstations.",
+      "expectedTags": ["modern-interior"],
+      "forbiddenTags": ["period-interior", "tavern-interior", "nautical-interior", "bedroom-interior"],
+      "minimumDecorations": 0
+    },
+    {
+      "id": "fantasy-study",
+      "archetype": "enchanted writer's study",
+      "visualDescription": "A historical fantasy writing room and reading nook arranged around a carved fireplace beneath framed paintings.",
+      "expectedTags": ["period-interior", "writing-room", "reading-nook", "mantel-display", "wall-gallery"],
+      "forbiddenTags": ["tavern-interior", "nautical-interior", "bedroom-interior", "modern-interior"],
+      "minimumDecorations": 12
+    }
+  ]
+}

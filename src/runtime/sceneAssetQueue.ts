@@ -54,6 +54,8 @@ export interface SceneAssetQueueItem {
   validation?: SceneAssetCandidateValidation;
   review?: SceneAssetReview;
   generated?: GeneratedSceneAsset;
+  reconstructionProviderId?: string;
+  reconstructionSource?: SceneAssetReconstructionProvider["source"];
   assetReview?: SceneAssetReview;
   failedPhase?: "reference" | "reconstruction" | "optimization";
   error?: string;
@@ -385,6 +387,8 @@ export async function retrySceneAsset(
     validation: reuseReference ? item.validation : undefined,
     review: reuseReference ? item.review : undefined,
     generated: undefined,
+    reconstructionProviderId: undefined,
+    reconstructionSource: undefined,
     assetReview: undefined,
     failedPhase: undefined,
     error: undefined,
@@ -406,6 +410,8 @@ export async function reconstructApprovedSceneAssets(
     queue = await persist(updateItem(queue, original.entityId, {
       stage: "reconstructing",
       reconstructionAttempts: original.reconstructionAttempts + 1,
+      reconstructionProviderId: provider.id,
+      reconstructionSource: provider.source,
       error: undefined,
       failedPhase: undefined,
     }, options.now), options.store);

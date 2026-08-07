@@ -957,6 +957,426 @@
       "sha256": "9f5692627f7898469824ce30c41b38ed57ae669c0d9b952909c384ed754d0312"
     },
     {
+      "key": "Chandelier_03-lod0",
+      "url": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Chandelier_03",
+      "bytes": 1204796,
+      "sha256": "905ed3c43128e5dd87c58acefe10e9c72ffc43b4da0df54bcf43fc8eb36f5f03"
+    },
+    {
+      "key": "Chandelier_03-lod1",
+      "url": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Chandelier_03",
+      "bytes": 897216,
+      "sha256": "2cbe5b94e810f6ac5c8dac71d0fd490f056bbdc2a63e5977fd9c22da83860634"
+    },
+    {
+      "key": "Chandelier_03-lod2",
+      "url": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kirill Sannikov",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Chandelier_03",
+      "bytes": 721740,
+      "sha256": "31d89acf4811a841dbb33a44dd793c08baa7e2bb56b133081d2c1fd1a6eede74"
+    },
+    {
+      "key": "book_encyclopedia_set_01-lod0",
+      "url": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "John Malcolm",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "bytes": 2613852,
+      "sha256": "07e2f8a14975ed5f41b0e0617221bd1642a5c9a41295166f949f86451ece79bb"
+    },
+    {
+      "key": "book_encyclopedia_set_01-lod1",
+      "url": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "John Malcolm",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "bytes": 2323964,
+      "sha256": "e80d265d8bb94724f8cd10890beb2b678690eca659e3e4bde3a9589d4ca9ff27"
+    },
+    {
+      "key": "book_encyclopedia_set_01-lod2",
+      "url": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "John Malcolm",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "bytes": 2133196,
+      "sha256": "c2b1c9b21b8687ccce0245896d95d7ff7308088a3ff01b544a6a4435db52d70f"
+    },
+    {
+      "key": "vintage_oil_lamp-lod0",
+      "url": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Monsta3D",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_oil_lamp",
+      "bytes": 2159044,
+      "sha256": "b985542e1862e325b99eb613b59eb34df6b5432dc97fa592b29cbaabffedaada"
+    },
+    {
+      "key": "vintage_oil_lamp-lod1",
+      "url": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Monsta3D",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_oil_lamp",
+      "bytes": 2088288,
+      "sha256": "d4113a53f30f2e73ca4cb1cf49a2bd7cb4eda662a84e48296d8cceb4a1ada125"
+    },
+    {
+      "key": "vintage_oil_lamp-lod2",
+      "url": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Monsta3D",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_oil_lamp",
+      "bytes": 2033172,
+      "sha256": "081b80575d68c1282610068607422d358e8160ce62ac06e1a2ac4646dcbbf5f2"
+    },
+    {
+      "key": "fancy_picture_frame_01-lod0",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+      "bytes": 739544,
+      "sha256": "20583b083626846560085edbcbfc17d6de3da939a9eed4e3fecf24f2ff8e94a0"
+    },
+    {
+      "key": "fancy_picture_frame_01-lod1",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+      "bytes": 731624,
+      "sha256": "320a13bf9265cce89c8155c06e1894880f762121eb2c94428bf0db9f5ae5ce97"
+    },
+    {
+      "key": "fancy_picture_frame_01-lod2",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+      "bytes": 723724,
+      "sha256": "4ecf191007944ba0d17b52e60245b1ac5660354f57a7ad9073831951679f87e6"
+    },
+    {
+      "key": "jug_01-lod0",
+      "url": "/models/optimized/polyhaven/jug_01/jug_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/jug_01",
+      "bytes": 1226884,
+      "sha256": "1bf2dca6a8e0a61efbc6a437530f0517df01f8e2b8ca3c772999834f8cb8afa6"
+    },
+    {
+      "key": "jug_01-lod1",
+      "url": "/models/optimized/polyhaven/jug_01/jug_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/jug_01",
+      "bytes": 1173548,
+      "sha256": "47ede7a05815b08cad5261cead6dc38174db0594e78057f60eb95775fa1bb132"
+    },
+    {
+      "key": "jug_01-lod2",
+      "url": "/models/optimized/polyhaven/jug_01/jug_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/jug_01",
+      "bytes": 1133424,
+      "sha256": "6e33f2955432dc055bd6d6f5a8b4c8a2a860114794af57ce922abc6126f50a99"
+    },
+    {
+      "key": "chess_set-lod0",
+      "url": "/models/optimized/polyhaven/chess_set/chess_set_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Riley Queen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/chess_set",
+      "bytes": 5931104,
+      "sha256": "47a277bcef108917c94ba87193470621bb2c4290f542ede693be9f83a4f0f79f"
+    },
+    {
+      "key": "chess_set-lod1",
+      "url": "/models/optimized/polyhaven/chess_set/chess_set_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Riley Queen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/chess_set",
+      "bytes": 5570744,
+      "sha256": "7ee2d08799c97af2c692f89e3bd283528fa3a48f47861e2c8bd96973b28b216c"
+    },
+    {
+      "key": "chess_set-lod2",
+      "url": "/models/optimized/polyhaven/chess_set/chess_set_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Riley Queen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/chess_set",
+      "bytes": 5385076,
+      "sha256": "bba84b25974f17f644a21cec112fc85c990b01b429cb2abb15a792a916aed9d8"
+    },
+    {
+      "key": "horse_statue_01-lod0",
+      "url": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/horse_statue_01",
+      "bytes": 1276728,
+      "sha256": "5204447fd9ad0b15fdb11ad9a395aa681d7d95646bcbc060367a28827f68cdd2"
+    },
+    {
+      "key": "horse_statue_01-lod1",
+      "url": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/horse_statue_01",
+      "bytes": 957760,
+      "sha256": "19ed8e05a29e0d17785df9d90e11524550a3f1923e3717793358f5fa72e1ef95"
+    },
+    {
+      "key": "horse_statue_01-lod2",
+      "url": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/horse_statue_01",
+      "bytes": 708388,
+      "sha256": "13ff35b6cbc8a0d3f988b76c03e9ca280636b0ed44d1d9a97e257b9608ff4cf4"
+    },
+    {
+      "key": "wicker_basket_02-lod0",
+      "url": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wicker_basket_02",
+      "bytes": 2960796,
+      "sha256": "720693ff29f17687b76bb5955070796f62306a350b7b7d5ca455f99180efd4cc"
+    },
+    {
+      "key": "wicker_basket_02-lod1",
+      "url": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wicker_basket_02",
+      "bytes": 2805364,
+      "sha256": "95580767718a238b3d54a2cd197aa24d7073d325e6a5738b26ad44636eece88d"
+    },
+    {
+      "key": "wicker_basket_02-lod2",
+      "url": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Kuutti Siitonen",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wicker_basket_02",
+      "bytes": 2718180,
+      "sha256": "223b04d14429393ac3db8f15b9ed454239142d35254b9fe52051ad2e07e68234"
+    },
+    {
+      "key": "brass_vase_02-lod0",
+      "url": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/brass_vase_02",
+      "bytes": 1829828,
+      "sha256": "026108571da4a270be7d5f73c93fea5acbf1a5c5f1517f5d94152de529554c9b"
+    },
+    {
+      "key": "brass_vase_02-lod1",
+      "url": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/brass_vase_02",
+      "bytes": 1766856,
+      "sha256": "a05a953aec29f3618036fed008790fc73a843a3174ca2b208f80fa134aebb032"
+    },
+    {
+      "key": "brass_vase_02-lod2",
+      "url": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rico Cilliers",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/brass_vase_02",
+      "bytes": 1718960,
+      "sha256": "558ad0dd2a7f89b6f79a5b425c80ac6bf0f087e791342e929a3c1d84d9e8f10a"
+    },
+    {
+      "key": "Rockingchair_01-lod0",
+      "url": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Rockingchair_01",
+      "bytes": 803872,
+      "sha256": "4e2a8f457166133066493e695c9546d08fa3169e3795858b4d2734c1366a4380"
+    },
+    {
+      "key": "Rockingchair_01-lod1",
+      "url": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Rockingchair_01",
+      "bytes": 678832,
+      "sha256": "b81fe0d4f6e326155d814343a24baeaafd236b87a9d91769cd0055e3461f8e97"
+    },
+    {
+      "key": "Rockingchair_01-lod2",
+      "url": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Jorge Camacho",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/Rockingchair_01",
+      "bytes": 560928,
+      "sha256": "7193cba9b8ff1f0a24a2eed9c7f9ba3414e05dd244730e9bd13323776adc494f"
+    },
+    {
+      "key": "vintage_grandfather_clock_01-lod0",
+      "url": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "James Ray Cock and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_grandfather_clock_01",
+      "bytes": 2352776,
+      "sha256": "6dcbc4849b030ab4d45bfc67b2e2282c63b1b92cb98b756e8718b48f1487143b"
+    },
+    {
+      "key": "vintage_grandfather_clock_01-lod1",
+      "url": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "James Ray Cock and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_grandfather_clock_01",
+      "bytes": 2239700,
+      "sha256": "ea8c86f48f704c8ca56aa84acfa4553fecd76c1c8f3020efb2d602030ad32a54"
+    },
+    {
+      "key": "vintage_grandfather_clock_01-lod2",
+      "url": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "James Ray Cock and Yann Kervran",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/vintage_grandfather_clock_01",
+      "bytes": 2144328,
+      "sha256": "846eb92c9c6b92c990e82be655cfabf9e9146007d3c99735b059f841ad64e645"
+    },
+    {
+      "key": "binder_notebook-lod0",
+      "url": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "DaDrood",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/binder_notebook",
+      "bytes": 1887896,
+      "sha256": "9a1a89841513a7b5611603d0712d70de4dcbee542a611083c7f472faa47550e3"
+    },
+    {
+      "key": "binder_notebook-lod1",
+      "url": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "DaDrood",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/binder_notebook",
+      "bytes": 1675036,
+      "sha256": "2fb77daabfa1fdcd30052309f721d59169e8ccfc1e29e0d4b4d9c4cecad974bf"
+    },
+    {
+      "key": "binder_notebook-lod2",
+      "url": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "DaDrood",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/binder_notebook",
+      "bytes": 1523872,
+      "sha256": "28614cdbb15df02446e5f46df4c3242b2c7fa19aac4aedff94ff62fc7581a720"
+    },
+    {
+      "key": "wooden_candlestick-lod0",
+      "url": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_candlestick",
+      "bytes": 6611736,
+      "sha256": "594b223658d477402b2cf0d216abb067d0e0db008461bb610795d95d1ba496e6"
+    },
+    {
+      "key": "wooden_candlestick-lod1",
+      "url": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_candlestick",
+      "bytes": 4033764,
+      "sha256": "49d98aa1de10f4c513bdc74c0d6a5c76ae5af86e2e2a2ed9ca38416e29cffad5"
+    },
+    {
+      "key": "wooden_candlestick-lod2",
+      "url": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_candlestick",
+      "bytes": 3087616,
+      "sha256": "f56091b160fd528342a75af8592740920f2ea3de1e2c60f04c92be38a982437b"
+    },
+    {
+      "key": "fancy_picture_frame_02-lod0",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb",
+      "format": "Optimized glTF 2.0 binary LOD0",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_02",
+      "bytes": 1726160,
+      "sha256": "e5401aaab34090e50d71f446bbcbe5394274aac4a741907f3b58d855f8d46091"
+    },
+    {
+      "key": "fancy_picture_frame_02-lod1",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod1.glb",
+      "format": "Optimized glTF 2.0 binary LOD1",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_02",
+      "bytes": 1430328,
+      "sha256": "5ce122c083d1ecc55b2027fb99ad9a5e5d7aa46418a898259aea947ee1acc1af"
+    },
+    {
+      "key": "fancy_picture_frame_02-lod2",
+      "url": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod2.glb",
+      "format": "Optimized glTF 2.0 binary LOD2",
+      "author": "Rico Cilliers and Rob Tuytel",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_02",
+      "bytes": 1189184,
+      "sha256": "9716c656dd978576fec25dfbd113c9b62fad63210ca9b8e307c606ea2168f855"
+    },
+    {
       "key": "story-door",
       "url": "/models/polyhaven/large_castle_door/large_castle_door_closed_2k.gltf",
       "format": "glTF 2.0",

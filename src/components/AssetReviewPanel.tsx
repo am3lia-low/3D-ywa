@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { WorldSnapshot } from "../contracts/world";
 import type { AssetRegistry } from "../runtime/assetRegistry";
+import { createReviewedAssetPromotionBundle } from "../runtime/assetPromotionBundle";
 import {
   buildRegenerationManifest,
   createInlineSurfaceTemplateProvider,
@@ -187,7 +188,25 @@ export function AssetReviewPanel({
         }
       : promoted.assetRegistry;
     onRegistryPreview(registry);
-    setMessage("Approved candidate promoted into this live world session.");
+    setMessage("Approved candidate installed in this live session. Export the promotion bundle to make it durable.");
+  };
+
+  const exportPromotionBundle = () => {
+    if (!queue || !manifestResult.manifest) return;
+    try {
+      const bundle = createReviewedAssetPromotionBundle(manifestResult.manifest, queue);
+      const blob = new Blob([`${JSON.stringify(bundle, null, 2)}\n`], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${bundle.storyId}-${item?.entityId ?? "asset"}-promotion.json`
+        .replace(/[^A-Za-z0-9._-]+/g, "-");
+      anchor.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setMessage("Downloaded the reviewed promotion bundle. Run pnpm assets:promote <file> to install it durably.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    }
   };
 
   const candidateUrl = item?.candidate
@@ -342,7 +361,8 @@ export function AssetReviewPanel({
               {item.stage === "ready" && (
                 <>
                   <button type="button" className="secondary" onClick={previewGenerated}>Preview in world</button>
-                  <button type="button" disabled={staleQueue} onClick={promote}>Promote approved asset</button>
+                  <button type="button" disabled={staleQueue} onClick={promote}>Use in this session</button>
+                  <button type="button" disabled={staleQueue} onClick={exportPromotionBundle}>Export durable promotion</button>
                 </>
               )}
               <button type="button" className="secondary" onClick={() => { onRegistryPreview(null); setMessage("Restored the current curated/live registry."); }}>Use live registry</button>

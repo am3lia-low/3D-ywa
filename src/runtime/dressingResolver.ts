@@ -1,7 +1,7 @@
 import type { Vector3Tuple } from "../contracts/world";
 import { assetKitCatalog, catalogAssetDefinition, type AssetKitCatalogAsset } from "./assetKitCatalog";
 import type { AssetDefinition } from "./assetRegistry";
-import type { LayoutItem, WorldLayout } from "./layoutEngine";
+import { supportSurfaceWorldY, type LayoutItem, type WorldLayout } from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
 import { WALL_COMPOSITION } from "./wallComposition";
 
@@ -17,6 +17,8 @@ interface ResolvedDressingCommon {
   rotation: Vector3Tuple;
   dimensions: Vector3Tuple;
   wall?: DressingWall;
+  placementAnchor: DressingPlacementAnchor;
+  supportId?: string;
 }
 
 export interface ResolvedAssetDressingInstance extends ResolvedDressingCommon {
@@ -43,6 +45,7 @@ export type ResolvedDressingInstance =
 
 type DressingDensity = ScenePresentation["dressing"]["density"];
 export type DressingWall = "north" | "south" | "west" | "east";
+export type DressingPlacementAnchor = "floor" | "surface" | "wall" | "ceiling";
 
 interface DressingSlotCommon {
   slotId: string;
@@ -53,6 +56,8 @@ interface DressingSlotCommon {
   wall?: DressingWall;
   verticalOffset?: number;
   placementRegion?: "interior" | "approach" | "woodland";
+  placementAnchor?: DressingPlacementAnchor;
+  supportSearchTags?: string[];
 }
 
 interface AssetDressingSlot extends DressingSlotCommon {
@@ -70,6 +75,7 @@ type DressingSlot = AssetDressingSlot | ModuleDressingSlot;
 interface DressingRule {
   anyTags: string[];
   excludeTags?: string[];
+  excludeArchetypes?: string[];
   archetypes?: string[];
   requiresOpenAir?: boolean;
   requiresArchitecture?: keyof ScenePresentation["architecture"];
@@ -127,50 +133,265 @@ function woodlandAssetSlots(
  */
 const DRESSING_RULES: readonly DressingRule[] = [
   {
-    anyTags: ["estate-furnishings", "period-interior"],
+    anyTags: ["schoolroom-furnishings", "classroom-furnishings"],
     slots: [
       {
-        renderKind: "asset", searchTags: ["gothic", "ornate", "cabinet", "library"], slotId: "west-bookcase",
-        minimumDensity: "sparse", positionFactor: [-0.47, -0.2], dimensions: [1.6, 2.2, 1.05],
-        yaw: Math.PI / 2, wall: "west",
+        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-west",
+        minimumDensity: "sparse", positionFactor: [-0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: 2.72,
       },
       {
-        renderKind: "asset", searchTags: ["gothic", "ornate", "cabinet", "library"], slotId: "north-bookcase",
-        minimumDensity: "rich", positionFactor: [0.28, -0.47], dimensions: [1.6, 2.2, 1.05], wall: "north",
+        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-east",
+        minimumDensity: "moderate", positionFactor: [0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: -2.72,
       },
       {
-        renderKind: "asset", searchTags: ["gothic", "ornate", "cabinet", "library"], slotId: "east-bookcase",
-        minimumDensity: "rich", positionFactor: [0.47, -0.24], dimensions: [1.6, 2.2, 1.05],
-        yaw: -Math.PI / 2, wall: "east",
+        renderKind: "asset", searchTags: ["wooden", "candlestick", "antique", "school"], slotId: "schoolroom-candlestick",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: 0.12,
       },
+      {
+        renderKind: "asset", searchTags: ["vintage", "drawer", "cabinet", "archive", "wood", "brass", "victorian"], slotId: "schoolroom-supply-cabinet",
+        minimumDensity: "rich", positionFactor: [0.34, -0.43], dimensions: [1.05, 1.12, 0.58],
+        yaw: 0.04, wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["basket", "wicker", "woven", "reading", "rustic", "interior"], slotId: "schoolroom-copybook-basket",
+        minimumDensity: "rich", positionFactor: [-0.24, -0.31], dimensions: [0.5, 0.42, 0.45], yaw: 0.24,
+      },
+    ],
+  },
+  {
+    // Estate scenes have a dedicated authored composition in WorldViewer.
+    // This rule is the reusable equivalent for every other grounded interior.
+    anyTags: ["period-interior"],
+    excludeTags: ["estate-furnishings", "schoolroom-furnishings"],
+    slots: [
       {
         renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "east-side-table",
         minimumDensity: "sparse", positionFactor: [0.4, 0.08], dimensions: [1.55, 0.95, 0.59], yaw: -0.08,
       },
       {
-        renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "reading-lounge-chair",
-        minimumDensity: "rich", positionFactor: [-0.2, -0.015], dimensions: [1.05, 1.32, 0.95], yaw: 2.2,
-      },
-      {
-        renderKind: "asset", searchTags: ["victorian", "upholstered", "sofa", "lounge"], slotId: "south-gallery-sofa",
-        minimumDensity: "rich", positionFactor: [-0.25, 0.39], dimensions: [2.73, 1.12, 0.93], yaw: 0.06,
-      },
-      {
-        renderKind: "asset", searchTags: ["victorian", "upholstered", "gothic", "armchair"], slotId: "east-conversation-chair",
-        minimumDensity: "rich", positionFactor: [0.2, 0.015], dimensions: [1.05, 1.32, 0.95], yaw: -2.2,
-      },
-      {
         renderKind: "asset", searchTags: ["classic", "console", "victorian", "ornate", "hall"], slotId: "south-console-table",
-        minimumDensity: "rich", positionFactor: [0.27, 0.39], dimensions: [1.55, 0.95, 0.59], yaw: Math.PI,
+        minimumDensity: "moderate", positionFactor: [0.27, 0.39], dimensions: [1.55, 0.95, 0.59], yaw: Math.PI,
       },
       {
         renderKind: "asset", searchTags: ["painted", "archive", "cabinet", "worn"], slotId: "southwest-display-cabinet",
         minimumDensity: "rich", positionFactor: [-0.42, 0.3], dimensions: [0.85, 2.2, 0.62], yaw: 0.18,
       },
+      {
+        renderKind: "asset", searchTags: ["antique", "ceramic", "vase", "surface"], slotId: "period-console-vase",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.27, 0.4, 0.27],
+        placementAnchor: "surface", supportSearchTags: ["console", "side", "table", "accent"], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "candlestick", "period", "surface"], slotId: "period-console-candlestick",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["console", "side", "table", "accent"], yaw: 0.1,
+      },
+    ],
+  },
+  {
+    anyTags: ["tavern-interior", "inn-common-room", "alehouse"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["wooden", "table", "sturdy", "rustic"], slotId: "tavern-table-west",
+        minimumDensity: "sparse", positionFactor: [-0.22, -0.08], dimensions: [2.1, 0.9, 1.18], yaw: 0.05,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "table", "sturdy", "rustic"], slotId: "tavern-table-east",
+        minimumDensity: "rich", positionFactor: [0.23, 0.18], dimensions: [1.85, 0.9, 1.08], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["painted", "wooden", "bench", "seat"], slotId: "tavern-bench-north",
+        minimumDensity: "moderate", positionFactor: [-0.22, -0.42], dimensions: [1.75, 0.9, 0.65], wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["wine", "barrel", "oak", "storage"], slotId: "tavern-barrel-west",
+        minimumDensity: "sparse", positionFactor: [-0.44, 0.3], dimensions: [0.82, 1.06, 0.82], wall: "west",
+      },
+      {
+        renderKind: "asset", searchTags: ["ceramic", "jug", "vessel", "rustic"], slotId: "tavern-table-jug",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.3, 0.42, 0.3],
+        placementAnchor: "surface", supportSearchTags: ["tavern", "wooden", "table"], yaw: 0.12,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "candlestick", "warm", "table"], slotId: "tavern-table-candle",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["tavern", "wooden", "table"], yaw: -0.08,
+      },
+    ],
+  },
+  {
+    anyTags: ["nautical-interior", "ship-cabin", "signal-room"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["painted", "wooden", "bench", "seat"], slotId: "nautical-bench-west",
+        minimumDensity: "sparse", positionFactor: [-0.46, 0.06], dimensions: [1.75, 0.9, 0.65],
+        wall: "west", yaw: Math.PI / 2,
+      },
+      {
+        renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "nautical-crate-east",
+        minimumDensity: "moderate", positionFactor: [0.42, 0.27], dimensions: [0.89, 0.61, 0.66],
+        wall: "east", yaw: -0.12,
+      },
+      {
+        renderKind: "asset", searchTags: ["wine", "barrel", "oak", "storage"], slotId: "nautical-barrel-south",
+        minimumDensity: "rich", positionFactor: [0.34, 0.4], dimensions: [0.82, 1.06, 0.82],
+        wall: "south", yaw: 0.15,
+      },
+      {
+        renderKind: "asset", searchTags: ["brass", "lantern", "practical", "light"], slotId: "nautical-work-lantern",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.34, 0.66, 0.34],
+        placementAnchor: "surface", supportSearchTags: ["desk", "chart", "table", "workbench"],
+      },
+    ],
+  },
+  {
+    anyTags: ["bedroom-interior", "bedchamber"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["side", "table", "bedside", "accent"], slotId: "bedroom-side-table-west",
+        minimumDensity: "sparse", positionFactor: [-0.26, -0.25], dimensions: [0.68, 0.82, 0.58], yaw: 0.04,
+      },
+      {
+        renderKind: "asset", searchTags: ["side", "table", "bedside", "accent"], slotId: "bedroom-side-table-east",
+        minimumDensity: "rich", positionFactor: [0.26, -0.25], dimensions: [0.68, 0.82, 0.58], yaw: -0.04,
+      },
+      {
+        renderKind: "asset", searchTags: ["vintage", "cabinet", "storage", "wardrobe"], slotId: "bedroom-storage-cabinet",
+        minimumDensity: "moderate", positionFactor: [0.43, 0.2], dimensions: [1.05, 1.12, 0.58],
+        wall: "east", yaw: -Math.PI / 2,
+      },
+      {
+        renderKind: "asset", searchTags: ["table", "lamp", "reading", "warm"], slotId: "bedroom-table-lamp",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.27, 0.56, 0.31],
+        placementAnchor: "surface", supportSearchTags: ["side", "table", "bedside"],
+      },
+    ],
+  },
+  {
+    anyTags: ["writing-room", "writing-desk", "study", "office"],
+    excludeTags: ["estate-furnishings"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["aged", "leather", "notebook", "writing"], slotId: "writing-surface-notebook",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.28, 0.045, 0.36],
+        placementAnchor: "surface", supportSearchTags: ["desk", "writing", "table", "console"], yaw: -0.12,
+      },
+      {
+        renderKind: "asset", searchTags: ["antique", "oil", "lamp", "reading"], slotId: "writing-surface-lamp",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.28, 0.82, 0.28],
+        placementAnchor: "surface", supportSearchTags: ["desk", "writing", "table", "console"], yaw: 0.18,
+      },
+      {
+        renderKind: "asset", searchTags: ["leather", "books", "library", "reading"], slotId: "writing-surface-books",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.6, 0.25, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["desk", "writing", "table", "console"], yaw: 0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["potted", "plant", "interior", "corner"], slotId: "interior-corner-plant",
+        minimumDensity: "rich", positionFactor: [0.38, 0.3], dimensions: [0.9, 1.4, 0.9], yaw: -0.22,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "painting", "gilt", "gallery"], slotId: "north-wall-art",
+        minimumDensity: "moderate", positionFactor: [0.18, -0.47], dimensions: [0.96, 0.75, 0.035],
+        placementAnchor: "wall", wall: "north", verticalOffset: 1.55,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "mirror", "gilded", "antique"], slotId: "south-wall-mirror",
+        minimumDensity: "rich", positionFactor: [-0.22, 0.47], dimensions: [0.62, 1.08, 0.035],
+        placementAnchor: "wall", wall: "south", verticalOffset: 1.35, yaw: Math.PI,
+      },
+    ],
+  },
+  {
+    anyTags: ["wall-gallery", "picture-wall", "portrait-wall", "framed-art", "paintings"],
+    excludeTags: ["estate-furnishings"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["ornate", "landscape", "painting", "gilt"], slotId: "gallery-north-landscape",
+        minimumDensity: "sparse", positionFactor: [0.18, -0.47], dimensions: [0.96, 0.75, 0.035],
+        placementAnchor: "wall", wall: "north", verticalOffset: 1.65,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "riverscape", "painting", "gallery"], slotId: "gallery-south-riverscape",
+        minimumDensity: "moderate", positionFactor: [-0.2, 0.47], dimensions: [0.82, 0.64, 0.035],
+        placementAnchor: "wall", wall: "south", verticalOffset: 1.62, yaw: Math.PI,
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "mirror", "gilded", "antique"], slotId: "gallery-east-mirror",
+        minimumDensity: "rich", positionFactor: [0.47, 0.2], dimensions: [0.62, 1.08, 0.035],
+        placementAnchor: "wall", wall: "east", verticalOffset: 1.35, yaw: -Math.PI / 2,
+      },
+    ],
+  },
+  {
+    anyTags: ["reading-nook", "reading-room", "library", "books"],
+    excludeTags: ["estate-furnishings"],
+    excludeArchetypes: ["timber-attic", "archive-vault"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["rocking", "chair", "reading", "vintage"], slotId: "reading-rocker",
+        minimumDensity: "moderate", positionFactor: [-0.32, 0.27], dimensions: [0.78, 1.12, 1.02], yaw: 2.55,
+      },
+      {
+        renderKind: "asset", searchTags: ["side", "table", "accent", "period"], slotId: "reading-side-table",
+        minimumDensity: "moderate", positionFactor: [-0.22, 0.28], dimensions: [0.68, 0.82, 0.58], yaw: 0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["table", "lamp", "reading", "warm"], slotId: "reading-table-lamp",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.27, 0.56, 0.31],
+        placementAnchor: "surface", supportSearchTags: ["side", "table", "accent"],
+      },
+      {
+        renderKind: "asset", searchTags: ["wicker", "basket", "reading", "woven"], slotId: "reading-basket",
+        minimumDensity: "rich", positionFactor: [-0.4, 0.33], dimensions: [0.5, 0.42, 0.45], yaw: -0.22,
+      },
+    ],
+  },
+  {
+    anyTags: ["parlor", "parlour", "drawing-room", "salon", "sitting-room", "conversation-area", "lounge"],
+    excludeTags: ["estate-furnishings"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["victorian", "upholstered", "sofa", "parlor"], slotId: "parlor-sofa",
+        minimumDensity: "sparse", positionFactor: [-0.23, 0.27], dimensions: [2.73, 1.12, 0.93], yaw: 0.05,
+      },
+      {
+        renderKind: "asset", searchTags: ["victorian", "upholstered", "armchair", "parlor"], slotId: "parlor-chair",
+        minimumDensity: "moderate", positionFactor: [0.22, 0.18], dimensions: [1.05, 1.32, 0.95], yaw: -2.35,
+      },
+      {
+        renderKind: "asset", searchTags: ["gothic", "coffee", "table", "parlor"], slotId: "parlor-coffee-table",
+        minimumDensity: "moderate", positionFactor: [0, 0.2], dimensions: [1.44, 0.56, 1.44],
+      },
+      {
+        renderKind: "asset", searchTags: ["marble", "chess", "game", "tabletop"], slotId: "parlor-chess-set",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.58, 0.18, 0.58],
+        placementAnchor: "surface", supportSearchTags: ["coffee", "table", "parlor"], yaw: 0.08,
+      },
+    ],
+  },
+  {
+    anyTags: ["mantel-display", "mantel", "fireplace", "hearth"],
+    excludeTags: ["estate-furnishings"],
+    slots: [
+      {
+        renderKind: "asset", searchTags: ["mantel", "clock", "antique", "brass"], slotId: "mantel-clock",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.5, 0.314, 0.184],
+        placementAnchor: "surface", supportSearchTags: ["fireplace", "hearth", "mantel"],
+      },
+      {
+        renderKind: "asset", searchTags: ["horse", "figurine", "porcelain", "mantel"], slotId: "mantel-figurine",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.34, 0.46, 0.2],
+        placementAnchor: "surface", supportSearchTags: ["fireplace", "hearth", "mantel"], yaw: 0.16,
+      },
     ],
   },
   {
     anyTags: ["interior-rugs"],
+    // Authored estate compositions already pair every rug with a furniture
+    // grouping. A generic center rug would be an empty, duplicated island.
+    excludeTags: ["estate-furnishings"],
     slots: [{
       renderKind: "asset", searchTags: ["rug", "red", "woven"], slotId: "central-room-rug",
       minimumDensity: "sparse", positionFactor: [0, 0.04], dimensions: [5.6, 0.12, 3.83], yaw: 0,
@@ -178,7 +399,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   },
   {
     anyTags: ["interior-lighting"],
-    excludeTags: ["estate-furnishings"],
+    excludeTags: ["estate-furnishings", "schoolroom-furnishings", "tavern-interior", "nautical-interior", "bedroom-interior", "archive-clutter"],
     slots: [
       {
         renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "west-floor-lamp",
@@ -210,6 +431,47 @@ const DRESSING_RULES: readonly DressingRule[] = [
       {
         renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-reading-chair",
         minimumDensity: "moderate", positionFactor: [0, 0.18], dimensions: [0.95, 1.55, 0.95], yaw: Math.PI,
+      },
+      {
+        renderKind: "asset", searchTags: ["desk", "writing", "table", "oak"], slotId: "archive-cataloguing-table",
+        minimumDensity: "rich", positionFactor: [0.23, -0.11], dimensions: [2.1, 1.05, 1.08], yaw: -0.06,
+      },
+      {
+        renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-cataloguing-chair",
+        minimumDensity: "rich", positionFactor: [0.23, 0.01], dimensions: [0.86, 1.38, 0.86], yaw: 2.95,
+      },
+      {
+        renderKind: "asset", searchTags: ["encyclopedia", "leather", "books", "archive"], slotId: "archive-table-books",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.6, 0.25, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["notebook", "journal", "writing", "desk"], slotId: "archive-table-ledger",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.28, 0.045, 0.36],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: 0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["porcelain", "oil", "lamp", "victorian"], slotId: "archive-table-lamp",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.28, 0.82, 0.28],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: -0.16,
+        // Sink the normalized mesh slightly into the timber top so the visible
+        // porcelain foot makes contact rather than reading as a hover gap.
+        verticalOffset: -0.045,
+      },
+      {
+        renderKind: "asset", searchTags: ["brass", "vase", "antique", "tabletop"], slotId: "archive-cataloguing-vase",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.24, 0.44, 0.24],
+        placementAnchor: "surface", supportSearchTags: ["archive", "cataloguing", "desk", "table"], yaw: 0.22,
+      },
+      {
+        renderKind: "asset", searchTags: ["vintage", "glass", "cabinet", "victorian"], slotId: "archive-south-display-cabinet",
+        minimumDensity: "moderate", positionFactor: [-0.24, 0.47], dimensions: [1.2, 2.35, 0.64],
+        yaw: Math.PI, wall: "south",
+      },
+      {
+        renderKind: "asset", searchTags: ["grandfather", "clock", "longcase", "victorian"], slotId: "archive-south-longcase-clock",
+        minimumDensity: "rich", positionFactor: [0.31, 0.47], dimensions: [0.72, 2.2, 0.42],
+        yaw: Math.PI, wall: "south",
       },
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "archive-crate",
@@ -381,11 +643,13 @@ const DRESSING_RULES: readonly DressingRule[] = [
     slots: [
       {
         renderKind: "asset", searchTags: ["industrial", "pipes", "valve", "machinery"], slotId: "northwest-pipe-bank",
-        minimumDensity: "sparse", positionFactor: [-0.31, -0.45], dimensions: [1.48, 4.76, 0.75], wall: "north",
+        minimumDensity: "sparse", positionFactor: [-0.31, -0.45], dimensions: [1.48, 4.76, 0.75],
+        placementAnchor: "wall", wall: "north",
       },
       {
         renderKind: "asset", searchTags: ["industrial", "pipes", "valve", "machinery"], slotId: "northeast-pipe-bank",
-        minimumDensity: "moderate", positionFactor: [0.31, -0.45], dimensions: [1.48, 4.76, 0.75], wall: "north", yaw: Math.PI,
+        minimumDensity: "moderate", positionFactor: [0.31, -0.45], dimensions: [1.48, 4.76, 0.75],
+        placementAnchor: "wall", wall: "north", yaw: Math.PI,
       },
     ],
   },
@@ -532,16 +796,35 @@ interface OccupiedVolume {
   id: string;
   position: Vector3Tuple;
   dimensions: Vector3Tuple;
+  yaw: number;
+  semanticTags: string[];
+  supportTopY?: number;
+  supportDimensions?: Vector3Tuple;
 }
 
 function tokens(values: readonly string[]): Set<string> {
   return new Set(values.flatMap((value) => value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
 }
 
-function chooseAsset(searchTags: readonly string[], styleKitId: string): AssetKitCatalogAsset | undefined {
+function chooseAsset(
+  searchTags: readonly string[],
+  styleKitId: string,
+  placementAnchor: DressingPlacementAnchor,
+  allowWallStanding: boolean,
+): AssetKitCatalogAsset | undefined {
   const requested = tokens(searchTags);
   return assetKitCatalog.assets
-    .filter((asset) => asset.styleKitIds.includes(styleKitId) && Boolean(asset.runtimeAsset.modelUrl || asset.runtimeAsset.safeMeshUrl))
+    .filter((asset) => {
+      const compatiblePlacement = placementAnchor === "floor"
+        ? asset.placement === "floor" || asset.placement === "free" ||
+          (allowWallStanding && asset.placement === "wall")
+        : placementAnchor === "ceiling"
+          ? asset.placement === "free"
+          : asset.placement === placementAnchor;
+      return compatiblePlacement &&
+        asset.styleKitIds.includes(styleKitId) &&
+        Boolean(asset.runtimeAsset.modelUrl || asset.runtimeAsset.safeMeshUrl);
+    })
     .map((asset) => {
       const available = tokens([...asset.roles, ...asset.assetKeys, ...asset.semanticKinds, ...asset.tags]);
       let score = 0;
@@ -577,6 +860,15 @@ function occupiedByLayoutItem(item: LayoutItem): OccupiedVolume {
     dimensions: isPortal
       ? [dimensions[0] + 0.7, dimensions[1], dimensions[2] + 1.8]
       : dimensions,
+    yaw: item.rotation[1],
+    semanticTags: [
+      item.entity.kind,
+      item.entity.name,
+      item.asset.key,
+      ...(item.entity.aliases ?? []),
+    ],
+    supportTopY: supportSurfaceWorldY(item),
+    supportDimensions: scaled,
   };
 }
 
@@ -618,9 +910,69 @@ function placeSlot(
   slot: DressingSlot,
   bounds: Vector3Tuple,
   occupied: readonly OccupiedVolume[],
-): { position: Vector3Tuple; footprint: Vector3Tuple; placementStatus: "preferred" | "rerouted" } | undefined {
+): {
+  position: Vector3Tuple;
+  footprint: Vector3Tuple;
+  placementStatus: "preferred" | "rerouted";
+  supportId?: string;
+} | undefined {
   const yaw = slot.yaw ?? 0;
   const footprint = rotatedDimensions(slot.dimensions, yaw);
+  const placementAnchor = slot.placementAnchor ?? "floor";
+
+  if (placementAnchor === "surface") {
+    const requested = tokens(slot.supportSearchTags ?? ["table", "desk", "console", "mantel"]);
+    const supports = occupied
+      .map((support) => {
+        const available = tokens(support.semanticTags);
+        let score = 0;
+        for (const token of requested) if (available.has(token)) score += 1;
+        const supportCapable = [
+          "table", "desk", "console", "mantel", "fireplace", "hearth", "counter", "workbench", "lectern",
+        ].some((token) => available.has(token));
+        return { support, score, supportCapable };
+      })
+      .filter(({ support, score, supportCapable }) =>
+        score > 0 && supportCapable && support.supportTopY !== undefined,
+      )
+      .sort((left, right) => right.score - left.score || left.support.id.localeCompare(right.support.id));
+
+    const normalizedOffsets: Array<[number, number]> = [
+      [0, 0], [-0.62, -0.5], [0.62, -0.5], [-0.62, 0.5], [0.62, 0.5],
+      [0, -0.58], [0, 0.58], [-0.68, 0], [0.68, 0],
+    ];
+    for (const { support } of supports) {
+      const supportDimensions = support.supportDimensions ?? support.dimensions;
+      const localReachX = Math.max(0, supportDimensions[0] / 2 - slot.dimensions[0] / 2 - 0.045);
+      const localReachZ = Math.max(0, supportDimensions[2] / 2 - slot.dimensions[2] / 2 - 0.045);
+      for (const [index, [factorX, factorZ]] of normalizedOffsets.entries()) {
+        const localX = factorX * localReachX;
+        const localZ = factorZ * localReachZ;
+        const position: Vector3Tuple = [
+          support.position[0] + localX * Math.cos(support.yaw) + localZ * Math.sin(support.yaw),
+          support.supportTopY! + slot.dimensions[1] / 2 + 0.008 + (slot.verticalOffset ?? 0),
+          support.position[2] - localX * Math.sin(support.yaw) + localZ * Math.cos(support.yaw),
+        ];
+        const candidate: OccupiedVolume = {
+          id: slot.slotId,
+          position,
+          dimensions: footprint,
+          yaw,
+          semanticTags: [],
+        };
+        if (!occupied.some((other) => other.id !== support.id && overlaps(candidate, other))) {
+          return {
+            position,
+            footprint,
+            placementStatus: index === 0 ? "preferred" : "rerouted",
+            supportId: support.id,
+          };
+        }
+      }
+    }
+    return undefined;
+  }
+
   const halfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - 0.18);
   const halfZ = Math.max(0, bounds[2] / 2 - footprint[2] / 2 - 0.18);
   const wallHalfX = Math.max(0, bounds[0] / 2 - footprint[0] / 2 - WALL_COMPOSITION.dressingClearance);
@@ -648,14 +1000,22 @@ function placeSlot(
         : slot.wall === "west" || slot.wall === "east"
           ? desiredX
           : clamp(desiredX + offsetX, -halfX, halfX),
-      slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
+      placementAnchor === "ceiling"
+        ? bounds[1] - slot.dimensions[1] / 2 - 0.04 - (slot.verticalOffset ?? 0)
+        : slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
       exterior
         ? desiredZ + offsetZ
         : slot.wall === "north" || slot.wall === "south"
           ? desiredZ
           : clamp(desiredZ + offsetZ, -halfZ, halfZ),
     ];
-    const candidate: OccupiedVolume = { id: slot.slotId, position, dimensions: footprint };
+    const candidate: OccupiedVolume = {
+      id: slot.slotId,
+      position,
+      dimensions: footprint,
+      yaw,
+      semanticTags: [],
+    };
     if (!occupied.some((other) => overlaps(candidate, other))) {
       return { position, footprint, placementStatus: index === 0 ? "preferred" : "rerouted" };
     }
@@ -675,6 +1035,7 @@ export function resolveDressingInstances(
 
   for (const rule of DRESSING_RULES) {
     if (rule.archetypes && !rule.archetypes.includes(presentation.location.archetype)) continue;
+    if (rule.excludeArchetypes?.includes(presentation.location.archetype)) continue;
     if (rule.requiresOpenAir && !presentation.architecture.openAir) continue;
     if (rule.requiresArchitecture && !presentation.architecture[rule.requiresArchitecture]) continue;
     if (rule.excludeTags?.some((tag) => selectedTags.has(tag))) continue;
@@ -682,14 +1043,39 @@ export function resolveDressingInstances(
     if (!sourceTag) continue;
     for (const slot of rule.slots) {
       if (DENSITY_RANK[presentation.dressing.density] < DENSITY_RANK[slot.minimumDensity]) continue;
+      const placementAnchor = slot.placementAnchor ?? "floor";
       const catalogAsset = slot.renderKind === "asset"
-        ? chooseAsset(slot.searchTags, styleKitId)
+        ? chooseAsset(
+            slot.searchTags,
+            styleKitId,
+            placementAnchor,
+            placementAnchor === "floor" && Boolean(slot.wall),
+          )
         : undefined;
       if (slot.renderKind === "asset" && !catalogAsset) continue;
       const placed = placeSlot(slot, layout.location.bounds ?? [12, 4.5, 10], occupied);
       if (!placed) continue;
       const dressingId = `${layout.location.id}:dressing:${sourceTag}:${slot.slotId}`;
-      occupied.push({ id: dressingId, position: placed.position, dimensions: placed.footprint });
+      occupied.push({
+        id: dressingId,
+        position: placed.position,
+        dimensions: placed.footprint,
+        yaw: slot.yaw ?? 0,
+        semanticTags: slot.renderKind === "asset" && catalogAsset
+          ? [
+              slot.slotId,
+              ...catalogAsset.roles,
+              ...catalogAsset.assetKeys,
+              ...catalogAsset.semanticKinds,
+              ...catalogAsset.tags,
+            ]
+          : [slot.slotId, ...(slot.renderKind === "module" ? [slot.moduleKey] : [])],
+        supportTopY: slot.renderKind === "asset" && catalogAsset
+          ? placed.position[1] - slot.dimensions[1] / 2 +
+            slot.dimensions[1] * (catalogAssetDefinition(catalogAsset).supportSurfaceY ?? 1)
+          : undefined,
+        supportDimensions: slot.dimensions,
+      });
       const common: ResolvedDressingCommon = {
         dressingId,
         locationId: layout.location.id,
@@ -702,6 +1088,8 @@ export function resolveDressingInstances(
         rotation: [0, slot.yaw ?? 0, 0],
         dimensions: slot.dimensions,
         wall: slot.wall,
+        placementAnchor,
+        supportId: placed.supportId,
       };
       if (slot.renderKind === "module") {
         instances.push({ ...common, renderKind: "module", moduleKey: slot.moduleKey });

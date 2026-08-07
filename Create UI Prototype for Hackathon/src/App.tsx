@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import * as api from './api/mockApi'
 import WorldViewer from './components/WorldViewer'
+import { findEvidencePassage } from './passageLink'
 import type {
   AppMode, Book, Chapter, ChapterProcessingResult, ChapterUpdateSummary, Conflict, ConflictResolution,
-  EntityInspectionData, EntityStatus, ProcessingStage, ScenePatch, UserRole, WorldEntity, WorldSnapshot,
+  EntityInspectionData, EntityStatus, ProcessingStage, UserRole, WorldEntity, WorldSnapshot,
 } from './types'
 import { PROCESSING_STAGE_LABEL } from './types'
 
@@ -36,7 +38,12 @@ function toInspectionData(entity: WorldEntity): EntityInspectionData {
     currentCondition: entity.currentCondition,
     introducedInChapterId: entity.introducedInChapterId,
     latestUpdatedChapterId: entity.changedInChapterId,
-    currentEvidence: entity.sourceSentence ? { sourceSentence: entity.sourceSentence, evidenceType: entity.evidenceType ?? 'Explicit' } : undefined,
+    currentEvidence: entity.sourceSentence ? {
+      sourceSentence: entity.sourceSentence,
+      evidenceType: entity.evidenceType ?? 'Explicit',
+      startChar: entity.sourceStartChar,
+      endChar: entity.sourceEndChar,
+    } : undefined,
     history,
   }
 }
@@ -80,8 +87,17 @@ function ProcessingPill({ stage }: { stage: ProcessingStage }) {
   )
 }
 
-function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity: WorldEntity; onClose: () => void }) {
+function ObjectInspector({
+  book, entity, onClose, onOpenPassage,
+}: {
+  book: Book | null
+  entity: WorldEntity
+  onClose: () => void
+  onOpenPassage: (focus: Omit<PassageFocus, 'requestId'>) => void
+}) {
   const data = toInspectionData(entity)
+  const sourceChapterId = data.latestUpdatedChapterId ?? data.introducedInChapterId
+  const sourceChapter = book?.chapters.find(chapter => chapter.id === sourceChapterId)
   return (
     <div className="animate-slide-up absolute bottom-20 left-6 z-30 w-72 rounded-xl border p-5"
       style={{ background: 'rgba(13,11,20,0.97)', borderColor: 'rgba(201,165,90,0.18)', backdropFilter: 'blur(16px)' }}>
@@ -93,6 +109,18 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
         <button onClick={onClose} className="text-lg leading-none opacity-40 hover:opacity-80 transition-opacity" style={{ color: '#e0d6c8' }}>✕</button>
       </div>
       <div className="space-y-3 text-xs" style={{ color: '#a89e8e' }}>
+        {book && (
+          <div className="rounded-lg border px-3 py-2.5"
+            style={{ background: 'rgba(201,165,90,0.06)', borderColor: 'rgba(201,165,90,0.16)' }}>
+            <div className="font-mono uppercase tracking-wider text-[10px] mb-1" style={{ color: '#6e6354' }}>From the story</div>
+            <div className="font-serif text-sm" style={{ color: '#e0d6c8' }}>{book.title}</div>
+            {sourceChapter && (
+              <div className="mt-0.5" style={{ color: '#c9a55a' }}>
+                {chapterLabelWithTitle(sourceChapter.index, sourceChapter.title)}
+              </div>
+            )}
+          </div>
+        )}
         {data.currentLocation && (
           <div>
             <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Current location</div>
@@ -120,8 +148,26 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
         {data.currentEvidence && (
           <>
             <div>
-              <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Source</div>
+              <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Passage evidence</div>
               <div className="italic leading-relaxed" style={{ color: '#c9b88e' }}>"{data.currentEvidence.sourceSentence}"</div>
+              {sourceChapter && (
+                <button
+                  onClick={() => onOpenPassage({
+                    chapterId: sourceChapter.id,
+                    sourceSentence: data.currentEvidence!.sourceSentence,
+                    startChar: data.currentEvidence!.startChar,
+                    endChar: data.currentEvidence!.endChar,
+                  })}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-all hover:-translate-y-px"
+                  style={{
+                    background: 'rgba(201,165,90,0.09)',
+                    borderColor: 'rgba(201,165,90,0.28)',
+                    color: '#d8b86d',
+                  }}
+                >
+                  Read this passage <span aria-hidden="true">→</span>
+                </button>
+              )}
             </div>
             <div>
               <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Evidence</div>
@@ -135,18 +181,37 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
 }
 
 function ChapterDrawer({
-  open, book, latestProcessedChapterId, displayedTextChapterId, onClose, onViewChapter,
+  open, book, latestProcessedChapterId, displayedTextChapterId, focusedPassage, onClose, onViewChapter,
 }: {
   open: boolean; book: Book; latestProcessedChapterId: string; displayedTextChapterId: string;
+  focusedPassage: PassageFocus | null;
   onClose: () => void; onViewChapter: (chapterId: string) => void;
 }) {
-  if (!open) return null
   const displayed = book.chapters.find(c => c.id === displayedTextChapterId) ?? book.chapters[0]
   const latest = book.chapters.find(c => c.id === latestProcessedChapterId)
   const showingLatest = displayed.id === latestProcessedChapterId
   const prevChapter = book.chapters.find(c => c.index === displayed.index - 1)
   const nextChapter = book.chapters.find(c => c.index === displayed.index + 1)
   const canGoNext = nextChapter && nextChapter.processingStatus === 'ready'
+  const passageMatch = focusedPassage?.chapterId === displayed.id
+    ? findEvidencePassage(
+        displayed.content,
+        focusedPassage.sourceSentence,
+        focusedPassage.startChar,
+        focusedPassage.endChar,
+      )
+    : null
+  const passageRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!open || !passageMatch || focusedPassage?.chapterId !== displayed.id) return
+    const frame = requestAnimationFrame(() => {
+      passageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [displayed.id, focusedPassage?.requestId, open, passageMatch?.start])
+
+  if (!open) return null
 
   return (
     <div className="animate-slide-in-right absolute top-0 right-0 h-full w-[360px] z-30 flex flex-col border-l"
@@ -155,7 +220,7 @@ function ChapterDrawer({
         style={{ borderColor: 'rgba(201,165,90,0.1)' }}>
         <div>
           <div className="font-mono text-[10px] uppercase tracking-widest mb-1" style={{ color: '#6e6354' }}>Chapter text</div>
-          <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>Chapter {displayed.index} — {displayed.title}</div>
+          <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>{chapterLabelWithTitle(displayed.index, displayed.title)}</div>
         </div>
         <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full opacity-40 hover:opacity-80 transition-opacity text-sm" style={{ color: '#e0d6c8' }}>✕</button>
       </div>
@@ -166,8 +231,25 @@ function ChapterDrawer({
         </div>
       )}
       <div className="flex-1 overflow-y-auto px-6 py-5">
-        <div className="font-serif text-sm leading-[1.9] whitespace-pre-line" style={{ color: '#d4c9b6' }}>
-          {displayed.content}
+        <div className="font-reading text-[15px] leading-[1.75] whitespace-pre-line" style={{ color: '#e9e2d4' }}>
+          {passageMatch ? (
+            <>
+              {displayed.content.slice(0, passageMatch.start)}
+              <mark
+                ref={passageRef}
+                data-passage-highlight="true"
+                className="rounded px-1 py-0.5"
+                style={{
+                  background: 'linear-gradient(90deg, rgba(201,165,90,0.3), rgba(201,165,90,0.16))',
+                  boxShadow: '0 0 0 1px rgba(201,165,90,0.22)',
+                  color: '#fff0c7',
+                }}
+              >
+                {displayed.content.slice(passageMatch.start, passageMatch.end)}
+              </mark>
+              {displayed.content.slice(passageMatch.end)}
+            </>
+          ) : displayed.content}
         </div>
       </div>
       <div className="flex items-center justify-between px-6 py-4 border-t shrink-0"
@@ -301,20 +383,67 @@ function ConflictPanel({
   )
 }
 
-function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (input: { title: string; text: string }) => Promise<void> }) {
+interface DetectedChapter { title: string; content: string }
+
+/** Every "Chapter {index} — {title}" display already prepends the number, so title holds only the subtitle (or '' when the heading had none). */
+function chapterLabelWithTitle(index: number, title: string): string {
+  return title ? `Chapter ${index} — ${title}` : `Chapter ${index}`
+}
+
+// Splits pasted/uploaded text on lines that open with "Chapter <number>"
+// (e.g. "Chapter 1", "Chapter 2: The Hall"). Text with no such heading stays
+// a single chapter, matching the prior always-one-chapter behaviour.
+function detectChapters(rawText: string): DetectedChapter[] {
+  const lines = rawText.replace(/\r\n/g, '\n').split('\n')
+  const headingRe = /^\s*chapter\s+(\d+)\s*[:.\-–—]?\s*(.*)$/i
+  const headings = lines
+    .map((line, lineIndex) => ({ lineIndex, match: line.match(headingRe) }))
+    .filter((entry): entry is { lineIndex: number; match: RegExpMatchArray } => entry.match !== null)
+
+  if (headings.length === 0) {
+    return [{ title: '', content: rawText.trim() }]
+  }
+
+  return headings
+    .map(({ lineIndex, match }, i) => {
+      const nextLineIndex = headings[i + 1]?.lineIndex ?? lines.length
+      const content = lines.slice(lineIndex + 1, nextLineIndex).join('\n').trim()
+      const [, , subtitle] = match
+      return { title: subtitle.trim(), content }
+    })
+    .filter(chapter => chapter.content.length > 0)
+}
+
+function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (input: { title: string; chapters: DetectedChapter[] }) => Promise<void> }) {
   const [phase, setPhase] = useState<'entry' | 'detecting' | 'preview' | 'importing' | 'success' | 'error'>('entry')
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
+  const [detectedChapters, setDetectedChapters] = useState<DetectedChapter[]>([])
   const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleDetect = () => {
     if (!text.trim()) {
-      setError('Please paste some text before detecting chapters.')
+      setError('Please paste some text or upload a file before detecting chapters.')
       return
     }
     setError(null)
     setPhase('detecting')
-    setTimeout(() => setPhase('preview'), 1800)
+    setTimeout(() => {
+      setDetectedChapters(detectChapters(text))
+      setPhase('preview')
+    }, 1800)
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!title.trim()) setTitle(file.name.replace(/\.txt$/i, ''))
+    const reader = new FileReader()
+    reader.onload = () => setText(String(reader.result ?? ''))
+    reader.onerror = () => setError('Could not read that file. Please try again or paste the text instead.')
+    reader.readAsText(file)
   }
 
   const handleConfirm = async () => {
@@ -323,7 +452,7 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
       // onImport (App.handleImportBook) closes this modal and navigates to the
       // reader itself once the book is created — this modal only needs to reflect
       // the outcome, not trigger navigation, or the two would race each other.
-      await onImport({ title, text })
+      await onImport({ title, chapters: detectedChapters })
       setPhase('success')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed.')
@@ -364,10 +493,10 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
                   style={{ background: '#c9a55a', color: '#0a0910' }}>
                   Detect Chapters
                 </button>
-                <button disabled
-                  className="px-4 py-2.5 rounded-lg text-sm border transition-all opacity-40 cursor-not-allowed"
-                  style={{ borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e' }}
-                  title="File upload is not wired up in this prototype — paste text instead.">
+                <input ref={fileInputRef} type="file" accept=".txt,text/plain" className="hidden" onChange={handleFileChange} />
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 rounded-lg text-sm border transition-all hover:opacity-70"
+                  style={{ borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e' }}>
                   Upload .txt file
                 </button>
               </div>
@@ -384,10 +513,18 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
           {phase === 'preview' && (
             <div className="space-y-4 animate-fade-in">
               <div className="rounded-lg border p-4" style={{ background: 'rgba(201,165,90,0.05)', borderColor: 'rgba(201,165,90,0.15)' }}>
-                <div className="font-mono text-[10px] uppercase tracking-widest mb-3" style={{ color: '#c9a55a' }}>No chapter headings detected — importing as a single chapter</div>
-                <div className="flex items-center gap-3 py-1.5 text-sm" style={{ color: '#d4c9b6' }}>
-                  <span className="font-mono text-[10px] w-5 text-right" style={{ color: '#6e6354' }}>1</span>
-                  Chapter 1
+                <div className="font-mono text-[10px] uppercase tracking-widest mb-3" style={{ color: '#c9a55a' }}>
+                  {detectedChapters.length > 1
+                    ? `${detectedChapters.length} chapters detected`
+                    : 'No "Chapter N" headings detected — importing as a single chapter'}
+                </div>
+                <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                  {detectedChapters.map((chapter, i) => (
+                    <div key={i} className="flex items-center gap-3 py-1.5 text-sm" style={{ color: '#d4c9b6' }}>
+                      <span className="font-mono text-[10px] w-5 text-right shrink-0" style={{ color: '#6e6354' }}>{i + 1}</span>
+                      {chapterLabelWithTitle(i + 1, chapter.title)}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -472,16 +609,9 @@ function LibraryScreen({
       </header>
 
       <main className="max-w-6xl mx-auto px-8 py-12">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: '#6e6354' }}>Your library</div>
-            <h1 className="font-serif text-3xl font-semibold" style={{ color: '#e0d6c8' }}>Prepared Stories</h1>
-          </div>
-          <button onClick={onAddBook}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg border text-sm font-medium transition-all hover:opacity-90"
-            style={{ background: '#c9a55a', borderColor: '#c9a55a', color: '#0a0910' }}>
-            <span className="text-base leading-none">+</span> Import Story
-          </button>
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: '#6e6354' }}>Your library</div>
+          <h1 className="font-serif text-3xl font-semibold" style={{ color: '#e0d6c8' }}>Prepared Stories</h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -591,7 +721,7 @@ function ReaderScreen({
         <div className="flex-1 text-center">
           <div className="font-mono text-[10px] uppercase tracking-widest mb-0.5" style={{ color: '#6e6354' }}>{book.title}</div>
           <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>
-            Chapter {chapter.index} — {chapter.title}
+            {chapterLabelWithTitle(chapter.index, chapter.title)}
           </div>
         </div>
         <div className="font-mono text-[10px]" style={{ color: '#6e6354' }}>
@@ -620,7 +750,7 @@ function ReaderScreen({
           <div className="font-serif text-[11px] uppercase tracking-[0.2em] mb-6" style={{ color: '#6e6354' }}>
             Chapter {chapter.index}
           </div>
-          <div className="font-serif text-[17px] leading-[1.85] whitespace-pre-line" style={{ color: '#d4c9b6' }}>
+          <div className="font-reading text-[18px] leading-[1.8] tracking-[0.005em] whitespace-pre-line" style={{ color: '#e9e2d4' }}>
             {chapter.content}
           </div>
         </div>
@@ -672,59 +802,32 @@ function ReaderScreen({
 // ─── Explorer Screen ──────────────────────────────────────────────────────────
 
 function ExplorerScreen({
-  book, chapter, snapshot, patch, spatialScene, summary,
-  selectedEntityId, highlightedEntityIds, onSelectEntity,
-  drawerOpen, onToggleDrawer, displayedTextChapterId, onViewChapter,
+  book, chapter, snapshot, summary,
+  selectedEntityId, onSelectEntity,
+  drawerOpen, onToggleDrawer, displayedTextChapterId, focusedPassage, onViewChapter, onOpenPassage,
   summaryOpen, onToggleSummary,
   userRole, onToggleRole,
   conflicts, adminPanelOpen, onOpenAdminPanel, onCloseAdminPanel, onResolveConflict,
-  onBack, onNextChapter, isFinalChapter,
+  onBack, onNextChapter, onResetCamera, isFinalChapter,
 }: {
-  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; patch: ScenePatch | null; spatialScene: ChapterProcessingResult | null; summary: ChapterUpdateSummary | null;
-  selectedEntityId: string | null; highlightedEntityIds: string[]; onSelectEntity: (id: string | null) => void;
+  book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; summary: ChapterUpdateSummary | null;
+  selectedEntityId: string | null; onSelectEntity: (id: string | null) => void;
   drawerOpen: boolean; onToggleDrawer: () => void; displayedTextChapterId: string; onViewChapter: (id: string) => void;
+  focusedPassage: PassageFocus | null; onOpenPassage: (focus: Omit<PassageFocus, 'requestId'>) => void;
   summaryOpen: boolean; onToggleSummary: () => void;
   userRole: UserRole; onToggleRole: () => void;
   conflicts: Conflict[]; adminPanelOpen: boolean; onOpenAdminPanel: () => void; onCloseAdminPanel: () => void;
   onResolveConflict: (conflictId: string, resolution: ConflictResolution) => void;
-  onBack: () => void; onNextChapter: () => void; isFinalChapter: boolean;
+  onBack: () => void; onNextChapter: () => void; onResetCamera: () => void; isFinalChapter: boolean;
 }) {
   const selectedEntity = snapshot?.entities.find(e => e.id === selectedEntityId) ?? null
   const openConflicts = conflicts.filter(c => c.status === 'open')
   const activeConflict = conflicts.find(c => c.status === 'open') ?? conflicts[conflicts.length - 1] ?? null
-  const [sceneError, setSceneError] = useState<string | null>(null)
-  const [cameraResetKey, setCameraResetKey] = useState(0)
 
   return (
-    <div className="relative h-screen overflow-hidden" style={{ background: '#06050c' }}>
-      <div className="absolute inset-0">
-        {sceneError ? (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
-            <div className="text-sm" style={{ color: '#c05050' }}>{sceneError}</div>
-            <button onClick={() => setSceneError(null)}
-              className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-              style={{ background: '#c9a55a', color: '#0a0910' }}>
-              Retry Viewer
-            </button>
-          </div>
-        ) : (
-          <WorldViewer
-            key={cameraResetKey}
-            snapshot={spatialScene?.spatialSnapshot ?? null}
-            patch={spatialScene?.spatialPatch ?? null}
-            visualPlan={spatialScene?.visualPlan ?? null}
-            selectedEntityId={selectedEntityId}
-            highlightedEntityIds={highlightedEntityIds}
-            showChapterChanges
-            onEntitySelect={onSelectEntity}
-            onSceneReady={() => setSceneError(null)}
-            onSceneError={msg => setSceneError(msg)}
-            onPassageAdvance={isFinalChapter ? undefined : onNextChapter}
-          />
-        )}
-      </div>
+    <div className="pointer-events-none relative z-10 h-screen overflow-hidden">
 
-      <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
+      <div className="pointer-events-auto absolute top-5 left-5 z-20 flex flex-col gap-2">
         <button onClick={onBack}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all hover:opacity-90"
           style={{ background: 'rgba(10,9,16,0.85)', borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e', backdropFilter: 'blur(12px)' }}>
@@ -736,14 +839,14 @@ function ExplorerScreen({
           <div className="font-mono text-[10px]">Chapter {chapter.index} · 3D World</div>
         </div>
         <button
-          onClick={() => setCameraResetKey(key => key + 1)}
+          onClick={onResetCamera}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-mono transition-all hover:opacity-80"
           style={{ background: 'rgba(10,9,16,0.7)', borderColor: 'rgba(201,165,90,0.1)', color: '#6e6354', backdropFilter: 'blur(12px)' }}>
           ⊙ Reset camera
         </button>
       </div>
 
-      <div className="absolute top-5 right-5 z-20 flex items-start gap-2">
+      <div className="pointer-events-auto absolute top-5 right-5 z-20 flex items-start gap-2">
         {userRole === 'admin' && (
           <button onClick={onOpenAdminPanel}
             className="relative flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all hover:opacity-90"
@@ -775,48 +878,62 @@ function ExplorerScreen({
       </div>
 
       {summaryOpen && summary && snapshot && (
-        <UpdateSummary
-          open={summaryOpen}
-          book={book}
-          chapter={chapter}
-          summary={summary}
-          snapshot={snapshot}
-          onClose={onToggleSummary}
-          onSelectEntity={id => onSelectEntity(id)}
-        />
+        <div className="pointer-events-auto">
+          <UpdateSummary
+            open={summaryOpen}
+            book={book}
+            chapter={chapter}
+            summary={summary}
+            snapshot={snapshot}
+            onClose={onToggleSummary}
+            onSelectEntity={id => onSelectEntity(id)}
+          />
+        </div>
       )}
 
       {selectedEntity && (
-        <ObjectInspector book={book} entity={selectedEntity} onClose={() => onSelectEntity(null)} />
+        <div className="pointer-events-auto">
+          <ObjectInspector
+            book={book}
+            entity={selectedEntity}
+            onClose={() => onSelectEntity(null)}
+            onOpenPassage={onOpenPassage}
+          />
+        </div>
       )}
 
       {!drawerOpen && (
         <button onClick={onToggleDrawer}
-          className="absolute top-1/2 -translate-y-1/2 right-0 z-20 flex items-center gap-2 pl-3 pr-2 py-3 rounded-l-xl border border-r-0 text-xs font-mono transition-all hover:opacity-90"
+          className="pointer-events-auto absolute top-1/2 -translate-y-1/2 right-0 z-20 flex items-center gap-2 pl-3 pr-2 py-3 rounded-l-xl border border-r-0 text-xs font-mono transition-all hover:opacity-90"
           style={{ background: 'rgba(10,9,16,0.85)', borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e', backdropFilter: 'blur(12px)', writingMode: 'vertical-rl' }}>
           View Chapter
         </button>
       )}
 
-      <ChapterDrawer
-        open={drawerOpen}
-        book={book}
-        latestProcessedChapterId={chapter.id}
-        displayedTextChapterId={displayedTextChapterId}
-        onClose={onToggleDrawer}
-        onViewChapter={onViewChapter}
-      />
+      <div className="pointer-events-auto">
+        <ChapterDrawer
+          open={drawerOpen}
+          book={book}
+          latestProcessedChapterId={chapter.id}
+          displayedTextChapterId={displayedTextChapterId}
+          focusedPassage={focusedPassage}
+          onClose={onToggleDrawer}
+          onViewChapter={onViewChapter}
+        />
+      </div>
 
       {adminPanelOpen && userRole === 'admin' && activeConflict && (
-        <ConflictPanel
-          book={book}
-          conflict={activeConflict}
-          onResolve={resolution => onResolveConflict(activeConflict.id, resolution)}
-          onClose={onCloseAdminPanel}
-        />
+        <div className="pointer-events-auto">
+          <ConflictPanel
+            book={book}
+            conflict={activeConflict}
+            onResolve={resolution => onResolveConflict(activeConflict.id, resolution)}
+            onClose={onCloseAdminPanel}
+          />
+        </div>
       )}
 
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4">
+      <div className="pointer-events-auto absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4">
         <div className="flex items-center gap-3 px-6 py-3 rounded-2xl border"
           style={{ background: 'rgba(10,9,16,0.9)', borderColor: 'rgba(201,165,90,0.15)', backdropFilter: 'blur(16px)' }}>
           <span className="text-xs" style={{ color: '#6e6354' }}>World locked to Ch {chapter.index}</span>
@@ -834,6 +951,108 @@ function ExplorerScreen({
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
+function PreparedWorldSurface({
+  result,
+  visible,
+  resetToken,
+  selectedEntityId,
+  highlightedEntityIds,
+  onEntitySelect,
+  onReady,
+  onError,
+  onPassageAdvance,
+}: {
+  result: ChapterProcessingResult
+  visible: boolean
+  resetToken: number
+  selectedEntityId: string | null
+  highlightedEntityIds: string[]
+  onEntitySelect: (id: string | null) => void
+  onReady: (result: ChapterProcessingResult) => void
+  onError: (result: ChapterProcessingResult, message: string) => void
+  onPassageAdvance?: () => void
+}) {
+  const locationIds = result.spatialSnapshot.locations.map(location => location.id)
+  const [locationIndex, setLocationIndex] = useState(0)
+  const [warmupComplete, setWarmupComplete] = useState(false)
+  const warmedLocations = useRef(new Set<string>())
+  const pendingWarmupAdvance = useRef<number | null>(null)
+  const activeLocationId = locationIds[locationIndex] ?? locationIds[0] ?? ''
+
+  useEffect(() => {
+    if (pendingWarmupAdvance.current !== null) {
+      if ('cancelIdleCallback' in window) window.cancelIdleCallback(pendingWarmupAdvance.current)
+      else window.clearTimeout(pendingWarmupAdvance.current)
+      pendingWarmupAdvance.current = null
+    }
+    warmedLocations.current.clear()
+    setLocationIndex(0)
+    setWarmupComplete(false)
+  }, [result.chapterId])
+
+  useEffect(() => () => {
+    if (pendingWarmupAdvance.current === null) return
+    if ('cancelIdleCallback' in window) window.cancelIdleCallback(pendingWarmupAdvance.current)
+    else window.clearTimeout(pendingWarmupAdvance.current)
+  }, [])
+
+  const handleLocationReady = useCallback(() => {
+    if (warmupComplete) return
+    if (!activeLocationId || warmedLocations.current.has(activeLocationId)) return
+    warmedLocations.current.add(activeLocationId)
+    if (locationIndex < locationIds.length - 1) {
+      const advance = () => {
+        pendingWarmupAdvance.current = null
+        setLocationIndex(index => index + 1)
+      }
+      pendingWarmupAdvance.current = 'requestIdleCallback' in window
+        ? window.requestIdleCallback(advance, { timeout: 900 })
+        : window.setTimeout(advance, 80)
+    }
+    else {
+      setWarmupComplete(true)
+      onReady(result)
+    }
+  }, [activeLocationId, locationIds.length, locationIndex, onReady, result, warmupComplete])
+
+  return (
+    <div
+      aria-hidden={!visible}
+      data-scene-warmup={result.chapterId}
+      data-warmup-location={activeLocationId}
+      data-warmup-complete={warmupComplete}
+      style={visible
+        ? { position: 'fixed', inset: 0, zIndex: 0, opacity: 1, pointerEvents: 'auto', overflow: 'hidden' }
+        : { position: 'fixed', left: -10000, top: 0, width: 96, height: 96, opacity: 0.001, pointerEvents: 'none', overflow: 'hidden' }}
+    >
+      <WorldViewer
+        resetToken={resetToken}
+        renderMode={visible ? 'continuous' : 'on-demand'}
+        snapshot={result.spatialSnapshot}
+        patch={result.spatialPatch}
+        visualPlan={result.visualPlan}
+        sceneRecipe={result.sceneRecipe}
+        activeLocationId={warmupComplete ? undefined : activeLocationId}
+        selectedEntityId={selectedEntityId}
+        highlightedEntityIds={highlightedEntityIds}
+        showChapterChanges={visible}
+        onEntitySelect={onEntitySelect}
+        onSceneReady={handleLocationReady}
+        onSceneError={message => onError(result, message)}
+        onPassageAdvance={onPassageAdvance}
+      />
+    </div>
+  )
+}
+
+interface PassageFocus {
+  chapterId: string
+  sourceSentence: string
+  startChar?: number
+  endChar?: number
+  requestId: number
+}
+
 export default function App() {
   const [books, setBooks] = useState<Book[]>([])
   const [chapterResults, setChapterResults] = useState<Record<string, ChapterProcessingResult>>({})
@@ -845,14 +1064,15 @@ export default function App() {
   const [displayedTextChapterId, setDisplayedTextChapterId] = useState<string | null>(null)
 
   const [activeSnapshot, setActiveSnapshot] = useState<WorldSnapshot | null>(null)
-  const [activePatch, setActivePatch] = useState<ChapterProcessingResult['patch'] | null>(null)
   const [activeSummary, setActiveSummary] = useState<ChapterUpdateSummary | null>(null)
 
   const [processingStage, setProcessingStage] = useState<ProcessingStage>('idle')
   const [processingError, setProcessingError] = useState<string | null>(null)
 
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
+  const [focusedPassage, setFocusedPassage] = useState<PassageFocus | null>(null)
   const [highlightedEntityIds] = useState<string[]>([])
+  const [viewerResetToken, setViewerResetToken] = useState(0)
 
   const [chapterDrawerOpen, setChapterDrawerOpen] = useState(false)
   const [updateSummaryOpen, setUpdateSummaryOpen] = useState(false)
@@ -886,19 +1106,16 @@ export default function App() {
     api.processChapter(bookId, chapterId, stage => setProcessingStage(stage))
       .then(result => {
         processingTrackRef.current = null
-        setBooks(prev => prev.map(b => b.id !== bookId ? b : {
-          ...b, chapters: b.chapters.map(c => c.id === chapterId ? { ...c, processingStatus: 'ready' } : c),
-        }))
         setChapterResults(prev => ({ ...prev, [chapterId]: result }))
         setActiveSnapshot(result.snapshot)
-        setActivePatch(result.patch)
         setActiveSummary(result.summary)
-        setLatestProcessedChapterId(chapterId)
         setConflicts(prev => {
           const incomingIds = new Set(result.conflicts.map(c => c.id))
           return [...prev.filter(c => !incomingIds.has(c.id)), ...result.conflicts]
         })
-        setProcessingStage('ready')
+        // Compilation is complete. A hidden renderer now loads every location
+        // before the reader is allowed to enter the world.
+        setProcessingStage('preparing_scene')
       })
       .catch((err: unknown) => {
         processingTrackRef.current = null
@@ -911,27 +1128,53 @@ export default function App() {
       })
   }, [])
 
+  const finishScenePreparation = useCallback((result: ChapterProcessingResult) => {
+    setBooks(prev => prev.map(book => !book.chapters.some(chapter => chapter.id === result.chapterId) ? book : {
+      ...book,
+      chapters: book.chapters.map(chapter => chapter.id === result.chapterId
+        ? { ...chapter, processingStatus: 'ready' }
+        : chapter),
+    }))
+    setActiveSnapshot(result.snapshot)
+    setActiveSummary(result.summary)
+    setLatestProcessedChapterId(result.chapterId)
+    setProcessingStage('ready')
+    setProcessingError(null)
+  }, [])
+
+  const failScenePreparation = useCallback((result: ChapterProcessingResult, message: string) => {
+    setBooks(prev => prev.map(book => !book.chapters.some(chapter => chapter.id === result.chapterId) ? book : {
+      ...book,
+      chapters: book.chapters.map(chapter => chapter.id === result.chapterId
+        ? { ...chapter, processingStatus: 'failed' }
+        : chapter),
+    }))
+    setProcessingStage('failed')
+    setProcessingError(message)
+  }, [])
+
   const startReading = (book: Book) => {
     const entry = bookEntryPoint(book)
     setActiveBookId(book.id)
     setReaderChapterId(entry.id)
     setDisplayedTextChapterId(entry.id)
     setSelectedEntityId(null)
+    setFocusedPassage(null)
     setChapterDrawerOpen(false)
     setUpdateSummaryOpen(false)
     setAppMode('reading')
 
     const cached = chapterResults[entry.id]
-    if (cached) {
+    if (cached && entry.processingStatus === 'ready') {
       setLatestProcessedChapterId(entry.id)
       setActiveSnapshot(cached.snapshot)
-      setActivePatch(cached.patch)
       setActiveSummary(cached.summary)
       setProcessingStage('ready')
+    } else if (cached) {
+      setProcessingStage('preparing_scene')
     } else if (entry.processingStatus === 'not_started' || entry.processingStatus === 'failed') {
       setLatestProcessedChapterId(null)
       setActiveSnapshot(null)
-      setActivePatch(null)
       setActiveSummary(null)
       triggerProcessing(book.id, entry.id)
     }
@@ -957,6 +1200,7 @@ export default function App() {
     setReaderChapterId(next.id)
     setDisplayedTextChapterId(next.id)
     setSelectedEntityId(null)
+    setFocusedPassage(null)
     setChapterDrawerOpen(false)
     setUpdateSummaryOpen(false)
     setAppMode('reading')
@@ -966,9 +1210,9 @@ export default function App() {
     }
   }
 
-  const handleImportBook = async ({ title, text }: { title: string; text: string }) => {
+  const handleImportBook = async ({ title, chapters }: { title: string; chapters: { title: string; content: string }[] }) => {
     setAppMode('importing_book')
-    const book = await api.importBook({ title, text })
+    const book = await api.importBook({ title, chapters })
     setBooks(prev => [...prev, book])
     // Brief pause so the modal's "imported successfully" beat is visible before navigating away.
     await new Promise(resolve => setTimeout(resolve, 700))
@@ -1002,16 +1246,32 @@ export default function App() {
   }
 
   if (appMode === 'reading' && activeBook && readerChapter) {
+    const preparedResult = chapterResults[readerChapter.id] ?? null
     return (
-      <ReaderScreen
-        book={activeBook}
-        chapter={readerChapter}
-        processingStage={readerChapter.id === latestProcessedChapterId ? 'ready' : processingStage}
-        processingError={processingError}
-        onExplore={openExplore}
-        onRetry={() => triggerProcessing(activeBook.id, readerChapter.id)}
-        onBack={() => setAppMode('library')}
-      />
+      <>
+        {preparedResult && (
+          <PreparedWorldSurface
+            key={`prepared-world:${readerChapter.id}`}
+            result={preparedResult}
+            visible={false}
+            resetToken={viewerResetToken}
+            selectedEntityId={selectedEntityId}
+            highlightedEntityIds={highlightedEntityIds}
+            onEntitySelect={setSelectedEntityId}
+            onReady={finishScenePreparation}
+            onError={failScenePreparation}
+          />
+        )}
+        <ReaderScreen
+          book={activeBook}
+          chapter={readerChapter}
+          processingStage={readerChapter.id === latestProcessedChapterId ? 'ready' : processingStage}
+          processingError={processingError}
+          onExplore={openExplore}
+          onRetry={() => triggerProcessing(activeBook.id, readerChapter.id)}
+          onBack={() => setAppMode('library')}
+        />
+      </>
     )
   }
 
@@ -1019,33 +1279,56 @@ export default function App() {
     const isFinalChapter = activeBook.chapters.findIndex(c => c.id === latestProcessedChapterId) === activeBook.chapters.length - 1
     const activeSpatialScene = chapterResults[latestProcessedChapter.id] ?? null
     return (
-      <ExplorerScreen
-        book={activeBook}
-        chapter={latestProcessedChapter}
-        snapshot={activeSnapshot}
-        patch={activePatch}
-        spatialScene={activeSpatialScene}
-        summary={activeSummary}
-        selectedEntityId={selectedEntityId}
-        highlightedEntityIds={highlightedEntityIds}
-        onSelectEntity={setSelectedEntityId}
-        drawerOpen={chapterDrawerOpen}
-        onToggleDrawer={() => setChapterDrawerOpen(d => !d)}
-        displayedTextChapterId={displayedTextChapterId}
-        onViewChapter={setDisplayedTextChapterId}
-        summaryOpen={updateSummaryOpen}
-        onToggleSummary={() => setUpdateSummaryOpen(s => !s)}
-        userRole={userRole}
-        onToggleRole={() => setUserRole(r => (r === 'reader' ? 'admin' : 'reader'))}
-        conflicts={conflicts}
-        adminPanelOpen={adminPanelOpen}
-        onOpenAdminPanel={() => { setAdminPanelOpen(true); setAppMode('admin_review') }}
-        onCloseAdminPanel={() => { setAdminPanelOpen(false); setAppMode('exploring') }}
-        onResolveConflict={handleResolveConflict}
-        onBack={() => setAppMode('reading')}
-        onNextChapter={proceedToNextChapter}
-        isFinalChapter={isFinalChapter}
-      />
+      <>
+        {activeSpatialScene && (
+          <PreparedWorldSurface
+            key={`prepared-world:${latestProcessedChapter.id}`}
+            result={activeSpatialScene}
+            visible
+            resetToken={viewerResetToken}
+            selectedEntityId={selectedEntityId}
+            highlightedEntityIds={highlightedEntityIds}
+            onEntitySelect={setSelectedEntityId}
+            onReady={finishScenePreparation}
+            onError={failScenePreparation}
+            onPassageAdvance={isFinalChapter ? undefined : proceedToNextChapter}
+          />
+        )}
+        <ExplorerScreen
+          book={activeBook}
+          chapter={latestProcessedChapter}
+          snapshot={activeSnapshot}
+          summary={activeSummary}
+          selectedEntityId={selectedEntityId}
+          onSelectEntity={setSelectedEntityId}
+          drawerOpen={chapterDrawerOpen}
+          onToggleDrawer={() => setChapterDrawerOpen(d => !d)}
+          displayedTextChapterId={displayedTextChapterId}
+          focusedPassage={focusedPassage}
+          onViewChapter={chapterId => {
+            setDisplayedTextChapterId(chapterId)
+            setFocusedPassage(null)
+          }}
+          onOpenPassage={focus => {
+            setDisplayedTextChapterId(focus.chapterId)
+            setFocusedPassage({ ...focus, requestId: Date.now() })
+            setChapterDrawerOpen(true)
+          }}
+          summaryOpen={updateSummaryOpen}
+          onToggleSummary={() => setUpdateSummaryOpen(s => !s)}
+          userRole={userRole}
+          onToggleRole={() => setUserRole(r => (r === 'reader' ? 'admin' : 'reader'))}
+          conflicts={conflicts}
+          adminPanelOpen={adminPanelOpen}
+          onOpenAdminPanel={() => { setAdminPanelOpen(true); setAppMode('admin_review') }}
+          onCloseAdminPanel={() => { setAdminPanelOpen(false); setAppMode('exploring') }}
+          onResolveConflict={handleResolveConflict}
+          onBack={() => setAppMode('reading')}
+          onNextChapter={proceedToNextChapter}
+          onResetCamera={() => setViewerResetToken(token => token + 1)}
+          isFinalChapter={isFinalChapter}
+        />
+      </>
     )
   }
 

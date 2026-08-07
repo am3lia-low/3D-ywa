@@ -7,6 +7,7 @@ import {
   PerformanceMonitor,
   RoundedBox,
   useGLTF,
+  useProgress,
 } from "@react-three/drei";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer, N8AO, Vignette } from "@react-three/postprocessing";
@@ -51,6 +52,7 @@ import type {
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import {
   defaultAssetRegistry,
+  resolveAsset,
   type AssetDefinition,
   type AssetRegistry,
 } from "../runtime/assetRegistry";
@@ -118,6 +120,7 @@ import {
 } from "../runtime/dressingResolver";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import { isPortalSourceEntity } from "../runtime/portalRouting";
 import { createWallTrimSegments } from "../runtime/wallTrimLayout";
 import {
   advanceSpatialRuntime,
@@ -153,6 +156,10 @@ export interface WorldViewerProps {
   selectedEntityId?: string | null;
   onEntitySelect?: (entityId: string | null) => void;
   onRuntimeError?: (error: WorldViewerRuntimeError) => void;
+  /** Fires only after the active location's loader queue has settled. */
+  onSceneReady?: () => void;
+  /** Use demand rendering while preloading off-screen so reading stays smooth. */
+  renderMode?: "continuous" | "on-demand";
   onPatchApplied?: (snapshot: WorldSnapshot, patch: ScenePatch) => void;
   onLocationRequest?: (locationId: string) => void;
   /** Optional reader action shown while the viewer owns the fullscreen surface. */
@@ -345,7 +352,13 @@ function LoadedModel({
   );
 }
 
-function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
+function AdaptiveLoadedModel({
+  asset,
+  reserveBookcasePortraitBay = false,
+}: {
+  asset: AssetDefinition;
+  reserveBookcasePortraitBay?: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const levels = useMemo(
     () => asset.lods ?? (asset.modelUrl ? [{ modelUrl: asset.modelUrl, minimumDistance: 0 }] : []),
@@ -378,34 +391,39 @@ function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
         draftGenerated={asset.key.startsWith("generated:")}
         tint={asset.key === "authored-birch-tree" ? "#73906d" : tint}
       />
-      {asset.key === "worn-story-bookshelf" && <BookcaseContents />}
+      {asset.key === "worn-story-bookshelf" && (
+        <BookcaseContents reservePortraitBay={reserveBookcasePortraitBay} />
+      )}
     </group>
   );
 }
 
-function BookcaseContents() {
-  const colors = ["#7b443d", "#42605d", "#aa8751", "#5d5474", "#8c6a45", "#485f48"];
+function BookcaseContents({ reservePortraitBay = false }: { reservePortraitBay?: boolean }) {
   // Measured shelf-top sockets from the approved normalized Poly Haven mesh.
   // Keeping these explicit prevents decorative books from intersecting a
   // different model's timber or leaving its lowest shelf mysteriously empty.
-  const shelfRows = createWornBookshelfBookSlots();
+  const shelfRows = createWornBookshelfBookSlots({ reserveTopLeft: reservePortraitBay });
   return (
     <group position={[0, 0, 0.39]} userData={{ decorativeOnly: true }}>
-      {shelfRows.flatMap((row, shelfIndex) =>
-        row.map((slot, bookIndex) => {
-          return (
-            <mesh
-              key={`shelf-book-${shelfIndex}-${bookIndex}`}
-              position={[slot.x, slot.y, 0]}
-              rotation={[0, 0, bookIndex % 5 === 0 ? -0.055 : 0]}
-              castShadow
-            >
-              <boxGeometry args={[slot.width, slot.height, slot.depth]} />
-              <meshStandardMaterial color={colors[(bookIndex + shelfIndex * 2) % colors.length]} roughness={0.91} />
-            </mesh>
-          );
-        }),
-      )}
+      {shelfRows.map((row, shelfIndex) => {
+        const left = Math.min(...row.map((slot) => slot.x - slot.width / 2));
+        const right = Math.max(...row.map((slot) => slot.x + slot.width / 2));
+        const height = Math.max(...row.map((slot) => slot.height));
+        const shelfTop = row[0]!.shelfTop;
+        return (
+          <group
+            key={`shelf-book-row-${shelfIndex}`}
+            position={[(left + right) / 2, shelfTop + 0.012 + height / 2, 0]}
+            rotation={[0, shelfIndex % 2 ? 0.012 : -0.012, 0]}
+            scale={[right - left, height, 0.13]}
+            userData={{ decorativeOnly: true, placementValidated: true, support: "measured-shelf-socket" }}
+          >
+            <Suspense fallback={null}>
+              <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb" />
+            </Suspense>
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -517,6 +535,16 @@ function StoryDoorAsset({ highlighted, highlightColor }: { highlighted: boolean;
           <meshStandardMaterial color="#281d16" roughness={0.7} />
         </mesh>
       </group>
+      <group position={[-0.34, -0.015, -0.015]} rotation={[0, Math.PI, 0]} userData={{ role: "interior-brass-door-handle" }}>
+        <mesh position={[0, 0.035, 0.02]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.052, 0.052, 0.025, 28]} />
+          <meshPhysicalMaterial color="#9d7438" metalness={0.82} roughness={0.3} clearcoat={0.24} />
+        </mesh>
+        <mesh position={[0, 0.035, 0.075]} scale={[0.054, 0.054, 0.05]} castShadow>
+          <sphereGeometry args={[1, 28, 18]} />
+          <meshPhysicalMaterial color="#c39a50" metalness={0.86} roughness={0.22} clearcoat={0.34} />
+        </mesh>
+      </group>
       {highlighted && (
         <mesh position={[0, 0, 0.72]}>
           <planeGeometry args={[0.9, 0.94]} />
@@ -527,27 +555,75 @@ function StoryDoorAsset({ highlighted, highlightColor }: { highlighted: boolean;
   );
 }
 
-function StoryWritingDesk({ asset }: { asset: AssetDefinition }) {
+function StoryStaircaseAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const timber = usePbrSurface(
+    "/textures/polyhaven/dark_wooden_planks_diff_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_nor_gl_1k.jpg",
+    "/textures/polyhaven/dark_wooden_planks_arm_1k.jpg",
+    [1.2, 2.8],
+  );
+  return (
+    <group userData={{ module: "partial-story-staircase", supportSurface: "steps" }}>
+      {Array.from({ length: 5 }, (_, index) => {
+        const height = (index + 1) / 5;
+        return (
+          <RoundedBox
+            key={`story-step-${index}`}
+            args={[0.94, height, 0.2]}
+            radius={0.018}
+            smoothness={4}
+            position={[0, -0.5 + height / 2, 0.4 - index * 0.2]}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial
+              color={index % 2 ? "#66452f" : "#755139"}
+              map={timber.color}
+              normalMap={timber.normal}
+              normalScale={new THREE.Vector2(0.22, 0.22)}
+              roughnessMap={timber.arm}
+              roughness={0.86}
+              emissive={highlighted ? highlightColor : "#000000"}
+              emissiveIntensity={highlighted ? 0.18 : 0}
+            />
+          </RoundedBox>
+        );
+      })}
+    </group>
+  );
+}
+
+function StoryWritingDesk({ asset, compactSchoolroom = false }: { asset: AssetDefinition; compactSchoolroom?: boolean }) {
   return (
     <group>
       <AdaptiveLoadedModel asset={asset} />
-      <RoundedBox args={[0.88, 0.035, 0.72]} radius={0.025} smoothness={3} position={[0, 0.515, 0]} castShadow receiveShadow>
+      <RoundedBox args={[0.82, 0.018, 0.64]} radius={0.012} smoothness={3} position={[0, 0.506, 0]} castShadow receiveShadow>
         <meshPhysicalMaterial color="#4c281f" roughness={0.58} clearcoat={0.28} clearcoatRoughness={0.52} />
       </RoundedBox>
-      {[-0.29, 0.29].map((x) => (
-        <group key={`desk-drawer-${x}`} position={[x, 0.34, 0.43]}>
-          <RoundedBox args={[0.38, 0.19, 0.09]} radius={0.025} smoothness={3} castShadow>
-            <meshStandardMaterial color="#69442f" roughness={0.8} />
-          </RoundedBox>
-          <mesh position={[0, 0, 0.06]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.035, 0.009, 8, 18]} />
-            <meshStandardMaterial color="#b18a4d" metalness={0.74} roughness={0.32} />
-          </mesh>
+      {!compactSchoolroom && (
+        <group
+          position={[-0.18, 0.58, -0.08]}
+          rotation={[0, -0.1, 0]}
+          scale={[0.32, 0.13, 0.19]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
+          </Suspense>
         </group>
-      ))}
-      <RoundedBox args={[0.92, 0.08, 0.12]} radius={0.025} smoothness={3} position={[0, 0.43, 0.4]} castShadow>
-        <meshStandardMaterial color="#563724" roughness={0.82} />
-      </RoundedBox>
+      )}
+      {!compactSchoolroom && (
+        <group
+          position={[0.22, 0.528, 0.06]}
+          rotation={[0, 0.18, 0]}
+          scale={[0.22, 0.025, 0.26]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
+          </Suspense>
+        </group>
+      )}
     </group>
   );
 }
@@ -976,7 +1052,7 @@ function StoryFireplace({ highlighted, highlightColor }: {
       >
         <meshStandardMaterial color="#302d2a" roughness={0.62} metalness={0.12} />
       </RoundedBox>
-      {[-0.41, -0.27, 0.37].map((x, index) => (
+      {[-0.41, -0.27].map((x, index) => (
         <group key={`mantel-photo-${x}`} position={[x, 0.65 + index * 0.012, 0.13]} rotation={[0, 0, (index - 1) * 0.045]}>
           <RoundedBox args={[index === 2 ? 0.17 : 0.14, index === 2 ? 0.23 : 0.19, 0.035]} radius={0.012} smoothness={2} castShadow>
             <meshStandardMaterial color={index === 1 ? "#79613f" : "#aa8950"} roughness={0.5} metalness={0.34} />
@@ -992,6 +1068,16 @@ function StoryFireplace({ highlighted, highlightColor }: {
           {defaultAssetRegistry["victorian-mantel-clock"] && (
             <AdaptiveLoadedModel asset={defaultAssetRegistry["victorian-mantel-clock"]} />
           )}
+        </Suspense>
+      </group>
+      <group
+        position={[0.355, 0.72, 0.19]}
+        rotation={[0, -0.22, 0]}
+        scale={[0.17, 0.26, 0.13]}
+        userData={{ decorativeOnly: true, placementValidated: true, surface: "mantel" }}
+      >
+        <Suspense fallback={null}>
+          <LoadedModel url="/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb" />
         </Suspense>
       </group>
       <pointLight position={[0.025, 0.82, 0.48]} color="#e9b96f" intensity={0.22} distance={1.7} decay={2} />
@@ -1340,6 +1426,33 @@ class ModelErrorBoundary extends Component<
   render() {
     return this.state.failed ? this.props.fallback : this.props.children;
   }
+}
+
+function WebGlContextGuard({
+  onContextLost,
+  onContextRestored,
+}: {
+  onContextLost: () => void;
+  onContextRestored: () => void;
+}) {
+  const renderer = useThree((state) => state.gl);
+
+  useEffect(() => {
+    const canvas = renderer.domElement;
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      onContextLost();
+    };
+    const handleContextRestored = () => onContextRestored();
+    canvas.addEventListener("webglcontextlost", handleContextLost, false);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored, false);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", handleContextLost, false);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored, false);
+    };
+  }, [onContextLost, onContextRestored, renderer]);
+
+  return null;
 }
 
 function DesignedFallbackAsset({
@@ -1996,7 +2109,10 @@ function StorybookLampAsset({
   const shadeY = table ? 0.19 : 0.27;
   const shadeHeight = table ? 0.34 : 0.38;
   return (
-    <group userData={{ authoredAsset: table ? "storybook-table-lamp" : "storybook-floor-lamp" }}>
+    <group
+      position={[0, table ? -0.1425 : 0, 0]}
+      userData={{ authoredAsset: table ? "storybook-table-lamp" : "storybook-floor-lamp" }}
+    >
       <mesh position={[0, stemBottom, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[table ? 0.23 : 0.27, table ? 0.26 : 0.3, table ? 0.075 : 0.065, 32]} />
         <meshStandardMaterial color={brass} metalness={0.72} roughness={0.3} />
@@ -2031,8 +2147,8 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
   const water = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     time: { value: 0 },
-    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#123a46") },
-    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#2f6d76") },
+    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#071f2b") },
+    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#285763") },
   }), [highlightColor, highlighted]);
   useFrame((state) => {
     if (!water.current) return;
@@ -2090,7 +2206,7 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
             float sparkle = pow(max(dot(reflect(-lightDirection, normal), normalize(viewDirection)), 0.0), 46.0);
             float depthVariation = 0.08 * sin(waterUv.y * 8.0 + time * 0.18) + elevation * 0.9;
             vec3 color = mix(deepColor, surfaceColor, 0.22 + diffuse * 0.2 + depthVariation);
-            color = mix(color, vec3(0.18, 0.34, 0.38), fresnel * 0.34);
+            color = mix(color, vec3(0.13, 0.27, 0.31), fresnel * 0.38);
             color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
             float bankGlow = exp(-pow((waterUv.x - 0.08) * 9.0, 2.0))
               + exp(-pow((waterUv.x - 0.92) * 9.0, 2.0));
@@ -2119,11 +2235,11 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
     <group>
       <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop - 0.04, 0]} receiveShadow>
         <boxGeometry args={[0.78, 0.08, 1]} />
-        <meshStandardMaterial color="#243f44" roughness={0.96} />
+        <meshStandardMaterial color="#172d31" roughness={0.96} />
       </mesh>
       <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop + waterDepth / 2, 0]} receiveShadow>
         <boxGeometry args={[0.78, waterDepth, 1]} />
-        <meshStandardMaterial color="#123c48" roughness={0.24} transparent opacity={0.9} />
+        <meshStandardMaterial color="#092c38" emissive="#061a22" emissiveIntensity={0.12} roughness={0.24} transparent opacity={0.94} />
       </mesh>
       <StoryCanalWater highlighted={highlighted} highlightColor={highlightColor} />
       {[-0.45, 0.45].map((x) => (
@@ -2181,6 +2297,9 @@ function EntityAsset({
   }
   if (asset.key === "story-door" || asset.proceduralModel === "door") {
     return <StoryDoorAsset highlighted={highlighted} highlightColor={highlightColor} />;
+  }
+  if (asset.proceduralModel === "staircase") {
+    return <StoryStaircaseAsset highlighted={highlighted} highlightColor={highlightColor} />;
   }
   if (asset.key === "storybook-floor-lamp") {
     return <StorybookLampAsset highlighted={highlighted} highlightColor={highlightColor} />;
@@ -2242,7 +2361,7 @@ function EntityAsset({
     return (
       <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
         <Suspense fallback={null}>
-          <StoryWritingDesk asset={asset} />
+          <StoryWritingDesk asset={asset} compactSchoolroom={entity?.id === "schoolroom-table"} />
         </Suspense>
       </ModelErrorBoundary>
     );
@@ -2273,7 +2392,10 @@ function EntityAsset({
   return (
     <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
       <Suspense fallback={null}>
-        <AdaptiveLoadedModel asset={asset} />
+        <AdaptiveLoadedModel
+          asset={asset}
+          reserveBookcasePortraitBay={entity?.id === "schoolroom-shelf"}
+        />
       </Suspense>
     </ModelErrorBoundary>
   );
@@ -3329,6 +3451,8 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
       decorativeOnly: true,
       placementStatus: instance.placementStatus,
       placementRegion: instance.placementRegion,
+      placementAnchor: instance.placementAnchor,
+      ...(instance.supportId ? { supportId: instance.supportId } : {}),
       ...(instance.renderKind === "asset"
         ? { catalogId: instance.catalogId }
         : { moduleKey: instance.moduleKey }),
@@ -3390,6 +3514,7 @@ function EstateFurnitureComposition({
   const westGalleryCenterZ = bounds[2] * 0.16;
   const westGallerySideTablePosition: Vector3Tuple = [-bounds[0] / 2 + 0.58, 0.41, westGalleryCenterZ + 1.8];
   const arrivalTablePosition: Vector3Tuple = [-bounds[0] * 0.09, 0.4, bounds[2] * 0.19];
+  const readingNookPosition: Vector3Tuple = [bounds[0] * 0.34, 0.56, bounds[2] * 0.3];
   const furniture = [
     {
       key: "estate-conversation-sofa",
@@ -3472,11 +3597,11 @@ function EstateFurnitureComposition({
       scale: [0.65, 0.82, 0.56] as Vector3Tuple,
     },
     {
-      key: "estate-east-parlor-vase",
-      url: "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb",
-      position: [eastParlorTablePosition[0] + 0.2, 0.765, eastParlorTablePosition[2] - 0.12] as Vector3Tuple,
+      key: "estate-east-parlor-brass-vase",
+      url: "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb",
+      position: [eastParlorTablePosition[0] + 0.46, 0.78, eastParlorTablePosition[2] - 0.2] as Vector3Tuple,
       rotation: [0, 0.38, 0] as Vector3Tuple,
-      scale: [0.27, 0.41, 0.27] as Vector3Tuple,
+      scale: [0.24, 0.44, 0.24] as Vector3Tuple,
     },
     {
       key: "estate-east-parlor-candleholders",
@@ -3486,16 +3611,23 @@ function EstateFurnitureComposition({
       scale: [0.42, 0.62, 0.3] as Vector3Tuple,
     },
     {
+      key: "estate-east-parlor-chess-set",
+      url: "/models/optimized/polyhaven/chess_set/chess_set_lod1.glb",
+      position: [eastParlorTablePosition[0] - 0.08, 0.635, eastParlorTablePosition[2] + 0.04] as Vector3Tuple,
+      rotation: [0, 0.2, 0] as Vector3Tuple,
+      scale: [0.58, 0.15, 0.58] as Vector3Tuple,
+    },
+    {
       key: "estate-east-parlor-plant",
       url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb",
-      position: [eastParlorCenterX + 3.25, 0.69, eastParlorCenterZ - 2.05] as Vector3Tuple,
+      position: [eastParlorCenterX + 3.72, 0.69, eastParlorCenterZ - 2.55] as Vector3Tuple,
       rotation: [0, -0.28, 0] as Vector3Tuple,
-      scale: [0.86, 1.38, 0.86] as Vector3Tuple,
+      scale: [0.82, 1.32, 0.82] as Vector3Tuple,
     },
     {
       key: "estate-west-gallery-settee",
       url: "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod1.glb",
-      position: [-bounds[0] / 2 + 0.48, 0.525, westGalleryCenterZ] as Vector3Tuple,
+      position: [-bounds[0] / 2 + 0.72, 0.525, westGalleryCenterZ] as Vector3Tuple,
       rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
       scale: [2.3, 1.05, 0.86] as Vector3Tuple,
     },
@@ -3514,11 +3646,11 @@ function EstateFurnitureComposition({
       scale: [0.64, 0.82, 0.55] as Vector3Tuple,
     },
     {
-      key: "estate-west-gallery-succulent",
-      url: "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod1.glb",
-      position: [westGallerySideTablePosition[0], 0.98, westGallerySideTablePosition[2]] as Vector3Tuple,
-      rotation: [0, -0.32, 0] as Vector3Tuple,
-      scale: [0.27, 0.31, 0.27] as Vector3Tuple,
+      key: "estate-west-gallery-candleholders",
+      url: "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod1.glb",
+      position: [westGallerySideTablePosition[0], 1.12, westGallerySideTablePosition[2]] as Vector3Tuple,
+      rotation: [0, Math.PI / 2 - 0.12, 0] as Vector3Tuple,
+      scale: [0.4, 0.58, 0.3] as Vector3Tuple,
     },
     {
       key: "estate-west-gallery-plant",
@@ -3549,11 +3681,18 @@ function EstateFurnitureComposition({
       scale: [0.38, 0.58, 0.28] as Vector3Tuple,
     },
     {
-      key: "estate-west-display-cabinet",
-      url: "/models/optimized/polyhaven/GothicCabinet_01/GothicCabinet_01_lod0.glb",
-      position: [-bounds[0] / 2 + 0.5, 1.1, bounds[2] * 0.1] as Vector3Tuple,
-      rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
-      scale: [1.35, 2.2, 0.78] as Vector3Tuple,
+      key: "estate-reading-rocker",
+      url: "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb",
+      position: readingNookPosition,
+      rotation: [0, -2.42, 0] as Vector3Tuple,
+      scale: [0.82, 1.12, 1.02] as Vector3Tuple,
+    },
+    {
+      key: "estate-reading-basket",
+      url: "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb",
+      position: [readingNookPosition[0] - 0.92, 0.21, readingNookPosition[2] + 0.74] as Vector3Tuple,
+      rotation: [0, 0.34, 0] as Vector3Tuple,
+      scale: [0.5, 0.42, 0.45] as Vector3Tuple,
     },
     {
       key: "estate-east-bookshelf",
@@ -3591,20 +3730,6 @@ function EstateFurnitureComposition({
       scale: [1.72, 0.66, 0.34] as Vector3Tuple,
     },
     {
-      key: "estate-window-plant-west",
-      url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb",
-      position: [-bounds[0] / 2 + 0.76, 0.7, bounds[2] * 0.2] as Vector3Tuple,
-      rotation: [0, 0.24, 0] as Vector3Tuple,
-      scale: [0.9, 1.4, 0.9] as Vector3Tuple,
-    },
-    {
-      key: "estate-window-plant-east",
-      url: "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb",
-      position: [bounds[0] / 2 - 0.76, 0.7, bounds[2] * 0.22] as Vector3Tuple,
-      rotation: [0, -0.36, 0] as Vector3Tuple,
-      scale: [0.82, 1.32, 0.82] as Vector3Tuple,
-    },
-    {
       key: "estate-tea-table-service",
       url: "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb",
       position: [teaTablePosition[0], 0.745, teaTablePosition[2]] as Vector3Tuple,
@@ -3612,11 +3737,11 @@ function EstateFurnitureComposition({
       scale: [0.38, 0.33, 0.54] as Vector3Tuple,
     },
     {
-      key: "estate-console-vase",
-      url: "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb",
-      position: [southConsolePosition[0] + 0.46, 0.86, southConsolePosition[2]] as Vector3Tuple,
+      key: "estate-console-jug",
+      url: "/models/optimized/polyhaven/jug_01/jug_01_lod1.glb",
+      position: [southConsolePosition[0] + 0.52, 0.87, southConsolePosition[2]] as Vector3Tuple,
       rotation: [0, 0.32, 0] as Vector3Tuple,
-      scale: [0.27, 0.4, 0.27] as Vector3Tuple,
+      scale: [0.3, 0.42, 0.3] as Vector3Tuple,
     },
     {
       key: "estate-side-table-succulent",
@@ -3639,16 +3764,46 @@ function EstateFurnitureComposition({
       rotation: [0, Math.PI + 0.05, 0] as Vector3Tuple,
       scale: [0.5, 0.66, 0.34] as Vector3Tuple,
     },
+    {
+      key: "estate-console-books",
+      url: "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
+      position: [southConsolePosition[0], 0.79, southConsolePosition[2]] as Vector3Tuple,
+      rotation: [0, Math.PI - 0.08, 0] as Vector3Tuple,
+      scale: [0.56, 0.25, 0.18] as Vector3Tuple,
+    },
+    {
+      key: "estate-west-gallery-painting",
+      url: "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+      position: [-bounds[0] / 2 + 0.18, 3.45, westGalleryCenterZ] as Vector3Tuple,
+      rotation: [0, Math.PI / 2, 0] as Vector3Tuple,
+      scale: [1.05, 0.82, 0.055] as Vector3Tuple,
+    },
+    {
+      key: "estate-grandfather-clock",
+      url: "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb",
+      position: [-bounds[0] * 0.34, 1.1, bounds[2] / 2 - 0.42] as Vector3Tuple,
+      rotation: [0, Math.PI, 0] as Vector3Tuple,
+      scale: [0.72, 2.2, 0.42] as Vector3Tuple,
+    },
+    {
+      key: "estate-south-gallery-painting",
+      url: "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb",
+      position: [bounds[0] * 0.35, 3.35, bounds[2] / 2 - 0.18] as Vector3Tuple,
+      rotation: [0, Math.PI, 0] as Vector3Tuple,
+      scale: [1.08, 0.82, 0.055] as Vector3Tuple,
+    },
   ] as const;
   const hiddenWithCutawayWalls = new Set([
     "estate-east-bookshelf",
     "estate-east-document-drawers",
     "estate-east-ornate-mirror",
-    "estate-window-plant-east",
     "estate-south-console",
     "estate-west-vintage-glass-cabinet",
-    "estate-console-vase",
+    "estate-console-jug",
     "estate-console-candleholders",
+    "estate-console-books",
+    "estate-grandfather-clock",
+    "estate-south-gallery-painting",
   ]);
 
   return (
@@ -3701,6 +3856,10 @@ function EstateFurnitureComposition({
           <Suspense fallback={null}>
             <LoadedModel url={item.url} tint={"tint" in item ? item.tint : undefined} />
           </Suspense>
+          {item.key === "estate-east-bookshelf" && <BookcaseContents />}
+          {item.key.includes("oil-lamp") && (
+            <pointLight position={[0, 0.24, 0]} color="#f2ad61" intensity={0.75} distance={4.2} decay={2} />
+          )}
         </group>
       ))}
     </group>
@@ -3991,10 +4150,9 @@ function EstateWallpaperPanel({
   );
 }
 
-function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
-  const dimensions: Vector3Tuple = [1.25, 1.9, 1.25];
+function EstateChandelier({ bounds, z }: { bounds: Vector3Tuple; z: number }) {
+  const dimensions: Vector3Tuple = [1.65, 2.1, 1.65];
   const x = 0;
-  const z = -bounds[2] * 0.08;
   const centerY = bounds[1] - dimensions[1] / 2 - 2.15;
   const fixtureTop = centerY + dimensions[1] / 2;
   const ceilingAnchor = bounds[1] - 0.16;
@@ -4003,7 +4161,7 @@ function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
     <group userData={{ decorativeOnly: true, module: "ceiling-mounted-estate-chandelier" }}>
       <group position={[x, centerY, z]} scale={dimensions}>
         <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/lantern_chandelier_01/lantern_chandelier_01_lod0.glb" />
+          <LoadedModel url="/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb" />
         </Suspense>
       </group>
       <mesh position={[x, bounds[1] - 0.085, z]} rotation={[Math.PI / 2, 0, 0]} castShadow>
@@ -4014,20 +4172,6 @@ function EstateChandelier({ bounds }: { bounds: Vector3Tuple }) {
         <cylinderGeometry args={[0.022, 0.022, chainLength, 12]} />
         <meshStandardMaterial color="#4a3420" roughness={0.48} metalness={0.72} />
       </mesh>
-      <pointLight
-        position={[x, centerY - dimensions[1] * 0.28, z]}
-        color="#f2b36a"
-        intensity={3.1}
-        distance={Math.max(bounds[0], bounds[2]) * 0.72}
-        decay={2}
-      />
-      <pointLight
-        position={[x, Math.max(2.1, centerY - 1.8), z + bounds[2] * 0.16]}
-        color="#d8b88b"
-        intensity={1.7}
-        distance={Math.max(bounds[0], bounds[2]) * 0.62}
-        decay={1.85}
-      />
     </group>
   );
 }
@@ -4124,8 +4268,10 @@ function HistoricalInteriorDetails({
   const wallArt = (wall: RuntimeWall) => {
     const horizontal = wall === "north" || wall === "south";
     const span = horizontal ? bounds[0] : bounds[2];
+    const importedWestGalleryCenter = bounds[2] * 0.16;
     return createWallTrimSegments(span, artObstacles[wall], 0.42, 0.6)
       .filter((run) => run.length >= 2.25)
+      .filter((run) => wall !== "west" || Math.abs(run.center - importedWestGalleryCenter) >= 2.1)
       .slice(0, 3)
       .map((run, index) => {
         const width = Math.min(1.25, run.length * 0.46);
@@ -4138,6 +4284,26 @@ function HistoricalInteriorDetails({
               : [bounds[0] / 2 - 0.135, 3.28, run.center];
         const yaw = wall === "north" ? 0 : wall === "south" ? Math.PI : wall === "west" ? Math.PI / 2 : -Math.PI / 2;
         return <DecorativeWallPortrait key={`${wall}-gallery-${index}`} position={position} yaw={yaw} width={width} seed={index + wall.length} />;
+      });
+  };
+
+  const wallSconces = (wall: "north" | "west") => {
+    const span = wall === "north" ? bounds[0] : bounds[2];
+    return createWallTrimSegments(span, artObstacles[wall], 0.7, 0.72)
+      .filter((run) => run.length >= 1.05 && run.length < 2.25)
+      .slice(0, 2)
+      .map((run, index) => {
+        const position: Vector3Tuple = wall === "north"
+          ? [run.center, 3.05, -bounds[2] / 2 + 0.18]
+          : [-bounds[0] / 2 + 0.18, 3.05, run.center];
+        return (
+          <DecorativeWallSconce
+            key={`${wall}-sconce-${index}`}
+            position={position}
+            yaw={wall === "north" ? 0 : Math.PI / 2}
+            lit={index === 0}
+          />
+        );
       });
   };
 
@@ -4170,7 +4336,12 @@ function HistoricalInteriorDetails({
           />
         </>
       )}
-      {!overview && <EstateChandelier bounds={bounds} />}
+      {!overview && (
+        <>
+          <EstateChandelier bounds={bounds} z={-bounds[2] * 0.2} />
+          <EstateChandelier bounds={bounds} z={bounds[2] * 0.18} />
+        </>
+      )}
       {wallPanels("north")}
       {wallPanels("west")}
       {!overview && wallPanels("south")}
@@ -4192,22 +4363,8 @@ function HistoricalInteriorDetails({
           <meshStandardMaterial color="#aa8a5b" roughness={0.64} metalness={0.12} />
         </mesh>
       </group>
-      {[-0.34, 0.34].map((factor, index) => (
-        <DecorativeWallSconce
-          key={`north-sconce-${factor}`}
-          position={[bounds[0] * factor, 3.05, -bounds[2] / 2 + 0.18]}
-          yaw={0}
-          lit={index === 0}
-        />
-      ))}
-      {[-0.3, 0.3].map((factor, index) => (
-        <DecorativeWallSconce
-          key={`west-sconce-${factor}`}
-          position={[-bounds[0] / 2 + 0.18, 3.05, bounds[2] * factor]}
-          yaw={Math.PI / 2}
-          lit={index === 1}
-        />
-      ))}
+      {wallSconces("north")}
+      {wallSconces("west")}
       {[
         [[0, bounds[1] - 0.18, -bounds[2] / 2 + 0.13], [bounds[0], 0.2, 0.18]],
         [[-bounds[0] / 2 + 0.13, bounds[1] - 0.18, 0], [0.18, 0.2, bounds[2]]],
@@ -4422,17 +4579,49 @@ function ArchiveGalleryDetails({
       scale={[2.2, 3.64, 0.66]}
     >
       <Suspense fallback={null}>
-        <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+        <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
         <BookcaseContents />
       </Suspense>
     </group>
   );
   const rearShelfFactors = [-0.41, -0.255, -0.1, 0.1, 0.255, 0.41];
+  const interiorStacks: ReadonlyArray<{ key: string; position: Vector3Tuple; yaw: number }> = [
+    { key: "northwest", position: [-bounds[0] * 0.135, 1.45, -bounds[2] * 0.24], yaw: 0 },
+    { key: "southwest", position: [-bounds[0] * 0.135, 1.45, -bounds[2] * 0.08], yaw: 0 },
+    { key: "northeast", position: [bounds[0] * 0.135, 1.45, -bounds[2] * 0.24], yaw: 0 },
+    { key: "southeast", position: [bounds[0] * 0.135, 1.45, -bounds[2] * 0.08], yaw: 0 },
+  ];
 
   return (
     <group userData={{ decorativeOnly: true, module: "archive-gallery-details" }}>
+      {[-0.22, 0.22].map((factor) => (
+        <group
+          key={`archive-aisle-runner:${factor}`}
+          name={`archive-aisle-runner:${factor}`}
+          position={[bounds[0] * factor, 0.014, 0.45]}
+          scale={[2.65, 1, Math.max(8.8, bounds[2] * 0.39)]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "pbr-textile" }}
+        >
+          <StoryRug highlighted={false} highlightColor="#000000" />
+        </group>
+      ))}
       {[-0.33, 0.33].map((factor) => sideShelf(-1, factor))}
       {!overview && [-0.33, 0.33].map((factor) => sideShelf(1, factor))}
+      {interiorStacks.map((stack) => (
+        <group
+          key={`archive-interior-stack:${stack.key}`}
+          name={`archive-interior-stack:${stack.key}`}
+          position={stack.position}
+          rotation={[0, stack.yaw, 0]}
+          scale={[1.72, 2.9, 0.68]}
+          userData={{ decorativeOnly: true, placementValidated: true, module: "archive-interior-stack" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
+            <BookcaseContents />
+          </Suspense>
+        </group>
+      ))}
       {[-0.34, 0, 0.34].map((factor, index) => (
         <group key={`archive-rear-sconce:${factor}`}>
           <DecorativeWallSconce
@@ -4462,26 +4651,7 @@ function ArchiveGalleryDetails({
           {index % 2 === 0 && <pointLight color="#eeb36b" intensity={0.24} distance={3.2} decay={2} />}
         </group>
       ))}
-      <group position={[0, 5.88, -bounds[2] / 2 + 0.25]} userData={{ decorativeOnly: true, motif: "archive-clock" }}>
-        <mesh castShadow>
-          <torusGeometry args={[0.42, 0.075, 14, 48]} />
-          <meshStandardMaterial color="#a77d43" metalness={0.62} roughness={0.38} />
-        </mesh>
-        <mesh position={[0, 0, -0.012]}>
-          <circleGeometry args={[0.36, 48]} />
-          <meshStandardMaterial color="#c9b98e" roughness={0.78} />
-        </mesh>
-        <mesh position={[-0.06, 0.09, 0.018]} rotation={[0, 0, -0.52]} castShadow>
-          <boxGeometry args={[0.035, 0.25, 0.025]} />
-          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
-        </mesh>
-        <mesh position={[0.1, -0.035, 0.02]} rotation={[0, 0, 1.18]} castShadow>
-          <boxGeometry args={[0.03, 0.28, 0.024]} />
-          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.035]} castShadow><sphereGeometry args={[0.045, 16, 10]} /><meshStandardMaterial color="#8d6739" metalness={0.64} roughness={0.36} /></mesh>
-      </group>
-      {[-0.39, -0.13, 0.13, 0.39].map((factor) => (
+      {!overview && [-0.39, -0.13, 0.13, 0.39].map((factor) => (
         <RoundedBox
           key={`archive-cross-rib:${factor}`}
           args={[0.18, 0.2, bounds[2] - 0.25]}
@@ -4524,71 +4694,6 @@ function ArchiveGalleryDetails({
           <cylinderGeometry args={[0.09, 0.09, 1.12, 18]} />
           <meshStandardMaterial color="#a77b45" metalness={0.56} roughness={0.4} />
         </mesh>
-      </group>
-      <group
-        position={[-bounds[0] * 0.22, 0.58, bounds[2] * 0.2]}
-        rotation={[0, 0.12, 0]}
-        userData={{ decorativeOnly: true, module: "archive-book-cart" }}
-      >
-        <RoundedBox args={[1.55, 0.12, 0.7]} radius={0.045} smoothness={3} position={[0, 0.58, 0]} castShadow receiveShadow>
-          <meshStandardMaterial color="#68472f" roughness={0.8} />
-        </RoundedBox>
-        {[-0.62, 0.62].map((x) => (
-          <mesh key={`cart-post-${x}`} position={[x, 0.06, 0]} castShadow>
-            <cylinderGeometry args={[0.045, 0.05, 1.1, 12]} />
-            <meshStandardMaterial color="#493328" metalness={0.24} roughness={0.66} />
-          </mesh>
-        ))}
-        {[-0.48, 0, 0.48].map((x, index) => (
-          <RoundedBox key={`cart-book-${x}`} args={[0.26, 0.7 + index * 0.08, 0.48]} radius={0.025} smoothness={2} position={[x, 0.98 + index * 0.04, 0]} rotation={[0, 0, (index - 1) * 0.07]} castShadow>
-            <meshStandardMaterial color={["#7d493e", "#516a62", "#a17a43"][index]} roughness={0.86} />
-          </RoundedBox>
-        ))}
-        {[-0.6, 0.6].flatMap((x) => [-0.26, 0.26].map((z) => (
-          <mesh key={`cart-wheel-${x}-${z}`} position={[x, -0.43, z]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.14, 0.035, 8, 18]} />
-            <meshStandardMaterial color="#3c3430" metalness={0.52} roughness={0.48} />
-          </mesh>
-        )))}
-      </group>
-      {[-0.2, 0.2].map((factor, index) => (
-        <group key={`archive-reading-pool:${factor}`} position={[bounds[0] * factor, 3.55, 0]}>
-          <mesh position={[0, (bounds[1] - 3.55) / 2 - 0.08, 0]} castShadow>
-            <cylinderGeometry args={[0.018, 0.018, bounds[1] - 3.55 - 0.16, 8]} />
-            <meshStandardMaterial color="#3a2c25" metalness={0.42} roughness={0.6} />
-          </mesh>
-          <mesh position={[0, bounds[1] - 3.55 - 0.12, 0]} castShadow>
-            <cylinderGeometry args={[0.14, 0.18, 0.08, 18]} />
-            <meshStandardMaterial color="#76532f" metalness={0.62} roughness={0.38} />
-          </mesh>
-          <mesh castShadow>
-            <cylinderGeometry args={[0.32, 0.46, 0.24, 24, 1, true]} />
-            <meshStandardMaterial color="#9c7544" metalness={0.58} roughness={0.4} side={THREE.DoubleSide} />
-          </mesh>
-          <mesh position={[0, -0.08, 0]}>
-            <cylinderGeometry args={[0.045, 0.045, 0.7, 12]} />
-            <meshStandardMaterial color="#76532f" metalness={0.68} roughness={0.34} />
-          </mesh>
-          <pointLight position={[0, -0.2, 0]} color="#efb36a" intensity={index ? 0.62 : 0.76} distance={5.8} decay={2} />
-        </group>
-      ))}
-      <group position={[bounds[0] * 0.19, 0.6, bounds[2] * 0.02]} rotation={[0, -0.08, 0]} userData={{ decorativeOnly: true, module: "archive-reading-island" }}>
-        <group scale={[2.4, 1.2, 1.1]}>
-          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf" /></Suspense>
-        </group>
-        <group position={[0.42, 0.78, 1.25]} rotation={[0, Math.PI, 0]} scale={[0.95, 1.55, 0.95]}>
-          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf" /></Suspense>
-        </group>
-        {[-0.48, -0.1, 0.32].map((x, index) => (
-          <mesh key={`archive-desk-paper-${x}`} position={[x, 0.66 + index * 0.006, -0.08 + index * 0.12]} rotation={[-Math.PI / 2, 0, -0.12 + index * 0.09]} castShadow>
-            <planeGeometry args={[0.54, 0.72]} />
-            <meshStandardMaterial color={index === 1 ? "#c7af7c" : "#d9c99e"} roughness={0.92} side={THREE.DoubleSide} />
-          </mesh>
-        ))}
-        <group position={[0.72, 1.02, -0.3]} scale={[0.52, 0.76, 0.52]}>
-          <StorybookLampAsset highlighted={false} highlightColor="#000000" table />
-          <pointLight position={[0, 0.42, 0]} color="#efb36a" intensity={0.46} distance={3.4} decay={2} />
-        </group>
       </group>
     </group>
   );
@@ -5076,7 +5181,7 @@ function Room({
                   </RoundedBox>
                 )}
               >
-                <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+                <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
                 <BookcaseContents />
               </Suspense>
               <RoundedBox args={[0.22, 0.035, 0.025]} radius={0.008} smoothness={2} position={[0, -0.54, 0.53]} castShadow>
@@ -5504,15 +5609,23 @@ function Firelight({ item }: { item: LayoutItem }) {
 
 function StoryEffects({
   layout,
+  portalItemOverride,
   portalDestination,
+  portalSourceEntityId,
+  portalIsReturn,
   onLocationRequest,
 }: {
   layout: WorldLayout;
+  portalItemOverride?: LayoutItem;
   portalDestination?: Location;
+  portalSourceEntityId?: string;
+  portalIsReturn?: boolean;
   onLocationRequest?: (locationId: string) => void;
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
-  const portalItem = layout.items.find((item) => isPortalItem(item));
+  const portalItem = layout.items.find((item) =>
+    isPortalSourceEntity(item.entity.id, portalSourceEntityId)
+  ) ?? portalItemOverride;
 
   return (
     <>
@@ -5535,7 +5648,7 @@ function StoryEffects({
                   onLocationRequest(portalDestination.id);
                 }}
               >
-                Enter {portalDestination.name}
+                {portalIsReturn ? "Return to" : "Enter"} {portalDestination.name}
               </button>
             </Html>
           )}
@@ -5549,6 +5662,61 @@ function isPortalItem(item: LayoutItem): boolean {
   return /\b(?:door|gate|portal|hatch)\b/i.test(
     `${item.asset.key} ${item.entity.kind} ${item.entity.name}`,
   );
+}
+
+function oppositeWall(wall: RuntimeWall): RuntimeWall {
+  if (wall === "north") return "south";
+  if (wall === "south") return "north";
+  if (wall === "east") return "west";
+  return "east";
+}
+
+/**
+ * Builds the destination-side face of one factual doorway. The cloned render
+ * item keeps the canonical entity ID and is never persisted into world state.
+ */
+function createReturnPortalItem(
+  snapshot: WorldSnapshot,
+  layout: WorldLayout,
+  presentation: ScenePresentation,
+  registry: AssetRegistry,
+): LayoutItem | undefined {
+  if (!presentation.portalIsReturn || !presentation.portalSourceEntityId) return undefined;
+  if (layout.items.some((item) => isPortalItem(item))) return undefined;
+
+  const sourceEntity = snapshot.entities.find(
+    (entity) => entity.id === presentation.portalSourceEntityId,
+  );
+  if (!sourceEntity) return undefined;
+  const sourceWall = snapshot.relations.find(
+    (relation) => relation.subjectId === sourceEntity.id && relation.predicate === "against_wall",
+  )?.metadata?.wall ?? "east";
+  const wall = oppositeWall(sourceWall);
+  const asset = resolveAsset(sourceEntity, registry);
+  const dimensions = sourceEntity.dimensions ?? asset.dimensions;
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const halfDepth = dimensions[2] / 2;
+  const position: Vector3Tuple = wall === "north"
+    ? [0, dimensions[1] / 2, -bounds[2] / 2 + halfDepth]
+    : wall === "south"
+      ? [0, dimensions[1] / 2, bounds[2] / 2 - halfDepth]
+      : wall === "west"
+        ? [-bounds[0] / 2 + halfDepth, dimensions[1] / 2, 0]
+        : [bounds[0] / 2 - halfDepth, dimensions[1] / 2, 0];
+  const rotation: Vector3Tuple = [
+    0,
+    wall === "north" ? 0 : wall === "south" ? Math.PI : wall === "west" ? Math.PI / 2 : -Math.PI / 2,
+    0,
+  ];
+
+  return {
+    entity: { ...sourceEntity, locationId: layout.location.id },
+    asset,
+    position,
+    rotation,
+    scale: [1, 1, 1],
+    dimensions,
+  };
 }
 
 function SceneCamera({
@@ -5816,6 +5984,7 @@ function WorldScene({
   openConflicts,
   enableShadows,
   portalDestination,
+  returnPortalItem,
   onLocationRequest,
   cameraView,
   walkMode,
@@ -5834,6 +6003,7 @@ function WorldScene({
   openConflicts: readonly Conflict[];
   enableShadows: boolean;
   portalDestination?: Location;
+  returnPortalItem?: LayoutItem;
   onLocationRequest?: (locationId: string) => void;
   cameraView: CameraViewMode;
   walkMode: boolean;
@@ -5852,8 +6022,9 @@ function WorldScene({
     && !presentation.architecture.aridTerrain
     && !presentation.architecture.coastalTerrain
     && !presentation.architecture.grassland;
-  const usesEstateFurniture = presentation.location.dressingTags.includes("estate-furnishings")
-    || presentation.location.dressingTags.includes("period-interior");
+  // Only an explicitly requested estate receives the authored Ashwood set.
+  // Generic historical interiors use the reusable, collision-aware resolver.
+  const usesEstateFurniture = presentation.location.dressingTags.includes("estate-furnishings");
   const visibleDressingInstances = usesEstateFurniture
     ? dressingInstances.filter(
         (instance) => instance.sourceTag !== "estate-furnishings"
@@ -5864,6 +6035,9 @@ function WorldScene({
     && !(["subterranean", "aquatic", "volcanic"] as const).includes(
       presentation.semanticProfile.domain as "subterranean" | "aquatic" | "volcanic",
     );
+  const visibleLayoutItems = layout.items.filter(
+    (item) => item.entity.state?.presentationOccluded !== true,
+  );
 
   return (
     <>
@@ -5910,7 +6084,7 @@ function WorldScene({
         position={atmosphereProfile.fillPosition}
         intensity={atmosphereProfile.fillIntensity}
       />
-      {presentation.atmosphere.coolWindowLight && (
+      {presentation.atmosphere.coolWindowLight && !usesEstateFurniture && (
         <>
           <rectAreaLight
             color="#b9dce3"
@@ -5960,10 +6134,32 @@ function WorldScene({
       )}
       <StoryEffects
         layout={layout}
+        portalItemOverride={returnPortalItem}
         portalDestination={portalDestination}
+        portalSourceEntityId={presentation.portalSourceEntityId}
+        portalIsReturn={presentation.portalIsReturn}
         onLocationRequest={onLocationRequest}
       />
-      {layout.items.map((item) => (
+      {returnPortalItem && (
+        <WorldEntity
+          item={returnPortalItem}
+          selected={selectedEntityId === returnPortalItem.entity.id}
+          change={undefined}
+          onSelect={onEntitySelect
+            ? (event) => {
+                event.stopPropagation();
+                onEntitySelect(returnPortalItem.entity.id);
+              }
+            : undefined}
+          onActivate={portalDestination && onLocationRequest
+            ? (event) => {
+                event.stopPropagation();
+                onLocationRequest(portalDestination.id);
+              }
+            : undefined}
+        />
+      )}
+      {visibleLayoutItems.map((item) => (
         <WorldEntity
           key={item.entity.id}
           item={item}
@@ -5974,7 +6170,9 @@ function WorldScene({
             onEntitySelect?.(item.entity.id);
           }}
           onActivate={
-            isPortalItem(item) && portalDestination && onLocationRequest
+            isPortalSourceEntity(item.entity.id, presentation.portalSourceEntityId)
+              && portalDestination
+              && onLocationRequest
               ? (event) => {
                   event.stopPropagation();
                   onLocationRequest(portalDestination.id);
@@ -5999,25 +6197,27 @@ function WorldScene({
         />
       )}
       <RelationAwareness edges={relationEdges} />
-      {renderQuality !== "low" && !usesGhibliWoodland && postProcessingSafe && (
-        <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
-          <N8AO
-            aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
-            distanceFalloff={0.72}
-            intensity={renderQuality === "high" ? 2.15 : 1.65}
-            quality={renderQuality === "high" ? "high" : "medium"}
-            halfRes={renderQuality !== "high"}
-            color="#14201e"
-          />
-          <Bloom
-            mipmapBlur
-            luminanceThreshold={1.05}
-            luminanceSmoothing={0.28}
-            intensity={0.34}
-            radius={0.55}
-          />
-          <Vignette offset={0.22} darkness={0.34} />
-        </EffectComposer>
+      {renderQuality !== "low" && !usesGhibliWoodland && !usesEstateFurniture && postProcessingSafe && (
+        <ModelErrorBoundary key={`post-processing-${renderQuality}`} fallback={null}>
+          <EffectComposer multisampling={renderQuality === "high" ? 4 : 0}>
+            <N8AO
+              aoRadius={atmosphereProfile.openAir ? 2.2 : 1.35}
+              distanceFalloff={0.72}
+              intensity={renderQuality === "high" ? 2.15 : 1.65}
+              quality={renderQuality === "high" ? "high" : "medium"}
+              halfRes={renderQuality !== "high"}
+              color="#14201e"
+            />
+            <Bloom
+              mipmapBlur
+              luminanceThreshold={1.05}
+              luminanceSmoothing={0.28}
+              intensity={0.34}
+              radius={0.55}
+            />
+            <Vignette offset={0.22} darkness={0.34} />
+          </EffectComposer>
+        </ModelErrorBoundary>
       )}
       <ConflictMarkers layout={layout} conflicts={openConflicts} />
       {cameraCommand?.kind === "travel" && (
@@ -6052,6 +6252,8 @@ export function WorldViewer({
   selectedEntityId,
   onEntitySelect,
   onRuntimeError,
+  onSceneReady,
+  renderMode = "continuous",
   onPatchApplied,
   onLocationRequest,
   onPassageAdvance,
@@ -6069,6 +6271,17 @@ export function WorldViewer({
   const [cameraView, setCameraView] = useState<CameraViewMode>("pov");
   const [walkMode, setWalkMode] = useState(false);
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("balanced");
+  const { active: assetsLoading, loaded: assetsLoaded, total: assetTotal } = useProgress();
+  const reportedReadyKey = useRef("");
+  const sceneReadyCallback = useRef(onSceneReady);
+  const readinessWindow = useRef({
+    key: "",
+    startedAt: 0,
+    lastProgressAt: 0,
+    loaded: -1,
+    total: -1,
+  });
+  const [webGlContextLost, setWebGlContextLost] = useState(false);
   const viewerElement = useRef<HTMLDivElement>(null);
   const cameraCommandId = useRef(0);
   const appliedPatch = useRef<string | null>(null);
@@ -6086,6 +6299,15 @@ export function WorldViewer({
     cameraCommandId.current += 1;
     setCameraView(view);
     setCameraCommand({ id: cameraCommandId.current, kind: view });
+  }, []);
+
+  const recoverLostWebGlContext = useCallback(() => {
+    setRenderQuality("low");
+    setWebGlContextLost(true);
+  }, []);
+
+  const acknowledgeRestoredWebGlContext = useCallback(() => {
+    setWebGlContextLost(false);
   }, []);
 
   const enterWalkMode = useCallback(async () => {
@@ -6260,7 +6482,6 @@ export function WorldViewer({
     () => runtime?.snapshot.conflicts.filter((conflict) => conflict.status === "open") ?? [],
     [runtime?.snapshot.conflicts],
   );
-  const qualityProfile = renderQualityProfiles[renderQuality];
   const presentation = useMemo(() => {
     if (!runtime) return null;
     const compiled = sceneRecipe?.locations[runtime.layout.location.id]?.presentation;
@@ -6291,6 +6512,12 @@ export function WorldViewer({
           (location) => location.id === presentation.portalTargetLocationId,
         )
       : undefined;
+  const returnPortalItem = useMemo(
+    () => runtime && presentation
+      ? createReturnPortalItem(runtime.snapshot, runtime.layout, presentation, assetRegistry)
+      : undefined,
+    [assetRegistry, presentation, runtime],
+  );
   const dressingInstances = useMemo(() => {
     if (!runtime || !presentation) return [];
     const compiledLocation = sceneRecipe?.locations[runtime.layout.location.id];
@@ -6307,19 +6534,90 @@ export function WorldViewer({
       sceneRecipe?.styleKit.id ?? "generic-grounded",
     );
   }, [presentation, runtime?.layout, runtime?.snapshot.storyId, runtime?.snapshot.version, sceneRecipe]);
+  const denseEstateScene = Boolean(
+    presentation?.location.dressingTags.includes("estate-furnishings")
+      || presentation?.location.dressingTags.includes("period-interior"),
+  );
+  const effectiveRenderQuality: RenderQuality = denseEstateScene && renderQuality === "high"
+    ? "balanced"
+    : renderQuality;
+  const qualityProfile = renderQualityProfiles[effectiveRenderQuality];
+  const readinessKey = runtime
+    ? `${runtime.snapshot.storyId}:${runtime.snapshot.version}:${runtime.layout.location.id}`
+    : "";
+
+  useEffect(() => {
+    sceneReadyCallback.current = onSceneReady;
+  }, [onSceneReady]);
+
+  useEffect(() => {
+    const now = performance.now();
+    if (readinessWindow.current.key !== readinessKey) {
+      readinessWindow.current = {
+        key: readinessKey,
+        startedAt: now,
+        lastProgressAt: now,
+        loaded: assetsLoaded,
+        total: assetTotal,
+      };
+    } else if (
+      readinessWindow.current.loaded !== assetsLoaded
+      || readinessWindow.current.total !== assetTotal
+      || assetsLoading
+    ) {
+      readinessWindow.current.lastProgressAt = now;
+      readinessWindow.current.loaded = assetsLoaded;
+      readinessWindow.current.total = assetTotal;
+    }
+
+    if (
+      !readinessKey ||
+      !runtime ||
+      !presentation ||
+      webGlContextLost ||
+      assetsLoading ||
+      assetsLoaded < assetTotal ||
+      reportedReadyKey.current === readinessKey
+    ) return;
+
+    // LoadingManager can briefly report an empty queue before Suspense mounts
+    // its first GLTF request. Require both a real mount window and a quiet
+    // progress window, then present two rendered frames. This is stabilization,
+    // not a simulated product delay.
+    const mountedFor = now - readinessWindow.current.startedAt;
+    const quietFor = now - readinessWindow.current.lastProgressAt;
+    const waitFor = Math.max(0, 1400 - mountedFor, 650 - quietFor);
+    let settleTimer = 0;
+    let frameOne = 0;
+    let frameTwo = 0;
+    settleTimer = window.setTimeout(() => {
+      frameOne = requestAnimationFrame(() => {
+        frameTwo = requestAnimationFrame(() => {
+          if (readinessWindow.current.key !== readinessKey) return;
+          reportedReadyKey.current = readinessKey;
+          sceneReadyCallback.current?.();
+        });
+      });
+    }, waitFor);
+    return () => {
+      window.clearTimeout(settleTimer);
+      cancelAnimationFrame(frameOne);
+      cancelAnimationFrame(frameTwo);
+    };
+  }, [assetTotal, assetsLoaded, assetsLoading, presentation, readinessKey, runtime, webGlContextLost]);
 
   return (
     <div
       ref={viewerElement}
       className={["world-viewer", className].filter(Boolean).join(" ")}
-      data-runtime-status={viewer.error ? "error" : "ready"}
+      data-runtime-status={viewer.error ? "error" : assetsLoading ? "loading" : "ready"}
       data-story-id={runtime?.snapshot.storyId ?? "invalid"}
       data-world-version={runtime?.snapshot.version ?? "invalid"}
       data-location-id={runtime?.layout.location.id ?? "invalid"}
       data-navigation-mode={walkMode ? "walk" : "map"}
       data-visible-relations={relationEdges.length}
       data-open-conflicts={openConflicts.length}
-      data-render-quality={renderQuality}
+      data-render-quality={effectiveRenderQuality}
       data-visual-plan-version={presentation?.planVersion ?? 0}
       data-visual-style={presentation?.styleLabel ?? "unavailable"}
       data-asset-requests={presentation?.assetRequests.length ?? 0}
@@ -6331,10 +6629,12 @@ export function WorldViewer({
     >
       {runtime && presentation ? (
         <Canvas
+          frameloop={renderMode === "on-demand" ? "demand" : "always"}
           shadows={qualityProfile.shadows}
           dpr={qualityProfile.dpr}
           gl={{
             antialias: true,
+            powerPreference: "high-performance",
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.08,
           }}
@@ -6342,6 +6642,10 @@ export function WorldViewer({
           style={{ touchAction: "none" }}
           onPointerMissed={() => onEntitySelect?.(null)}
         >
+          <WebGlContextGuard
+            onContextLost={recoverLostWebGlContext}
+            onContextRestored={acknowledgeRestoredWebGlContext}
+          />
           <WorldScene
             layout={runtime.layout}
             presentation={presentation}
@@ -6356,10 +6660,11 @@ export function WorldViewer({
             openConflicts={openConflicts}
             enableShadows={qualityProfile.shadows}
             portalDestination={portalDestination}
+            returnPortalItem={returnPortalItem}
             onLocationRequest={onLocationRequest}
             cameraView={cameraView}
             walkMode={walkMode}
-            renderQuality={renderQuality}
+            renderQuality={effectiveRenderQuality}
           />
           <PerformanceMonitor
             ms={250}
@@ -6373,6 +6678,11 @@ export function WorldViewer({
         </Canvas>
       ) : (
         <div className="world-runtime-empty">The supplied world snapshot cannot be rendered.</div>
+      )}
+      {webGlContextLost && (
+        <div className="world-webgl-recovery" role="status">
+          Restoring the 3D renderer...
+        </div>
       )}
       {runtime && (
         <div className="world-camera-modes" role="group" aria-label="Camera view">

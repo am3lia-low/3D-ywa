@@ -24,6 +24,12 @@ The boundary is data-driven. Member 1 never needs to author coordinates for a
 good default scene, Member 2 never parses the novel, and Member 3 never rebuilds
 spatial state or placement logic.
 
+For stories containing multiple connected rooms, follow
+[`multi-location-traversal.md`](multi-location-traversal.md). In short: Member 1
+emits the canonical locations, entrance entity, and evidenced connection; Member
+2 compiles and renders every room and implements traversal; Member 3 hosts and
+preloads the same mounted viewer.
+
 ## Ownership matrix
 
 | Concern | Owner | Input | Output |
@@ -34,6 +40,11 @@ spatial state or placement logic.
 | Spatial composition | Member 2 | Valid snapshot, matching visual plan, optional next patch | Deterministic layout, scene recipe, composition report |
 | Assets and 3D runtime | Member 2 | Semantic entity descriptions and asset tags | Approved asset registry, fallbacks, transitions, `WorldViewer` |
 | Reader experience and transport | Member 3 | Part 1 HTTP responses and Part 2 public exports | Reading/timeline UI, loading and retry states, inspector, deployment |
+
+Member 1's entity evidence is also the source of the reader-facing object
+description. Member 3 may format the book title, chapter, quotation, confidence,
+and evidence type, but must not replace missing provenance with invented story
+claims.
 
 ## Source-of-truth files
 
@@ -307,10 +318,17 @@ Member 2 outputs to Member 3:
 | `onLocationRequest(locationId)` | A door/portal requested canonical navigation |
 | `onRuntimeError(error)` | Typed error for retry or resynchronization UI |
 | `compileSceneRecipe(...).composition` | Preflight status, score, warnings, and blocking issues |
+| `compileSceneRecipe(...).assetOutcomes` | Per-entity approved, fallback, pending, review, rejected, failed, or promoted status |
 
 Member 2 owns coordinates, support surfaces, wall clearances, asset selection,
 fallbacks, LODs, rendering, object picking, camera modes, and transitions. It
 does not own passage order, HTTP requests, reader loading UI, or conflict review.
+
+Multi-location traversal is also a Member 2 runtime responsibility. A
+`presentationConnection` is compiled against its `fromLocationId`, attached to
+its canonical entrance entity, and emitted through `onLocationRequest` when the
+reader selects it. Member 2 never mints the factual destination; that location
+must already exist in Member 1's snapshot.
 
 ## Member 3 input and output
 
@@ -327,6 +345,13 @@ Member 3 owns transport and product state:
 7. Keep `selectedEntityId` in reader UI state and use it for the inspector.
 8. Display loading, retry, conflict, provenance, and build-status UI outside the
    viewer.
+9. Keep the prepared `WorldViewer` mounted when switching from Reading to
+   Explore. Do not unmount and recreate its WebGL canvas after reporting the
+   scene ready.
+10. Treat `WorldViewer.onSceneReady` as the readiness authority. It fires after
+    the actual location loader queue settles and rendered frames complete; the
+    integrated shell warms every canonical chapter location before displaying
+    **3D scene ready**. API completion and recipe compilation are not sufficient.
 
 Member 3 must deploy these directories at the web root:
 
@@ -373,6 +398,7 @@ requires a patch. Import and live modes feed the same runtime contracts.
 | Blocking composition issue | `validateStoryPackage` / preflight | Reject package or hold scene for review |
 | Missing approved asset | Part 2 asset pipeline | Render designed fallback; queue offline resolution |
 | Generated asset failure | Part 2 build pipeline | Preserve fallback and expose retry/review status |
+| Reviewed generated asset | Part 2 promotion tool | Export twice-reviewed bundle, materialize under `public/generated/promoted/`, reuse by canonical story/entity ID |
 | Viewer runtime error | `onRuntimeError` | Member 3 shows recovery UI; never silently reset chronology |
 
 ## Acceptance commands

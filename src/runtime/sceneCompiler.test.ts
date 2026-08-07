@@ -198,6 +198,36 @@ describe("compileScenePresentation", () => {
   });
 
   it.each([
+    ["coastal signal room", "A compact lighthouse signal room with a chart desk and rain-clouded windows.", "nautical-interior", false],
+    ["harbor tavern", "A timber tavern common room with ale tables, benches and a soot-dark bar.", "tavern-interior", false],
+    ["old guest bedchamber", "An enclosed bedroom with a curtained bed, bedside tables and a wardrobe.", "bedroom-interior", false],
+    ["captain's ship cabin", "A cramped ship cabin belowdecks with a chart table and storage lockers.", "nautical-interior", false],
+    ["modern design office", "A contemporary open-plan office of pale glass, steel and acoustic panels.", "modern-interior", false],
+    ["enchanted writer's study", "A historical fantasy study and writing room surrounding a carved hearth.", "writing-room", true],
+  ])("routes %s into an applicable interior dressing family", (
+    archetype,
+    description,
+    expectedTag,
+    expectsPeriod,
+  ) => {
+    const sourceLocation = plan1.locations.find((location) => location.locationId === "attic-study");
+    if (!sourceLocation) throw new Error("Fixture must contain attic-study.");
+    const location = {
+      ...sourceLocation,
+      archetype,
+      visualDescription: description,
+      architectureTags: ["enclosed room"],
+      dressingTags: [],
+      lighting: { ...sourceLocation.lighting, atmosphericEffects: [] },
+    };
+    const scene = compileScenePresentation({ ...plan1, locations: [location] }, snapshot, "attic-study");
+
+    expect(scene.semanticProfile.enclosure).toBe("interior");
+    expect(scene.location.dressingTags).toContain(expectedTag);
+    expect(scene.location.dressingTags.includes("period-interior")).toBe(expectsPeriod);
+  });
+
+  it.each([
     ["coastal signal room", "A compact stone room above a fogbound coast with rain-clouded windows.", "surface:coastal"],
     ["snowy mountain cabin", "An enclosed timber cabin overlooking frozen mountain peaks.", "surface:snow"],
     ["submerged research station", "An interior laboratory room beneath the ocean, sealed behind thick glass.", "surface:aquatic"],
