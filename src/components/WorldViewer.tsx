@@ -2,6 +2,7 @@ import {
   CameraControls,
   CameraControlsImpl,
   Clone,
+  Edges,
   Html,
   Line,
   PerformanceMonitor,
@@ -24,6 +25,7 @@ import {
 } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import bushSafeMesh from "../data/converted/nature/bush-safe.mesh.json";
 import fallenLogSafeMesh from "../data/converted/nature/fallen-log-safe.mesh.json";
 import grassTuftSafeMesh from "../data/converted/nature/grass-tuft-safe.mesh.json";
@@ -64,6 +66,7 @@ import { PatchVersionError } from "../runtime/applyScenePatch";
 import {
   createExteriorNavigationLimits,
   createExteriorPovCameraPose,
+  createFocusCameraPose,
   createOverviewCameraPose,
   createPovCameraPose,
   createTravelCameraPose,
@@ -178,7 +181,7 @@ type CameraCommand =
   | { id: number; kind: "pov" }
   | { id: number; kind: "overview" }
   | { id: number; kind: "travel"; target: Vector3Tuple }
-  | { id: number; kind: "focus"; target: Vector3Tuple };
+  | { id: number; kind: "focus"; target: Vector3Tuple; dimensions?: Vector3Tuple };
 type CameraViewMode = "pov" | "overview";
 
 function changeMapFromPatch(patch?: ScenePatch | null): ReadonlyMap<string, ChangeKind> {
@@ -2064,32 +2067,94 @@ function StorySilverKeyAsset({ highlighted, highlightColor }: { highlighted: boo
   );
 }
 
-function StoryAmberPendantAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+function StoryAmberPendantAsset({ highlighted }: { highlighted: boolean; highlightColor: string }) {
+  const chainCurves = useMemo(() => [-1, 1].map((side) => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(side * 0.34, 0.47, -0.025),
+    new THREE.Vector3(side * 0.25, 0.39, -0.012),
+    new THREE.Vector3(side * 0.13, 0.31, 0),
+    new THREE.Vector3(side * 0.045, 0.255, 0.018),
+  ])), []);
+  const bezelGlow = "#4d2509";
   return (
-    <group>
-      <mesh position={[0, 0.1, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <torusGeometry args={[0.32, 0.018, 8, 42]} />
-        <meshStandardMaterial color="#b58a43" roughness={0.38} metalness={0.82} />
-      </mesh>
-      <mesh position={[0, -0.25, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <torusGeometry args={[0.12, 0.025, 8, 28]} />
-        <meshStandardMaterial color="#c29a52" roughness={0.34} metalness={0.84} />
-      </mesh>
-      <mesh position={[0, -0.06, 0]} scale={[0.33, 0.46, 0.28]} castShadow>
-        <dodecahedronGeometry args={[1, 1]} />
-        <meshPhysicalMaterial
-          color="#d78524"
-          emissive={highlighted ? highlightColor : "#6f2f0d"}
-          emissiveIntensity={highlighted ? 0.42 : 0.22}
-          roughness={0.16}
-          metalness={0.08}
-          transmission={0.22}
-          thickness={0.8}
-          transparent
-          opacity={0.92}
+    <group position={[0, -0.035, 0]}>
+      {chainCurves.map((curve, index) => (
+        <mesh key={`pendant-chain:${index}`} castShadow>
+          <tubeGeometry args={[curve, 28, 0.008, 8, false]} />
+          <meshStandardMaterial color="#c6a15c" metalness={0.9} roughness={0.27} />
+        </mesh>
+      ))}
+      <mesh position={[0, -0.045, -0.012]} scale={[0.205, 0.255, 0.06]} castShadow>
+        <sphereGeometry args={[1, 48, 32]} />
+        <meshStandardMaterial
+          color="#bd914a"
+          emissive={bezelGlow}
+          emissiveIntensity={highlighted ? 0.18 : 0.025}
+          roughness={0.25}
+          metalness={0.9}
         />
       </mesh>
-      <pointLight position={[0, -0.02, 0.22]} color="#e89b3b" intensity={0.34} distance={1.4} decay={2} />
+      <mesh position={[0, -0.045, 0.052]} scale={[1, 1.26, 0.72]} castShadow>
+        <torusGeometry args={[0.177, 0.025, 16, 64]} />
+        <meshStandardMaterial color="#d1ab61" emissive={bezelGlow} emissiveIntensity={highlighted ? 0.2 : 0.03} roughness={0.22} metalness={0.92} />
+      </mesh>
+      <mesh position={[0, -0.045, 0.075]} scale={[0.158, 0.204, 0.078]} castShadow>
+        <sphereGeometry args={[1, 56, 36]} />
+        <meshPhysicalMaterial
+          color="#a85c12"
+          emissive="#3e1b06"
+          emissiveIntensity={highlighted ? 0.045 : 0.02}
+          roughness={0.22}
+          metalness={0.01}
+          transmission={0.06}
+          thickness={0.46}
+          clearcoat={0.78}
+          clearcoatRoughness={0.11}
+          opacity={1}
+        />
+      </mesh>
+      <mesh position={[0.035, -0.055, 0.145]} scale={[0.02, 0.045, 0.012]} rotation={[0, 0, -0.35]}>
+        <sphereGeometry args={[1, 20, 14]} />
+        <meshBasicMaterial color="#ffe2a3" transparent opacity={0.52} />
+      </mesh>
+      <mesh position={[-0.035, -0.08, 0.14]} scale={[0.012, 0.024, 0.01]}>
+        <sphereGeometry args={[1, 14, 10]} />
+        <meshStandardMaterial color="#7d370d" roughness={0.42} />
+      </mesh>
+      <mesh position={[0, 0.245, 0.058]} castShadow>
+        <torusGeometry args={[0.052, 0.014, 12, 36]} />
+        <meshStandardMaterial color="#d0a65a" roughness={0.24} metalness={0.91} />
+      </mesh>
+      <mesh position={[0, 0.185, 0.045]} castShadow>
+        <cylinderGeometry args={[0.025, 0.035, 0.08, 18]} />
+        <meshStandardMaterial color="#c89d52" roughness={0.25} metalness={0.9} />
+      </mesh>
+      <pointLight position={[0, -0.05, 0.24]} color="#e89b3b" intensity={0.13} distance={1.05} decay={2} />
+    </group>
+  );
+}
+
+/**
+ * Part 1 may identify a shelf-bound hero prop without promoting the shelf to a
+ * canonical narrative entity. Give that small prop a presentation-only support
+ * so it remains discoverable without inventing a second story object.
+ */
+function ShelfBoundHeroDisplay({ item }: { item: LayoutItem }) {
+  const shelfTop = item.position[1] - item.dimensions[1] / 2 - 0.012;
+  const facesNorthWall = item.position[2] < 0;
+  const depthDirection = facesNorthWall ? -1 : 1;
+
+  return (
+    <group
+      name={`presentation-light:${item.entity.id}`}
+      userData={{ decorativeOnly: true, supportsEntityId: item.entity.id }}
+    >
+      <pointLight
+        position={[item.position[0], shelfTop + 0.72, item.position[2] - depthDirection * 0.38]}
+        color="#efb65f"
+        intensity={0.72}
+        distance={2.6}
+        decay={2}
+      />
     </group>
   );
 }
@@ -2227,6 +2292,12 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
 }
 
 function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean; highlightColor: string }) {
+  const stone = usePbrSurface(
+    "/textures/polyhaven/patterned_cobblestone_diff_1k.jpg",
+    "/textures/polyhaven/patterned_cobblestone_nor_gl_1k.jpg",
+    "/textures/polyhaven/patterned_cobblestone_arm_1k.jpg",
+    [0.42, 5.5],
+  );
   const waterVolumeTop = URBAN_HUMAN_SCALE.canalWaterLevel
     - URBAN_HUMAN_SCALE.canalWaveAmplitude
     - URBAN_HUMAN_SCALE.canalVolumeClearance;
@@ -2246,13 +2317,25 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
         <group key={`canal-bank-${x}`} position={[x, 0, 0]}>
           <mesh position={[0, -0.22, 0]} castShadow receiveShadow>
             <boxGeometry args={[0.16, 0.56, 1]} />
-            <meshStandardMaterial color="#77766e" roughness={0.96} />
+            <meshStandardMaterial
+              color="#77766e"
+              map={stone.color}
+              normalMap={stone.normal}
+              normalScale={new THREE.Vector2(0.18, 0.18)}
+              roughnessMap={stone.arm}
+              roughness={0.96}
+            />
           </mesh>
-          {Array.from({ length: 18 }, (_, index) => (
-            <RoundedBox key={`canal-cap-${index}`} args={[0.19, 0.1, 0.05]} radius={0.008} smoothness={2} position={[0, 0.095, -0.47 + index * 0.055]} rotation={[0, (index % 3 - 1) * 0.03, 0]} castShadow>
-              <meshStandardMaterial color={index % 2 ? "#99978c" : "#85857d"} roughness={0.94} />
-            </RoundedBox>
-          ))}
+          <RoundedBox args={[0.21, 0.12, 1.02]} radius={0.018} smoothness={4} position={[0, 0.095, 0]} castShadow receiveShadow>
+            <meshStandardMaterial
+              color="#8b887f"
+              map={stone.color}
+              normalMap={stone.normal}
+              normalScale={new THREE.Vector2(0.14, 0.14)}
+              roughnessMap={stone.arm}
+              roughness={0.92}
+            />
+          </RoundedBox>
         </group>
       ))}
     </group>
@@ -2615,12 +2698,8 @@ function WorldEntity({
       {highlighted && (
         <mesh scale={[1.04, 1.04, 1.04]}>
           <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial
-            color={emissive}
-            wireframe
-            transparent
-            opacity={selected ? 0.74 : 0.42}
-          />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          <Edges color={emissive} lineWidth={selected ? 1.65 : 1.1} threshold={15} />
         </mesh>
       )}
     </group>
@@ -4676,7 +4755,7 @@ function ArchiveGalleryDetails({
         </RoundedBox>
       ))}
       <group
-        position={[bounds[0] * 0.255, 1.88, -bounds[2] / 2 + 0.92]}
+        position={[-bounds[0] * 0.255, 1.88, -bounds[2] / 2 + 0.92]}
         rotation={[0.04, 0, -0.13]}
         userData={{ decorativeOnly: true, module: "archive-rolling-ladder" }}
       >
@@ -5362,25 +5441,71 @@ function SceneToneMapping({ exposure }: { exposure: number }) {
 }
 
 /** Adds a local, network-free reflection/light probe for every PBR material. */
-function SceneImageLighting({ intensity }: { intensity: number }) {
+function SceneImageLighting({
+  intensity,
+  hdriUrl,
+  showHdriBackground = false,
+}: {
+  intensity: number;
+  hdriUrl?: string;
+  showHdriBackground?: boolean;
+}) {
   const { gl, scene } = useThree();
 
   useEffect(() => {
     const previousEnvironment = scene.environment;
+    const previousBackground = scene.background;
     const previousIntensity = scene.environmentIntensity;
+    const previousBackgroundIntensity = scene.backgroundIntensity;
+    const previousBackgroundBlurriness = scene.backgroundBlurriness;
+    const previousEnvironmentRotation = scene.environmentRotation.clone();
+    const previousBackgroundRotation = scene.backgroundRotation.clone();
     const generator = new THREE.PMREMGenerator(gl);
     const environment = new RoomEnvironment();
     const target = generator.fromScene(environment, 0.04);
     scene.environment = target.texture;
+    let cancelled = false;
+    let hdri: THREE.DataTexture | null = null;
+
+    if (hdriUrl) {
+      const loader = new RGBELoader();
+      void loader.loadAsync(hdriUrl).then((texture) => {
+        if (cancelled) {
+          texture.dispose();
+          return;
+        }
+        hdri = texture;
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.environment = texture;
+        scene.environmentRotation.set(0, Math.PI * 0.62, 0);
+        if (showHdriBackground) {
+          scene.background = texture;
+          scene.backgroundRotation.set(0, Math.PI * 0.62, 0);
+          scene.backgroundBlurriness = 0.018;
+          scene.backgroundIntensity = 0.42;
+        }
+      }).catch(() => {
+        // Retain the local RoomEnvironment fallback if the vendored HDRI fails.
+      });
+    }
 
     return () => {
-      if (scene.environment === target.texture) scene.environment = previousEnvironment;
+      cancelled = true;
+      if (scene.environment === target.texture || scene.environment === hdri) {
+        scene.environment = previousEnvironment;
+      }
+      if (showHdriBackground && scene.background === hdri) scene.background = previousBackground;
       scene.environmentIntensity = previousIntensity;
+      scene.backgroundIntensity = previousBackgroundIntensity;
+      scene.backgroundBlurriness = previousBackgroundBlurriness;
+      scene.environmentRotation.copy(previousEnvironmentRotation);
+      scene.backgroundRotation.copy(previousBackgroundRotation);
+      hdri?.dispose();
       target.dispose();
       environment.dispose();
       generator.dispose();
     };
-  }, [gl, scene]);
+  }, [gl, hdriUrl, scene, showHdriBackground]);
 
   useEffect(() => {
     scene.environmentIntensity = intensity;
@@ -5391,10 +5516,12 @@ function SceneImageLighting({ intensity }: { intensity: number }) {
 
 function ObjectContactShadows({
   layout,
+  dressingInstances,
   color,
   opacity,
 }: {
   layout: WorldLayout;
+  dressingInstances: readonly ResolvedDressingInstance[];
   color: string;
   opacity: number;
 }) {
@@ -5412,18 +5539,40 @@ function ObjectContactShadows({
     context.fillRect(0, 0, 96, 96);
     return new THREE.CanvasTexture(canvas);
   }, []);
-  const groundedItems = layout.items.filter((item) => {
-    const bottom = item.position[1] - item.dimensions[1] / 2;
-    return Math.abs(bottom) < 0.13 && item.dimensions[1] >= 0.14;
-  });
+  const groundedItems = [
+    ...layout.items.flatMap((item) => {
+      const bottom = item.position[1] - item.dimensions[1] / 2;
+      return Math.abs(bottom) < 0.13 && item.dimensions[1] >= 0.14
+        ? [{
+            id: item.entity.id,
+            position: item.position,
+            dimensions: item.dimensions,
+            yaw: item.rotation[1],
+          }]
+        : [];
+    }),
+    ...dressingInstances.flatMap((instance) => {
+      const bottom = instance.position[1] - instance.dimensions[1] / 2;
+      return instance.placementAnchor === "floor" &&
+        Math.abs(bottom) < 0.04 &&
+        instance.dimensions[1] >= 0.14
+        ? [{
+            id: instance.dressingId,
+            position: instance.position,
+            dimensions: instance.dimensions,
+            yaw: instance.rotation[1],
+          }]
+        : [];
+    }),
+  ];
 
   useEffect(() => () => texture.dispose(), [texture]);
 
   return groundedItems.map((item) => (
     <mesh
-      key={`contact-shadow-${item.entity.id}`}
+      key={`contact-shadow-${item.id}`}
       position={[item.position[0], 0.026, item.position[2]]}
-      rotation={[-Math.PI / 2, 0, item.rotation[1]]}
+      rotation={[-Math.PI / 2, 0, item.yaw]}
       scale={[
         Math.max(0.42, item.dimensions[0] * 1.08),
         Math.max(0.38, item.dimensions[2] * 1.08),
@@ -5874,6 +6023,8 @@ function SceneCamera({
       pose = initialPov();
     } else if (command.kind === "overview") {
       pose = createOverviewCameraPose(bounds);
+    } else if (command.kind === "focus") {
+      pose = createFocusCameraPose(command.target, bounds, command.dimensions);
     } else {
       pose = createTravelCameraPose(
         [currentPosition.x, currentPosition.y, currentPosition.z],
@@ -5998,7 +6149,7 @@ function WorldScene({
   changes: ReadonlyMap<string, ChangeKind>;
   onEntitySelect?: (entityId: string | null) => void;
   cameraCommand: CameraCommand | null;
-  onCameraCommand: (kind: "travel" | "focus", target: Vector3Tuple) => void;
+  onCameraCommand: (kind: "travel" | "focus", target: Vector3Tuple, dimensions?: Vector3Tuple) => void;
   relationEdges: readonly VisibleRelationEdge[];
   openConflicts: readonly Conflict[];
   enableShadows: boolean;
@@ -6038,12 +6189,20 @@ function WorldScene({
   const visibleLayoutItems = layout.items.filter(
     (item) => item.entity.state?.presentationOccluded !== true,
   );
+  const usesUrbanHdri = presentation.semanticProfile.vista === "city"
+    && atmosphereProfile.openAir;
 
   return (
     <>
       <color attach="background" args={[presentation.palette.background]} />
       <SceneToneMapping exposure={atmosphereProfile.exposure} />
-      <SceneImageLighting intensity={atmosphereProfile.environmentIntensity} />
+      <SceneImageLighting
+        intensity={atmosphereProfile.environmentIntensity}
+        hdriUrl={usesUrbanHdri
+          ? "/environments/polyhaven/venice_dawn_2_1k.hdr"
+          : undefined}
+        showHdriBackground={false}
+      />
       {(atmosphereProfile.openAir || isGlasshouse) && (
         <WeatherSky bounds={bounds} profile={atmosphereProfile} />
       )}
@@ -6159,6 +6318,9 @@ function WorldScene({
             : undefined}
         />
       )}
+      {visibleLayoutItems
+        .filter((item) => item.asset.key === "amber-pendant")
+        .map((item) => <ShelfBoundHeroDisplay key={`shelf-display:${item.entity.id}`} item={item} />)}
       {visibleLayoutItems.map((item) => (
         <WorldEntity
           key={item.entity.id}
@@ -6192,6 +6354,7 @@ function WorldScene({
       {enableShadows && (
         <ObjectContactShadows
           layout={layout}
+          dressingInstances={visibleDressingInstances}
           color={presentation.palette.background}
           opacity={atmosphereProfile.contactShadow.opacity * 0.52}
         />
@@ -6290,9 +6453,9 @@ export function WorldViewer({
   const assetRegistryRef = useRef(assetRegistry);
   assetRegistryRef.current = assetRegistry;
 
-  const requestCamera = useCallback((kind: "travel" | "focus", target: Vector3Tuple) => {
+  const requestCamera = useCallback((kind: "travel" | "focus", target: Vector3Tuple, dimensions?: Vector3Tuple) => {
     cameraCommandId.current += 1;
-    setCameraCommand({ id: cameraCommandId.current, kind, target });
+    setCameraCommand({ id: cameraCommandId.current, kind, target, ...(kind === "focus" ? { dimensions } : {}) });
   }, []);
 
   const requestCameraView = useCallback((view: CameraViewMode) => {
@@ -6459,7 +6622,7 @@ export function WorldViewer({
     const selectedItem = viewer.runtime.layout.items.find(
       (item) => item.entity.id === selectedEntityId,
     );
-    if (selectedItem) requestCamera("focus", selectedItem.position);
+    if (selectedItem) requestCamera("focus", selectedItem.position, selectedItem.dimensions);
   }, [requestCamera, selectedEntityId, viewer.runtime?.layout]);
 
   const changes = useMemo(

@@ -381,6 +381,42 @@ const reviewedAssets = {
       { level: 2, ratio: 0.3, error: 0.025 },
     ],
   },
+  street_lamp_02: {
+    author: "Josh Dean",
+    sourceUrl: "https://polyhaven.com/a/street_lamp_02",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
+  wooden_crate_02: {
+    author: "James Ray Cock and Jurita Burger",
+    sourceUrl: "https://polyhaven.com/a/wooden_crate_02",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.012 },
+      { level: 2, ratio: 0.3, error: 0.03 },
+    ],
+  },
+  wooden_bucket_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/wooden_bucket_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.6, error: 0.012 },
+      { level: 2, ratio: 0.3, error: 0.03 },
+    ],
+  },
+  wooden_lantern_01: {
+    author: "James Ray Cock",
+    sourceUrl: "https://polyhaven.com/a/wooden_lantern_01",
+    lods: [
+      { level: 0, ratio: 1, error: 0.003 },
+      { level: 1, ratio: 0.55, error: 0.012 },
+      { level: 2, ratio: 0.25, error: 0.03 },
+    ],
+  },
 };
 
 const requested = process.argv.slice(2);

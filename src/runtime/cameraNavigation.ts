@@ -111,6 +111,41 @@ export function createTravelCameraPose(
   };
 }
 
+/** Frames a selected object from the room side of its nearest wall. */
+export function createFocusCameraPose(
+  requestedTarget: Vector3Tuple,
+  bounds: Vector3Tuple = DEFAULT_BOUNDS,
+  objectDimensions?: Vector3Tuple,
+): CameraPose {
+  const target = clampNavigationTarget(requestedTarget, bounds);
+  const halfX = bounds[0] / 2;
+  const halfZ = bounds[2] / 2;
+  const nearestWall = [
+    { wall: "west" as const, distance: target[0] + halfX },
+    { wall: "east" as const, distance: halfX - target[0] },
+    { wall: "north" as const, distance: target[2] + halfZ },
+    { wall: "south" as const, distance: halfZ - target[2] },
+  ].sort((left, right) => left.distance - right.distance)[0]!.wall;
+  const objectSpan = objectDimensions ? Math.max(...objectDimensions) : undefined;
+  const defaultStandOff = Math.min(4.2, Math.max(2.8, Math.min(bounds[0], bounds[2]) * 0.16));
+  const standOff = objectSpan !== undefined && objectSpan < 0.7
+    ? Math.max(1.35, objectSpan * 3.2)
+    : defaultStandOff;
+  const eyeY = Math.min(bounds[1] - 0.5, Math.max(1.58, target[1] + 0.48));
+  const requestedPosition: Vector3Tuple = nearestWall === "north"
+    ? [target[0], eyeY, target[2] + standOff]
+    : nearestWall === "south"
+      ? [target[0], eyeY, target[2] - standOff]
+      : nearestWall === "west"
+        ? [target[0] + standOff, eyeY, target[2]]
+        : [target[0] - standOff, eyeY, target[2]];
+
+  return {
+    target,
+    position: clampNavigationTarget(requestedPosition, bounds),
+  };
+}
+
 /** Advances a standing camera across the floor without adding vertical movement. */
 export function createWalkCameraPose(
   cameraPosition: Vector3Tuple,

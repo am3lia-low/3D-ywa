@@ -13,6 +13,8 @@ export const URBAN_HUMAN_SCALE = Object.freeze({
   canalWaterLevel: -0.31,
   canalBedTop: -0.58,
   canalCoverageRatio: 0.97,
+  streetSurfaceTop: 0.068,
+  sidewalkSurfaceTop: 0.19,
   facadeMaximumDepth: 3.96,
   horizonCenterFactor: 0.69,
   horizonApronDepthRatio: 0.5,

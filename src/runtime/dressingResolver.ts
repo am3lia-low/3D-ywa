@@ -3,6 +3,7 @@ import { assetKitCatalog, catalogAssetDefinition, type AssetKitCatalogAsset } fr
 import type { AssetDefinition } from "./assetRegistry";
 import { supportSurfaceWorldY, type LayoutItem, type WorldLayout } from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
+import { URBAN_HUMAN_SCALE } from "./urbanComposition";
 import { WALL_COMPOSITION } from "./wallComposition";
 
 interface ResolvedDressingCommon {
@@ -19,6 +20,7 @@ interface ResolvedDressingCommon {
   wall?: DressingWall;
   placementAnchor: DressingPlacementAnchor;
   supportId?: string;
+  verticalOffset?: number;
 }
 
 export interface ResolvedAssetDressingInstance extends ResolvedDressingCommon {
@@ -58,6 +60,7 @@ interface DressingSlotCommon {
   placementRegion?: "interior" | "approach" | "woodland";
   placementAnchor?: DressingPlacementAnchor;
   supportSearchTags?: string[];
+  supportRequiredTags?: string[];
 }
 
 interface AssetDressingSlot extends DressingSlotCommon {
@@ -186,6 +189,14 @@ const DRESSING_RULES: readonly DressingRule[] = [
         renderKind: "asset", searchTags: ["wooden", "candlestick", "period", "surface"], slotId: "period-console-candlestick",
         minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
         placementAnchor: "surface", supportSearchTags: ["console", "side", "table", "accent"], yaw: 0.1,
+      },
+      {
+        renderKind: "asset", searchTags: ["rocking", "chair", "reading", "vintage"], slotId: "period-reading-rocker",
+        minimumDensity: "rich", positionFactor: [-0.34, 0.24], dimensions: [0.78, 1.12, 1.02], yaw: 2.5,
+      },
+      {
+        renderKind: "asset", searchTags: ["potted", "plant", "interior", "corner"], slotId: "period-corner-plant",
+        minimumDensity: "rich", positionFactor: [0.37, 0.31], dimensions: [0.82, 1.32, 0.82], yaw: -0.24,
       },
     ],
   },
@@ -429,8 +440,8 @@ const DRESSING_RULES: readonly DressingRule[] = [
         minimumDensity: "sparse", positionFactor: [0, 0.08], dimensions: [2.4, 1.2, 1.1], yaw: 0.08,
       },
       {
-        renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-reading-chair",
-        minimumDensity: "moderate", positionFactor: [0, 0.18], dimensions: [0.95, 1.55, 0.95], yaw: Math.PI,
+        renderKind: "asset", searchTags: ["rocking", "chair", "vintage", "reading"], slotId: "archive-reading-chair",
+        minimumDensity: "moderate", positionFactor: [0, 0.18], dimensions: [0.82, 1.12, 1.02], yaw: Math.PI,
       },
       {
         renderKind: "asset", searchTags: ["desk", "writing", "table", "oak"], slotId: "archive-cataloguing-table",
@@ -464,6 +475,16 @@ const DRESSING_RULES: readonly DressingRule[] = [
         placementAnchor: "surface", supportSearchTags: ["archive", "cataloguing", "desk", "table"], yaw: 0.22,
       },
       {
+        renderKind: "asset", searchTags: ["brass", "candle", "ornate", "antique"], slotId: "archive-reading-candleholders",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.52, 0.587, 0.285],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: -0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["painting", "landscape", "gilt", "gallery"], slotId: "archive-north-painting",
+        minimumDensity: "moderate", positionFactor: [-0.17, -0.47], dimensions: [1.08, 0.84, 0.036],
+        placementAnchor: "wall", wall: "north", verticalOffset: 2.65,
+      },
+      {
         renderKind: "asset", searchTags: ["vintage", "glass", "cabinet", "victorian"], slotId: "archive-south-display-cabinet",
         minimumDensity: "moderate", positionFactor: [-0.24, 0.47], dimensions: [1.2, 2.35, 0.64],
         yaw: Math.PI, wall: "south",
@@ -476,6 +497,32 @@ const DRESSING_RULES: readonly DressingRule[] = [
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "archive-crate",
         minimumDensity: "rich", positionFactor: [-0.34, 0.34], dimensions: [1.05, 0.72, 0.78], yaw: 0.18,
+      },
+      {
+        renderKind: "asset", searchTags: ["wicker", "basket", "reading", "woven"], slotId: "archive-reading-basket",
+        minimumDensity: "rich", positionFactor: [-0.18, 0.28], dimensions: [0.5, 0.42, 0.45], yaw: -0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["potted", "plant", "interior", "corner"], slotId: "archive-corner-plant",
+        minimumDensity: "rich", positionFactor: [0.38, 0.33], dimensions: [0.82, 1.32, 0.82], yaw: 0.28,
+      },
+      {
+        renderKind: "asset", searchTags: ["victorian", "upholstered", "sofa", "reading"], slotId: "archive-nook-sofa",
+        minimumDensity: "rich", positionFactor: [-0.34, 0.19], dimensions: [2.3, 1.05, 0.9], yaw: Math.PI / 2,
+      },
+      {
+        renderKind: "asset", searchTags: ["side", "table", "accent", "period"], slotId: "archive-nook-side-table",
+        minimumDensity: "rich", positionFactor: [-0.2, 0.19], dimensions: [0.68, 0.82, 0.58], yaw: 0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["table", "lamp", "reading", "warm"], slotId: "archive-nook-lamp",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.27, 0.56, 0.31],
+        placementAnchor: "surface", supportSearchTags: ["nook"],
+      },
+      {
+        renderKind: "asset", searchTags: ["ornate", "lantern", "chandelier", "brass"], slotId: "archive-reading-chandelier",
+        minimumDensity: "moderate", positionFactor: [0, 0.08], dimensions: [1.65, 2.1, 1.65],
+        placementAnchor: "ceiling", verticalOffset: 0.42,
       },
     ],
   },
@@ -566,6 +613,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
       minimumDensity: index < 2 ? "sparse" as const : index < 4 ? "moderate" as const : "rich" as const,
       positionFactor: [xFactor, -0.47] as [number, number],
       dimensions: [0.5, 2.5, 0.35] as Vector3Tuple,
+      placementAnchor: "wall" as const,
       wall: "north" as const,
       verticalOffset: 0.72,
     })),
@@ -617,6 +665,61 @@ const DRESSING_RULES: readonly DressingRule[] = [
     ],
   },
   {
+    anyTags: ["canal-district"],
+    requiresOpenAir: true,
+    requiresArchitecture: "urbanStreet",
+    slots: [
+      {
+        renderKind: "asset",
+        searchTags: ["maritime", "canal", "crate", "rope", "brass"],
+        slotId: "west-canal-rope-crate",
+        minimumDensity: "sparse",
+        positionFactor: [-0.26, -0.29],
+        dimensions: [1.2, 0.74, 0.86],
+        yaw: 0.08,
+      },
+      {
+        renderKind: "asset",
+        searchTags: ["maritime", "canal", "crate", "rope", "brass"],
+        slotId: "east-canal-rope-crate",
+        minimumDensity: "rich",
+        positionFactor: [0.26, 0.31],
+        dimensions: [0.96, 0.61, 0.72],
+        yaw: -0.16,
+      },
+      {
+        renderKind: "asset",
+        searchTags: ["wooden", "bucket", "canal", "dock", "iron"],
+        slotId: "west-canal-bucket",
+        minimumDensity: "moderate",
+        positionFactor: [-0.26, 0.12],
+        dimensions: [0.5, 0.52, 0.45],
+        yaw: -0.16,
+      },
+      {
+        renderKind: "asset",
+        searchTags: ["wooden", "bucket", "canal", "dock", "iron"],
+        slotId: "east-canal-bucket",
+        minimumDensity: "rich",
+        positionFactor: [0.26, -0.08],
+        dimensions: [0.44, 0.46, 0.4],
+        yaw: 0.22,
+      },
+      {
+        renderKind: "asset",
+        searchTags: ["wooden", "lantern", "maritime", "canal", "glass"],
+        slotId: "canal-crate-lantern",
+        minimumDensity: "moderate",
+        positionFactor: [0, 0],
+        dimensions: [0.34, 0.52, 0.34],
+        placementAnchor: "surface",
+        supportSearchTags: ["maritime", "canal", "crate", "rope"],
+        supportRequiredTags: ["crate"],
+        yaw: 0.1,
+      },
+    ],
+  },
+  {
     anyTags: ["street-lamps", "market clutter"],
     requiresOpenAir: true,
     slots: [
@@ -638,6 +741,10 @@ const DRESSING_RULES: readonly DressingRule[] = [
       },
     ],
   },
+  // Market character is currently supplied by the architecture kit's awnings,
+  // banners, flower boxes, and shop fronts. Do not substitute indoor writing
+  // desks, reading benches, or interior baskets as street stalls. A dedicated
+  // approved market-stall asset can re-enable freestanding market dressing.
   {
     anyTags: ["industrial-pipes"],
     slots: [
@@ -802,8 +909,88 @@ interface OccupiedVolume {
   supportDimensions?: Vector3Tuple;
 }
 
+/**
+ * Urban façades have projecting plinths, sills, drainpipes, and shop trim.
+ * Reserving the visible façade band keeps generic dressing clear of the real
+ * rendered silhouette instead of treating the building as a flat boundary.
+ */
+export const URBAN_GUTTER_CENTER_FACTOR = 0.215;
+/** Reserve the visible drainage slot; canal-specific sockets add prop overhang. */
+export const URBAN_GUTTER_RESERVED_WIDTH = 0.5;
+export const URBAN_BRIDGE_CENTER_FACTORS = [-0.4, 0.4] as const;
+/** Keep bridge decks, parapets, lamps and their pedestrian approaches clear. */
+export const URBAN_BRIDGE_RESERVED_DEPTH = 2.5;
+/**
+ * Keep a human-width approach in front of doors and shop windows.  The
+ * procedural facade volume alone is not enough: a prop can be technically
+ * outside the masonry while still blocking or visually intersecting the
+ * projecting sill, door surround, or a person leaving the building.
+ */
+export const URBAN_FACADE_ACCESS_CLEARANCE = 0.95;
+
+export function urbanFacadeInnerEdge(boundsWidth: number): number {
+  return Math.max(
+    0,
+    boundsWidth / 2 -
+      URBAN_HUMAN_SCALE.facadeMaximumDepth -
+      URBAN_FACADE_ACCESS_CLEARANCE,
+  );
+}
+
+function occupiedUrbanArchitectureBands(bounds: Vector3Tuple): OccupiedVolume[] {
+  const innerEdge = urbanFacadeInnerEdge(bounds[0]);
+  const bandWidth = Math.max(0, bounds[0] / 2 - innerEdge);
+  const centerX = innerEdge + bandWidth / 2;
+  const facadeBands = [-1, 1].map((side) => ({
+    id: `presentation:urban-facade:${side}`,
+    position: [side * centerX, bounds[1] / 2, 0] as Vector3Tuple,
+    dimensions: [bandWidth, bounds[1], bounds[2]] as Vector3Tuple,
+    yaw: 0,
+    semanticTags: ["presentation", "urban", "facade", "architecture"],
+  }));
+  const gutterBands = [-1, 1].map((side) => ({
+    id: `presentation:urban-gutter:${side}`,
+    position: [side * bounds[0] * URBAN_GUTTER_CENTER_FACTOR, bounds[1] / 2, 0] as Vector3Tuple,
+    dimensions: [URBAN_GUTTER_RESERVED_WIDTH, bounds[1], bounds[2]] as Vector3Tuple,
+    yaw: 0,
+    semanticTags: ["presentation", "urban", "gutter", "circulation"],
+  }));
+  const bridgeBands = URBAN_BRIDGE_CENTER_FACTORS.map((factor) => ({
+    id: `presentation:urban-bridge:${factor}`,
+    position: [0, bounds[1] / 2, bounds[2] * factor] as Vector3Tuple,
+    dimensions: [bounds[0], bounds[1], URBAN_BRIDGE_RESERVED_DEPTH] as Vector3Tuple,
+    yaw: 0,
+    semanticTags: ["presentation", "urban", "bridge", "parapet", "circulation"],
+  }));
+  return [...facadeBands, ...gutterBands, ...bridgeBands];
+}
+
 function tokens(values: readonly string[]): Set<string> {
   return new Set(values.flatMap((value) => value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
+}
+
+const UNIQUE_VISUAL_ROLES: ReadonlyArray<readonly [role: string, pattern: RegExp]> = [
+  // District/context tags such as "canal" are deliberately not unique roles:
+  // several canal-side props may share them without duplicating the waterway.
+  ["clock", /\b(clock|timepiece)\b/],
+  ["fireplace", /\b(fireplace|hearth)\b/],
+  ["portal", /\b(door|gate|portal|hatch)\b/],
+  ["bed", /\b(bed|bedstead)\b/],
+  ["chandelier", /\bchandelier\b/],
+];
+
+function uniqueVisualRole(values: readonly string[]): string | undefined {
+  const semantics = values.join(" ").toLowerCase();
+  return UNIQUE_VISUAL_ROLES.find(([, pattern]) => pattern.test(semantics))?.[0];
+}
+
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
 }
 
 function chooseAsset(
@@ -811,9 +998,10 @@ function chooseAsset(
   styleKitId: string,
   placementAnchor: DressingPlacementAnchor,
   allowWallStanding: boolean,
+  variantKey: string,
 ): AssetKitCatalogAsset | undefined {
   const requested = tokens(searchTags);
-  return assetKitCatalog.assets
+  const candidates = assetKitCatalog.assets
     .filter((asset) => {
       const compatiblePlacement = placementAnchor === "floor"
         ? asset.placement === "floor" || asset.placement === "free" ||
@@ -832,8 +1020,14 @@ function chooseAsset(
       return { asset, score };
     })
     .filter((candidate) => candidate.score > 0)
-    .sort((left, right) => right.score - left.score || left.asset.catalogId.localeCompare(right.asset.catalogId))[0]
-    ?.asset;
+    .sort((left, right) => right.score - left.score || left.asset.catalogId.localeCompare(right.asset.catalogId));
+  const bestScore = candidates[0]?.score;
+  if (bestScore === undefined) return undefined;
+  // Keep semantic relevance dominant, then vary among near-equivalent approved
+  // assets using stable scene context. The same input remains deterministic,
+  // while different stories no longer collapse to the first catalog ID.
+  const shortlist = candidates.filter(({ score }) => score === bestScore);
+  return shortlist[stableHash(variantKey) % shortlist.length]?.asset;
 }
 
 function rotatedDimensions(dimensions: Vector3Tuple, yaw: number): Vector3Tuple {
@@ -910,6 +1104,7 @@ function placeSlot(
   slot: DressingSlot,
   bounds: Vector3Tuple,
   occupied: readonly OccupiedVolume[],
+  floorElevation = 0,
 ): {
   position: Vector3Tuple;
   footprint: Vector3Tuple;
@@ -922,6 +1117,7 @@ function placeSlot(
 
   if (placementAnchor === "surface") {
     const requested = tokens(slot.supportSearchTags ?? ["table", "desk", "console", "mantel"]);
+    const required = tokens(slot.supportRequiredTags ?? []);
     const supports = occupied
       .map((support) => {
         const available = tokens(support.semanticTags);
@@ -929,11 +1125,13 @@ function placeSlot(
         for (const token of requested) if (available.has(token)) score += 1;
         const supportCapable = [
           "table", "desk", "console", "mantel", "fireplace", "hearth", "counter", "workbench", "lectern",
+          "crate", "container", "chest",
         ].some((token) => available.has(token));
-        return { support, score, supportCapable };
+        const requiredMatch = [...required].every((token) => available.has(token));
+        return { support, score, supportCapable, requiredMatch };
       })
-      .filter(({ support, score, supportCapable }) =>
-        score > 0 && supportCapable && support.supportTopY !== undefined,
+      .filter(({ support, score, supportCapable, requiredMatch }) =>
+        score > 0 && requiredMatch && supportCapable && support.supportTopY !== undefined,
       )
       .sort((left, right) => right.score - left.score || left.support.id.localeCompare(right.support.id));
 
@@ -1002,7 +1200,7 @@ function placeSlot(
           : clamp(desiredX + offsetX, -halfX, halfX),
       placementAnchor === "ceiling"
         ? bounds[1] - slot.dimensions[1] / 2 - 0.04 - (slot.verticalOffset ?? 0)
-        : slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
+        : floorElevation + slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
       exterior
         ? desiredZ + offsetZ
         : slot.wall === "north" || slot.wall === "south"
@@ -1030,8 +1228,23 @@ export function resolveDressingInstances(
   styleKitId: string,
 ): ResolvedDressingInstance[] {
   const selectedTags = new Set(presentation.location.dressingTags);
-  const occupied: OccupiedVolume[] = layout.items.map(occupiedByLayoutItem);
+  const bounds = layout.location.bounds ?? [12, 4.5, 10];
+  const occupied: OccupiedVolume[] = [
+    ...layout.items.map(occupiedByLayoutItem),
+    ...(presentation.architecture.urbanStreet ? occupiedUrbanArchitectureBands(bounds) : []),
+  ];
   const instances: ResolvedDressingInstance[] = [];
+  const claimedUniqueRoles = new Set(
+    layout.items.flatMap((item) => {
+      const role = uniqueVisualRole([
+        item.entity.kind,
+        item.entity.name,
+        item.asset.key,
+        ...(item.entity.aliases ?? []),
+      ]);
+      return role ? [role] : [];
+    }),
+  );
 
   for (const rule of DRESSING_RULES) {
     if (rule.archetypes && !rule.archetypes.includes(presentation.location.archetype)) continue;
@@ -1050,10 +1263,26 @@ export function resolveDressingInstances(
             styleKitId,
             placementAnchor,
             placementAnchor === "floor" && Boolean(slot.wall),
+            `${presentation.location.locationId}:${presentation.styleLabel}:${slot.slotId}`,
           )
         : undefined;
       if (slot.renderKind === "asset" && !catalogAsset) continue;
-      const placed = placeSlot(slot, layout.location.bounds ?? [12, 4.5, 10], occupied);
+      const uniqueRole = slot.renderKind === "asset" && catalogAsset
+        ? uniqueVisualRole([
+            ...slot.searchTags,
+            ...catalogAsset.roles,
+            ...catalogAsset.assetKeys,
+            ...catalogAsset.semanticKinds,
+            ...catalogAsset.tags,
+          ])
+        : undefined;
+      if (uniqueRole && claimedUniqueRoles.has(uniqueRole)) continue;
+      const placed = placeSlot(
+        slot,
+        bounds,
+        occupied,
+        presentation.architecture.urbanStreet ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop : 0,
+      );
       if (!placed) continue;
       const dressingId = `${layout.location.id}:dressing:${sourceTag}:${slot.slotId}`;
       occupied.push({
@@ -1090,6 +1319,7 @@ export function resolveDressingInstances(
         wall: slot.wall,
         placementAnchor,
         supportId: placed.supportId,
+        verticalOffset: slot.verticalOffset,
       };
       if (slot.renderKind === "module") {
         instances.push({ ...common, renderKind: "module", moduleKey: slot.moduleKey });
@@ -1102,6 +1332,7 @@ export function resolveDressingInstances(
         registryKey: catalogAsset!.registryKey,
         asset: catalogAssetDefinition(catalogAsset!),
       });
+      if (uniqueRole) claimedUniqueRoles.add(uniqueRole);
     }
   }
   return instances;
