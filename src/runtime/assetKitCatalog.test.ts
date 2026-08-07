@@ -8,7 +8,7 @@ describe("asset kit catalog", () => {
   it("is the single source for runtime assets and semantic entries", () => {
     expect(assetKitCatalog.kits).toHaveLength(5);
     expect(assetKitCatalog.kits.map((kit) => kit.id)).toContain("speculative-storybook");
-    expect(assetKitCatalog.assets).toHaveLength(79);
+    expect(assetKitCatalog.assets).toHaveLength(83);
     expect(Object.keys(defaultAssetRegistry).sort()).toEqual(
       assetKitCatalog.assets.map((asset) => asset.registryKey).sort(),
     );

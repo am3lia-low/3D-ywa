@@ -1357,6 +1357,138 @@
           "sha256": "9716c656dd978576fec25dfbd113c9b62fad63210ca9b8e307c606ea2168f855"
         }
       ]
+    },
+    {
+      "slug": "street_lamp_02",
+      "author": "Josh Dean",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_02",
+      "sourceResolution": "1k",
+      "sourceBytes": 1870246,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.003,
+          "url": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod0.glb",
+          "bytes": 2170892,
+          "sha256": "359e192f9851d3208466dc4b7f19efab68ad0dbf7343c643b473ac4197871c74"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod1.glb",
+          "bytes": 1947008,
+          "sha256": "7f79b6351cc887be94de0c6bf87965478bb31657654b994b63f0609518041cd5"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod2.glb",
+          "bytes": 1794832,
+          "sha256": "6d4bbae0a7d9c6b2c841dab820d9e1be5bd1198e33deca176d6a51ebd32c1ca4"
+        }
+      ]
+    },
+    {
+      "slug": "wooden_crate_02",
+      "author": "James Ray Cock and Jurita Burger",
+      "sourceUrl": "https://polyhaven.com/a/wooden_crate_02",
+      "sourceResolution": "1k",
+      "sourceBytes": 2236220,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.003,
+          "url": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod0.glb",
+          "bytes": 2234520,
+          "sha256": "63e4dc0fcb2d8c8855e597fa0ad5cc9c784d0029a6ace697014043cc93cd14ab"
+        },
+        {
+          "level": 1,
+          "ratio": 0.6,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod1.glb",
+          "bytes": 2180488,
+          "sha256": "70ac6f64737f50434da308311cfa372c18473d1073bd49b489a2e4ef0bac4990"
+        },
+        {
+          "level": 2,
+          "ratio": 0.3,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod2.glb",
+          "bytes": 2139896,
+          "sha256": "40f7b168f7757a0d8980bb4b3036805647fb62b3ce5ba8a443a79ff42eeee9b1"
+        }
+      ]
+    },
+    {
+      "slug": "wooden_bucket_01",
+      "author": "James Ray Cock",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bucket_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 2331642,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.003,
+          "url": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod0.glb",
+          "bytes": 2329884,
+          "sha256": "6b03d486615b5e85830348de0b02e90a6668106be4295b1cd70713a2001e1769"
+        },
+        {
+          "level": 1,
+          "ratio": 0.6,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod1.glb",
+          "bytes": 2274964,
+          "sha256": "3af2ed5194342aaa01b76cae6f7ca597ea16da34b7ae90d4cdef3f453e316c96"
+        },
+        {
+          "level": 2,
+          "ratio": 0.3,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod2.glb",
+          "bytes": 2228852,
+          "sha256": "e55ce5a7a1e836223bff2cfb4ce135321b1480a1e739f48e33273782174078a8"
+        }
+      ]
+    },
+    {
+      "slug": "wooden_lantern_01",
+      "author": "James Ray Cock",
+      "sourceUrl": "https://polyhaven.com/a/wooden_lantern_01",
+      "sourceResolution": "1k",
+      "sourceBytes": 3768780,
+      "lods": [
+        {
+          "level": 0,
+          "ratio": 1,
+          "maximumGeometricError": 0.003,
+          "url": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod0.glb",
+          "bytes": 3764112,
+          "sha256": "de49bca3e003e1ce6a1fc7e5254985c7b8a4f334e60efdc54b92dc3b83689619"
+        },
+        {
+          "level": 1,
+          "ratio": 0.55,
+          "maximumGeometricError": 0.012,
+          "url": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod1.glb",
+          "bytes": 3656840,
+          "sha256": "7aae66b11945702e012594f752e32ace19182361aea3ed72bc88a842e6d89890"
+        },
+        {
+          "level": 2,
+          "ratio": 0.25,
+          "maximumGeometricError": 0.03,
+          "url": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod2.glb",
+          "bytes": 3581964,
+          "sha256": "38d3472dee744661f6a781868d16b2f3ffc5aea450e4ac478bb5e5e1908ee6f0"
+        }
+      ]
     }
   ]
 }

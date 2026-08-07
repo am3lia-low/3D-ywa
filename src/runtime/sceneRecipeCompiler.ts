@@ -221,6 +221,9 @@ export function compileSceneRecipe(
     snapshot,
     manifest.presentations,
     manifest.assetRegistry,
+    Object.fromEntries(
+      Object.entries(locations).map(([locationId, location]) => [locationId, location.dressingInstances]),
+    ),
   );
 
   return {

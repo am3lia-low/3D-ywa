@@ -75,7 +75,7 @@ function assetKey(entity: WorldEntity): string | undefined {
 function dimensions(entity: WorldEntity): [number, number, number] {
   const text = `${entity.id} ${entity.name}`.toLowerCase()
   if (/canal|waterway|channel/.test(text)) return [6.2, 0.65, 27.4]
-  if (/amber.*pendant|pendant|necklace/.test(text)) return [0.22, 0.38, 0.08]
+  if (/amber.*pendant|pendant|necklace/.test(text)) return [0.24, 0.36, 0.09]
   if (/fireplace|hearth/.test(text)) return [3.8, 3.35, 1.05]
   if (/window/.test(text)) return [3.25, 2.73, 0.33]
   if (/small.*(?:photograph|portrait)|(?:photograph|portrait).*small/.test(text)) return [0.35, 0.45, 0.035]
@@ -297,7 +297,7 @@ function environment(text: string): {
         archetype: 'storybook city quarter',
         visualDescription: 'A weathered old-city street with layered facades, stone paving and atmospheric depth.',
         architectureTags: ['open-air', 'urban-paving', 'urban-skyline'],
-        dressingTags: ['urban-clutter', 'street-lamps', 'market clutter'],
+        dressingTags: ['canal-district', 'street-lamps'],
         dressingDensity: 'rich',
         mood: 'mysterious, lived-in and quietly magical',
         timeOfDay: 'blue hour',

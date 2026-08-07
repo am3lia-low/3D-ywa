@@ -6,6 +6,9 @@ import woodlandSnapshotFixture from "../../fixtures/snapshot_woodland_1.json";
 import woodlandPlanFixture from "../../fixtures/visual_scene_plan_woodland_1.json";
 import type { VisualScenePlan } from "../contracts/visualScenePlan";
 import type { WorldSnapshot } from "../contracts/world";
+import type { ResolvedDressingInstance } from "./dressingResolver";
+import { createWorldLayout } from "./layoutEngine";
+import { auditSceneComposition } from "./sceneCompositionAudit";
 import { compileSceneRecipe } from "./sceneRecipeCompiler";
 
 const snapshot = courtyardSnapshotFixture as unknown as WorldSnapshot;
@@ -88,6 +91,104 @@ describe("scene composition audit", () => {
         expect.objectContaining({
           code: "broken_surface_relation",
           entityIds: ["trail-lantern-1", "fallen-cedar-1"],
+        }),
+      ]),
+    );
+  });
+
+  it("audits the resolved decorative assets that are actually sent to WorldViewer", () => {
+    const recipe = compileSceneRecipe(snapshot, plan);
+    const location = recipe.locations["coaching-courtyard"]!;
+    const groundedAsset = location.dressingInstances.find(
+      (instance) => instance.renderKind === "asset" && instance.placementAnchor === "floor",
+    )!;
+    const floating: ResolvedDressingInstance = {
+      ...groundedAsset,
+      dressingId: `${groundedAsset.dressingId}:floating-test`,
+      position: [
+        groundedAsset.position[0],
+        groundedAsset.position[1] + 0.7,
+        groundedAsset.position[2],
+      ],
+    };
+    const audit = auditSceneComposition(
+      snapshot,
+      { "coaching-courtyard": location.presentation },
+      recipe.assetRegistry,
+      { "coaching-courtyard": [floating] },
+    );
+
+    expect(audit.status).toBe("blocking");
+    expect(audit.locations["coaching-courtyard"]?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "floating_dressing", entityIds: [floating.dressingId] }),
+      ]),
+    );
+  });
+
+  it("rejects duplicate resolved dressing assets occupying one position", () => {
+    const recipe = compileSceneRecipe(snapshot, plan);
+    const location = recipe.locations["coaching-courtyard"]!;
+    const original = location.dressingInstances.find(
+      (instance) => instance.renderKind === "asset" && instance.placementAnchor === "floor",
+    )!;
+    const duplicate: ResolvedDressingInstance = {
+      ...original,
+      dressingId: `${original.dressingId}:duplicate-test`,
+    };
+    const audit = auditSceneComposition(
+      snapshot,
+      { "coaching-courtyard": location.presentation },
+      recipe.assetRegistry,
+      { "coaching-courtyard": [original, duplicate] },
+    );
+
+    expect(audit.status).toBe("blocking");
+    expect(audit.locations["coaching-courtyard"]?.issues.map((candidate) => candidate.code))
+      .toContain("duplicate_dressing");
+  });
+
+  it("rejects decorative furniture placed inside a story door access zone", () => {
+    const recipe = compileSceneRecipe(snapshot, plan);
+    const location = recipe.locations["coaching-courtyard"]!;
+    const layout = createWorldLayout(snapshot, recipe.assetRegistry, [], "coaching-courtyard");
+    const doorRelation = snapshot.relations.find((relation) =>
+      relation.predicate === "against_wall" &&
+      /\b(door|gate|portal|hatch)\b/i.test(
+        snapshot.entities.find((entity) => entity.id === relation.subjectId)?.name ?? "",
+      ),
+    )!;
+    const door = layout.items.find((item) => item.entity.id === doorRelation.subjectId)!;
+    const source = location.dressingInstances.find(
+      (instance) => instance.renderKind === "asset" &&
+        instance.placementAnchor === "floor" &&
+        instance.dimensions[1] > 0.3,
+    )!;
+    const wall = doorRelation.metadata?.wall ?? "north";
+    const blocked: ResolvedDressingInstance = {
+      ...source,
+      dressingId: `${source.dressingId}:door-block-test`,
+      position: wall === "south"
+        ? [door.position[0], source.dimensions[1] / 2, door.position[2] - 1.05]
+        : wall === "east"
+          ? [door.position[0] - 1.05, source.dimensions[1] / 2, door.position[2]]
+          : wall === "west"
+            ? [door.position[0] + 1.05, source.dimensions[1] / 2, door.position[2]]
+            : [door.position[0], source.dimensions[1] / 2, door.position[2] + 1.05],
+    };
+    const audit = auditSceneComposition(
+      snapshot,
+      { "coaching-courtyard": location.presentation },
+      recipe.assetRegistry,
+      { "coaching-courtyard": [blocked] },
+    );
+
+    expect(audit.status).toBe("blocking");
+    expect(audit.locations["coaching-courtyard"]?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "blocked_access",
+          entityIds: [door.entity.id, blocked.dressingId],
         }),
       ]),
     );

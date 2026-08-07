@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   clampNavigationTarget,
   createExteriorNavigationLimits,
+  createFocusCameraPose,
   createOverviewCameraPose,
   createExteriorPovCameraPose,
   createPovCameraPose,
@@ -73,6 +74,25 @@ describe("camera navigation", () => {
     expect(pose.position[0] - pose.target[0]).toBeCloseTo(8);
     expect(pose.position[1] - pose.target[1]).toBeCloseTo(6);
     expect(pose.position[2] - pose.target[2]).toBeCloseTo(9);
+  });
+
+  it("frames a small wall object from inside the room", () => {
+    const pose = createFocusCameraPose([6.7, 2.1, -13.3], [24, 8, 28]);
+
+    expect(pose.position[2]).toBeGreaterThan(pose.target[2]);
+    expect(pose.position[2] - pose.target[2]).toBeGreaterThan(2.5);
+    expect(pose.position[0]).toBeCloseTo(pose.target[0]);
+    expect(pose.position[1]).toBeGreaterThan(pose.target[1]);
+  });
+
+  it("moves closer when focusing jewellery-sized story objects", () => {
+    const target: [number, number, number] = [6.7, 2.1, -13.3];
+    const standard = createFocusCameraPose(target, [24, 8, 28]);
+    const jewellery = createFocusCameraPose(target, [24, 8, 28], [0.24, 0.36, 0.09]);
+
+    expect(jewellery.position[2] - jewellery.target[2])
+      .toBeLessThan(standard.position[2] - standard.target[2]);
+    expect(jewellery.position[2] - jewellery.target[2]).toBeCloseTo(1.35);
   });
 
   it("walks relative to the view while keeping a standing eye height", () => {

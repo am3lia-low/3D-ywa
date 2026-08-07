@@ -177,7 +177,7 @@
       "assetKeys": ["courtyard-bench", "painted-wooden-bench", "wooden-bench"],
       "semanticKinds": ["bench", "furniture", "seat"],
       "tags": ["bench", "seat", "wood", "painted", "worn", "antique", "rustic", "historical"],
-      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
       "placement": "floor",
       "source": "cc0",
       "author": "Kirill Sannikov",
@@ -209,7 +209,7 @@
       "assetKeys": ["wine-barrel", "wooden-barrel", "barrel"],
       "semanticKinds": ["barrel", "container", "storage"],
       "tags": ["barrel", "wine", "oak", "iron", "worn", "farmhouse", "cellar", "historical"],
-      "styleKitIds": ["storybook-historical", "generic-grounded"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
       "placement": "floor",
       "source": "cc0",
       "author": "James Ray Cock",
@@ -597,6 +597,160 @@
         "maxAspectDistortion": 1.2,
         "expectedUpAxis": "Y",
         "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:street-lamp-02-optimized",
+      "registryKey": "victorian-wall-street-lamp",
+      "roles": ["practical-light", "urban-wall-light"],
+      "assetKeys": ["victorian-wall-street-lamp", "wall-street-lamp", "canal-wall-lamp"],
+      "semanticKinds": ["lamp", "wall-light", "street-light", "environment-dressing"],
+      "tags": ["street", "lamp", "wall", "ornate", "wrought-iron", "victorian", "urban", "canal", "historical"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
+      "placement": "wall",
+      "source": "cc0",
+      "author": "Josh Dean",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/street_lamp_02",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "victorian-wall-street-lamp",
+        "geometry": "box",
+        "dimensions": [0.72, 1.7, 0.62],
+        "color": "#2f3433",
+        "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod2.glb", "minimumDistance": 26 }
+        ],
+        "roughness": 0.64,
+        "metalness": 0.54
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2400000,
+        "maxTriangles": 24000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.35,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "The ornate wall bracket and lantern body use authored node transforms that accessor-only bounds omit; the runtime dimensions preserve the complete assembled lamp silhouette."
+      }
+    },
+    {
+      "catalogId": "polyhaven:wooden-crate-02-optimized",
+      "registryKey": "maritime-rope-crate",
+      "roles": ["urban-storage", "canal-dressing"],
+      "assetKeys": ["maritime-rope-crate", "canal-crate", "market-crate"],
+      "semanticKinds": ["container", "crate", "storage", "environment-dressing"],
+      "tags": ["crate", "storage", "maritime", "canal", "market", "wood", "rope", "brass", "weathered", "historical"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "James Ray Cock and Jurita Burger",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_crate_02",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "maritime-rope-crate",
+        "geometry": "box",
+        "dimensions": [1.2, 0.74, 0.86],
+        "color": "#795638",
+        "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod1.glb", "minimumDistance": 12 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod2.glb", "minimumDistance": 25 }
+        ],
+        "roughness": 0.9,
+        "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2500000,
+        "maxTriangles": 9000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.35,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "Accessor bounds cover individual transformed crate pieces rather than the complete rope-handled assembly; runtime dimensions preserve the reviewed source proportions."
+      }
+    },
+    {
+      "catalogId": "polyhaven:wooden-bucket-01-optimized",
+      "registryKey": "weathered-canal-bucket",
+      "roles": ["canal-dressing", "market-container"],
+      "assetKeys": ["weathered-canal-bucket", "wooden-bucket", "dock-bucket"],
+      "semanticKinds": ["bucket", "container", "environment-dressing"],
+      "tags": ["bucket", "wooden", "iron", "weathered", "maritime", "canal", "dock", "market", "historical"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
+      "placement": "floor",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_bucket_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "weathered-canal-bucket",
+        "geometry": "cylinder",
+        "dimensions": [0.5, 0.52, 0.45],
+        "color": "#674936",
+        "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod1.glb", "minimumDistance": 11 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod2.glb", "minimumDistance": 23 }
+        ],
+        "roughness": 0.91
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 2600000,
+        "maxTriangles": 9000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.35,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z"
+      }
+    },
+    {
+      "catalogId": "polyhaven:wooden-lantern-01-optimized",
+      "registryKey": "maritime-wooden-lantern",
+      "roles": ["practical-light", "canal-dressing"],
+      "assetKeys": ["maritime-wooden-lantern", "canal-lantern", "wooden-lantern"],
+      "semanticKinds": ["lantern", "light", "surface-decor", "environment-dressing"],
+      "tags": ["lantern", "wooden", "glass", "candle", "maritime", "canal", "market", "weathered", "historical"],
+      "styleKitIds": ["storybook-historical", "speculative-storybook", "generic-grounded"],
+      "placement": "surface",
+      "source": "cc0",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0 Universal",
+      "sourceUrl": "https://polyhaven.com/a/wooden_lantern_01",
+      "quality": "hero",
+      "runtimeAsset": {
+        "key": "maritime-wooden-lantern",
+        "geometry": "box",
+        "dimensions": [0.34, 0.52, 0.34],
+        "color": "#6b4b32",
+        "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod0.glb",
+        "lods": [
+          { "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod0.glb", "minimumDistance": 0 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod1.glb", "minimumDistance": 10 },
+          { "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod2.glb", "minimumDistance": 21 }
+        ],
+        "roughness": 0.78,
+        "supportSurfaceY": 1
+      },
+      "qualityGate": {
+        "profile": "textured-pbr",
+        "maxTotalBytes": 4000000,
+        "maxTriangles": 14000,
+        "requirePbrTextures": true,
+        "maxAspectDistortion": 1.45,
+        "expectedUpAxis": "Y",
+        "expectedForwardAxis": "+Z",
+        "waiver": "The lantern's handle, glass and timber cage use authored transforms omitted from accessor-only bounds; runtime normalization measures the assembled scene."
       }
     },
     {
@@ -1145,7 +1299,7 @@
       "assetKeys": ["victorian-potted-plant", "estate-potted-plant", "large-houseplant"],
       "semanticKinds": ["plant", "potted-plant", "botanical"],
       "tags": ["plant", "potted", "terracotta", "lush", "botanical", "victorian", "interior", "historical"],
-      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"],
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "speculative-storybook", "generic-grounded"],
       "placement": "floor",
       "source": "cc0",
       "author": "Rico Cilliers",
@@ -1724,7 +1878,7 @@
       "catalogId": "polyhaven:wicker-basket-02-optimized", "registryKey": "woven-reading-basket",
       "roles": ["basket", "floor-decor", "storage"], "assetKeys": ["woven-reading-basket", "wicker-basket", "basket"],
       "semanticKinds": ["basket", "container", "storage"], "tags": ["basket", "wicker", "woven", "reading", "blanket", "rustic", "interior"],
-      "styleKitIds": ["storybook-historical", "botanical-gothic", "generic-grounded"], "placement": "floor",
+      "styleKitIds": ["storybook-historical", "botanical-gothic", "speculative-storybook", "generic-grounded"], "placement": "floor",
       "source": "cc0", "author": "Kuutti Siitonen", "license": "CC0 1.0 Universal", "sourceUrl": "https://polyhaven.com/a/wicker_basket_02", "quality": "supporting",
       "runtimeAsset": { "key": "woven-reading-basket", "geometry": "cylinder", "dimensions": [0.5, 0.42, 0.45], "color": "#8b694a", "modelUrl": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb", "lods": [{"modelUrl":"/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb","minimumDistance":0},{"modelUrl":"/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod2.glb","minimumDistance":14}], "roughness": 0.9 },
       "qualityGate": { "profile": "textured-pbr", "maxTotalBytes": 8700000, "maxTriangles": 24000, "requirePbrTextures": true, "maxAspectDistortion": 1.2, "expectedUpAxis": "Y", "expectedForwardAxis": "+Z", "waiver": "The woven rim and body use authored transforms; runtime floor dimensions preserve the measured basket footprint." }
@@ -2276,7 +2430,7 @@
       "runtimeAsset": {
         "key": "amber-pendant",
         "geometry": "sphere",
-        "dimensions": [0.22, 0.38, 0.08],
+        "dimensions": [0.24, 0.36, 0.09],
         "color": "#c67b22",
         "proceduralModel": "amber-pendant",
         "roughness": 0.22,
@@ -2285,7 +2439,7 @@
       "qualityGate": {
         "profile": "stylized-project",
         "maxTotalBytes": 50000,
-        "maxTriangles": 7000,
+        "maxTriangles": 12000,
         "requirePbrTextures": false,
         "maxAspectDistortion": 1.1,
         "expectedUpAxis": "Y",

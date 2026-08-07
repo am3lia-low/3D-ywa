@@ -27,6 +27,15 @@ describe("Member 3 prepared story scenes", () => {
         const layout = createWorldLayout(scene.spatialSnapshot, recipe.assetRegistry, [], locationId);
 
         expect(recipe.status).toBe("ready");
+        expect(
+          recipe.composition.status,
+          JSON.stringify(
+            Object.values(recipe.composition.locations).flatMap((report) => report.issues),
+            null,
+            2,
+          ),
+        ).not.toBe("blocking");
+        expect(recipe.composition.errorCount).toBe(0);
         expect(recipe.coverage.approvedPercent).toBe(100);
         expect(recipe.fallbackEntityIds).toEqual([]);
         expect(recipe.generationJobs).toEqual([]);
@@ -242,13 +251,16 @@ describe("Member 3 prepared story scenes", () => {
         }
 
         const distortedDressing: string[] = [];
+        const expectedDressingFloor = recipe.locations[locationId]!.presentation.architecture.urbanStreet
+          ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop
+          : 0;
         for (const instance of recipe.locations[locationId]!.dressingInstances) {
           expect(instance.position[1] - instance.dimensions[1] / 2).toBeGreaterThanOrEqual(-0.01);
           if (instance.placementAnchor === "floor") {
             expect(
               instance.position[1] - instance.dimensions[1] / 2,
               `${instance.dressingId} must make exact floor contact`,
-            ).toBeCloseTo(0, 5);
+            ).toBeCloseTo(expectedDressingFloor + (instance.verticalOffset ?? 0), 5);
           }
           if (instance.renderKind === "asset") {
             const spread = relativeScaleSpread(instance.dimensions, instance.asset.dimensions);
