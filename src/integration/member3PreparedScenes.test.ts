@@ -22,6 +22,8 @@ describe("Member 3 prepared story scenes", () => {
         const uiSnapshot = SNAPSHOTS[chapter.id]!;
         const scene = buildMockSpatialScene(book, chapter, uiSnapshot);
         const recipe = compileSceneRecipe(scene.spatialSnapshot, scene.visualPlan);
+        expect(recipe.compositionRepairs, "approved demo scenes must not require runtime suppression")
+          .toEqual([]);
         const locationId = scene.spatialSnapshot.locations[0]!.id;
         const bounds = scene.spatialSnapshot.locations[0]!.bounds!;
         const layout = createWorldLayout(scene.spatialSnapshot, recipe.assetRegistry, [], locationId);
