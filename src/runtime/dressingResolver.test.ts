@@ -13,7 +13,7 @@ import {
 } from "./dressingResolver";
 import { createWorldLayout } from "./layoutEngine";
 import { createFallbackScenePresentation } from "./sceneCompiler";
-import { URBAN_HUMAN_SCALE } from "./urbanComposition";
+import { URBAN_HUMAN_SCALE, urbanWalkableSurfaceTop } from "./urbanComposition";
 
 function mantelSnapshot(includeStoryClock: boolean): WorldSnapshot {
   return {
@@ -126,7 +126,10 @@ describe("resolved dressing identity safeguards", () => {
     expect(URBAN_FACADE_ACCESS_CLEARANCE).toBeGreaterThanOrEqual(0.9);
     for (const instance of instances.filter((candidate) => candidate.placementAnchor === "floor")) {
       expect(instance.position[1] - instance.dimensions[1] / 2)
-        .toBeCloseTo(URBAN_HUMAN_SCALE.sidewalkSurfaceTop + (instance.verticalOffset ?? 0), 5);
+        .toBeCloseTo(
+          urbanWalkableSurfaceTop(24, instance.position[0]) + (instance.verticalOffset ?? 0),
+          5,
+        );
       const yaw = instance.rotation[1];
       const rotatedWidth = instance.dimensions[0] * Math.abs(Math.cos(yaw)) +
         instance.dimensions[2] * Math.abs(Math.sin(yaw));

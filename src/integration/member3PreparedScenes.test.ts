@@ -3,7 +3,7 @@ import { BOOKS, SNAPSHOTS } from "../../Create UI Prototype for Hackathon/src/da
 import { buildMockSpatialScene } from "../../Create UI Prototype for Hackathon/src/spatial/mockSpatialAdapter";
 import { compileSceneRecipe } from "../runtime/sceneRecipeCompiler";
 import { createWorldLayout, supportSurfaceWorldY } from "../runtime/layoutEngine";
-import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import { URBAN_HUMAN_SCALE, urbanWalkableSurfaceTop } from "../runtime/urbanComposition";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
 import { isPortalSourceEntity } from "../runtime/portalRouting";
 
@@ -251,16 +251,18 @@ describe("Member 3 prepared story scenes", () => {
         }
 
         const distortedDressing: string[] = [];
-        const expectedDressingFloor = recipe.locations[locationId]!.presentation.architecture.urbanStreet
-          ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop
-          : 0;
         for (const instance of recipe.locations[locationId]!.dressingInstances) {
           expect(instance.position[1] - instance.dimensions[1] / 2).toBeGreaterThanOrEqual(-0.01);
           if (instance.placementAnchor === "floor") {
             expect(
               instance.position[1] - instance.dimensions[1] / 2,
               `${instance.dressingId} must make exact floor contact`,
-            ).toBeCloseTo(expectedDressingFloor + (instance.verticalOffset ?? 0), 5);
+            ).toBeCloseTo(
+              recipe.locations[locationId]!.presentation.architecture.urbanStreet
+                ? urbanWalkableSurfaceTop(bounds[0], instance.position[0]) + (instance.verticalOffset ?? 0)
+                : instance.verticalOffset ?? 0,
+              5,
+            );
           }
           if (instance.renderKind === "asset") {
             const spread = relativeScaleSpread(instance.dimensions, instance.asset.dimensions);

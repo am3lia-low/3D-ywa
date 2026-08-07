@@ -13,7 +13,15 @@ import {
   type WorldLayout,
 } from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
-import { URBAN_HUMAN_SCALE } from "./urbanComposition";
+import {
+  boxBottomY,
+  boxRestsOnSupport,
+  localFootprintHalfExtents,
+  scaledBoxDimensions,
+  supportPlaneWorldY,
+  worldToSupportLocal,
+} from "./supportSurfaces";
+import { urbanWalkableSurfaceTop } from "./urbanComposition";
 
 export type CompositionIssueCode =
   | "entity_overlap"
@@ -72,9 +80,7 @@ interface CompositionVolume {
 }
 
 function effectiveDimensions(item: LayoutItem): Vector3Tuple {
-  return item.dimensions.map(
-    (value, axis) => value * item.scale[axis]!,
-  ) as Vector3Tuple;
+  return scaledBoxDimensions(item.dimensions, item.scale);
 }
 
 function overlaps(left: LayoutItem, right: LayoutItem, padding = 0.04): boolean {
@@ -146,42 +152,29 @@ function dressingAssetKey(instance: ResolvedDressingInstance): string {
     : `module:${instance.moduleKey}`;
 }
 
-function supportTopY(
-  support: LayoutItem | ResolvedDressingInstance,
-): number {
-  if ("entity" in support) return supportSurfaceWorldY(support);
-  const supportRatio = support.renderKind === "asset"
-    ? support.asset.supportSurfaceY ?? 1
-    : 1;
-  return support.position[1] - support.dimensions[1] / 2 + support.dimensions[1] * supportRatio;
-}
-
 function dressingRestsOnSupport(
   subject: ResolvedDressingInstance,
   target: LayoutItem | ResolvedDressingInstance,
 ): boolean {
-  const targetPosition = target.position;
-  const targetDimensions = "entity" in target ? effectiveDimensions(target) : target.dimensions;
-  const targetYaw = target.rotation[1];
-  const subjectBottom = subject.position[1] - subject.dimensions[1] / 2;
-  if (Math.abs(subjectBottom - (supportTopY(target) + 0.008)) > DRESSING_CONTACT_EPSILON) {
-    return false;
-  }
-
-  const deltaX = subject.position[0] - targetPosition[0];
-  const deltaZ = subject.position[2] - targetPosition[2];
-  const localX = deltaX * Math.cos(targetYaw) - deltaZ * Math.sin(targetYaw);
-  const localZ = deltaX * Math.sin(targetYaw) + deltaZ * Math.cos(targetYaw);
-  const relativeYaw = subject.rotation[1] - targetYaw;
-  const subjectHalfX =
-    Math.abs(Math.cos(relativeYaw)) * subject.dimensions[0] / 2 +
-    Math.abs(Math.sin(relativeYaw)) * subject.dimensions[2] / 2;
-  const subjectHalfZ =
-    Math.abs(Math.sin(relativeYaw)) * subject.dimensions[0] / 2 +
-    Math.abs(Math.cos(relativeYaw)) * subject.dimensions[2] / 2;
-  const reachX = Math.max(0, targetDimensions[0] / 2 - subjectHalfX - 0.035);
-  const reachZ = Math.max(0, targetDimensions[2] / 2 - subjectHalfZ - 0.035);
-  return Math.abs(localX) <= reachX && Math.abs(localZ) <= reachZ;
+  const targetBox = "entity" in target
+    ? {
+        position: target.position,
+        dimensions: target.dimensions,
+        rotation: target.rotation,
+        scale: target.scale,
+        supportSurfaceY: target.asset.supportSurfaceY,
+      }
+    : {
+        position: target.position,
+        dimensions: target.dimensions,
+        rotation: target.rotation,
+        supportSurfaceY: target.renderKind === "asset" ? target.asset.supportSurfaceY : undefined,
+      };
+  return boxRestsOnSupport(
+    { position: subject.position, dimensions: subject.dimensions, rotation: subject.rotation },
+    targetBox,
+    { contactTolerance: DRESSING_CONTACT_EPSILON },
+  );
 }
 
 function isFloorLayer(item: LayoutItem): boolean {
@@ -212,26 +205,31 @@ function restsOnSurface(subject: LayoutItem, target: LayoutItem): boolean {
   const subjectDimensions = effectiveDimensions(subject);
   const targetDimensions = effectiveDimensions(target);
   const supportRatio = subject.entity.state?.supportSurfaceRatio;
-  const targetHeight = targetDimensions[1];
-  const expectedSupportY = typeof supportRatio === "number"
-    ? target.position[1] - targetHeight / 2 + targetHeight * Math.min(Math.max(supportRatio, 0), 1)
-    : supportSurfaceWorldY(target);
+  const expectedSupportY = supportPlaneWorldY({
+    position: target.position,
+    dimensions: target.dimensions,
+    rotation: target.rotation,
+    scale: target.scale,
+    supportSurfaceY: typeof supportRatio === "number"
+      ? Math.min(Math.max(supportRatio, 0), 1)
+      : target.asset.supportSurfaceY,
+  });
   const expectedBottom = expectedSupportY + 0.008;
-  const subjectBottom = subject.position[1] - subjectDimensions[1] / 2;
+  const subjectBottom = boxBottomY({
+    position: subject.position,
+    dimensions: subject.dimensions,
+    scale: subject.scale,
+  });
   if (Math.abs(subjectBottom - expectedBottom) > 0.065) return false;
 
-  const deltaX = subject.position[0] - target.position[0];
-  const deltaZ = subject.position[2] - target.position[2];
   const targetYaw = target.rotation[1];
-  const localX = deltaX * Math.cos(targetYaw) - deltaZ * Math.sin(targetYaw);
-  const localZ = deltaX * Math.sin(targetYaw) + deltaZ * Math.cos(targetYaw);
+  const [localX, localZ] = worldToSupportLocal(subject.position, target.position, targetYaw);
   const relativeYaw = subject.rotation[1] - targetYaw;
-  const subjectHalfX =
-    Math.abs(Math.cos(relativeYaw)) * subjectDimensions[0] / 2 +
-    Math.abs(Math.sin(relativeYaw)) * subjectDimensions[2] / 2;
-  const subjectHalfZ =
-    Math.abs(Math.sin(relativeYaw)) * subjectDimensions[0] / 2 +
-    Math.abs(Math.cos(relativeYaw)) * subjectDimensions[2] / 2;
+  const [subjectHalfX, subjectHalfZ] = localFootprintHalfExtents(
+    subject.dimensions,
+    relativeYaw,
+    subject.scale,
+  );
   let reachX = Math.max(0, targetDimensions[0] / 2 - subjectHalfX - 0.025);
   let reachZ = Math.max(0, targetDimensions[2] / 2 - subjectHalfZ - 0.025);
 
@@ -486,9 +484,9 @@ function auditLocation(
 
   for (const instance of dressingInstances) {
     const volume = dressingVolume(instance);
-    const bottom = instance.position[1] - instance.dimensions[1] / 2;
+    const bottom = boxBottomY({ position: instance.position, dimensions: instance.dimensions });
     const expectedFloor = presentation.architecture.urbanStreet
-      ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop
+      ? urbanWalkableSurfaceTop(bounds[0], instance.position[0])
       : 0;
     const expectedContact = expectedFloor + (instance.verticalOffset ?? 0);
     if (instance.placementAnchor === "floor" && Math.abs(bottom - expectedContact) > 0.025) {

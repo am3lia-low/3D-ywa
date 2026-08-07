@@ -11,6 +11,12 @@ import {
   type AssetDefinition,
   type AssetRegistry,
 } from "./assetRegistry";
+import {
+  centerYForSurfaceContact,
+  scaledBoxDimensions,
+  supportLocalReach,
+  supportPlaneWorldY,
+} from "./supportSurfaces";
 
 export interface LayoutItem {
   entity: Entity;
@@ -87,13 +93,13 @@ function surfaceOffset(
   target: LayoutItem,
 ): [number, number] {
   const margin = 0.05;
-  const xReach = Math.max(
-    0,
-    (target.dimensions[0] - item.dimensions[0]) / 2 - margin,
-  );
-  const zReach = Math.max(
-    0,
-    (target.dimensions[2] - item.dimensions[2]) / 2 - margin,
+  const [xReach, zReach] = supportLocalReach(
+    target.dimensions,
+    item.dimensions,
+    item.rotation[1] - target.rotation[1],
+    margin,
+    target.scale,
+    item.scale,
   );
   const semantics = [
     item.entity.kind,
@@ -176,8 +182,14 @@ function placeOnSupportWithoutCollision(
   ].join(" ").toLowerCase();
   const irregularSupport = /\b(log|trunk|stump|rock|boulder|barrel)\b/.test(targetSemantics);
   const margin = 0.05;
-  const xReach = Math.max(0, (target.dimensions[0] - draft.dimensions[0]) / 2 - margin);
-  const zReach = Math.max(0, (target.dimensions[2] - draft.dimensions[2]) / 2 - margin);
+  const [xReach, zReach] = supportLocalReach(
+    target.dimensions,
+    draft.dimensions,
+    draft.rotation[1] - target.rotation[1],
+    margin,
+    target.scale,
+    draft.scale,
+  );
   const yaw = target.rotation[1];
   const deltaX = desired[0] - target.position[0];
   const deltaZ = desired[2] - target.position[2];
@@ -303,15 +315,15 @@ function relationPosition(
     case "on":
       {
         const [offsetX, offsetZ] = surfaceOffset(item, target);
-        const itemHeight = item.dimensions[1] * item.scale[1];
         const supportRatio = item.entity.state?.supportSurfaceRatio;
+        const targetHeight = scaledBoxDimensions(target.dimensions, target.scale)[1];
         const supportY = typeof supportRatio === "number"
-          ? target.position[1] - target.dimensions[1] * target.scale[1] / 2
-            + target.dimensions[1] * target.scale[1] * clamp(supportRatio, 0, 1)
+          ? target.position[1] - targetHeight / 2
+            + targetHeight * clamp(supportRatio, 0, 1)
           : supportSurfaceWorldY(target);
         return [
           target.position[0] + offsetX,
-          supportY + itemHeight / 2 + 0.008,
+          centerYForSurfaceContact(supportY, item.dimensions, item.scale),
           target.position[2] + offsetZ,
         ];
       }
@@ -388,11 +400,13 @@ function defaultPosition(entity: Entity, bounds: Vector3Tuple, height: number): 
 
 /** Returns the real visual support height, not merely the asset bounding-box top. */
 export function supportSurfaceWorldY(item: LayoutItem): number {
-  const height = item.dimensions[1] * item.scale[1];
-  return (
-    item.position[1] - height / 2 +
-    height * (item.asset.supportSurfaceY ?? 1)
-  );
+  return supportPlaneWorldY({
+    position: item.position,
+    dimensions: item.dimensions,
+    scale: item.scale,
+    rotation: item.rotation,
+    supportSurfaceY: item.asset.supportSurfaceY,
+  });
 }
 
 const FACING_RELATIONS = new Set(["left_of", "right_of", "in_front_of", "behind", "near"]);

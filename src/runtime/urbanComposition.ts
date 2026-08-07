@@ -19,3 +19,21 @@ export const URBAN_HUMAN_SCALE = Object.freeze({
   horizonCenterFactor: 0.69,
   horizonApronDepthRatio: 0.5,
 });
+
+/** Horizontal footprint of the raised pedestrian slabs rendered on each side. */
+export const URBAN_SIDEWALK_CENTER_FACTOR = 0.34;
+export const URBAN_SIDEWALK_WIDTH_FACTOR = 0.22;
+
+/**
+ * Resolves the real rendered support plane at an urban X coordinate. Props in
+ * the side bands rest on the raised sidewalk; props elsewhere rest on the
+ * lower street. Keeping this calculation shared prevents renderer/placement
+ * drift when a collision reroute crosses between surface bands.
+ */
+export function urbanWalkableSurfaceTop(boundsWidth: number, x: number): number {
+  const sidewalkCenter = boundsWidth * URBAN_SIDEWALK_CENTER_FACTOR;
+  const sidewalkHalfWidth = boundsWidth * URBAN_SIDEWALK_WIDTH_FACTOR / 2;
+  return Math.abs(Math.abs(x) - sidewalkCenter) <= sidewalkHalfWidth
+    ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop
+    : URBAN_HUMAN_SCALE.streetSurfaceTop;
+}
