@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import * as api from './api/mockApi'
 import WorldViewer from './components/WorldViewer'
+import { findEvidencePassage } from './passageLink'
 import type {
   AppMode, Book, Chapter, ChapterProcessingResult, ChapterUpdateSummary, Conflict, ConflictResolution,
   EntityInspectionData, EntityStatus, ProcessingStage, UserRole, WorldEntity, WorldSnapshot,
@@ -37,7 +38,12 @@ function toInspectionData(entity: WorldEntity): EntityInspectionData {
     currentCondition: entity.currentCondition,
     introducedInChapterId: entity.introducedInChapterId,
     latestUpdatedChapterId: entity.changedInChapterId,
-    currentEvidence: entity.sourceSentence ? { sourceSentence: entity.sourceSentence, evidenceType: entity.evidenceType ?? 'Explicit' } : undefined,
+    currentEvidence: entity.sourceSentence ? {
+      sourceSentence: entity.sourceSentence,
+      evidenceType: entity.evidenceType ?? 'Explicit',
+      startChar: entity.sourceStartChar,
+      endChar: entity.sourceEndChar,
+    } : undefined,
     history,
   }
 }
@@ -81,7 +87,14 @@ function ProcessingPill({ stage }: { stage: ProcessingStage }) {
   )
 }
 
-function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity: WorldEntity; onClose: () => void }) {
+function ObjectInspector({
+  book, entity, onClose, onOpenPassage,
+}: {
+  book: Book | null
+  entity: WorldEntity
+  onClose: () => void
+  onOpenPassage: (focus: Omit<PassageFocus, 'requestId'>) => void
+}) {
   const data = toInspectionData(entity)
   const sourceChapterId = data.latestUpdatedChapterId ?? data.introducedInChapterId
   const sourceChapter = book?.chapters.find(chapter => chapter.id === sourceChapterId)
@@ -137,6 +150,24 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
             <div>
               <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Passage evidence</div>
               <div className="italic leading-relaxed" style={{ color: '#c9b88e' }}>"{data.currentEvidence.sourceSentence}"</div>
+              {sourceChapter && (
+                <button
+                  onClick={() => onOpenPassage({
+                    chapterId: sourceChapter.id,
+                    sourceSentence: data.currentEvidence!.sourceSentence,
+                    startChar: data.currentEvidence!.startChar,
+                    endChar: data.currentEvidence!.endChar,
+                  })}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-all hover:-translate-y-px"
+                  style={{
+                    background: 'rgba(201,165,90,0.09)',
+                    borderColor: 'rgba(201,165,90,0.28)',
+                    color: '#d8b86d',
+                  }}
+                >
+                  Read this passage <span aria-hidden="true">→</span>
+                </button>
+              )}
             </div>
             <div>
               <div className="font-mono uppercase tracking-wider text-[10px] mb-0.5" style={{ color: '#6e6354' }}>Evidence</div>
@@ -150,18 +181,37 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
 }
 
 function ChapterDrawer({
-  open, book, latestProcessedChapterId, displayedTextChapterId, onClose, onViewChapter,
+  open, book, latestProcessedChapterId, displayedTextChapterId, focusedPassage, onClose, onViewChapter,
 }: {
   open: boolean; book: Book; latestProcessedChapterId: string; displayedTextChapterId: string;
+  focusedPassage: PassageFocus | null;
   onClose: () => void; onViewChapter: (chapterId: string) => void;
 }) {
-  if (!open) return null
   const displayed = book.chapters.find(c => c.id === displayedTextChapterId) ?? book.chapters[0]
   const latest = book.chapters.find(c => c.id === latestProcessedChapterId)
   const showingLatest = displayed.id === latestProcessedChapterId
   const prevChapter = book.chapters.find(c => c.index === displayed.index - 1)
   const nextChapter = book.chapters.find(c => c.index === displayed.index + 1)
   const canGoNext = nextChapter && nextChapter.processingStatus === 'ready'
+  const passageMatch = focusedPassage?.chapterId === displayed.id
+    ? findEvidencePassage(
+        displayed.content,
+        focusedPassage.sourceSentence,
+        focusedPassage.startChar,
+        focusedPassage.endChar,
+      )
+    : null
+  const passageRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!open || !passageMatch || focusedPassage?.chapterId !== displayed.id) return
+    const frame = requestAnimationFrame(() => {
+      passageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [displayed.id, focusedPassage?.requestId, open, passageMatch?.start])
+
+  if (!open) return null
 
   return (
     <div className="animate-slide-in-right absolute top-0 right-0 h-full w-[360px] z-30 flex flex-col border-l"
@@ -182,7 +232,24 @@ function ChapterDrawer({
       )}
       <div className="flex-1 overflow-y-auto px-6 py-5">
         <div className="font-reading text-[15px] leading-[1.75] whitespace-pre-line" style={{ color: '#e9e2d4' }}>
-          {displayed.content}
+          {passageMatch ? (
+            <>
+              {displayed.content.slice(0, passageMatch.start)}
+              <mark
+                ref={passageRef}
+                data-passage-highlight="true"
+                className="rounded px-1 py-0.5"
+                style={{
+                  background: 'linear-gradient(90deg, rgba(201,165,90,0.3), rgba(201,165,90,0.16))',
+                  boxShadow: '0 0 0 1px rgba(201,165,90,0.22)',
+                  color: '#fff0c7',
+                }}
+              >
+                {displayed.content.slice(passageMatch.start, passageMatch.end)}
+              </mark>
+              {displayed.content.slice(passageMatch.end)}
+            </>
+          ) : displayed.content}
         </div>
       </div>
       <div className="flex items-center justify-between px-6 py-4 border-t shrink-0"
@@ -737,7 +804,7 @@ function ReaderScreen({
 function ExplorerScreen({
   book, chapter, snapshot, summary,
   selectedEntityId, onSelectEntity,
-  drawerOpen, onToggleDrawer, displayedTextChapterId, onViewChapter,
+  drawerOpen, onToggleDrawer, displayedTextChapterId, focusedPassage, onViewChapter, onOpenPassage,
   summaryOpen, onToggleSummary,
   userRole, onToggleRole,
   conflicts, adminPanelOpen, onOpenAdminPanel, onCloseAdminPanel, onResolveConflict,
@@ -746,6 +813,7 @@ function ExplorerScreen({
   book: Book; chapter: Chapter; snapshot: WorldSnapshot | null; summary: ChapterUpdateSummary | null;
   selectedEntityId: string | null; onSelectEntity: (id: string | null) => void;
   drawerOpen: boolean; onToggleDrawer: () => void; displayedTextChapterId: string; onViewChapter: (id: string) => void;
+  focusedPassage: PassageFocus | null; onOpenPassage: (focus: Omit<PassageFocus, 'requestId'>) => void;
   summaryOpen: boolean; onToggleSummary: () => void;
   userRole: UserRole; onToggleRole: () => void;
   conflicts: Conflict[]; adminPanelOpen: boolean; onOpenAdminPanel: () => void; onCloseAdminPanel: () => void;
@@ -825,7 +893,12 @@ function ExplorerScreen({
 
       {selectedEntity && (
         <div className="pointer-events-auto">
-          <ObjectInspector book={book} entity={selectedEntity} onClose={() => onSelectEntity(null)} />
+          <ObjectInspector
+            book={book}
+            entity={selectedEntity}
+            onClose={() => onSelectEntity(null)}
+            onOpenPassage={onOpenPassage}
+          />
         </div>
       )}
 
@@ -843,6 +916,7 @@ function ExplorerScreen({
           book={book}
           latestProcessedChapterId={chapter.id}
           displayedTextChapterId={displayedTextChapterId}
+          focusedPassage={focusedPassage}
           onClose={onToggleDrawer}
           onViewChapter={onViewChapter}
         />
@@ -971,6 +1045,14 @@ function PreparedWorldSurface({
   )
 }
 
+interface PassageFocus {
+  chapterId: string
+  sourceSentence: string
+  startChar?: number
+  endChar?: number
+  requestId: number
+}
+
 export default function App() {
   const [books, setBooks] = useState<Book[]>([])
   const [chapterResults, setChapterResults] = useState<Record<string, ChapterProcessingResult>>({})
@@ -988,6 +1070,7 @@ export default function App() {
   const [processingError, setProcessingError] = useState<string | null>(null)
 
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
+  const [focusedPassage, setFocusedPassage] = useState<PassageFocus | null>(null)
   const [highlightedEntityIds] = useState<string[]>([])
   const [viewerResetToken, setViewerResetToken] = useState(0)
 
@@ -1076,6 +1159,7 @@ export default function App() {
     setReaderChapterId(entry.id)
     setDisplayedTextChapterId(entry.id)
     setSelectedEntityId(null)
+    setFocusedPassage(null)
     setChapterDrawerOpen(false)
     setUpdateSummaryOpen(false)
     setAppMode('reading')
@@ -1116,6 +1200,7 @@ export default function App() {
     setReaderChapterId(next.id)
     setDisplayedTextChapterId(next.id)
     setSelectedEntityId(null)
+    setFocusedPassage(null)
     setChapterDrawerOpen(false)
     setUpdateSummaryOpen(false)
     setAppMode('reading')
@@ -1219,7 +1304,16 @@ export default function App() {
           drawerOpen={chapterDrawerOpen}
           onToggleDrawer={() => setChapterDrawerOpen(d => !d)}
           displayedTextChapterId={displayedTextChapterId}
-          onViewChapter={setDisplayedTextChapterId}
+          focusedPassage={focusedPassage}
+          onViewChapter={chapterId => {
+            setDisplayedTextChapterId(chapterId)
+            setFocusedPassage(null)
+          }}
+          onOpenPassage={focus => {
+            setDisplayedTextChapterId(focus.chapterId)
+            setFocusedPassage({ ...focus, requestId: Date.now() })
+            setChapterDrawerOpen(true)
+          }}
           summaryOpen={updateSummaryOpen}
           onToggleSummary={() => setUpdateSummaryOpen(s => !s)}
           userRole={userRole}

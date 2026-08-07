@@ -144,14 +144,18 @@ const DRESSING_RULES: readonly DressingRule[] = [
         minimumDensity: "moderate", positionFactor: [0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: -2.72,
       },
       {
-        renderKind: "asset", searchTags: ["leather", "books", "antique", "lesson"], slotId: "schoolroom-copybooks",
-        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.54, 0.18, 0.24],
-        placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: -0.08,
-      },
-      {
         renderKind: "asset", searchTags: ["wooden", "candlestick", "antique", "school"], slotId: "schoolroom-candlestick",
         minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
         placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: 0.12,
+      },
+      {
+        renderKind: "asset", searchTags: ["vintage", "drawer", "cabinet", "archive", "wood", "brass", "victorian"], slotId: "schoolroom-supply-cabinet",
+        minimumDensity: "rich", positionFactor: [0.34, -0.43], dimensions: [1.05, 1.12, 0.58],
+        yaw: 0.04, wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["basket", "wicker", "woven", "reading", "rustic", "interior"], slotId: "schoolroom-copybook-basket",
+        minimumDensity: "rich", positionFactor: [-0.24, -0.31], dimensions: [0.5, 0.42, 0.45], yaw: 0.24,
       },
     ],
   },
@@ -385,6 +389,9 @@ const DRESSING_RULES: readonly DressingRule[] = [
   },
   {
     anyTags: ["interior-rugs"],
+    // Authored estate compositions already pair every rug with a furniture
+    // grouping. A generic center rug would be an empty, duplicated island.
+    excludeTags: ["estate-furnishings"],
     slots: [{
       renderKind: "asset", searchTags: ["rug", "red", "woven"], slotId: "central-room-rug",
       minimumDensity: "sparse", positionFactor: [0, 0.04], dimensions: [5.6, 0.12, 3.83], yaw: 0,
@@ -392,7 +399,7 @@ const DRESSING_RULES: readonly DressingRule[] = [
   },
   {
     anyTags: ["interior-lighting"],
-    excludeTags: ["estate-furnishings", "schoolroom-furnishings", "tavern-interior", "nautical-interior", "bedroom-interior"],
+    excludeTags: ["estate-furnishings", "schoolroom-furnishings", "tavern-interior", "nautical-interior", "bedroom-interior", "archive-clutter"],
     slots: [
       {
         renderKind: "asset", searchTags: ["storybook", "floor", "lamp"], slotId: "west-floor-lamp",
@@ -424,6 +431,47 @@ const DRESSING_RULES: readonly DressingRule[] = [
       {
         renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-reading-chair",
         minimumDensity: "moderate", positionFactor: [0, 0.18], dimensions: [0.95, 1.55, 0.95], yaw: Math.PI,
+      },
+      {
+        renderKind: "asset", searchTags: ["desk", "writing", "table", "oak"], slotId: "archive-cataloguing-table",
+        minimumDensity: "rich", positionFactor: [0.23, -0.11], dimensions: [2.1, 1.05, 1.08], yaw: -0.06,
+      },
+      {
+        renderKind: "asset", searchTags: ["chair", "seat", "wood", "antique"], slotId: "archive-cataloguing-chair",
+        minimumDensity: "rich", positionFactor: [0.23, 0.01], dimensions: [0.86, 1.38, 0.86], yaw: 2.95,
+      },
+      {
+        renderKind: "asset", searchTags: ["encyclopedia", "leather", "books", "archive"], slotId: "archive-table-books",
+        minimumDensity: "sparse", positionFactor: [0, 0], dimensions: [0.6, 0.25, 0.18],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: -0.08,
+      },
+      {
+        renderKind: "asset", searchTags: ["notebook", "journal", "writing", "desk"], slotId: "archive-table-ledger",
+        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.28, 0.045, 0.36],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: 0.2,
+      },
+      {
+        renderKind: "asset", searchTags: ["porcelain", "oil", "lamp", "victorian"], slotId: "archive-table-lamp",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.28, 0.82, 0.28],
+        placementAnchor: "surface", supportSearchTags: ["archive", "reading", "desk", "table"], yaw: -0.16,
+        // Sink the normalized mesh slightly into the timber top so the visible
+        // porcelain foot makes contact rather than reading as a hover gap.
+        verticalOffset: -0.045,
+      },
+      {
+        renderKind: "asset", searchTags: ["brass", "vase", "antique", "tabletop"], slotId: "archive-cataloguing-vase",
+        minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.24, 0.44, 0.24],
+        placementAnchor: "surface", supportSearchTags: ["archive", "cataloguing", "desk", "table"], yaw: 0.22,
+      },
+      {
+        renderKind: "asset", searchTags: ["vintage", "glass", "cabinet", "victorian"], slotId: "archive-south-display-cabinet",
+        minimumDensity: "moderate", positionFactor: [-0.24, 0.47], dimensions: [1.2, 2.35, 0.64],
+        yaw: Math.PI, wall: "south",
+      },
+      {
+        renderKind: "asset", searchTags: ["grandfather", "clock", "longcase", "victorian"], slotId: "archive-south-longcase-clock",
+        minimumDensity: "rich", positionFactor: [0.31, 0.47], dimensions: [0.72, 2.2, 0.42],
+        yaw: Math.PI, wall: "south",
       },
       {
         renderKind: "asset", searchTags: ["wooden", "crate", "storage"], slotId: "archive-crate",
@@ -1015,6 +1063,7 @@ export function resolveDressingInstances(
         yaw: slot.yaw ?? 0,
         semanticTags: slot.renderKind === "asset" && catalogAsset
           ? [
+              slot.slotId,
               ...catalogAsset.roles,
               ...catalogAsset.assetKeys,
               ...catalogAsset.semanticKinds,

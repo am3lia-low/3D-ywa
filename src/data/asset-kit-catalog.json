@@ -2152,7 +2152,7 @@
         "dimensions": [1.4, 0.9, 2.5],
         "color": "#65452f",
         "proceduralModel": "staircase",
-        "supportSurfaceY": 1,
+        "supportSurfaceY": 0.6,
         "roughness": 0.88
       },
       "qualityGate": {
@@ -2215,6 +2215,7 @@
         "dimensions": [2.5, 2.1, 0.25],
         "color": "#5f4938",
         "proceduralModel": "bay-window",
+        "supportSurfaceY": 0.61,
         "roughness": 0.84
       },
       "qualityGate": {

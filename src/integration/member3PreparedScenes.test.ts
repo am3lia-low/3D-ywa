@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { BOOKS, SNAPSHOTS } from "../../Create UI Prototype for Hackathon/src/data/mockData";
 import { buildMockSpatialScene } from "../../Create UI Prototype for Hackathon/src/spatial/mockSpatialAdapter";
 import { compileSceneRecipe } from "../runtime/sceneRecipeCompiler";
-import { createWorldLayout } from "../runtime/layoutEngine";
+import { createWorldLayout, supportSurfaceWorldY } from "../runtime/layoutEngine";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
+import { isPortalSourceEntity } from "../runtime/portalRouting";
 
 function relativeScaleSpread(
   target: readonly [number, number, number],
@@ -29,6 +30,21 @@ describe("Member 3 prepared story scenes", () => {
         expect(recipe.coverage.approvedPercent).toBe(100);
         expect(recipe.fallbackEntityIds).toEqual([]);
         expect(recipe.generationJobs).toEqual([]);
+
+        if (scene.visualPlan.locations[0]?.dressingTags.includes("estate-furnishings")) {
+          expect(
+            recipe.locations[locationId]!.dressingInstances.some(
+              (instance) => instance.dressingId.split(":").at(-1) === "central-room-rug",
+            ),
+          ).toBe(false);
+        }
+
+        if (uiSnapshot.entities.some((entity) => entity.id === "hidden-drawer")) {
+          expect(scene.spatialSnapshot.entities.some((entity) => entity.id === "hidden-drawer")).toBe(false);
+          expect(
+            layout.items.filter((item) => item.asset.key === "desk").map((item) => item.entity.id),
+          ).toEqual(["desk"]);
+        }
 
         if (scene.spatialSnapshot.entities.some((entity) => entity.id === "armchair")) {
           expect(recipe.assetRegistry.armchair?.key).toBe("victorian-armchair");
@@ -64,18 +80,45 @@ describe("Member 3 prepared story scenes", () => {
           expect(scene.spatialSnapshot.entities.filter((entity) => entity.locationId === schoolroom.id).map((entity) => entity.id))
             .toEqual(expect.arrayContaining(["schoolroom-table", "schoolroom-shelf", "schoolroom-ledger", "horse-figurine", "small-photograph"]));
           expect(recipe.locations[locationId]!.presentation.portalTargetLocationId).toBe(schoolroom.id);
+          expect(recipe.locations[locationId]!.presentation.portalSourceEntityId).toBe("east-hall-door");
+          expect(layout.items.some((item) => item.entity.id === "east-hall-door")).toBe(true);
           expect(schoolroomRecipe.presentation.portalTargetLocationId).toBe(locationId);
           expect(schoolroomRecipe.presentation.portalSourceEntityId).toBe("east-hall-door");
+          expect(isPortalSourceEntity("east-hall-door", schoolroomRecipe.presentation.portalSourceEntityId)).toBe(true);
+          expect(isPortalSourceEntity("staircase-door", schoolroomRecipe.presentation.portalSourceEntityId)).toBe(false);
           expect(schoolroomRecipe.presentation.portalIsReturn).toBe(true);
           expect(schoolroomRecipe.presentation.location.architectureTags).not.toContain("estate-paneling");
           expect(ledger.position[1] - ledger.dimensions[1] / 2)
             .toBeCloseTo(table.position[1] + table.dimensions[1] / 2 + 0.008, 3);
+          expect(Math.abs(ledger.position[0] - table.position[0]))
+            .toBeLessThan(table.dimensions[0] * 0.2);
+          expect(Math.abs(ledger.position[2] - table.position[2]))
+            .toBeLessThan(table.dimensions[2] * 0.2);
           expect(Math.abs(photograph.position[0] - shelf.position[0])).toBeLessThan(shelf.dimensions[0] / 2);
           expect(photograph.position[1] - photograph.dimensions[1] / 2)
-            .toBeCloseTo(shelf.position[1] + shelf.dimensions[1] / 2 + 0.008, 3);
+            .toBeCloseTo(
+              shelf.position[1] - shelf.dimensions[1] / 2 + shelf.dimensions[1] * 0.78 + 0.008,
+              3,
+            );
           expect(Math.abs(photograph.position[2] - shelf.position[2])).toBeLessThan(0.5);
           expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
             .toEqual(expect.arrayContaining(["schoolroom-chair-west", "schoolroom-chair-east"]));
+          const schoolroomSupplyCabinet = schoolroomRecipe.dressingInstances.find((instance) =>
+            instance.dressingId.endsWith(":schoolroom-supply-cabinet"),
+          );
+          expect(schoolroomSupplyCabinet?.renderKind).toBe("asset");
+          if (schoolroomSupplyCabinet?.renderKind === "asset") {
+            expect(schoolroomSupplyCabinet.asset.key).toBe("victorian-document-drawers");
+          }
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("schoolroom-copybooks");
+          const schoolroomBasket = schoolroomRecipe.dressingInstances.find((instance) =>
+            instance.dressingId.endsWith(":schoolroom-copybook-basket"),
+          );
+          expect(schoolroomBasket?.renderKind).toBe("asset");
+          if (schoolroomBasket?.renderKind === "asset") {
+            expect(schoolroomBasket.asset.key).toBe("woven-reading-basket");
+          }
           expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
             .not.toContain("schoolroom-copybook-shelf");
           expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
@@ -97,6 +140,8 @@ describe("Member 3 prepared story scenes", () => {
           }));
           expect(photograph.position[1] - photograph.dimensions[1] / 2)
             .toBeCloseTo(desk.position[1] - desk.dimensions[1] / 2 + desk.dimensions[1] * (desk.asset.supportSurfaceY ?? 1) + 0.008, 3);
+          expect(Math.abs(photograph.position[0] - desk.position[0])).toBeGreaterThan(desk.dimensions[0] * 0.3);
+          expect(Math.abs(photograph.position[2] - desk.position[2])).toBeGreaterThan(desk.dimensions[2] * 0.25);
         }
 
         const stairMap = uiSnapshot.entities.find((entity) =>
@@ -105,13 +150,34 @@ describe("Member 3 prepared story scenes", () => {
         if (stairMap) {
           const stairs = layout.items.find((item) => item.entity.id === "staircase-steps")!;
           const map = layout.items.find((item) => item.entity.id === "hand-drawn-map")!;
+          expect(stairs.entity.state?.presentationOccluded).toBe(true);
+          expect(map.entity.state?.presentationOccluded).toBe(true);
           expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
             subjectId: "hand-drawn-map",
             predicate: "on",
             objectId: "staircase-steps",
           }));
           expect(map.position[1] - map.dimensions[1] / 2)
-            .toBeCloseTo(stairs.position[1] + stairs.dimensions[1] / 2 + 0.008, 3);
+            .toBeCloseTo(supportSurfaceWorldY(stairs) + 0.008, 3);
+          const staircaseDoor = layout.items.find((item) => item.entity.id === "staircase-door")!;
+          expect(Math.abs(stairs.position[0] - staircaseDoor.position[0])).toBeLessThan(2.2);
+          expect(Math.abs(stairs.position[2] - staircaseDoor.position[2])).toBeLessThan(0.1);
+        }
+
+        const sillMap = uiSnapshot.entities.find((entity) =>
+          entity.id === "hand-drawn-map" && /sill/i.test(entity.currentLocation ?? ""),
+        );
+        if (sillMap) {
+          const window = layout.items.find((item) => item.entity.id === "bay-window")!;
+          const map = layout.items.find((item) => item.entity.id === "hand-drawn-map")!;
+          expect(scene.spatialSnapshot.relations).toContainEqual(expect.objectContaining({
+            subjectId: "hand-drawn-map",
+            predicate: "on",
+            objectId: "bay-window",
+          }));
+          expect(map.position[1] - map.dimensions[1] / 2)
+            .toBeCloseTo(supportSurfaceWorldY(window) + 0.008, 3);
+          expect(map.position[1]).toBeGreaterThan(1.5);
         }
 
         if (uiSnapshot.entities.some((entity) => entity.id === "staircase-door")) {
@@ -178,6 +244,12 @@ describe("Member 3 prepared story scenes", () => {
         const distortedDressing: string[] = [];
         for (const instance of recipe.locations[locationId]!.dressingInstances) {
           expect(instance.position[1] - instance.dimensions[1] / 2).toBeGreaterThanOrEqual(-0.01);
+          if (instance.placementAnchor === "floor") {
+            expect(
+              instance.position[1] - instance.dimensions[1] / 2,
+              `${instance.dressingId} must make exact floor contact`,
+            ).toBeCloseTo(0, 5);
+          }
           if (instance.renderKind === "asset") {
             const spread = relativeScaleSpread(instance.dimensions, instance.asset.dimensions);
             if (spread > 1.2) distortedDressing.push(`${instance.dressingId} -> ${instance.asset.key} (${spread.toFixed(2)}x)`);

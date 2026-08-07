@@ -1,119 +1,97 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1280" viewBox="0 0 1800 1280" role="img" aria-labelledby="title desc">
-  <title id="title">Member 2 asset resolution, world preparation, and reader interaction</title>
-  <desc id="desc">Flow from Member 1 story data through validation, deterministic placement, approved asset matching, designed fallbacks, optional internal generation, real renderer warm-up, and Member 3 reader interactions.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="980" viewBox="0 0 1800 980" role="img" aria-labelledby="title desc">
+  <title id="title">How a story passage becomes an explorable 3D world</title>
+  <desc id="desc">A user selects a passage. Narrative data becomes a spatial layout. Existing exact or semantic assets are reused; otherwise a story-specific asset is generated. The renderer then performs real loading before the user explores rooms and inspects story evidence.</desc>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#47636b"/></marker>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#49656c"/></marker>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#17323a" flood-opacity="0.13"/></filter>
     <style>
-      .title{font:700 38px 'Segoe UI',Arial,sans-serif;fill:#17323a}.subtitle{font:20px 'Segoe UI',Arial,sans-serif;fill:#52666c}.lane-title{font:700 21px 'Segoe UI',Arial,sans-serif;letter-spacing:.5px;fill:#17323a}.node-title{font:700 20px 'Segoe UI',Arial,sans-serif;fill:#17323a}.text{font:17px 'Segoe UI',Arial,sans-serif;fill:#40565d}.small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}.label{font:700 14px 'Segoe UI',Arial,sans-serif;fill:#47636b}.arrow{fill:none;stroke:#47636b;stroke-width:3;marker-end:url(#arrow)}.dash{fill:none;stroke:#8c6b2f;stroke-width:3;stroke-dasharray:9 7;marker-end:url(#arrow)}.node{stroke-width:2;rx:16;filter:url(#shadow)}
+      .title{font:700 40px 'Segoe UI',Arial,sans-serif;fill:#17323a}.subtitle{font:20px 'Segoe UI',Arial,sans-serif;fill:#52666c}.section{font:700 21px 'Segoe UI',Arial,sans-serif;letter-spacing:.6px;fill:#17323a}.head{font:700 20px 'Segoe UI',Arial,sans-serif;fill:#17323a}.body{font:17px 'Segoe UI',Arial,sans-serif;fill:#40565d}.small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}.branch{font:700 15px 'Segoe UI',Arial,sans-serif;fill:#49656c}.box{stroke-width:2;rx:16;filter:url(#shadow)}.line{fill:none;stroke:#49656c;stroke-width:3;marker-end:url(#arrow)}.join{fill:none;stroke:#49656c;stroke-width:3}
     </style>
   </defs>
-  <rect width="1800" height="1280" fill="#f7f3e9"/>
-  <text x="54" y="64" class="title">Member 2 · Story data → beautiful, explorable 3D world</text>
-  <text x="54" y="99" class="subtitle">Approved assets resolve first; unmatched objects remain usable through designed fallbacks while optional internal generation continues.</text>
+  <rect width="1800" height="980" fill="#f7f3e9"/>
+  <text x="54" y="64" class="title">How a story passage becomes an explorable 3D world</text>
+  <text x="54" y="100" class="subtitle">The reader keeps reading while Member 2 resolves assets, builds the space, and performs real renderer loading.</text>
 
-  <rect x="38" y="126" width="1724" height="400" rx="22" fill="#eaf1ed" stroke="#bfd0c9" stroke-width="2"/>
-  <text x="62" y="161" class="lane-title">A · RUNTIME RESOLUTION AND SPATIAL COMPOSITION</text>
+  <text x="54" y="154" class="section">1 · FROM PASSAGE TO WORLD PLAN</text>
+  <rect class="box" x="54" y="182" width="300" height="142" fill="#e2f0f3" stroke="#398596"/>
+  <text x="204" y="220" text-anchor="middle" class="head">Reader selects a passage</text>
+  <text x="80" y="254" class="body">The story continues in the reader</text><text x="80" y="282" class="body">while its 3D scene prepares.</text>
+  <path class="line" d="M354 253H406"/>
 
-  <rect class="node" x="64" y="190" width="270" height="150" fill="#e2f0f3" stroke="#398596"/>
-  <text x="199" y="224" text-anchor="middle" class="node-title">Member 1 input</text>
-  <text x="84" y="256" class="text">WorldSnapshot + ScenePatch</text><text x="84" y="282" class="text">VisualScenePlan + asset tags</text><text x="84" y="308" class="text">canonical IDs + evidence</text><text x="84" y="334" class="text">presentationConnections</text>
+  <rect class="box" x="406" y="182" width="338" height="142" fill="#e1efe9" stroke="#2d8a73"/>
+  <text x="575" y="220" text-anchor="middle" class="head">Understand the story</text>
+  <text x="432" y="254" class="body">entities, locations and relations</text><text x="432" y="282" class="body">visual style, evidence and IDs</text>
+  <path class="line" d="M744 253H796"/>
 
-  <path class="arrow" d="M334 265H382"/>
-  <rect class="node" x="382" y="190" width="286" height="150" fill="#e1efe9" stroke="#2d8a73"/>
-  <text x="525" y="224" text-anchor="middle" class="node-title">Validate + compile</text>
-  <text x="402" y="256" class="text">identity and version continuity</text><text x="402" y="282" class="text">relations → deterministic layout</text><text x="402" y="308" class="text">support, scale, spacing checks</text><text x="402" y="334" class="text">room topology and portals</text>
+  <rect class="box" x="796" y="182" width="338" height="142" fill="#e1efe9" stroke="#2d8a73"/>
+  <text x="965" y="220" text-anchor="middle" class="head">Build the spatial layout</text>
+  <text x="822" y="254" class="body">room size, doors and connections</text><text x="822" y="282" class="body">support, scale, spacing and placement</text>
+  <path class="line" d="M1134 253H1186"/>
 
-  <path class="arrow" d="M668 265H716"/>
-  <rect class="node" x="716" y="190" width="330" height="150" fill="#e2f0f3" stroke="#2d8a73"/>
-  <text x="881" y="224" text-anchor="middle" class="node-title">Resolve every entity</text>
-  <text x="740" y="256" class="text">1 · exact story promotion + ID</text><text x="740" y="282" class="text">2 · exact approved assetKey</text><text x="740" y="308" class="text">3 · safe semantic tag score</text><text x="740" y="334" class="text">4 · style + dimensions compatible</text>
+  <polygon points="1360,176 1534,253 1360,330 1186,253" fill="#f5eddd" stroke="#b87a20" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1360" y="238" text-anchor="middle" class="head">Asset match</text>
+  <text x="1360" y="266" text-anchor="middle" class="head">available?</text>
 
-  <path class="arrow" d="M1046 234H1094"/>
-  <rect class="node" x="1094" y="178" width="290" height="116" fill="#e5f2e7" stroke="#388556"/>
-  <text x="1239" y="215" text-anchor="middle" class="node-title">Approved match</text>
-  <text x="1118" y="247" class="text">install under canonical ID</text><text x="1118" y="273" class="text">ready for renderer preload</text>
+  <text x="1548" y="220" class="branch">YES</text>
+  <path class="line" d="M1534 253H1582"/>
+  <rect class="box" x="1582" y="182" width="164" height="142" fill="#e5f2e7" stroke="#388556"/>
+  <text x="1664" y="220" text-anchor="middle" class="head">Reuse it</text>
+  <text x="1604" y="254" class="body">exact ID or</text><text x="1604" y="282" class="body">safe match</text>
 
-  <path class="arrow" d="M1046 302H1094"/>
-  <rect class="node" x="1094" y="322" width="290" height="122" fill="#f5e7e3" stroke="#b65c4b"/>
-  <text x="1239" y="360" text-anchor="middle" class="node-title">Designed fallback</text>
-  <text x="1118" y="392" class="text">semantic, readable stand-in</text><text x="1118" y="418" class="text">correct support + safe scale</text>
-  <path class="arrow" d="M1046 302V383H1094"/>
+  <text x="1328" y="357" class="branch">NO</text>
+  <path class="line" d="M1360 330V391"/>
 
-  <path class="arrow" d="M1384 236H1432"/>
-  <path class="arrow" d="M1384 383H1432"/>
-  <rect class="node" x="1432" y="226" width="282" height="170" fill="#ece9f5" stroke="#7060a4"/>
-  <text x="1573" y="262" text-anchor="middle" class="node-title">Compiled scene recipe</text>
-  <text x="1456" y="296" class="text">asset outcome per entity</text><text x="1456" y="322" class="text">stable coordinates + supports</text><text x="1456" y="348" class="text">locations + door interactions</text><text x="1456" y="374" class="text">reader always has a scene</text>
+  <text x="54" y="404" class="section">2 · WHEN AN ASSET IS NOT ALREADY AVAILABLE</text>
+  <rect x="54" y="430" width="1692" height="236" rx="22" fill="#eef0f4" stroke="#c6ccd8" stroke-width="2"/>
 
-  <rect x="64" y="370" width="876" height="118" rx="15" fill="#fbf6e9" stroke="#c28b31" stroke-width="2"/>
-  <text x="88" y="404" class="node-title">Unmatched-asset rule</text>
-  <text x="88" y="436" class="text">Background → keep fallback; no generation cost by default.</text>
-  <text x="88" y="464" class="text">Supporting / hero → keep fallback visible and queue an optional offline asset build.</text>
+  <rect class="box" x="104" y="476" width="330" height="138" fill="#e2f0f3" stroke="#398596"/>
+  <text x="269" y="514" text-anchor="middle" class="head">Try a safe semantic match</text>
+  <text x="130" y="548" class="body">object tags + story style</text><text x="130" y="576" class="body">dimensions + material role</text>
+  <path class="line" d="M434 545H490"/>
 
-  <rect x="38" y="550" width="1724" height="352" rx="22" fill="#eef0f4" stroke="#c6ccd8" stroke-width="2"/>
-  <text x="62" y="585" class="lane-title">B · OPTIONAL INTERNAL ASSET BUILD · DEVELOPER-ONLY, NEVER READER UI</text>
+  <polygon points="650,472 810,545 650,618 490,545" fill="#f5eddd" stroke="#b87a20" stroke-width="2" filter="url(#shadow)"/>
+  <text x="650" y="532" text-anchor="middle" class="head">Safe close</text><text x="650" y="560" text-anchor="middle" class="head">match?</text>
 
-  <path class="dash" d="M1239 444V620H200"/>
-  <rect class="node" x="64" y="622" width="252" height="122" fill="#e2f0f3" stroke="#398596"/>
-  <text x="190" y="660" text-anchor="middle" class="node-title">Queued hero job</text>
-  <text x="88" y="692" class="text">prompt + canonical ID</text><text x="88" y="718" class="text">importance + route</text>
+  <text x="820" y="510" class="branch">YES</text>
+  <path class="line" d="M810 545H872"/>
+  <rect class="box" x="872" y="476" width="296" height="138" fill="#e5f2e7" stroke="#388556"/>
+  <text x="1020" y="514" text-anchor="middle" class="head">Use approved similar asset</text>
+  <text x="898" y="548" class="body">fit it to the story dimensions</text><text x="898" y="576" class="body">and visual style</text>
 
-  <path class="arrow" d="M316 683H356"/>
-  <rect class="node" x="356" y="622" width="266" height="122" fill="#f5eddd" stroke="#b87a20"/>
-  <text x="489" y="660" text-anchor="middle" class="node-title">Choose safe route</text>
-  <text x="380" y="692" class="text">flat → surface template</text><text x="380" y="718" class="text">volume → image-to-mesh</text>
+  <text x="612" y="646" class="branch">NO</text>
+  <path class="line" d="M650 618V642H1216V545H1258"/>
+  <rect class="box" x="1258" y="476" width="414" height="138" fill="#f5eddd" stroke="#b87a20"/>
+  <text x="1465" y="514" text-anchor="middle" class="head">Generate the missing story asset</text>
+  <text x="1284" y="548" class="body">create → optimize → validate proportions</text><text x="1284" y="576" class="body">fallback remains usable until it is ready</text>
 
-  <path class="arrow" d="M622 683H662"/>
-  <rect class="node" x="662" y="622" width="270" height="122" fill="#f5eddd" stroke="#b87a20"/>
-  <text x="797" y="660" text-anchor="middle" class="node-title">Reference + review</text>
-  <text x="686" y="692" class="text">configured internal provider</text><text x="686" y="718" class="text">human approves reference</text>
+  <path class="join" d="M1664 324V690H1020V614"/>
+  <path class="join" d="M1465 614V690"/>
+  <path class="line" d="M1020 690H207V744"/>
 
-  <path class="arrow" d="M932 683H972"/>
-  <rect class="node" x="972" y="622" width="270" height="122" fill="#e1efe9" stroke="#2d8a73"/>
-  <text x="1107" y="660" text-anchor="middle" class="node-title">Build + optimize</text>
-  <text x="996" y="692" class="text">template or reconstruct</text><text x="996" y="718" class="text">normalize browser runtime asset</text>
+  <text x="54" y="720" class="section">3 · REAL LOADING AND THE READER EXPERIENCE</text>
+  <rect class="box" x="54" y="750" width="306" height="150" fill="#e2f0f3" stroke="#398596"/>
+  <text x="207" y="788" text-anchor="middle" class="head">Assemble the world</text>
+  <text x="80" y="822" class="body">place assets on valid supports</text><text x="80" y="850" class="body">connect every story location</text><text x="80" y="878" class="body">apply lighting and atmosphere</text>
+  <path class="line" d="M360 825H412"/>
 
-  <path class="arrow" d="M1242 683H1282"/>
-  <rect class="node" x="1282" y="622" width="216" height="122" fill="#e5f2e7" stroke="#388556"/>
-  <text x="1390" y="660" text-anchor="middle" class="node-title">In-world review</text>
-  <text x="1306" y="692" class="text">preview exact artifact</text><text x="1306" y="718" class="text">human final approval</text>
+  <rect class="box" x="412" y="750" width="338" height="150" fill="#e1efe9" stroke="#2d8a73"/>
+  <text x="581" y="788" text-anchor="middle" class="head">Preparing the 3D scene…</text>
+  <text x="438" y="822" class="body">load real models and textures</text><text x="438" y="850" class="body">warm every chapter location</text><text x="438" y="878" class="body">wait for rendered frames</text>
+  <path class="line" d="M750 825H802"/>
 
-  <path class="arrow" d="M1498 683H1538"/>
-  <rect class="node" x="1538" y="622" width="176" height="122" fill="#e5f2e7" stroke="#388556"/>
-  <text x="1626" y="660" text-anchor="middle" class="node-title">Promote</text>
-  <text x="1562" y="692" class="text">commit artifact</text><text x="1562" y="718" class="text">reuse by story + ID</text>
+  <rect class="box" x="802" y="750" width="274" height="150" fill="#e5f2e7" stroke="#388556"/>
+  <text x="939" y="788" text-anchor="middle" class="head">3D scene ready</text>
+  <text x="828" y="822" class="body">same warmed world opens</text><text x="828" y="850" class="body">without rebuilding</text>
+  <path class="line" d="M1076 825H1128"/>
 
-  <rect x="64" y="780" width="1650" height="82" rx="15" fill="#f5e7e3" stroke="#b65c4b" stroke-width="2"/>
-  <text x="88" y="814" class="node-title">Any missing, rejected, or failed generation</text>
-  <text x="88" y="844" class="text">Fallback stays visible, the world stays explorable, and the developer may retry. Readers never review or promote assets.</text>
+  <rect class="box" x="1128" y="750" width="298" height="150" fill="#e5f2e7" stroke="#388556"/>
+  <text x="1277" y="788" text-anchor="middle" class="head">Explore the story world</text>
+  <text x="1154" y="822" class="body">POV, overview and walking</text><text x="1154" y="850" class="body">click doors to enter rooms</text><text x="1154" y="878" class="body">later passages update the world</text>
+  <path class="line" d="M1426 825H1478"/>
 
-  <rect x="38" y="926" width="1724" height="310" rx="22" fill="#eaf1ed" stroke="#bfd0c9" stroke-width="2"/>
-  <text x="62" y="961" class="lane-title">C · REAL PREPARATION, READY SIGNAL, AND MEMBER 3 EXPERIENCE</text>
+  <rect class="box" x="1478" y="750" width="268" height="150" fill="#ece9f5" stroke="#7060a4"/>
+  <text x="1612" y="788" text-anchor="middle" class="head">Click an object</text>
+  <text x="1504" y="822" class="body">see its story identity</text><text x="1504" y="850" class="body">chapter and source passage</text><text x="1504" y="878" class="body">current and previous state</text>
 
-  <rect class="node" x="64" y="994" width="270" height="158" fill="#e2f0f3" stroke="#398596"/>
-  <text x="199" y="1032" text-anchor="middle" class="node-title">Preparing 3D scene…</text>
-  <text x="88" y="1064" class="text">mount hidden WebGL canvas</text><text x="88" y="1090" class="text">load models + textures</text><text x="88" y="1116" class="text">warm every chapter location</text><text x="88" y="1142" class="text">not a fake timer</text>
-
-  <path class="arrow" d="M334 1073H382"/>
-  <rect class="node" x="382" y="994" width="278" height="158" fill="#e1efe9" stroke="#2d8a73"/>
-  <text x="521" y="1032" text-anchor="middle" class="node-title">Actual ready gate</text>
-  <text x="406" y="1064" class="text">loader queue settles</text><text x="406" y="1090" class="text">two frames render</text><text x="406" y="1116" class="text">onSceneReady fires</text><text x="406" y="1142" class="text">same canvas remains mounted</text>
-
-  <path class="arrow" d="M660 1073H708"/>
-  <rect class="node" x="708" y="994" width="294" height="158" fill="#e5f2e7" stroke="#388556"/>
-  <text x="855" y="1032" text-anchor="middle" class="node-title">Reader explores</text>
-  <text x="732" y="1064" class="text">POV / overview / walk</text><text x="732" y="1090" class="text">click door → connected room</text><text x="732" y="1116" class="text">ordered patches update world</text><text x="732" y="1142" class="text">no scene rebuild between views</text>
-
-  <path class="arrow" d="M1002 1073H1050"/>
-  <rect class="node" x="1050" y="994" width="306" height="158" fill="#ece9f5" stroke="#7060a4"/>
-  <text x="1203" y="1032" text-anchor="middle" class="node-title">Click story object</text>
-  <text x="1074" y="1064" class="text">canonical entity selection</text><text x="1074" y="1090" class="text">current + previous state</text><text x="1074" y="1116" class="text">chapter + source sentence</text><text x="1074" y="1142" class="text">evidence + confidence</text>
-
-  <path class="arrow" d="M1356 1073H1404"/>
-  <rect class="node" x="1404" y="994" width="310" height="158" fill="#f5eddd" stroke="#b87a20"/>
-  <text x="1559" y="1032" text-anchor="middle" class="node-title">Ownership boundary</text>
-  <text x="1428" y="1064" class="text">Member 1 owns narrative truth</text><text x="1428" y="1090" class="text">Member 2 owns spatial runtime</text><text x="1428" y="1116" class="text">Member 3 owns reader UI</text><text x="1428" y="1142" class="text">generation tools stay internal</text>
-
-  <text x="62" y="1205" class="small">Durable outputs: approved catalog + public/generated/promoted + promoted-story-assets.json · exact story/entity joins prevent cross-novel leakage.</text>
+  <text x="54" y="944" class="small">Exact assets are reused immediately. Unmatched objects are safely matched or generated without blocking the reader from continuing the novel.</text>
 </svg>

@@ -1017,7 +1017,7 @@ export function UrbanStreetKit({
           userData={{ decorativeOnly: true, depthLayer: "canal-continuation" }}
         >
           <boxGeometry args={[reservedCanalWidth, 0.16, horizonApronDepth]} />
-          <meshPhysicalMaterial color="#235965" emissive="#102e35" emissiveIntensity={0.18} roughness={0.24} metalness={0.04} clearcoat={0.42} clearcoatRoughness={0.3} />
+          <meshPhysicalMaterial color="#0b3441" emissive="#051a22" emissiveIntensity={0.16} roughness={0.24} metalness={0.04} clearcoat={0.42} clearcoatRoughness={0.3} />
         </mesh>
       ))}
       {[-1, 1].flatMap((end) => Array.from({ length: 5 }, (_, index) => {

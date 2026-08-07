@@ -120,6 +120,7 @@ import {
 } from "../runtime/dressingResolver";
 import { WALL_COMPOSITION } from "../runtime/wallComposition";
 import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import { isPortalSourceEntity } from "../runtime/portalRouting";
 import { createWallTrimSegments } from "../runtime/wallTrimLayout";
 import {
   advanceSpatialRuntime,
@@ -351,7 +352,13 @@ function LoadedModel({
   );
 }
 
-function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
+function AdaptiveLoadedModel({
+  asset,
+  reserveBookcasePortraitBay = false,
+}: {
+  asset: AssetDefinition;
+  reserveBookcasePortraitBay?: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const levels = useMemo(
     () => asset.lods ?? (asset.modelUrl ? [{ modelUrl: asset.modelUrl, minimumDistance: 0 }] : []),
@@ -384,34 +391,39 @@ function AdaptiveLoadedModel({ asset }: { asset: AssetDefinition }) {
         draftGenerated={asset.key.startsWith("generated:")}
         tint={asset.key === "authored-birch-tree" ? "#73906d" : tint}
       />
-      {asset.key === "worn-story-bookshelf" && <BookcaseContents />}
+      {asset.key === "worn-story-bookshelf" && (
+        <BookcaseContents reservePortraitBay={reserveBookcasePortraitBay} />
+      )}
     </group>
   );
 }
 
-function BookcaseContents() {
-  const colors = ["#7b443d", "#42605d", "#aa8751", "#5d5474", "#8c6a45", "#485f48"];
+function BookcaseContents({ reservePortraitBay = false }: { reservePortraitBay?: boolean }) {
   // Measured shelf-top sockets from the approved normalized Poly Haven mesh.
   // Keeping these explicit prevents decorative books from intersecting a
   // different model's timber or leaving its lowest shelf mysteriously empty.
-  const shelfRows = createWornBookshelfBookSlots();
+  const shelfRows = createWornBookshelfBookSlots({ reserveTopLeft: reservePortraitBay });
   return (
     <group position={[0, 0, 0.39]} userData={{ decorativeOnly: true }}>
-      {shelfRows.flatMap((row, shelfIndex) =>
-        row.map((slot, bookIndex) => {
-          return (
-            <mesh
-              key={`shelf-book-${shelfIndex}-${bookIndex}`}
-              position={[slot.x, slot.y, 0]}
-              rotation={[0, 0, bookIndex % 5 === 0 ? -0.055 : 0]}
-              castShadow
-            >
-              <boxGeometry args={[slot.width, slot.height, slot.depth]} />
-              <meshStandardMaterial color={colors[(bookIndex + shelfIndex * 2) % colors.length]} roughness={0.91} />
-            </mesh>
-          );
-        }),
-      )}
+      {shelfRows.map((row, shelfIndex) => {
+        const left = Math.min(...row.map((slot) => slot.x - slot.width / 2));
+        const right = Math.max(...row.map((slot) => slot.x + slot.width / 2));
+        const height = Math.max(...row.map((slot) => slot.height));
+        const shelfTop = row[0]!.shelfTop;
+        return (
+          <group
+            key={`shelf-book-row-${shelfIndex}`}
+            position={[(left + right) / 2, shelfTop + 0.012 + height / 2, 0]}
+            rotation={[0, shelfIndex % 2 ? 0.012 : -0.012, 0]}
+            scale={[right - left, height, 0.13]}
+            userData={{ decorativeOnly: true, placementValidated: true, support: "measured-shelf-socket" }}
+          >
+            <Suspense fallback={null}>
+              <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb" />
+            </Suspense>
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -581,33 +593,37 @@ function StoryStaircaseAsset({ highlighted, highlightColor }: { highlighted: boo
   );
 }
 
-function StoryWritingDesk({ asset }: { asset: AssetDefinition }) {
+function StoryWritingDesk({ asset, compactSchoolroom = false }: { asset: AssetDefinition; compactSchoolroom?: boolean }) {
   return (
     <group>
       <AdaptiveLoadedModel asset={asset} />
       <RoundedBox args={[0.82, 0.018, 0.64]} radius={0.012} smoothness={3} position={[0, 0.506, 0]} castShadow receiveShadow>
         <meshPhysicalMaterial color="#4c281f" roughness={0.58} clearcoat={0.28} clearcoatRoughness={0.52} />
       </RoundedBox>
-      <group
-        position={[-0.18, 0.58, -0.08]}
-        rotation={[0, -0.1, 0]}
-        scale={[0.32, 0.13, 0.19]}
-        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
-      >
-        <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
-        </Suspense>
-      </group>
-      <group
-        position={[0.22, 0.528, 0.06]}
-        rotation={[0, 0.18, 0]}
-        scale={[0.22, 0.025, 0.26]}
-        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
-      >
-        <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
-        </Suspense>
-      </group>
+      {!compactSchoolroom && (
+        <group
+          position={[-0.18, 0.58, -0.08]}
+          rotation={[0, -0.1, 0]}
+          scale={[0.32, 0.13, 0.19]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
+          </Suspense>
+        </group>
+      )}
+      {!compactSchoolroom && (
+        <group
+          position={[0.22, 0.528, 0.06]}
+          rotation={[0, 0.18, 0]}
+          scale={[0.22, 0.025, 0.26]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
+          </Suspense>
+        </group>
+      )}
     </group>
   );
 }
@@ -2093,7 +2109,10 @@ function StorybookLampAsset({
   const shadeY = table ? 0.19 : 0.27;
   const shadeHeight = table ? 0.34 : 0.38;
   return (
-    <group userData={{ authoredAsset: table ? "storybook-table-lamp" : "storybook-floor-lamp" }}>
+    <group
+      position={[0, table ? -0.1425 : 0, 0]}
+      userData={{ authoredAsset: table ? "storybook-table-lamp" : "storybook-floor-lamp" }}
+    >
       <mesh position={[0, stemBottom, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[table ? 0.23 : 0.27, table ? 0.26 : 0.3, table ? 0.075 : 0.065, 32]} />
         <meshStandardMaterial color={brass} metalness={0.72} roughness={0.3} />
@@ -2128,8 +2147,8 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
   const water = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({
     time: { value: 0 },
-    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#123a46") },
-    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#2f6d76") },
+    deepColor: { value: new THREE.Color(highlighted ? highlightColor : "#071f2b") },
+    surfaceColor: { value: new THREE.Color(highlighted ? "#79d9df" : "#285763") },
   }), [highlightColor, highlighted]);
   useFrame((state) => {
     if (!water.current) return;
@@ -2187,7 +2206,7 @@ function StoryCanalWater({ highlighted, highlightColor }: { highlighted: boolean
             float sparkle = pow(max(dot(reflect(-lightDirection, normal), normalize(viewDirection)), 0.0), 46.0);
             float depthVariation = 0.08 * sin(waterUv.y * 8.0 + time * 0.18) + elevation * 0.9;
             vec3 color = mix(deepColor, surfaceColor, 0.22 + diffuse * 0.2 + depthVariation);
-            color = mix(color, vec3(0.18, 0.34, 0.38), fresnel * 0.34);
+            color = mix(color, vec3(0.13, 0.27, 0.31), fresnel * 0.38);
             color += vec3(0.74, 0.83, 0.8) * sparkle * 0.32;
             float bankGlow = exp(-pow((waterUv.x - 0.08) * 9.0, 2.0))
               + exp(-pow((waterUv.x - 0.92) * 9.0, 2.0));
@@ -2216,11 +2235,11 @@ function StoryCanalAsset({ highlighted, highlightColor }: { highlighted: boolean
     <group>
       <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop - 0.04, 0]} receiveShadow>
         <boxGeometry args={[0.78, 0.08, 1]} />
-        <meshStandardMaterial color="#243f44" roughness={0.96} />
+        <meshStandardMaterial color="#172d31" roughness={0.96} />
       </mesh>
       <mesh position={[0, URBAN_HUMAN_SCALE.canalBedTop + waterDepth / 2, 0]} receiveShadow>
         <boxGeometry args={[0.78, waterDepth, 1]} />
-        <meshStandardMaterial color="#123c48" roughness={0.24} transparent opacity={0.9} />
+        <meshStandardMaterial color="#092c38" emissive="#061a22" emissiveIntensity={0.12} roughness={0.24} transparent opacity={0.94} />
       </mesh>
       <StoryCanalWater highlighted={highlighted} highlightColor={highlightColor} />
       {[-0.45, 0.45].map((x) => (
@@ -2342,7 +2361,7 @@ function EntityAsset({
     return (
       <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
         <Suspense fallback={null}>
-          <StoryWritingDesk asset={asset} />
+          <StoryWritingDesk asset={asset} compactSchoolroom={entity?.id === "schoolroom-table"} />
         </Suspense>
       </ModelErrorBoundary>
     );
@@ -2373,7 +2392,10 @@ function EntityAsset({
   return (
     <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
       <Suspense fallback={null}>
-        <AdaptiveLoadedModel asset={asset} />
+        <AdaptiveLoadedModel
+          asset={asset}
+          reserveBookcasePortraitBay={entity?.id === "schoolroom-shelf"}
+        />
       </Suspense>
     </ModelErrorBoundary>
   );
@@ -3757,13 +3779,6 @@ function EstateFurnitureComposition({
       scale: [1.05, 0.82, 0.055] as Vector3Tuple,
     },
     {
-      key: "estate-south-console-oil-lamp",
-      url: "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb",
-      position: [southConsolePosition[0] + 0.05, 0.98, southConsolePosition[2]] as Vector3Tuple,
-      rotation: [0, -0.12, 0] as Vector3Tuple,
-      scale: [0.22, 0.64, 0.22] as Vector3Tuple,
-    },
-    {
       key: "estate-grandfather-clock",
       url: "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb",
       position: [-bounds[0] * 0.34, 1.1, bounds[2] / 2 - 0.42] as Vector3Tuple,
@@ -3787,7 +3802,6 @@ function EstateFurnitureComposition({
     "estate-console-jug",
     "estate-console-candleholders",
     "estate-console-books",
-    "estate-south-console-oil-lamp",
     "estate-grandfather-clock",
     "estate-south-gallery-painting",
   ]);
@@ -3842,6 +3856,7 @@ function EstateFurnitureComposition({
           <Suspense fallback={null}>
             <LoadedModel url={item.url} tint={"tint" in item ? item.tint : undefined} />
           </Suspense>
+          {item.key === "estate-east-bookshelf" && <BookcaseContents />}
           {item.key.includes("oil-lamp") && (
             <pointLight position={[0, 0.24, 0]} color="#f2ad61" intensity={0.75} distance={4.2} decay={2} />
           )}
@@ -4157,20 +4172,6 @@ function EstateChandelier({ bounds, z }: { bounds: Vector3Tuple; z: number }) {
         <cylinderGeometry args={[0.022, 0.022, chainLength, 12]} />
         <meshStandardMaterial color="#4a3420" roughness={0.48} metalness={0.72} />
       </mesh>
-      <pointLight
-        position={[x, centerY - dimensions[1] * 0.28, z]}
-        color="#f2b36a"
-        intensity={2.25}
-        distance={Math.max(bounds[0], bounds[2]) * 0.72}
-        decay={2}
-      />
-      <pointLight
-        position={[x, Math.max(2.1, centerY - 1.8), z + bounds[2] * 0.16]}
-        color="#d8b88b"
-        intensity={1.7}
-        distance={Math.max(bounds[0], bounds[2]) * 0.62}
-        decay={1.85}
-      />
     </group>
   );
 }
@@ -4578,17 +4579,49 @@ function ArchiveGalleryDetails({
       scale={[2.2, 3.64, 0.66]}
     >
       <Suspense fallback={null}>
-        <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+        <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
         <BookcaseContents />
       </Suspense>
     </group>
   );
   const rearShelfFactors = [-0.41, -0.255, -0.1, 0.1, 0.255, 0.41];
+  const interiorStacks: ReadonlyArray<{ key: string; position: Vector3Tuple; yaw: number }> = [
+    { key: "northwest", position: [-bounds[0] * 0.135, 1.45, -bounds[2] * 0.24], yaw: 0 },
+    { key: "southwest", position: [-bounds[0] * 0.135, 1.45, -bounds[2] * 0.08], yaw: 0 },
+    { key: "northeast", position: [bounds[0] * 0.135, 1.45, -bounds[2] * 0.24], yaw: 0 },
+    { key: "southeast", position: [bounds[0] * 0.135, 1.45, -bounds[2] * 0.08], yaw: 0 },
+  ];
 
   return (
     <group userData={{ decorativeOnly: true, module: "archive-gallery-details" }}>
+      {[-0.22, 0.22].map((factor) => (
+        <group
+          key={`archive-aisle-runner:${factor}`}
+          name={`archive-aisle-runner:${factor}`}
+          position={[bounds[0] * factor, 0.014, 0.45]}
+          scale={[2.65, 1, Math.max(8.8, bounds[2] * 0.39)]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "pbr-textile" }}
+        >
+          <StoryRug highlighted={false} highlightColor="#000000" />
+        </group>
+      ))}
       {[-0.33, 0.33].map((factor) => sideShelf(-1, factor))}
       {!overview && [-0.33, 0.33].map((factor) => sideShelf(1, factor))}
+      {interiorStacks.map((stack) => (
+        <group
+          key={`archive-interior-stack:${stack.key}`}
+          name={`archive-interior-stack:${stack.key}`}
+          position={stack.position}
+          rotation={[0, stack.yaw, 0]}
+          scale={[1.72, 2.9, 0.68]}
+          userData={{ decorativeOnly: true, placementValidated: true, module: "archive-interior-stack" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
+            <BookcaseContents />
+          </Suspense>
+        </group>
+      ))}
       {[-0.34, 0, 0.34].map((factor, index) => (
         <group key={`archive-rear-sconce:${factor}`}>
           <DecorativeWallSconce
@@ -4618,26 +4651,7 @@ function ArchiveGalleryDetails({
           {index % 2 === 0 && <pointLight color="#eeb36b" intensity={0.24} distance={3.2} decay={2} />}
         </group>
       ))}
-      <group position={[0, 5.88, -bounds[2] / 2 + 0.25]} userData={{ decorativeOnly: true, motif: "archive-clock" }}>
-        <mesh castShadow>
-          <torusGeometry args={[0.42, 0.075, 14, 48]} />
-          <meshStandardMaterial color="#a77d43" metalness={0.62} roughness={0.38} />
-        </mesh>
-        <mesh position={[0, 0, -0.012]}>
-          <circleGeometry args={[0.36, 48]} />
-          <meshStandardMaterial color="#c9b98e" roughness={0.78} />
-        </mesh>
-        <mesh position={[-0.06, 0.09, 0.018]} rotation={[0, 0, -0.52]} castShadow>
-          <boxGeometry args={[0.035, 0.25, 0.025]} />
-          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
-        </mesh>
-        <mesh position={[0.1, -0.035, 0.02]} rotation={[0, 0, 1.18]} castShadow>
-          <boxGeometry args={[0.03, 0.28, 0.024]} />
-          <meshStandardMaterial color="#423129" metalness={0.4} roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.035]} castShadow><sphereGeometry args={[0.045, 16, 10]} /><meshStandardMaterial color="#8d6739" metalness={0.64} roughness={0.36} /></mesh>
-      </group>
-      {[-0.39, -0.13, 0.13, 0.39].map((factor) => (
+      {!overview && [-0.39, -0.13, 0.13, 0.39].map((factor) => (
         <RoundedBox
           key={`archive-cross-rib:${factor}`}
           args={[0.18, 0.2, bounds[2] - 0.25]}
@@ -4680,71 +4694,6 @@ function ArchiveGalleryDetails({
           <cylinderGeometry args={[0.09, 0.09, 1.12, 18]} />
           <meshStandardMaterial color="#a77b45" metalness={0.56} roughness={0.4} />
         </mesh>
-      </group>
-      <group
-        position={[-bounds[0] * 0.22, 0.58, bounds[2] * 0.2]}
-        rotation={[0, 0.12, 0]}
-        userData={{ decorativeOnly: true, module: "archive-book-cart" }}
-      >
-        <RoundedBox args={[1.55, 0.12, 0.7]} radius={0.045} smoothness={3} position={[0, 0.58, 0]} castShadow receiveShadow>
-          <meshStandardMaterial color="#68472f" roughness={0.8} />
-        </RoundedBox>
-        {[-0.62, 0.62].map((x) => (
-          <mesh key={`cart-post-${x}`} position={[x, 0.06, 0]} castShadow>
-            <cylinderGeometry args={[0.045, 0.05, 1.1, 12]} />
-            <meshStandardMaterial color="#493328" metalness={0.24} roughness={0.66} />
-          </mesh>
-        ))}
-        {[-0.48, 0, 0.48].map((x, index) => (
-          <RoundedBox key={`cart-book-${x}`} args={[0.26, 0.7 + index * 0.08, 0.48]} radius={0.025} smoothness={2} position={[x, 0.98 + index * 0.04, 0]} rotation={[0, 0, (index - 1) * 0.07]} castShadow>
-            <meshStandardMaterial color={["#7d493e", "#516a62", "#a17a43"][index]} roughness={0.86} />
-          </RoundedBox>
-        ))}
-        {[-0.6, 0.6].flatMap((x) => [-0.26, 0.26].map((z) => (
-          <mesh key={`cart-wheel-${x}-${z}`} position={[x, -0.43, z]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.14, 0.035, 8, 18]} />
-            <meshStandardMaterial color="#3c3430" metalness={0.52} roughness={0.48} />
-          </mesh>
-        )))}
-      </group>
-      {[-0.2, 0.2].map((factor, index) => (
-        <group key={`archive-reading-pool:${factor}`} position={[bounds[0] * factor, 3.55, 0]}>
-          <mesh position={[0, (bounds[1] - 3.55) / 2 - 0.08, 0]} castShadow>
-            <cylinderGeometry args={[0.018, 0.018, bounds[1] - 3.55 - 0.16, 8]} />
-            <meshStandardMaterial color="#3a2c25" metalness={0.42} roughness={0.6} />
-          </mesh>
-          <mesh position={[0, bounds[1] - 3.55 - 0.12, 0]} castShadow>
-            <cylinderGeometry args={[0.14, 0.18, 0.08, 18]} />
-            <meshStandardMaterial color="#76532f" metalness={0.62} roughness={0.38} />
-          </mesh>
-          <mesh castShadow>
-            <cylinderGeometry args={[0.32, 0.46, 0.24, 24, 1, true]} />
-            <meshStandardMaterial color="#9c7544" metalness={0.58} roughness={0.4} side={THREE.DoubleSide} />
-          </mesh>
-          <mesh position={[0, -0.08, 0]}>
-            <cylinderGeometry args={[0.045, 0.045, 0.7, 12]} />
-            <meshStandardMaterial color="#76532f" metalness={0.68} roughness={0.34} />
-          </mesh>
-          <pointLight position={[0, -0.2, 0]} color="#efb36a" intensity={index ? 0.62 : 0.76} distance={5.8} decay={2} />
-        </group>
-      ))}
-      <group position={[bounds[0] * 0.19, 0.6, bounds[2] * 0.02]} rotation={[0, -0.08, 0]} userData={{ decorativeOnly: true, module: "archive-reading-island" }}>
-        <group scale={[2.4, 1.2, 1.1]}>
-          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/wooden_table_02/wooden_table_02_1k.gltf" /></Suspense>
-        </group>
-        <group position={[0.42, 0.78, 1.25]} rotation={[0, Math.PI, 0]} scale={[0.95, 1.55, 0.95]}>
-          <Suspense fallback={null}><LoadedModel url="/models/polyhaven/WoodenChair_01/WoodenChair_01_1k.gltf" /></Suspense>
-        </group>
-        {[-0.48, -0.1, 0.32].map((x, index) => (
-          <mesh key={`archive-desk-paper-${x}`} position={[x, 0.66 + index * 0.006, -0.08 + index * 0.12]} rotation={[-Math.PI / 2, 0, -0.12 + index * 0.09]} castShadow>
-            <planeGeometry args={[0.54, 0.72]} />
-            <meshStandardMaterial color={index === 1 ? "#c7af7c" : "#d9c99e"} roughness={0.92} side={THREE.DoubleSide} />
-          </mesh>
-        ))}
-        <group position={[0.72, 1.02, -0.3]} scale={[0.52, 0.76, 0.52]}>
-          <StorybookLampAsset highlighted={false} highlightColor="#000000" table />
-          <pointLight position={[0, 0.42, 0]} color="#efb36a" intensity={0.46} distance={3.4} decay={2} />
-        </group>
       </group>
     </group>
   );
@@ -5232,7 +5181,7 @@ function Room({
                   </RoundedBox>
                 )}
               >
-                <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" />
+                <LoadedModel url="/models/optimized/polyhaven/wooden_bookshelf_worn/wooden_bookshelf_worn_lod1.glb" tint="#704a32" />
                 <BookcaseContents />
               </Suspense>
               <RoundedBox args={[0.22, 0.035, 0.025]} radius={0.008} smoothness={2} position={[0, -0.54, 0.53]} castShadow>
@@ -5662,17 +5611,21 @@ function StoryEffects({
   layout,
   portalItemOverride,
   portalDestination,
+  portalSourceEntityId,
   portalIsReturn,
   onLocationRequest,
 }: {
   layout: WorldLayout;
   portalItemOverride?: LayoutItem;
   portalDestination?: Location;
+  portalSourceEntityId?: string;
   portalIsReturn?: boolean;
   onLocationRequest?: (locationId: string) => void;
 }) {
   const litItems = layout.items.filter((item) => item.entity.state?.lit === true);
-  const portalItem = layout.items.find((item) => isPortalItem(item)) ?? portalItemOverride;
+  const portalItem = layout.items.find((item) =>
+    isPortalSourceEntity(item.entity.id, portalSourceEntityId)
+  ) ?? portalItemOverride;
 
   return (
     <>
@@ -6082,6 +6035,9 @@ function WorldScene({
     && !(["subterranean", "aquatic", "volcanic"] as const).includes(
       presentation.semanticProfile.domain as "subterranean" | "aquatic" | "volcanic",
     );
+  const visibleLayoutItems = layout.items.filter(
+    (item) => item.entity.state?.presentationOccluded !== true,
+  );
 
   return (
     <>
@@ -6128,7 +6084,7 @@ function WorldScene({
         position={atmosphereProfile.fillPosition}
         intensity={atmosphereProfile.fillIntensity}
       />
-      {presentation.atmosphere.coolWindowLight && (
+      {presentation.atmosphere.coolWindowLight && !usesEstateFurniture && (
         <>
           <rectAreaLight
             color="#b9dce3"
@@ -6180,6 +6136,7 @@ function WorldScene({
         layout={layout}
         portalItemOverride={returnPortalItem}
         portalDestination={portalDestination}
+        portalSourceEntityId={presentation.portalSourceEntityId}
         portalIsReturn={presentation.portalIsReturn}
         onLocationRequest={onLocationRequest}
       />
@@ -6202,7 +6159,7 @@ function WorldScene({
             : undefined}
         />
       )}
-      {layout.items.map((item) => (
+      {visibleLayoutItems.map((item) => (
         <WorldEntity
           key={item.entity.id}
           item={item}
@@ -6213,7 +6170,9 @@ function WorldScene({
             onEntitySelect?.(item.entity.id);
           }}
           onActivate={
-            isPortalItem(item) && portalDestination && onLocationRequest
+            isPortalSourceEntity(item.entity.id, presentation.portalSourceEntityId)
+              && portalDestination
+              && onLocationRequest
               ? (event) => {
                   event.stopPropagation();
                   onLocationRequest(portalDestination.id);

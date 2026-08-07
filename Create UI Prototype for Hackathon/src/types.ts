@@ -71,6 +71,8 @@ export interface WorldEntity {
   previousLocation?: string
   previousCondition?: string
   sourceSentence?: string
+  sourceStartChar?: number
+  sourceEndChar?: number
   evidenceType?: EvidenceType
 }
 
@@ -102,7 +104,12 @@ export interface EntityInspectionData {
   currentCondition?: string
   introducedInChapterId?: string
   latestUpdatedChapterId?: string
-  currentEvidence?: { sourceSentence: string; evidenceType: EvidenceType }
+  currentEvidence?: {
+    sourceSentence: string
+    evidenceType: EvidenceType
+    startChar?: number
+    endChar?: number
+  }
   history?: EntityHistoryItem[]
 }
 
