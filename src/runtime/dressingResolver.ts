@@ -3,7 +3,13 @@ import { assetKitCatalog, catalogAssetDefinition, type AssetKitCatalogAsset } fr
 import type { AssetDefinition } from "./assetRegistry";
 import { supportSurfaceWorldY, type LayoutItem, type WorldLayout } from "./layoutEngine";
 import type { ScenePresentation } from "./sceneCompiler";
-import { URBAN_HUMAN_SCALE } from "./urbanComposition";
+import {
+  centerYForSurfaceContact,
+  supportLocalReach,
+  supportLocalToWorld,
+  supportPlaneWorldY,
+} from "./supportSurfaces";
+import { URBAN_HUMAN_SCALE, urbanWalkableSurfaceTop } from "./urbanComposition";
 import { WALL_COMPOSITION } from "./wallComposition";
 
 interface ResolvedDressingCommon {
@@ -1104,7 +1110,7 @@ function placeSlot(
   slot: DressingSlot,
   bounds: Vector3Tuple,
   occupied: readonly OccupiedVolume[],
-  floorElevation = 0,
+  floorElevation: number | ((x: number, z: number) => number) = 0,
 ): {
   position: Vector3Tuple;
   footprint: Vector3Tuple;
@@ -1141,15 +1147,24 @@ function placeSlot(
     ];
     for (const { support } of supports) {
       const supportDimensions = support.supportDimensions ?? support.dimensions;
-      const localReachX = Math.max(0, supportDimensions[0] / 2 - slot.dimensions[0] / 2 - 0.045);
-      const localReachZ = Math.max(0, supportDimensions[2] / 2 - slot.dimensions[2] / 2 - 0.045);
+      const [localReachX, localReachZ] = supportLocalReach(
+        supportDimensions,
+        slot.dimensions,
+        yaw - support.yaw,
+        0.045,
+      );
       for (const [index, [factorX, factorZ]] of normalizedOffsets.entries()) {
         const localX = factorX * localReachX;
         const localZ = factorZ * localReachZ;
+        const [worldX, worldZ] = supportLocalToWorld(
+          [localX, localZ],
+          support.position,
+          support.yaw,
+        );
         const position: Vector3Tuple = [
-          support.position[0] + localX * Math.cos(support.yaw) + localZ * Math.sin(support.yaw),
-          support.supportTopY! + slot.dimensions[1] / 2 + 0.008 + (slot.verticalOffset ?? 0),
-          support.position[2] - localX * Math.sin(support.yaw) + localZ * Math.cos(support.yaw),
+          worldX,
+          centerYForSurfaceContact(support.supportTopY!, slot.dimensions) + (slot.verticalOffset ?? 0),
+          worldZ,
         ];
         const candidate: OccupiedVolume = {
           id: slot.slotId,
@@ -1192,20 +1207,26 @@ function placeSlot(
       : bounds[2] * slot.positionFactor[1];
 
   for (const [index, [offsetX, offsetZ]] of candidateOffsets(slot).entries()) {
+    const candidateX = exterior
+      ? desiredX + offsetX
+      : slot.wall === "west" || slot.wall === "east"
+        ? desiredX
+        : clamp(desiredX + offsetX, -halfX, halfX);
+    const candidateZ = exterior
+      ? desiredZ + offsetZ
+      : slot.wall === "north" || slot.wall === "south"
+        ? desiredZ
+        : clamp(desiredZ + offsetZ, -halfZ, halfZ);
+    const groundTop = typeof floorElevation === "function"
+      ? floorElevation(candidateX, candidateZ)
+      : floorElevation;
     const position: Vector3Tuple = [
-      exterior
-        ? desiredX + offsetX
-        : slot.wall === "west" || slot.wall === "east"
-          ? desiredX
-          : clamp(desiredX + offsetX, -halfX, halfX),
+      candidateX,
       placementAnchor === "ceiling"
         ? bounds[1] - slot.dimensions[1] / 2 - 0.04 - (slot.verticalOffset ?? 0)
-        : floorElevation + slot.dimensions[1] / 2 + (slot.verticalOffset ?? 0),
-      exterior
-        ? desiredZ + offsetZ
-        : slot.wall === "north" || slot.wall === "south"
-          ? desiredZ
-          : clamp(desiredZ + offsetZ, -halfZ, halfZ),
+        : centerYForSurfaceContact(groundTop, slot.dimensions, [1, 1, 1], 0) +
+          (slot.verticalOffset ?? 0),
+      candidateZ,
     ];
     const candidate: OccupiedVolume = {
       id: slot.slotId,
@@ -1281,7 +1302,9 @@ export function resolveDressingInstances(
         slot,
         bounds,
         occupied,
-        presentation.architecture.urbanStreet ? URBAN_HUMAN_SCALE.sidewalkSurfaceTop : 0,
+        presentation.architecture.urbanStreet
+          ? (x) => urbanWalkableSurfaceTop(bounds[0], x)
+          : 0,
       );
       if (!placed) continue;
       const dressingId = `${layout.location.id}:dressing:${sourceTag}:${slot.slotId}`;
@@ -1299,11 +1322,15 @@ export function resolveDressingInstances(
               ...catalogAsset.tags,
             ]
           : [slot.slotId, ...(slot.renderKind === "module" ? [slot.moduleKey] : [])],
-        supportTopY: slot.renderKind === "asset" && catalogAsset
-          ? placed.position[1] - slot.dimensions[1] / 2 +
-            slot.dimensions[1] * (catalogAssetDefinition(catalogAsset).supportSurfaceY ?? 1)
+        supportTopY: placementAnchor === "floor" && slot.renderKind === "asset" && catalogAsset
+          ? supportPlaneWorldY({
+              position: placed.position,
+              dimensions: slot.dimensions,
+              rotation: [0, slot.yaw ?? 0, 0],
+              supportSurfaceY: catalogAssetDefinition(catalogAsset).supportSurfaceY,
+            })
           : undefined,
-        supportDimensions: slot.dimensions,
+        supportDimensions: placementAnchor === "floor" ? slot.dimensions : undefined,
       });
       const common: ResolvedDressingCommon = {
         dressingId,

@@ -5,7 +5,11 @@ import * as THREE from "three";
 import type { Vector3Tuple } from "../contracts/world";
 import type { SceneEnvironmentFamily } from "../runtime/sceneAtmosphere";
 import type { ScenePresentation } from "../runtime/sceneCompiler";
-import { URBAN_HUMAN_SCALE } from "../runtime/urbanComposition";
+import {
+  URBAN_HUMAN_SCALE,
+  URBAN_SIDEWALK_CENTER_FACTOR,
+  URBAN_SIDEWALK_WIDTH_FACTOR,
+} from "../runtime/urbanComposition";
 
 type LandscapeFamily = Extract<SceneEnvironmentFamily, "alpine" | "arid" | "coastal" | "grassland">;
 
@@ -946,10 +950,14 @@ export function UrbanStreetKit({
       {[-1, 1].map((side) => (
         <mesh
           key={side}
-          position={[side * bounds[0] * 0.34, URBAN_HUMAN_SCALE.sidewalkSurfaceTop - 0.06, 0]}
+          position={[
+            side * bounds[0] * URBAN_SIDEWALK_CENTER_FACTOR,
+            URBAN_HUMAN_SCALE.sidewalkSurfaceTop - 0.06,
+            0,
+          ]}
           receiveShadow
         >
-          <boxGeometry args={[bounds[0] * 0.22, 0.12, bounds[2]]} />
+          <boxGeometry args={[bounds[0] * URBAN_SIDEWALK_WIDTH_FACTOR, 0.12, bounds[2]]} />
           <meshStandardMaterial color="#7f7568" map={surfaces.street.color} normalMap={surfaces.street.normal} normalScale={new THREE.Vector2(0.28, 0.28)} roughnessMap={surfaces.street.arm} roughness={0.96} />
         </mesh>
       ))}
