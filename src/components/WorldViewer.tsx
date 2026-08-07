@@ -593,33 +593,37 @@ function StoryStaircaseAsset({ highlighted, highlightColor }: { highlighted: boo
   );
 }
 
-function StoryWritingDesk({ asset }: { asset: AssetDefinition }) {
+function StoryWritingDesk({ asset, compactSchoolroom = false }: { asset: AssetDefinition; compactSchoolroom?: boolean }) {
   return (
     <group>
       <AdaptiveLoadedModel asset={asset} />
       <RoundedBox args={[0.82, 0.018, 0.64]} radius={0.012} smoothness={3} position={[0, 0.506, 0]} castShadow receiveShadow>
         <meshPhysicalMaterial color="#4c281f" roughness={0.58} clearcoat={0.28} clearcoatRoughness={0.52} />
       </RoundedBox>
-      <group
-        position={[-0.18, 0.58, -0.08]}
-        rotation={[0, -0.1, 0]}
-        scale={[0.32, 0.13, 0.19]}
-        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
-      >
-        <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
-        </Suspense>
-      </group>
-      <group
-        position={[0.22, 0.528, 0.06]}
-        rotation={[0, 0.18, 0]}
-        scale={[0.22, 0.025, 0.26]}
-        userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
-      >
-        <Suspense fallback={null}>
-          <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
-        </Suspense>
-      </group>
+      {!compactSchoolroom && (
+        <group
+          position={[-0.18, 0.58, -0.08]}
+          rotation={[0, -0.1, 0]}
+          scale={[0.32, 0.13, 0.19]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb" />
+          </Suspense>
+        </group>
+      )}
+      {!compactSchoolroom && (
+        <group
+          position={[0.22, 0.528, 0.06]}
+          rotation={[0, 0.18, 0]}
+          scale={[0.22, 0.025, 0.26]}
+          userData={{ decorativeOnly: true, placementValidated: true, surface: "desk" }}
+        >
+          <Suspense fallback={null}>
+            <LoadedModel url="/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb" />
+          </Suspense>
+        </group>
+      )}
     </group>
   );
 }
@@ -2357,7 +2361,7 @@ function EntityAsset({
     return (
       <ModelErrorBoundary key={asset.modelUrl} fallback={fallback}>
         <Suspense fallback={null}>
-          <StoryWritingDesk asset={asset} />
+          <StoryWritingDesk asset={asset} compactSchoolroom={entity?.id === "schoolroom-table"} />
         </Suspense>
       </ModelErrorBoundary>
     );

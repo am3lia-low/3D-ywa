@@ -117,9 +117,15 @@ function surfaceOffset(
 
   let localX: number;
   let localZ: number;
-  if (/\b(map|document|paper|parchment|chart|letter|book)\b/.test(semantics)) {
+  if (/\b(book|notebook|journal|ledger|copybook)\b/.test(semantics)) {
+    // Bound volumes need a quieter central writing zone. Using a support edge
+    // is technically contained but lets authored covers, pencils and loose
+    // pages overhang the visible tabletop.
+    localX = -xReach * 0.12;
+    localZ = zReach * 0.24;
+  } else if (/\b(map|document|paper|parchment|chart|letter)\b/.test(semantics)) {
     localX = xReach * 0.15;
-    localZ = zReach;
+    localZ = zReach * 0.62;
   } else if (/\b(portrait|photograph|photo|picture|frame)\b/.test(semantics)) {
     const isShelfSupport = /\b(shelf|bookshelf|bookcase)\b/.test(targetSemantics);
     // A shelf portrait belongs visibly inside a bay, forward of the backboard

@@ -90,6 +90,10 @@ describe("Member 3 prepared story scenes", () => {
           expect(schoolroomRecipe.presentation.location.architectureTags).not.toContain("estate-paneling");
           expect(ledger.position[1] - ledger.dimensions[1] / 2)
             .toBeCloseTo(table.position[1] + table.dimensions[1] / 2 + 0.008, 3);
+          expect(Math.abs(ledger.position[0] - table.position[0]))
+            .toBeLessThan(table.dimensions[0] * 0.2);
+          expect(Math.abs(ledger.position[2] - table.position[2]))
+            .toBeLessThan(table.dimensions[2] * 0.2);
           expect(Math.abs(photograph.position[0] - shelf.position[0])).toBeLessThan(shelf.dimensions[0] / 2);
           expect(photograph.position[1] - photograph.dimensions[1] / 2)
             .toBeCloseTo(
@@ -105,6 +109,15 @@ describe("Member 3 prepared story scenes", () => {
           expect(schoolroomSupplyCabinet?.renderKind).toBe("asset");
           if (schoolroomSupplyCabinet?.renderKind === "asset") {
             expect(schoolroomSupplyCabinet.asset.key).toBe("victorian-document-drawers");
+          }
+          expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
+            .not.toContain("schoolroom-copybooks");
+          const schoolroomBasket = schoolroomRecipe.dressingInstances.find((instance) =>
+            instance.dressingId.endsWith(":schoolroom-copybook-basket"),
+          );
+          expect(schoolroomBasket?.renderKind).toBe("asset");
+          if (schoolroomBasket?.renderKind === "asset") {
+            expect(schoolroomBasket.asset.key).toBe("woven-reading-basket");
           }
           expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
             .not.toContain("schoolroom-copybook-shelf");
