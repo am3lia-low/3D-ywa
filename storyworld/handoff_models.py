@@ -22,12 +22,19 @@ class MainLocation(MainContractModel):
     environment: MainEnvironment
 
 
+class MainEntityProvenance(MainContractModel):
+    passageId: str
+    sentence: str | None = None
+    confidence: float | None = None
+
+
 class MainEntity(MainContractModel):
     id: str
     name: str
     kind: str
     locationId: str
     state: dict[str, Any] = Field(default_factory=dict)
+    provenance: MainEntityProvenance | None = None
 
 
 class MainRelationMetadata(MainContractModel):

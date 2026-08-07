@@ -10,6 +10,7 @@ from .handoff_models import (
     MainConflict,
     MainEntity,
     MainEntityChanges,
+    MainEntityProvenance,
     MainEnvironment,
     MainLighting,
     MainLocation,
@@ -67,10 +68,13 @@ class MainContractAdapter:
         self,
         previous: WorldSnapshot,
         response: PassageResponse,
+        sentence_lookup: dict[str, str] | None = None,
     ) -> MainPassageResponse:
-        snapshot = self.world_snapshot(response.snapshot)
+        snapshot = self.world_snapshot(response.snapshot, sentence_lookup)
         previous_snapshot = (
-            self.world_snapshot(previous) if previous.version > 0 else None
+            self.world_snapshot(previous, sentence_lookup)
+            if previous.version > 0
+            else None
         )
         patch = (
             self._scene_patch(previous_snapshot, snapshot)
@@ -93,12 +97,16 @@ class MainContractAdapter:
             visual_plan=self.visual_plan(response.snapshot, snapshot),
         )
 
-    def world_snapshot(self, snapshot: WorldSnapshot) -> MainWorldSnapshot:
+    def world_snapshot(
+        self,
+        snapshot: WorldSnapshot,
+        sentence_lookup: dict[str, str] | None = None,
+    ) -> MainWorldSnapshot:
         primary = snapshot.locations[0] if snapshot.locations else None
         location_id = primary.id if primary else self._fallback_location_id(snapshot.story_id)
         location_name = primary.canonical_name if primary else "Story scene"
         entities = [
-            self._entity(entity, location_id, snapshot)
+            self._entity(entity, location_id, snapshot, sentence_lookup or {})
             for entity in snapshot.entities
             if entity.status != EntityStatus.REMOVED
             and entity.entity_type != EntityType.CHARACTER
@@ -274,6 +282,7 @@ class MainContractAdapter:
         entity: Entity,
         location_id: str,
         snapshot: WorldSnapshot,
+        sentence_lookup: dict[str, str],
     ) -> MainEntity:
         state: dict[str, object] = {
             "semanticType": entity.semantic_type,
@@ -287,12 +296,30 @@ class MainContractAdapter:
                 and relation.literal_value
             ):
                 state["containerRegion"] = relation.literal_value
+        evidence = entity.evidence[0] if entity.evidence else None
+        sentence = None
+        if evidence:
+            sentence_parts = [
+                sentence_lookup[sentence_id]
+                for sentence_id in evidence.sentence_ids
+                if sentence_id in sentence_lookup
+            ]
+            sentence = " ".join(sentence_parts) or None
         return MainEntity(
             id=entity.id,
             name=entity.canonical_name,
             kind=self._kind(entity),
             locationId=location_id,
             state=state,
+            provenance=(
+                MainEntityProvenance(
+                    passageId=evidence.passage_id,
+                    sentence=sentence,
+                    confidence=self._confidence(evidence.evidence_type),
+                )
+                if evidence
+                else None
+            ),
         )
 
     @staticmethod

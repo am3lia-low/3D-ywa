@@ -9,6 +9,9 @@ Three Fiber renderer through the `@spatial-runtime` alias in `vite.config.ts`.
 `src/api/mockApi.ts` still simulates Member 1's asynchronous passage API for the
 three prepared demo stories; it emits canonical spatial snapshots, patches and
 visual plans through `src/spatial/mockSpatialAdapter.ts`.
+Imported stories can instead use Member 1's real Python endpoint through
+`src/api/livePart1Api.ts`. Copy `.env.example` to `.env.local` and start the
+Python API as described in the integrated quick start.
 
 For the supported fresh-clone workflow, start with
 [`../docs/integrated-quick-start.md`](../docs/integrated-quick-start.md).
@@ -76,6 +79,7 @@ src/
   App.tsx               # screens (Library, Reader, Explorer) and app-level state
   types.ts              # shared data model (Book, Chapter, ProcessingStage, Conflict, ...)
   api/mockApi.ts         # temporary Member 1 API simulator for prepared stories
+  api/livePart1Api.ts    # validates live Member 1 responses for imported stories
   components/WorldViewer.tsx  # Member 3 adapter over Member 2's real viewer
   spatial/mockSpatialAdapter.ts # maps prepared UI data into canonical runtime contracts
   data/mockData.ts       # book/chapter text, scene entities, conflicts

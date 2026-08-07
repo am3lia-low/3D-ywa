@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -37,6 +38,18 @@ class JsonStoryStorage:
         if not path.exists():
             return None
         return ExtractionResult.model_validate_json(path.read_text(encoding="utf-8"))
+
+    def load_sentence_lookup(self, story_id: str) -> dict[str, str]:
+        """Return all persisted evidence sentences for renderer provenance."""
+        sentence_dir = self._story_dir(story_id) / "sentences"
+        lookup: dict[str, str] = {}
+        for path in sorted(sentence_dir.glob("*.json")):
+            sentences = [
+                SentenceUnit.model_validate(item)
+                for item in json.loads(path.read_text(encoding="utf-8"))
+            ]
+            lookup.update({sentence.id: sentence.text for sentence in sentences})
+        return lookup
 
     def save_processing_artifacts(
         self,

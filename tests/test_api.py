@@ -69,6 +69,13 @@ class ApiTests(unittest.TestCase):
                 for entity in opening["visual_plan"]["entities"]
             )
         )
+        desk = next(
+            entity
+            for entity in opening["snapshot"]["entities"]
+            if entity["id"] == "desk_01"
+        )
+        self.assertEqual(desk["provenance"]["passageId"], "P1")
+        self.assertIn("heavy wooden desk", desk["provenance"]["sentence"])
 
         for index, body in enumerate(bodies[1:], start=2):
             self.assertEqual(body["patch"]["fromVersion"], index - 1)
@@ -98,6 +105,15 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(latest.status_code, 200)
         self.assertEqual(latest.json()["storyId"], "study-demo")
         self.assertEqual(latest.json()["version"], 4)
+        latest_desk = next(
+            entity
+            for entity in latest.json()["entities"]
+            if entity["id"] == "desk_01"
+        )
+        self.assertEqual(
+            latest_desk["provenance"]["sentence"],
+            desk["provenance"]["sentence"],
+        )
 
 
 if __name__ == "__main__":

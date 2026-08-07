@@ -84,6 +84,7 @@ export {
   LivePart1StorySession,
   Part1AdapterError,
   normalizePart1PassageResponse,
+  postPart1Passage,
   type NormalizedPart1PassageResponse,
   type Part1AdapterErrorCode,
   type Part1IngestResult,

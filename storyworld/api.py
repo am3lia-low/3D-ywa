@@ -67,7 +67,11 @@ def process_passage(
             text=request.text,
             replay_cached_extraction=request.replay_cached_extraction,
         )
-        return handoff_adapter.passage_response(previous, response)
+        return handoff_adapter.passage_response(
+            previous,
+            response,
+            pipeline.storage.load_sentence_lookup(story_id),
+        )
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:
@@ -85,7 +89,8 @@ def latest_snapshot(
 ) -> MainWorldSnapshot:
     try:
         return handoff_adapter.world_snapshot(
-            pipeline.storage.load_latest_snapshot(story_id)
+            pipeline.storage.load_latest_snapshot(story_id),
+            pipeline.storage.load_sentence_lookup(story_id),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

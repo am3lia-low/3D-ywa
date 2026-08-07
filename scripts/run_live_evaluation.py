@@ -141,7 +141,11 @@ def main() -> int:
             path=ROOT / f"passage_{number}.txt",
         )
         snapshots[f"P{number}"] = response.snapshot
-        handoff = handoff_adapter.passage_response(previous_snapshot, response)
+        handoff = handoff_adapter.passage_response(
+            previous_snapshot,
+            response,
+            storage.load_sentence_lookup(args.story_id),
+        )
         handoff_dir = Path(args.data_dir) / args.story_id / "handoffs"
         handoff_dir.mkdir(parents=True, exist_ok=True)
         (handoff_dir / f"P{number}.json").write_text(

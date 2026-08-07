@@ -4,11 +4,17 @@
 import { compileSceneRecipe } from '@spatial-runtime'
 import { BOOKS, CONFLICTS, PATCHES, SNAPSHOTS, summaryFromPatch } from '../data/mockData'
 import { buildMockSpatialScene } from '../spatial/mockSpatialAdapter'
+import {
+  configuredPart1ApiBaseUrl,
+  processLivePart1Chapter,
+} from './livePart1Api'
 import type { Book, Chapter, ChapterProcessingResult, Conflict, ConflictResolution, ProcessingStage, ScenePatch, WorldEntity, WorldSnapshot } from '../types'
 
 function delay(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
+
+const liveConflicts = new Map<string, Conflict>()
 
 // GET /api/books
 export async function fetchBooks(): Promise<Book[]> {
@@ -94,11 +100,19 @@ export async function processChapter(
   chapterId: string,
   onStage?: (stage: ProcessingStage) => void,
 ): Promise<ChapterProcessingResult> {
-  await beginStage('understanding_chapter', onStage)
   const book = BOOKS.find(candidate => candidate.id === bookId)
   const chapter = book?.chapters.find(candidate => candidate.id === chapterId)
   if (!book || !chapter) throw new Error(`No story metadata is available for chapter ${chapterId}.`)
-  const { snapshot, patch } = SNAPSHOTS[chapterId] && PATCHES[chapterId]
+  const prepared = SNAPSHOTS[chapterId] && PATCHES[chapterId]
+  const liveBaseUrl = configuredPart1ApiBaseUrl()
+  if (!prepared && liveBaseUrl) {
+    const result = await processLivePart1Chapter(liveBaseUrl, book, chapter, onStage)
+    result.conflicts.forEach(conflict => liveConflicts.set(conflict.id, conflict))
+    return result
+  }
+
+  await beginStage('understanding_chapter', onStage)
+  const { snapshot, patch } = prepared
     ? { snapshot: SNAPSHOTS[chapterId], patch: PATCHES[chapterId] }
     : fallbackSnapshotAndPatch(chapter)
 
@@ -136,6 +150,9 @@ export async function retryChapterProcessing(
 export async function resolveConflict(conflictId: string, resolution: ConflictResolution): Promise<Conflict> {
   await delay(700)
   const conflict = Object.values(CONFLICTS).flat().find(candidate => candidate.id === conflictId)
+    ?? liveConflicts.get(conflictId)
   if (!conflict) throw new Error(`Unknown conflict ${conflictId}.`)
-  return { ...conflict, activeInterpretation: resolution, status: resolution === 'unresolved' ? 'open' : 'resolved' }
+  const updated = { ...conflict, activeInterpretation: resolution, status: resolution === 'unresolved' ? 'open' as const : 'resolved' as const }
+  if (liveConflicts.has(conflictId)) liveConflicts.set(conflictId, updated)
+  return updated
 }

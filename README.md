@@ -488,6 +488,11 @@ python -m storyworld.cli process --story-id study-demo --passage-id P3 --file pa
 python -m storyworld.cli process --story-id study-demo --passage-id P4 --file passage_4.txt
 ```
 
+To exercise imported text through the complete Member 1 → Member 2 → Member 3
+UI path, follow the live two-terminal instructions in
+`docs/integrated-quick-start.md`. Prepared library stories remain fixture-backed;
+imported stories call Member 1 when `VITE_STORYWORLD_API_URL` is configured.
+
 Print the most recent snapshot:
 
 ```powershell
