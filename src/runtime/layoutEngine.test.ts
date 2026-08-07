@@ -177,6 +177,46 @@ describe("createWorldLayout", () => {
     expect(separatedAlongX || separatedAlongZ).toBe(true);
   });
 
+  it("places an upright shelf portrait forward of the backboard and clear of the side upright", () => {
+    const schoolroom: WorldSnapshot = {
+      storyId: "schoolroom-shelf-test",
+      version: 1,
+      passageId: "P3",
+      locations: [{ id: "schoolroom", name: "Former Schoolroom", bounds: [10, 5, 8] }],
+      entities: [
+        {
+          id: "schoolroom-shelf",
+          name: "Damp Copybook Shelf",
+          kind: "furniture",
+          locationId: "schoolroom",
+          assetKey: "worn-story-bookshelf",
+          transform: { position: [-3.1, 1.1, -3.66] },
+          dimensions: [1.46, 2.2, 0.62],
+        },
+        {
+          id: "small-photograph",
+          name: "Small Framed Photograph",
+          kind: "portrait",
+          locationId: "schoolroom",
+          assetKey: "storybook-portrait",
+          dimensions: [0.44, 0.6, 0.08],
+          state: { supportSurfaceRatio: 0.78 },
+        },
+      ],
+      relations: [
+        { id: "photo-on-shelf", subjectId: "small-photograph", predicate: "on", objectId: "schoolroom-shelf" },
+      ],
+      conflicts: [],
+    };
+    const layout = createWorldLayout(schoolroom);
+    const shelf = layout.items.find((item) => item.entity.id === "schoolroom-shelf")!;
+    const photograph = layout.items.find((item) => item.entity.id === "small-photograph")!;
+
+    expect(photograph.position[2]).toBeGreaterThan(shelf.position[2]);
+    expect(photograph.position[0] - photograph.dimensions[0] / 2)
+      .toBeGreaterThan(shelf.position[0] - shelf.dimensions[0] / 2 + 0.08);
+  });
+
   it("keeps the moved courtyard chair facing the gate", () => {
     const departure = applyScenePatch(
       courtyardSnapshotFixture as unknown as WorldSnapshot,

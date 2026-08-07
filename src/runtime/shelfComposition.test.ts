@@ -27,4 +27,12 @@ describe("shelf composition", () => {
       }
     }
   });
+
+  it("reserves a non-overlapping top-left bay for a narrative portrait", () => {
+    const rows = createWornBookshelfBookSlots({ reserveTopLeft: true });
+    expect(rows).toHaveLength(5);
+    expect(rows.at(-1)).toHaveLength(3);
+    expect(rows.at(-1)!.every((book) => book.x > 0.05)).toBe(true);
+    expect(rows.slice(0, -1).every((row) => row.length === 7)).toBe(true);
+  });
 });

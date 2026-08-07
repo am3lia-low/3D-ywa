@@ -38,6 +38,12 @@ function isSpatialContainer(entity: WorldEntity): boolean {
   return /\b(?:[a-z-]*room|hall|corridor|street|quarter|district|forest|wood|garden|courtyard|square)\b/.test(text)
 }
 
+function isEmbeddedComponent(entity: WorldEntity): boolean {
+  // Keep the concealed drawer in Member 3's narrative inspector, but do not
+  // turn a component of the writing desk into a second freestanding table.
+  return entity.id === 'hidden-drawer'
+}
+
 function belongsInSchoolroom(entity: WorldEntity): boolean {
   const text = `${entity.id} ${entity.name} ${entity.currentLocation ?? ''}`.toLowerCase()
   return /schoolroom/.test(text) || entity.id === 'horse-figurine' || entity.id === 'small-photograph'
@@ -405,7 +411,9 @@ export function buildMockSpatialScene(
   // 3D contract represents those as locations, not selectable prop meshes.
   // Keeping them out of the entity registry prevents a room from being
   // semantically matched to an unrelated decorative asset.
-  const renderableEntities = uiSnapshot.entities.filter((entity) => !isSpatialContainer(entity))
+  const renderableEntities = uiSnapshot.entities.filter(
+    (entity) => !isSpatialContainer(entity) && !isEmbeddedComponent(entity),
+  )
   const hallEntities = renderableEntities.filter((entity) => !schoolroomId || !belongsInSchoolroom(entity))
   const schoolroomEntities = schoolroomId
     ? renderableEntities.filter((entity) => belongsInSchoolroom(entity))
@@ -432,10 +440,13 @@ export function buildMockSpatialScene(
     locationId: sceneId,
     assetKey: 'story-staircase',
     transform: {
-      position: [-BOUNDS[0] / 2 + 1.25, 0.45, wallAxisPosition(staircaseDoor, 'west')],
+      position: [-BOUNDS[0] / 2 + 2, 0.45, wallAxisPosition(staircaseDoor, 'west')],
       rotation: [0, Math.PI / 2, 0],
     },
     dimensions: [1.4, 0.9, 2.5],
+    // This is a semantic support beyond the closed hall boundary, not a loose
+    // set of steps to be drawn inside the room.
+    state: { presentationOccluded: true },
     provenance: {
       passageId: chapter.id,
       sentence: staircaseDoor.sourceSentence,
@@ -479,14 +490,24 @@ export function buildMockSpatialScene(
       ...hallEntities.map((entity) => {
         const spatial = spatialEntity(entity, chapter, hallEntities, sceneId)
         return staircaseSteps && entity.id === 'hand-drawn-map' && /\bstair\b/i.test(entity.currentLocation ?? '')
-          ? { ...spatial, transform: undefined }
+          ? {
+              ...spatial,
+              transform: undefined,
+              state: { ...spatial.state, presentationOccluded: true },
+            }
           : spatial
       }),
       ...schoolroomEntities.map((entity) => {
         const size = dimensions(entity)
         const spatial = spatialEntity(entity, chapter, schoolroomEntities, schoolroomId!, schoolroomPosition(entity, size))
         return entity.id === 'schoolroom-ledger' || entity.id === 'small-photograph'
-          ? { ...spatial, transform: undefined }
+          ? {
+              ...spatial,
+              transform: undefined,
+              state: entity.id === 'small-photograph'
+                ? { ...spatial.state, supportSurfaceRatio: 0.78 }
+                : spatial.state,
+            }
           : spatial
       }),
       ...(staircaseSteps ? [staircaseSteps] : []),
