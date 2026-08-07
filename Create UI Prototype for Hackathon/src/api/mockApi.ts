@@ -106,9 +106,31 @@ export async function processChapter(
   const prepared = SNAPSHOTS[chapterId] && PATCHES[chapterId]
   const liveBaseUrl = configuredPart1ApiBaseUrl()
   if (!prepared && liveBaseUrl) {
-    const result = await processLivePart1Chapter(liveBaseUrl, book, chapter, onStage)
-    result.conflicts.forEach(conflict => liveConflicts.set(conflict.id, conflict))
-    return result
+    // Deliberately not caught. A configured Member 1 that fails must surface the
+    // failure: falling through to fallbackSnapshotAndPatch() below would render a
+    // convincing generic room and report success, which is indistinguishable from
+    // a working pipeline and has previously masked a stopped API during review.
+    try {
+      const result = await processLivePart1Chapter(liveBaseUrl, book, chapter, onStage)
+      result.conflicts.forEach(conflict => liveConflicts.set(conflict.id, conflict))
+      return result
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : String(cause)
+      throw new Error(
+        `Member 1 could not process "${chapter.title}" via ${liveBaseUrl}: ${detail}`,
+        { cause },
+      )
+    }
+  }
+
+  // An imported story with no Member 1 configured can only produce the generic
+  // placeholder scene. Say so, rather than letting it pass as real extraction.
+  if (!prepared) {
+    console.warn(
+      `[mockApi] "${chapter.title}" is an imported chapter but VITE_STORYWORLD_API_URL `
+      + 'is not set. Rendering the built-in placeholder scene (desk, window, chair) — '
+      + 'this is NOT Member 1 output.',
+    )
   }
 
   await beginStage('understanding_chapter', onStage)

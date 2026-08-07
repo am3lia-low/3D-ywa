@@ -88,12 +88,33 @@ function evidenceType(entity: SpatialEntity): EvidenceType {
   return (entity.provenance.confidence ?? 1) >= 0.75 ? 'Explicit' : 'Inferred'
 }
 
+// Descriptive state keys, ordered so the prose reads as description before
+// status — a "Stone, cold" fireplace rather than "Cold, stone". Keys outside
+// this list are structural (semanticType, status, containerRegion,
+// supportSurfaceRatio) and are never shown to readers.
+const CONDITION_KEYS = [
+  'condition', 'material', 'color', 'size', 'shape', 'orientation',
+  'frame_style', 'temperature', 'lighting', 'length', 'state',
+] as const
+
+// Renders Member 1's structured state as a reader-facing phrase, matching the
+// prepared stories' hand-authored voice ("Cold, unlit"). Derived at render time
+// rather than sent by Member 1, so it cannot drift out of step with `state`
+// when applyScenePatch merges an update.
 function conditionText(entity: SpatialEntity): string | undefined {
-  const ignored = new Set(['semanticType', 'status'])
-  const values = Object.entries(entity.state ?? {})
-    .filter(([key, value]) => !ignored.has(key) && value !== null && value !== '')
-    .map(([key, value]) => `${key}: ${String(value)}`)
-  return values.length > 0 ? values.join(', ') : undefined
+  const state = entity.state ?? {}
+  const values: string[] = []
+  for (const key of CONDITION_KEYS) {
+    const value = state[key]
+    if (value === null || value === undefined || value === '') continue
+    const text = String(value).trim()
+    if (!text) continue
+    if (values.some(existing => existing.toLowerCase() === text.toLowerCase())) continue
+    values.push(text)
+  }
+  if (values.length === 0) return undefined
+  const phrase = values.join(', ')
+  return phrase.charAt(0).toUpperCase() + phrase.slice(1)
 }
 
 function inspectorSnapshot(
