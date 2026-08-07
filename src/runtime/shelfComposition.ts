@@ -25,8 +25,8 @@ export function createArchiveShelfBookSlots(level: number, levelIndex: number): 
   });
 }
 
-export function createWornBookshelfBookSlots(): ShelfBookSlot[][] {
-  return WORN_BOOKSHELF_TOPS.map((shelfTop, shelfIndex) =>
+export function createWornBookshelfBookSlots(options: { reserveTopLeft?: boolean } = {}): ShelfBookSlot[][] {
+  const rows = WORN_BOOKSHELF_TOPS.map((shelfTop, shelfIndex) =>
     Array.from({ length: 7 }, (_, bookIndex) => {
       const height = 0.09 + ((bookIndex + shelfIndex) % 3) * 0.012;
       return {
@@ -39,4 +39,8 @@ export function createWornBookshelfBookSlots(): ShelfBookSlot[][] {
       };
     }),
   );
+  if (options.reserveTopLeft) {
+    rows[rows.length - 1] = rows.at(-1)!.filter((slot) => slot.x > 0.05);
+  }
+  return rows;
 }

@@ -120,6 +120,12 @@ function surfaceOffset(
   if (/\b(map|document|paper|parchment|chart|letter|book)\b/.test(semantics)) {
     localX = xReach * 0.15;
     localZ = zReach;
+  } else if (/\b(portrait|photograph|photo|picture|frame)\b/.test(semantics)) {
+    const isShelfSupport = /\b(shelf|bookshelf|bookcase)\b/.test(targetSemantics);
+    // A shelf portrait belongs visibly inside a bay, forward of the backboard
+    // and clear of the uprights. Desk frames still use a quiet back corner.
+    localX = isShelfSupport ? -xReach * 0.55 : -xReach;
+    localZ = isShelfSupport ? zReach : -zReach;
   } else if (/\b(light|lantern|lamp|candle)\b/.test(semantics)) {
     localX = xReach;
     localZ = -zReach * 0.5;
@@ -292,9 +298,14 @@ function relationPosition(
       {
         const [offsetX, offsetZ] = surfaceOffset(item, target);
         const itemHeight = item.dimensions[1] * item.scale[1];
+        const supportRatio = item.entity.state?.supportSurfaceRatio;
+        const supportY = typeof supportRatio === "number"
+          ? target.position[1] - target.dimensions[1] * target.scale[1] / 2
+            + target.dimensions[1] * target.scale[1] * clamp(supportRatio, 0, 1)
+          : supportSurfaceWorldY(target);
         return [
           target.position[0] + offsetX,
-          supportSurfaceWorldY(target) + itemHeight / 2 + 0.008,
+          supportY + itemHeight / 2 + 0.008,
           target.position[2] + offsetZ,
         ];
       }
@@ -379,6 +390,13 @@ export function supportSurfaceWorldY(item: LayoutItem): number {
 }
 
 const FACING_RELATIONS = new Set(["left_of", "right_of", "in_front_of", "behind", "near"]);
+
+function relationPriority(relation: SpatialRelation): number {
+  if (relation.predicate === "on" || relation.predicate === "inside") return 0;
+  if (relation.predicate === "against_wall") return 1;
+  if (relation.predicate === "near") return 3;
+  return 2;
+}
 
 function orientFurnitureTowardRelation(
   draft: Omit<LayoutItem, "position">,
@@ -526,7 +544,8 @@ export function createWorldLayout(
     const nextPending: typeof pending = [];
     for (const draft of pending) {
       const relations = relationsBySubject.get(draft.entity.id) ?? [];
-      const resolved = relations
+      const resolved = [...relations]
+        .sort((left, right) => relationPriority(left) - relationPriority(right))
         .map((relation) => ({
           relation,
           position: relationPosition(relation, draft, placedById, bounds),
