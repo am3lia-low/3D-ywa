@@ -41,7 +41,7 @@ repository root and Member 3's product shell under
 pnpm dev:integrated
 ```
 
-Open <http://127.0.0.1:8443/>. The page should identify itself as **Lorescape**
+Open <http://127.0.0.1:8443/>. The page should identify itself as **3D-YWA**
 and show these prepared stories:
 
 - The Ashwood Inheritance

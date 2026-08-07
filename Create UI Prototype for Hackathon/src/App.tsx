@@ -588,7 +588,7 @@ function LibraryScreen({
           <div className="w-7 h-7 rounded-full border flex items-center justify-center text-xs"
             style={{ borderColor: '#c9a55a', color: '#c9a55a' }}>✦</div>
           <div>
-            <div className="font-serif text-lg font-semibold leading-none" style={{ color: '#e0d6c8' }}>Lorescape</div>
+            <div className="font-serif text-lg font-semibold leading-none" style={{ color: '#e0d6c8' }}>3D-YWA</div>
             <div className="font-mono text-[10px] mt-0.5" style={{ color: '#6e6354' }}>Persistent 3D Story Worlds</div>
           </div>
         </div>

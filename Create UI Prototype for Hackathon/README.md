@@ -1,4 +1,4 @@
-# Lorescape — Integrated Persistent 3D Story World
+# 3D-YWA — Integrated Persistent 3D Story World
 
 A reader-facing hackathon prototype that turns a book, chapter by chapter, into
 an explorable, persistent 3D world. Read a chapter, watch the scene process in
