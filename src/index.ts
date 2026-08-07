@@ -51,6 +51,7 @@ export {
   type LocationSceneRecipe,
   type PlacementConstraintKind,
   type SceneAssetCoverage,
+  type SceneCompositionRepairAction,
   type ScenePlacementConstraint,
 } from "./runtime/sceneRecipeCompiler";
 export {

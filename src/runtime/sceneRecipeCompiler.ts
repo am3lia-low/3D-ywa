@@ -17,9 +17,13 @@ import type {
   ScenePresentation,
 } from "./sceneCompiler";
 import {
-  auditSceneComposition,
   type SceneCompositionAudit,
 } from "./sceneCompositionAudit";
+import {
+  repairSceneComposition,
+  type SceneCompositionRepairAction,
+} from "./sceneCompositionRepair";
+export type { SceneCompositionRepairAction } from "./sceneCompositionRepair";
 import {
   createSceneAssetOutcomeReport,
   type SceneAssetOutcomeReport,
@@ -83,6 +87,7 @@ export interface CompiledSceneRecipe {
   generationJobs: SceneAssetGenerationJob[];
   placementConstraints: ScenePlacementConstraint[];
   composition: SceneCompositionAudit;
+  compositionRepairs: SceneCompositionRepairAction[];
   coverage: SceneAssetCoverage;
 }
 
@@ -189,7 +194,7 @@ export function compileSceneRecipe(
         : resolved;
     }),
   };
-  const locations = Object.fromEntries(
+  const unresolvedLocations = Object.fromEntries(
     Object.entries(manifest.presentations).map(([locationId, presentation]) => {
       const layout = createWorldLayout(snapshot, manifest.assetRegistry, [], locationId);
       return [
@@ -203,7 +208,27 @@ export function compileSceneRecipe(
         },
       ];
     }),
+  ) as Record<string, LocationSceneRecipe>;
+  const repairedComposition = repairSceneComposition(
+    snapshot,
+    manifest.presentations,
+    manifest.assetRegistry,
+    Object.fromEntries(
+      Object.entries(unresolvedLocations).map(([locationId, location]) => [
+        locationId,
+        location.dressingInstances,
+      ]),
+    ),
   );
+  const locations = Object.fromEntries(
+    Object.entries(unresolvedLocations).map(([locationId, location]) => [
+      locationId,
+      {
+        ...location,
+        dressingInstances: repairedComposition.dressingByLocation[locationId] ?? [],
+      },
+    ]),
+  ) as Record<string, LocationSceneRecipe>;
   const total = snapshot.entities.length;
   const approvedEntityIds = new Set([
     ...approved.selections.map((selection) => selection.entityId),
@@ -217,14 +242,7 @@ export function compileSceneRecipe(
     (entityId) => !promotedEntityIds.has(entityId),
   );
   const approvedCount = approvedEntityIds.size;
-  const composition = auditSceneComposition(
-    snapshot,
-    manifest.presentations,
-    manifest.assetRegistry,
-    Object.fromEntries(
-      Object.entries(locations).map(([locationId, location]) => [locationId, location.dressingInstances]),
-    ),
-  );
+  const composition = repairedComposition.composition;
 
   return {
     schemaVersion: "1.0",
@@ -243,6 +261,7 @@ export function compileSceneRecipe(
     generationJobs: manifest.generationJobs,
     placementConstraints: compilePlacementConstraints(snapshot),
     composition,
+    compositionRepairs: repairedComposition.repairs,
     coverage: {
       total,
       approved: approvedCount,
