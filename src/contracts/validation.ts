@@ -19,14 +19,14 @@ export const TransformSchema = z.looseObject({
 export const LocationSchema = z.looseObject({
   id: identifierSchema,
   name: z.string().trim().min(1),
-  bounds: positiveVector3Schema.optional(),
+  bounds: positiveVector3Schema.nullish(),
   environment: z
     .looseObject({
-      floorColor: z.string().optional(),
-      wallColor: z.string().optional(),
-      ambientColor: z.string().optional(),
+      floorColor: z.string().nullish(),
+      wallColor: z.string().nullish(),
+      ambientColor: z.string().nullish(),
     })
-    .optional(),
+    .nullish(),
 });
 
 export const EntitySchema = z.looseObject({
@@ -34,16 +34,16 @@ export const EntitySchema = z.looseObject({
   name: z.string().trim().min(1),
   kind: identifierSchema,
   locationId: identifierSchema,
-  assetKey: identifierSchema.optional(),
-  aliases: z.array(z.string().trim().min(1)).optional(),
-  transform: TransformSchema.optional(),
-  dimensions: positiveVector3Schema.optional(),
-  state: jsonRecordSchema.optional(),
+  assetKey: identifierSchema.nullish(),
+  aliases: z.array(z.string().trim().min(1)).nullish(),
+  transform: TransformSchema.nullish(),
+  dimensions: positiveVector3Schema.nullish(),
+  state: jsonRecordSchema.nullish(),
   provenance: z
     .looseObject({
       passageId: identifierSchema,
-      sentence: z.string().optional(),
-      confidence: z.number().min(0).max(1).optional(),
+      sentence: z.string().nullish(),
+      confidence: z.number().min(0).max(1).nullish(),
     })
     .optional(),
 });
@@ -52,21 +52,21 @@ export const SpatialRelationSchema = z.looseObject({
   id: identifierSchema,
   subjectId: identifierSchema,
   predicate: identifierSchema,
-  objectId: identifierSchema.optional(),
-  distance: z.number().nonnegative().optional(),
+  objectId: identifierSchema.nullish(),
+  distance: z.number().nonnegative().nullish(),
   metadata: z
     .looseObject({
-      wall: z.enum(["north", "south", "east", "west"]).optional(),
+      wall: z.enum(["north", "south", "east", "west"]).nullish(),
     })
-    .optional(),
+    .nullish(),
 });
 
 export const ConflictSchema = z.looseObject({
   id: identifierSchema,
-  entityId: identifierSchema.optional(),
+  entityId: identifierSchema.nullish(),
   description: z.string().trim().min(1),
   status: z.enum(["open", "resolved", "ignored"]),
-  passageIds: z.array(identifierSchema).optional(),
+  passageIds: z.array(identifierSchema).nullish(),
 });
 
 export const WorldSnapshotSchema = z
@@ -170,14 +170,19 @@ export const WorldSnapshotSchema = z
 
 const EntityChangesSchema = z
   .strictObject({
-    name: z.string().trim().min(1).optional(),
-    kind: identifierSchema.optional(),
-    assetKey: identifierSchema.optional(),
-    dimensions: positiveVector3Schema.optional(),
-    state: jsonRecordSchema.optional(),
-    transform: TransformSchema.optional(),
+    name: z.string().trim().min(1).nullish(),
+    kind: identifierSchema.nullish(),
+    assetKey: identifierSchema.nullish(),
+    dimensions: positiveVector3Schema.nullish(),
+    state: jsonRecordSchema.nullish(),
+    transform: TransformSchema.nullish(),
   })
-  .refine((changes) => Object.keys(changes).length > 0, "Entity changes cannot be empty.");
+  .refine(
+    // A serialized patch carries every field, so presence alone no longer
+    // proves intent; require at least one field that actually changes something.
+    (changes) => Object.values(changes).some((value) => value !== null && value !== undefined),
+    "Entity changes cannot be empty.",
+  );
 
 export const PatchOperationSchema = z.discriminatedUnion("op", [
   z.looseObject({ op: z.literal("add_entity"), entity: EntitySchema }),
@@ -186,8 +191,8 @@ export const PatchOperationSchema = z.discriminatedUnion("op", [
     op: z.literal("move_entity"),
     entityId: identifierSchema,
     position: vector3Schema,
-    rotation: vector3Schema.optional(),
-    locationId: identifierSchema.optional(),
+    rotation: vector3Schema.nullish(),
+    locationId: identifierSchema.nullish(),
   }),
   z.looseObject({
     op: z.literal("update_entity"),

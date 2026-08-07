@@ -310,6 +310,7 @@ class MainContractAdapter:
             name=entity.canonical_name,
             kind=self._kind(entity),
             locationId=location_id,
+            assetKey=self._asset_key(entity),
             state=state,
             provenance=(
                 MainEntityProvenance(
@@ -487,6 +488,20 @@ class MainContractAdapter:
         if entity.kind in {"architecture", "furniture"}:
             return "supporting"
         return "background"
+
+    @staticmethod
+    def _asset_key(entity: Entity) -> str | None:
+        """Normalize a semantic type into Member 2's kebab-case catalog key.
+
+        Member 2 matches `assetKey` exactly before scoring tags, so "tea set"
+        must reach it as "tea-set". Unknown types still produce a key; an
+        unmatched one simply falls through to the existing tag scoring.
+        """
+        semantic = (entity.semantic_type or "").strip().lower()
+        if not semantic:
+            return None
+        key = re.sub(r"[^a-z0-9]+", "-", semantic).strip("-")
+        return key or None
 
     @staticmethod
     def _asset_tags(entity: MainEntity) -> list[str]:

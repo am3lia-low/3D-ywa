@@ -33,6 +33,10 @@ class MainEntity(MainContractModel):
     name: str
     kind: str
     locationId: str
+    # Canonical catalog key. Member 2 resolves this by exact match before
+    # falling back to token scoring, so emitting it keeps distinct objects from
+    # collapsing onto whichever catalog entry happens to score highest.
+    assetKey: str | None = None
     state: dict[str, Any] = Field(default_factory=dict)
     provenance: MainEntityProvenance | None = None
 
