@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import * as api from './api/mockApi'
 import WorldViewer from './components/WorldViewer'
 import type {
@@ -102,7 +103,7 @@ function ObjectInspector({ book, entity, onClose }: { book: Book | null; entity:
             <div className="font-serif text-sm" style={{ color: '#e0d6c8' }}>{book.title}</div>
             {sourceChapter && (
               <div className="mt-0.5" style={{ color: '#c9a55a' }}>
-                Chapter {sourceChapter.index} — {sourceChapter.title}
+                {chapterLabelWithTitle(sourceChapter.index, sourceChapter.title)}
               </div>
             )}
           </div>
@@ -169,7 +170,7 @@ function ChapterDrawer({
         style={{ borderColor: 'rgba(201,165,90,0.1)' }}>
         <div>
           <div className="font-mono text-[10px] uppercase tracking-widest mb-1" style={{ color: '#6e6354' }}>Chapter text</div>
-          <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>Chapter {displayed.index} — {displayed.title}</div>
+          <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>{chapterLabelWithTitle(displayed.index, displayed.title)}</div>
         </div>
         <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full opacity-40 hover:opacity-80 transition-opacity text-sm" style={{ color: '#e0d6c8' }}>✕</button>
       </div>
@@ -180,7 +181,7 @@ function ChapterDrawer({
         </div>
       )}
       <div className="flex-1 overflow-y-auto px-6 py-5">
-        <div className="font-serif text-sm leading-[1.9] whitespace-pre-line" style={{ color: '#d4c9b6' }}>
+        <div className="font-reading text-[15px] leading-[1.75] whitespace-pre-line" style={{ color: '#e9e2d4' }}>
           {displayed.content}
         </div>
       </div>
@@ -315,20 +316,67 @@ function ConflictPanel({
   )
 }
 
-function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (input: { title: string; text: string }) => Promise<void> }) {
+interface DetectedChapter { title: string; content: string }
+
+/** Every "Chapter {index} — {title}" display already prepends the number, so title holds only the subtitle (or '' when the heading had none). */
+function chapterLabelWithTitle(index: number, title: string): string {
+  return title ? `Chapter ${index} — ${title}` : `Chapter ${index}`
+}
+
+// Splits pasted/uploaded text on lines that open with "Chapter <number>"
+// (e.g. "Chapter 1", "Chapter 2: The Hall"). Text with no such heading stays
+// a single chapter, matching the prior always-one-chapter behaviour.
+function detectChapters(rawText: string): DetectedChapter[] {
+  const lines = rawText.replace(/\r\n/g, '\n').split('\n')
+  const headingRe = /^\s*chapter\s+(\d+)\s*[:.\-–—]?\s*(.*)$/i
+  const headings = lines
+    .map((line, lineIndex) => ({ lineIndex, match: line.match(headingRe) }))
+    .filter((entry): entry is { lineIndex: number; match: RegExpMatchArray } => entry.match !== null)
+
+  if (headings.length === 0) {
+    return [{ title: '', content: rawText.trim() }]
+  }
+
+  return headings
+    .map(({ lineIndex, match }, i) => {
+      const nextLineIndex = headings[i + 1]?.lineIndex ?? lines.length
+      const content = lines.slice(lineIndex + 1, nextLineIndex).join('\n').trim()
+      const [, , subtitle] = match
+      return { title: subtitle.trim(), content }
+    })
+    .filter(chapter => chapter.content.length > 0)
+}
+
+function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (input: { title: string; chapters: DetectedChapter[] }) => Promise<void> }) {
   const [phase, setPhase] = useState<'entry' | 'detecting' | 'preview' | 'importing' | 'success' | 'error'>('entry')
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
+  const [detectedChapters, setDetectedChapters] = useState<DetectedChapter[]>([])
   const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleDetect = () => {
     if (!text.trim()) {
-      setError('Please paste some text before detecting chapters.')
+      setError('Please paste some text or upload a file before detecting chapters.')
       return
     }
     setError(null)
     setPhase('detecting')
-    setTimeout(() => setPhase('preview'), 1800)
+    setTimeout(() => {
+      setDetectedChapters(detectChapters(text))
+      setPhase('preview')
+    }, 1800)
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!title.trim()) setTitle(file.name.replace(/\.txt$/i, ''))
+    const reader = new FileReader()
+    reader.onload = () => setText(String(reader.result ?? ''))
+    reader.onerror = () => setError('Could not read that file. Please try again or paste the text instead.')
+    reader.readAsText(file)
   }
 
   const handleConfirm = async () => {
@@ -337,7 +385,7 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
       // onImport (App.handleImportBook) closes this modal and navigates to the
       // reader itself once the book is created — this modal only needs to reflect
       // the outcome, not trigger navigation, or the two would race each other.
-      await onImport({ title, text })
+      await onImport({ title, chapters: detectedChapters })
       setPhase('success')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed.')
@@ -378,10 +426,10 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
                   style={{ background: '#c9a55a', color: '#0a0910' }}>
                   Detect Chapters
                 </button>
-                <button disabled
-                  className="px-4 py-2.5 rounded-lg text-sm border transition-all opacity-40 cursor-not-allowed"
-                  style={{ borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e' }}
-                  title="File upload is not wired up in this prototype — paste text instead.">
+                <input ref={fileInputRef} type="file" accept=".txt,text/plain" className="hidden" onChange={handleFileChange} />
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2.5 rounded-lg text-sm border transition-all hover:opacity-70"
+                  style={{ borderColor: 'rgba(201,165,90,0.2)', color: '#a89e8e' }}>
                   Upload .txt file
                 </button>
               </div>
@@ -398,10 +446,18 @@ function AddBookModal({ onClose, onImport }: { onClose: () => void; onImport: (i
           {phase === 'preview' && (
             <div className="space-y-4 animate-fade-in">
               <div className="rounded-lg border p-4" style={{ background: 'rgba(201,165,90,0.05)', borderColor: 'rgba(201,165,90,0.15)' }}>
-                <div className="font-mono text-[10px] uppercase tracking-widest mb-3" style={{ color: '#c9a55a' }}>No chapter headings detected — importing as a single chapter</div>
-                <div className="flex items-center gap-3 py-1.5 text-sm" style={{ color: '#d4c9b6' }}>
-                  <span className="font-mono text-[10px] w-5 text-right" style={{ color: '#6e6354' }}>1</span>
-                  Chapter 1
+                <div className="font-mono text-[10px] uppercase tracking-widest mb-3" style={{ color: '#c9a55a' }}>
+                  {detectedChapters.length > 1
+                    ? `${detectedChapters.length} chapters detected`
+                    : 'No "Chapter N" headings detected — importing as a single chapter'}
+                </div>
+                <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                  {detectedChapters.map((chapter, i) => (
+                    <div key={i} className="flex items-center gap-3 py-1.5 text-sm" style={{ color: '#d4c9b6' }}>
+                      <span className="font-mono text-[10px] w-5 text-right shrink-0" style={{ color: '#6e6354' }}>{i + 1}</span>
+                      {chapterLabelWithTitle(i + 1, chapter.title)}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -486,16 +542,9 @@ function LibraryScreen({
       </header>
 
       <main className="max-w-6xl mx-auto px-8 py-12">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: '#6e6354' }}>Your library</div>
-            <h1 className="font-serif text-3xl font-semibold" style={{ color: '#e0d6c8' }}>Prepared Stories</h1>
-          </div>
-          <button onClick={onAddBook}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg border text-sm font-medium transition-all hover:opacity-90"
-            style={{ background: '#c9a55a', borderColor: '#c9a55a', color: '#0a0910' }}>
-            <span className="text-base leading-none">+</span> Import Story
-          </button>
+        <div className="mb-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: '#6e6354' }}>Your library</div>
+          <h1 className="font-serif text-3xl font-semibold" style={{ color: '#e0d6c8' }}>Prepared Stories</h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -605,7 +654,7 @@ function ReaderScreen({
         <div className="flex-1 text-center">
           <div className="font-mono text-[10px] uppercase tracking-widest mb-0.5" style={{ color: '#6e6354' }}>{book.title}</div>
           <div className="font-serif text-sm font-medium" style={{ color: '#e0d6c8' }}>
-            Chapter {chapter.index} — {chapter.title}
+            {chapterLabelWithTitle(chapter.index, chapter.title)}
           </div>
         </div>
         <div className="font-mono text-[10px]" style={{ color: '#6e6354' }}>
@@ -634,7 +683,7 @@ function ReaderScreen({
           <div className="font-serif text-[11px] uppercase tracking-[0.2em] mb-6" style={{ color: '#6e6354' }}>
             Chapter {chapter.index}
           </div>
-          <div className="font-serif text-[17px] leading-[1.85] whitespace-pre-line" style={{ color: '#d4c9b6' }}>
+          <div className="font-reading text-[18px] leading-[1.8] tracking-[0.005em] whitespace-pre-line" style={{ color: '#e9e2d4' }}>
             {chapter.content}
           </div>
         </div>
@@ -1076,9 +1125,9 @@ export default function App() {
     }
   }
 
-  const handleImportBook = async ({ title, text }: { title: string; text: string }) => {
+  const handleImportBook = async ({ title, chapters }: { title: string; chapters: { title: string; content: string }[] }) => {
     setAppMode('importing_book')
-    const book = await api.importBook({ title, text })
+    const book = await api.importBook({ title, chapters })
     setBooks(prev => [...prev, book])
     // Brief pause so the modal's "imported successfully" beat is visible before navigating away.
     await new Promise(resolve => setTimeout(resolve, 700))
