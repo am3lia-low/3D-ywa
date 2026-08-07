@@ -144,11 +144,6 @@ const DRESSING_RULES: readonly DressingRule[] = [
         minimumDensity: "moderate", positionFactor: [0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: -2.72,
       },
       {
-        renderKind: "asset", searchTags: ["leather", "books", "antique", "lesson"], slotId: "schoolroom-copybooks",
-        minimumDensity: "moderate", positionFactor: [0, 0], dimensions: [0.54, 0.18, 0.24],
-        placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: -0.08,
-      },
-      {
         renderKind: "asset", searchTags: ["wooden", "candlestick", "antique", "school"], slotId: "schoolroom-candlestick",
         minimumDensity: "rich", positionFactor: [0, 0], dimensions: [0.18, 0.52, 0.18],
         placementAnchor: "surface", supportSearchTags: ["schoolroom", "table", "desk"], yaw: 0.12,
@@ -157,6 +152,10 @@ const DRESSING_RULES: readonly DressingRule[] = [
         renderKind: "asset", searchTags: ["vintage", "drawer", "cabinet", "archive", "wood", "brass", "victorian"], slotId: "schoolroom-supply-cabinet",
         minimumDensity: "rich", positionFactor: [0.34, -0.43], dimensions: [1.05, 1.12, 0.58],
         yaw: 0.04, wall: "north",
+      },
+      {
+        renderKind: "asset", searchTags: ["basket", "wicker", "woven", "reading", "rustic", "interior"], slotId: "schoolroom-copybook-basket",
+        minimumDensity: "rich", positionFactor: [-0.24, -0.31], dimensions: [0.5, 0.42, 0.45], yaw: 0.24,
       },
     ],
   },
