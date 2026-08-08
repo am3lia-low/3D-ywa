@@ -11,6 +11,7 @@
       .pid{font:700 26px 'Segoe UI',Arial,sans-serif;fill:#17323a}
       .ver{font:700 15px Consolas,'Courier New',monospace;fill:#52666c}
       .prose{font:italic 16px Georgia,serif;fill:#40565d}
+      .cut{fill:#a08d7a;text-decoration:line-through}
       .op{font:14px Consolas,'Courier New',monospace;fill:#2f4a52}
       .opname{font:700 14px Consolas,'Courier New',monospace}
       .small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}
@@ -27,23 +28,25 @@
 
   <!-- version rail -->
   <text x="54" y="158" class="section">PROSE  →  PATCH OPERATIONS</text>
+  <text x="466" y="158" class="small"><tspan class="cut">struck-through text</tspan> = characters and actions, discarded before placement</text>
   <text x="1432" y="158" class="ver">v0 → v4</text>
 
   <!-- ============ P1 ============ -->
-  <rect class="box" x="54" y="186" width="404" height="232" fill="#e2f0f3" stroke="#398596"/>
+  <rect class="box" x="54" y="186" width="404" height="262" fill="#e2f0f3" stroke="#398596"/>
   <text x="80" y="228" class="pid">P1</text>
   <text x="150" y="228" class="ver">v0 → v1</text>
-  <text x="80" y="264" class="prose">Mara unlocked the study. A heavy</text>
-  <text x="80" y="288" class="prose">wooden desk stood against the wall,</text>
-  <text x="80" y="312" class="prose">a small silver key on it. A tall window</text>
-  <text x="80" y="336" class="prose">faced the desk; a red armchair sat</text>
-  <text x="80" y="360" class="prose">near the stone fireplace, an old gilded</text>
-  <text x="80" y="384" class="prose">portrait beside it. The oak door was</text>
-  <text x="80" y="406" class="prose">locked.</text>
+  <text x="80" y="262" class="prose"><tspan class="cut">Mara stepped into</tspan> the rectangular</text>
+  <text x="80" y="284" class="prose">study. A heavy wooden desk stood</text>
+  <text x="80" y="306" class="prose">against the east wall, and a small silver</text>
+  <text x="80" y="328" class="prose">key rested on its polished surface. A tall</text>
+  <text x="80" y="350" class="prose">window faced the desk. A red armchair</text>
+  <text x="80" y="372" class="prose">sat beside the stone fireplace; an old</text>
+  <text x="80" y="394" class="prose">portrait hung above it. An oak door</text>
+  <text x="80" y="416" class="prose">remained firmly locked.</text>
 
-  <path class="line" d="M256 418V462"/>
+  <path class="line" d="M256 448V478"/>
 
-  <rect class="box" x="54" y="462" width="404" height="486" fill="#ffffff" stroke="#398596"/>
+  <rect class="box" x="54" y="478" width="404" height="470" fill="#ffffff" stroke="#398596"/>
   <text x="80" y="500" class="tally">26 operations</text>
   <text x="80" y="536" class="op"><tspan class="opname" fill="#2d8a73">discover_location</tspan> study_01</text>
   <text x="80" y="566" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> desk_01</text>
@@ -60,21 +63,24 @@
   <text x="80" y="856" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> × 12</text>
   <text x="80" y="878" class="op">material, condition, size, state …</text>
   <rect x="80" y="898" width="352" height="2" fill="#cfe0e4"/>
-  <text x="80" y="926" class="small">Mara is in the prose, not the snapshot</text>
+  <text x="80" y="926" class="small">7 entities — no character among them.</text>
 
   <!-- ============ P2 ============ -->
-  <rect class="box" x="500" y="186" width="404" height="232" fill="#fdeee2" stroke="#c2703a"/>
+  <rect class="box" x="500" y="186" width="404" height="262" fill="#fdeee2" stroke="#c2703a"/>
   <text x="526" y="228" class="pid">P2</text>
   <text x="596" y="228" class="ver">v1 → v2</text>
-  <text x="526" y="264" class="prose">The study was colder now. She pulled</text>
-  <text x="526" y="288" class="prose">the crimson armchair beside the tall</text>
-  <text x="526" y="312" class="prose">window. The silver key was no longer</text>
-  <text x="526" y="336" class="prose">on the desk. The fire had gone out,</text>
-  <text x="526" y="360" class="prose">and the portrait hung crooked.</text>
+  <text x="526" y="262" class="prose"><tspan class="cut">When Mara returned that</tspan></text>
+  <text x="526" y="284" class="prose"><tspan class="cut">evening,</tspan> the room was colder. <tspan class="cut">She</tspan></text>
+  <text x="526" y="306" class="prose"><tspan class="cut">pulled</tspan> the crimson armchair away from</text>
+  <text x="526" y="328" class="prose">the fireplace and placed it beside the tall</text>
+  <text x="526" y="350" class="prose">window. The silver key was no longer on</text>
+  <text x="526" y="372" class="prose">the writing desk. The old portrait now</text>
+  <text x="526" y="394" class="prose">hung at a crooked angle. The oak door</text>
+  <text x="526" y="416" class="prose">was still locked.</text>
 
-  <path class="line" d="M702 418V462"/>
+  <path class="line" d="M702 448V478"/>
 
-  <rect class="box" x="500" y="462" width="404" height="486" fill="#ffffff" stroke="#c2703a"/>
+  <rect class="box" x="500" y="478" width="404" height="470" fill="#ffffff" stroke="#c2703a"/>
   <text x="526" y="500" class="tally">5 operations · 0 entities added</text>
   <text x="526" y="536" class="op"><tspan class="opname" fill="#c2703a">move_entity</tspan> armchair_01</text>
   <text x="546" y="562" class="op">near → window_01</text>
@@ -92,18 +98,21 @@
   <text x="526" y="916" class="small">moved, not replaced.</text>
 
   <!-- ============ P3 ============ -->
-  <rect class="box" x="946" y="186" width="404" height="232" fill="#e9f3e0" stroke="#5f8f3a"/>
+  <rect class="box" x="946" y="186" width="404" height="262" fill="#e9f3e0" stroke="#5f8f3a"/>
   <text x="972" y="228" class="pid">P3</text>
   <text x="1042" y="228" class="ver">v2 → v3</text>
-  <text x="972" y="264" class="prose">She lifted the portrait aside. The</text>
-  <text x="972" y="288" class="prose">wallpaper behind it was torn, and a</text>
-  <text x="972" y="312" class="prose">narrow doorway stood open onto a</text>
-  <text x="972" y="336" class="prose">short, dark corridor. The silver key</text>
-  <text x="972" y="360" class="prose">lay just inside it.</text>
+  <text x="972" y="262" class="prose"><tspan class="cut">Mara approached</tspan> the crooked</text>
+  <text x="972" y="284" class="prose">portrait <tspan class="cut">and lifted it from the wall.</tspan></text>
+  <text x="972" y="306" class="prose">Behind it, torn wallpaper concealed a</text>
+  <text x="972" y="328" class="prose">narrow doorway. <tspan class="cut">She pushed against</tspan></text>
+  <text x="972" y="350" class="prose"><tspan class="cut">the hidden panel,</tspan> and the doorway</text>
+  <text x="972" y="372" class="prose">opened into a short, dark corridor</text>
+  <text x="972" y="394" class="prose">beyond the study. The missing silver</text>
+  <text x="972" y="416" class="prose">key lay beside the doorway.</text>
 
-  <path class="line" d="M1148 418V462"/>
+  <path class="line" d="M1148 448V478"/>
 
-  <rect class="box" x="946" y="462" width="404" height="486" fill="#ffffff" stroke="#5f8f3a"/>
+  <rect class="box" x="946" y="478" width="404" height="470" fill="#ffffff" stroke="#5f8f3a"/>
   <text x="972" y="500" class="tally">9 operations</text>
   <text x="972" y="536" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> wallpaper_01</text>
   <text x="972" y="562" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> doorway_01</text>
@@ -121,18 +130,21 @@
   <text x="972" y="914" class="small">The study is not discarded.</text>
 
   <!-- ============ P4 ============ -->
-  <rect class="box" x="1392" y="186" width="404" height="232" fill="#fbe6e8" stroke="#b03a48"/>
+  <rect class="box" x="1392" y="186" width="404" height="262" fill="#fbe6e8" stroke="#b03a48"/>
   <text x="1418" y="228" class="pid">P4</text>
   <text x="1488" y="228" class="ver">v3 → v4</text>
-  <text x="1418" y="264" class="prose">The desk had always stood beneath</text>
-  <text x="1418" y="288" class="prose">the window, she thought, and the key</text>
-  <text x="1418" y="312" class="prose">had been inside its drawer all along.</text>
-  <text x="1418" y="356" class="small">This contradicts v1, where the desk</text>
-  <text x="1418" y="378" class="small">stands against the wall.</text>
+  <text x="1418" y="262" class="prose"><tspan class="cut">Mara returned to</tspan> the wooden desk</text>
+  <text x="1418" y="284" class="prose">beneath the western window <tspan class="cut">and</tspan></text>
+  <text x="1418" y="306" class="prose"><tspan class="cut">placed</tspan> the silver key in its top drawer.</text>
+  <text x="1418" y="328" class="prose">The crimson armchair remained beside</text>
+  <text x="1418" y="350" class="prose">the window, while the crooked portrait</text>
+  <text x="1418" y="372" class="prose">rested against the fireplace. <tspan class="cut">Behind her,</tspan></text>
+  <text x="1418" y="394" class="prose">the narrow doorway stood open.</text>
+  <text x="1418" y="418" class="small">“beneath the western window” contradicts v1.</text>
 
-  <path class="line" d="M1594 418V462"/>
+  <path class="line" d="M1594 448V478"/>
 
-  <rect class="box" x="1392" y="462" width="404" height="486" fill="#ffffff" stroke="#b03a48"/>
+  <rect class="box" x="1392" y="478" width="404" height="470" fill="#ffffff" stroke="#b03a48"/>
   <text x="1418" y="500" class="tally">1 conflict recorded</text>
   <text x="1418" y="536" class="op"><tspan class="opname" fill="#b03a48">record_conflict</tspan></text>
   <text x="1438" y="562" class="op">kind = spatial_contradiction</text>

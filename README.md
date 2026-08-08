@@ -13,10 +13,11 @@ excluded during extraction; only locations, physical objects and architectural
 structures are placed. A passage about two people arguing over a desk yields the
 desk and the room, not the people.
 
-> `[ILLUSTRATION: Hero image — a passage of prose on the left, the rendered 3D
-> study on the right, with a line connecting the sentence "she pulled the crimson
-> armchair beside the tall window" to the armchair in the scene. The room is
-> unpopulated: the armchair is placed, "she" is not.]`
+> `[ILLUSTRATION: a passage of prose on the left, the rendered 3D
+> study on the right. Lines connect the noun phrases "crimson armchair" and "tall
+> window" to those objects in the scene; the clause "she pulled" is struck through
+> with no line leaving it. The rendered room is empty of people — furniture,
+> walls and light only.]`
 
 ---
 
@@ -54,9 +55,11 @@ Three properties follow from that design:
 The system also records **conflicts**. If a later passage contradicts an earlier
 one, that contradiction is stored and surfaced rather than silently overwritten.
 
-> `[ILLUSTRATION: Three-panel sequence of the same study across passages 1→2→3 —
-> the armchair moves, the lantern appears, the hidden door opens. Caption:
-> everything else stays exactly where it was.]`
+> `[ILLUSTRATION: Three-panel sequence of the same empty study across passages
+> 1→2→3, shot from one fixed camera — the armchair moves from the fireplace to
+> the window, the portrait tilts crooked, the hidden doorway opens behind it. No
+> figure appears in any panel; the room changes on its own. Caption: everything
+> else stays exactly where it was.]`
 
 ---
 

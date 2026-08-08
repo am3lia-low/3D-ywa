@@ -12,6 +12,7 @@
       .body{font:17px 'Segoe UI',Arial,sans-serif;fill:#40565d}
       .small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}
       .prose{font:italic 17px Georgia,serif;fill:#40565d}
+      .cut{fill:#a08d7a;text-decoration:line-through}
       .code{font:14px Consolas,'Courier New',monospace;fill:#2f4a52}
       .key{font:14px Consolas,'Courier New',monospace;fill:#8a5a2b}
       .lbl{font:700 15px 'Segoe UI',Arial,sans-serif;fill:#49656c}
@@ -29,11 +30,11 @@
   <text x="54" y="158" class="section">1 · THE PASSAGE</text>
   <rect class="box" x="54" y="186" width="352" height="196" fill="#e2f0f3" stroke="#398596"/>
   <text x="230" y="224" text-anchor="middle" class="head">Prose passage</text>
-  <text x="80" y="258" class="prose">“She pulled the crimson armchair</text>
+  <text x="80" y="258" class="prose">“<tspan class="cut">She pulled</tspan> the crimson armchair</text>
   <text x="80" y="282" class="prose">beside the tall window.”</text>
   <text x="80" y="322" class="small">passage_id: P2</text>
-  <text x="80" y="348" class="small">Characters are excluded — only the</text>
-  <text x="80" y="368" class="small">armchair and window are extracted.</text>
+  <text x="80" y="348" class="small">The armchair and window are placed.</text>
+  <text x="80" y="368" class="small">“She” is struck out, never rendered.</text>
 
   <path class="line" d="M406 284H470"/>
 
