@@ -160,6 +160,8 @@ Choose **Start Reading**, let the passage-processing stages finish, then choose
 > `[ILLUSTRATION: Annotated screenshot of the library screen with the three story
 > cards, with callouts on "Start Reading" and "Import Story".]`
 
+<img width="800" height="450" alt="3" src="https://github.com/user-attachments/assets/77536cc2-33ce-4d28-a5cc-7ab2bdf49cd9" />
+
 ### 4. Explore
 
 | Action | Control |
