@@ -16,3 +16,8 @@ public/generated/*.glb
 /data/
 test_runs/
 archives/
+
+# Demo recordings — too large for GitHub (100 MB/file limit). Host externally
+# and link from the README instead.
+*.mp4
+*.mov
