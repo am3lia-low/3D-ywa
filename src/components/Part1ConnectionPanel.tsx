@@ -23,7 +23,7 @@ const MOCK_PASSAGES: Record<string, { nextId?: string; nextText?: string }> = {
 };
 
 export function Part1ConnectionPanel({ onStoryUpdate }: Part1ConnectionPanelProps) {
-  const [baseUrl, setBaseUrl] = useState("http://127.0.0.1:8787");
+  const [baseUrl, setBaseUrl] = useState("http://127.0.0.1:8000");
   const [storyId, setStoryId] = useState("story-live-attic");
   const [passageId, setPassageId] = useState("P1");
   const [text, setText] = useState(

@@ -57,6 +57,40 @@ The mock processing delay is intentional. It demonstrates the asynchronous
 reader flow while Member 1's HTTP service is not connected. ComfyUI, TripoSR and
 the Part 1 mock HTTP server are not required for this prepared-story demo.
 
+## Run imported text through live Member 1
+
+Prepared library stories keep their curated local fixtures. To send newly
+imported or pasted text through Member 1, configure the reader and run the
+Python API alongside it.
+
+Create the UI environment file once:
+
+```powershell
+Copy-Item "Create UI Prototype for Hackathon/.env.example" "Create UI Prototype for Hackathon/.env.local"
+```
+
+Terminal 1 — start Member 1 on port 8000:
+
+```powershell
+& ".\.venv\Scripts\python.exe" -m uvicorn storyworld.api:app --reload --host 127.0.0.1 --port 8000
+```
+
+Terminal 2 — start the Member 3 reader and Member 2 renderer:
+
+```powershell
+pnpm dev:integrated
+```
+
+Open <http://127.0.0.1:8443/>, select **Import Story**, paste text or upload a
+`.txt` file, confirm the detected chapters, and open the imported book. Each new
+chapter is posted to Member 1, validated against the shared contract, compiled
+by Member 2, and warmed by Member 3 before **Explore** becomes available.
+
+`VITE_STORYWORLD_API_URL` is intentionally opt-in. Without it, imported stories
+use the UI's generic local fallback; prepared stories always keep their curated
+fixtures. The team MVP still emits one persistent location per imported story,
+which remains valid input to the updated multi-location renderer.
+
 ## Which development server to use
 
 | Command | URL | Purpose |

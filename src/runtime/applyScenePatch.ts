@@ -68,15 +68,19 @@ export function applyScenePatch(snapshot: WorldSnapshot, patch: ScenePatch): Wor
         break;
       }
       case "update_entity": {
+        // A serialized patch spells out every field, so unchanged ones arrive
+        // as null. Spreading those over the entity would erase its name and
+        // kind, so only fields carrying a value participate in the merge.
+        const changes = Object.fromEntries(
+          Object.entries(operation.changes).filter(([, value]) => value !== null && value !== undefined),
+        ) as typeof operation.changes;
         entities = replaceEntity(entities, operation.entityId, (entity) => ({
           ...entity,
-          ...operation.changes,
-          transform: operation.changes.transform
-            ? { ...entity.transform, ...operation.changes.transform }
+          ...changes,
+          transform: changes.transform
+            ? { ...entity.transform, ...changes.transform }
             : entity.transform,
-          state: operation.changes.state
-            ? { ...entity.state, ...operation.changes.state }
-            : entity.state,
+          state: changes.state ? { ...entity.state, ...changes.state } : entity.state,
         }));
         break;
       }

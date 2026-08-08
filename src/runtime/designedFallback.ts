@@ -10,6 +10,7 @@ export type DesignedFallbackKind =
   | "document"
   | "plant"
   | "vessel"
+  | "surface"
   | "artifact";
 
 function fallbackSemanticText(entity: Entity): string {
@@ -30,7 +31,11 @@ export function designedFallbackKind(entity: Entity): DesignedFallbackKind {
   if (/\b(light|lamp|lantern|candle|torch|sconce|brazier)\b/.test(text)) return "light";
   if (/\b(document|book|map|letter|scroll|page|parchment|journal|diary|note)\b/.test(text)) return "document";
   if (/\b(plant|flower|tree|sapling|shrub|bush|fern|herb|flora)\b/.test(text)) return "plant";
-  if (/\b(vase|vessel|bottle|jar|urn|pot|cup|goblet|decor)\b/.test(text)) return "vessel";
+  // Flat things other objects rest on. Checked before `vessel` so a tray is not
+  // sized as an urn: an 0.8m-tall tray puts whatever sits on it far above the
+  // table and fails the geometric support audit.
+  if (/\b(tray|salver|platter|plate|mat|coaster|board)\b/.test(text)) return "surface";
+  if (/\b(vase|vessel|bottle|jar|urn|pot|cup|goblet)\b/.test(text)) return "vessel";
   return "artifact";
 }
 
@@ -44,6 +49,10 @@ const FALLBACK_DIMENSIONS: Readonly<Record<DesignedFallbackKind, Vector3Tuple>> 
   document: [0.62, 0.08, 0.44],
   plant: [0.65, 1.05, 0.65],
   vessel: [0.5, 0.8, 0.5],
+  // Flat and broad: a tray is a support, not a vessel. An earlier `vessel`
+  // classification made it 0.8m tall, which lifted everything resting on it
+  // clear of the table and failed the geometric support audit.
+  surface: [0.72, 0.05, 0.58],
   artifact: [0.65, 0.75, 0.65],
 };
 

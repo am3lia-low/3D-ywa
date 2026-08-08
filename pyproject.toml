@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storyworld-narrative-engine"
+version = "0.1.0"
+description = "Persistent narrative world-state extraction pipeline for StoryWorld 3D"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi",
+  "openai",
+  "pydantic>=2",
+  "python-dotenv",
+  "uvicorn[standard]",
+]
+
+[project.scripts]
+storyworld = "storyworld.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["storyworld*"]

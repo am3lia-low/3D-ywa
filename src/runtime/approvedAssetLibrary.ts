@@ -103,7 +103,16 @@ function scoreEntry(
   styleKitId: string,
 ): { score: number; exact: boolean; eligible: boolean } {
   const requestedAssetKey = entity.assetKey?.toLowerCase();
-  const exact = Boolean(requestedAssetKey && entry.assetKeys.includes(requestedAssetKey));
+  // A canonical key is an identity claim, so honour it against semantic kinds
+  // as well as marketing-style asset keys. The catalog files an ottoman's
+  // generic name under `semanticKinds` and only its dressed variants under
+  // `assetKeys`; matching keys alone left such entities to token scoring,
+  // which collapsed several distinct objects onto one high-scoring entry.
+  const exact = Boolean(
+    requestedAssetKey &&
+      (entry.assetKeys.includes(requestedAssetKey) ||
+        entry.semanticKinds.includes(requestedAssetKey)),
+  );
   const requested = tokens([
     entity.kind,
     entity.name,
@@ -132,7 +141,13 @@ function scoreEntry(
   // Materials and palette words are useful ranking signals, but are too broad
   // to establish identity by themselves (for example, a blue painted orrery
   // must never silently resolve to a blue painted cabinet).
-  return { score, exact, eligible: exact || kindMatch || identityOverlap >= 2 };
+  //
+  // A shared `kind` is likewise too weak on its own: every ornament in the
+  // catalog is "decor", so kind alone let an unmodelled tray resolve to a
+  // ceramic vase and then fail geometric support checks downstream. Require a
+  // real identity signal, so genuinely unmodelled objects stay unresolved and
+  // reach the honest fallback instead of borrowing an unrelated mesh.
+  return { score, exact, eligible: exact || identityOverlap >= 2 };
 }
 
 /** Selects only pre-approved assets and installs them under canonical entity IDs. */

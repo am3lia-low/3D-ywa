@@ -424,3 +424,170 @@ The public integration surface is exported from `src/index.ts`. The exact Member
 are in `docs/member-3-handoff.md`; `pnpm handoff:check` verifies the contract from
 a consumer's point of view. Fixture JSON lives in `fixtures/` and does not depend
 on Member 1's extraction service.
+
+## Member 1 narrative engine
+
+Member 1's pipeline converts literary passages into a persistent semantic world
+model for the 3D renderer. GPT-5.6 Terra extracts evidence-linked observations;
+deterministic Python code owns entity IDs, state changes, conflicts, and files.
+
+### Pipeline
+
+```text
+passage text
+  -> sentence IDs
+  -> GPT-5.6 Terra constrained extraction
+  -> deterministic entity resolution
+  -> snapshot reconciliation and conflict detection
+  -> versioned snapshot + scene patch + conflicts
+```
+
+The LLM never produces coordinates or asset paths. Internal artifacts retain
+evidence-rich snake-case fields, while the HTTP API translates them into the
+camelCase contract validated by Member 2.
+
+The current MVP deliberately keeps one persistent renderer location. Later
+rooms or corridors become architectural entities in that scene. Renderer-facing
+relations are limited to `left_of`, `right_of`, `in_front_of`, `behind`, `near`,
+`on`, `inside`, `against_wall`, and `centered`.
+
+The team has also chosen an environment-only MVP: Member 1 does not extract or
+emit characters for rendering. Character actions may motivate object changes in
+the prose, but people and character-to-object spatial relations are omitted from
+snapshots, patches, and visual plans.
+
+### Setup
+
+Create a virtual environment and install the project:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
+```
+
+Create `.env` from the provided template and add your API key. `.env` is ignored
+by Git and loaded automatically:
+
+```powershell
+Copy-Item .env.example .env
+# Edit .env and replace OPENAI_API_KEY=replace_me with your real key.
+```
+
+`STORYWORLD_MODEL` is optional because `gpt-5.6-terra` is already the default.
+Process environment variables still override values loaded from `.env`.
+
+### Process the four demo passages
+
+Run these in order so every passage updates the previous snapshot:
+
+```powershell
+python -m storyworld.cli process --story-id study-demo --passage-id P1 --file passage_1.txt
+python -m storyworld.cli process --story-id study-demo --passage-id P2 --file passage_2.txt
+python -m storyworld.cli process --story-id study-demo --passage-id P3 --file passage_3.txt
+python -m storyworld.cli process --story-id study-demo --passage-id P4 --file passage_4.txt
+```
+
+To exercise imported text through the complete Member 1 → Member 2 → Member 3
+UI path, follow the live two-terminal instructions in
+`docs/integrated-quick-start.md`. Prepared library stories remain fixture-backed;
+imported stories call Member 1 when `VITE_STORYWORLD_API_URL` is configured.
+
+Print the most recent snapshot:
+
+```powershell
+python -m storyworld.cli latest --story-id study-demo
+```
+
+Generated artifacts are stored under:
+
+```text
+data/study-demo/
+  sentences/
+  extractions/
+  snapshots/
+  patches/
+  conflicts/
+```
+
+To replay a previously cached model extraction during a demo:
+
+```powershell
+python -m storyworld.cli process --story-id study-demo --passage-id P2 --file passage_2.txt --replay-cached-extraction
+```
+
+### Run the API
+
+```powershell
+uvicorn storyworld.api:app --reload
+```
+
+Main endpoint:
+
+```http
+POST /api/stories/{story_id}/passages
+Content-Type: application/json
+
+{
+  "passage_id": "P1",
+  "text": "The current story passage...",
+  "replay_cached_extraction": false
+}
+```
+
+Supporting endpoints:
+
+```text
+GET /health
+GET /api/stories/{story_id}/snapshots/latest
+```
+
+Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
+The opening response omits its patch and includes `visual_plan`; later responses
+include an ordered `ScenePatch` that reproduces the supplied camelCase snapshot.
+Development CORS defaults allow the integrated UI on ports 8443 and 5173 and
+can be overridden with `STORYWORLD_CORS_ORIGINS`.
+
+### Tests
+
+The tests use curated extractions rather than the live API, so they consume no
+credits and remain deterministic:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+They verify that:
+
+- Passage 1 establishes the study.
+- Passage 2 reuses IDs and moves the armchair.
+- Passage 3 discovers the hidden doorway and corridor.
+- Passage 4 preserves the established desk position and records a conflict.
+- The OpenAI call uses `gpt-5.6-terra` with `ExtractionResult` as its constrained
+  Pydantic output schema.
+
+#### Optional live evaluation
+
+The live evaluator sends all four passages to the configured model, scores the
+handoff requirements, and writes internal artifacts plus Member 2-compatible
+responses to an ignored test directory. It uses API credits, so choose a new
+directory for each run:
+
+```powershell
+python scripts/run_live_evaluation.py --data-dir test_runs/live_eval --story-id study-live-eval
+```
+
+The summary is saved as
+`test_runs/live_eval/study-live-eval/evaluation_report.json`.
+
+### Main code locations
+
+- `storyworld/models.py`: constrained extraction, snapshot, patch, and conflict schemas.
+- `storyworld/extractor.py`: GPT-5.6 Terra prompt and Responses API call.
+- `storyworld/handoff.py`: deterministic translation into the shared main contract.
+- `storyworld/handoff_models.py`: camelCase snapshot, patch, conflict, and visual-plan schemas.
+- `storyworld/resolver.py`: stable identity and alias resolution.
+- `storyworld/reconciler.py`: deterministic state updates and conflicts.
+- `storyworld/storage.py`: versioned JSON persistence and cached extractions.
+- `storyworld/api.py`: FastAPI integration contract.
+- `storyworld/cli.py`: local processing and demo commands.
