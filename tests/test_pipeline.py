@@ -17,7 +17,7 @@ from storyworld.pipeline import NarrativePipeline
 from storyworld.storage import JsonStoryStorage
 
 
-ROOT = Path(__file__).resolve().parents[1]
+PASSAGES = Path(__file__).resolve().parent / "fixtures"
 
 
 def mention(
@@ -232,7 +232,7 @@ class PipelineTests(unittest.TestCase):
         return self.pipeline.process_file(
             story_id="study-demo",
             passage_id=f"P{number}",
-            path=ROOT / f"passage_{number}.txt",
+            path=PASSAGES / f"passage_{number}.txt",
         )
 
     @staticmethod

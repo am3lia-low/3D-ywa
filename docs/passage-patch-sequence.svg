@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1120" viewBox="0 0 1840 1120" role="img" aria-labelledby="title desc">
+  <title id="title">The four demo passages and the patch operations each one produced</title>
+  <desc id="desc">Four prose passages shown side by side. Beneath each is the specific patch operations it produced against the previous world version. Passage 1 discovers the study and adds seven entities. Passage 2 adds nothing and only moves the armchair, removes the key relation and updates properties. Passage 3 adds the wallpaper, hidden doorway and corridor. Passage 4 preserves the established desk position and records a spatial contradiction conflict.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#49656c"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#17323a" flood-opacity="0.13"/></filter>
+    <style>
+      .title{font:700 40px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .subtitle{font:20px 'Segoe UI',Arial,sans-serif;fill:#52666c}
+      .section{font:700 21px 'Segoe UI',Arial,sans-serif;letter-spacing:.6px;fill:#17323a}
+      .pid{font:700 26px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .ver{font:700 15px Consolas,'Courier New',monospace;fill:#52666c}
+      .prose{font:italic 16px Georgia,serif;fill:#40565d}
+      .op{font:14px Consolas,'Courier New',monospace;fill:#2f4a52}
+      .opname{font:700 14px Consolas,'Courier New',monospace}
+      .small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}
+      .tally{font:700 16px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .head{font:700 22px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .box{stroke-width:2;rx:16;filter:url(#shadow)}
+      .line{fill:none;stroke:#49656c;stroke-width:3;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1840" height="1120" fill="#f7f3e9"/>
+
+  <text x="54" y="64" class="title">Four passages, four patches — the world is never rebuilt</text>
+  <text x="54" y="100" class="subtitle">Each passage produces a patch against the previous version. Anything a passage does not mention keeps its existing state and ID.</text>
+
+  <!-- version rail -->
+  <text x="54" y="158" class="section">PROSE  →  PATCH OPERATIONS</text>
+  <text x="1432" y="158" class="ver">v0 → v4</text>
+
+  <!-- ============ P1 ============ -->
+  <rect class="box" x="54" y="186" width="404" height="232" fill="#e2f0f3" stroke="#398596"/>
+  <text x="80" y="228" class="pid">P1</text>
+  <text x="150" y="228" class="ver">v0 → v1</text>
+  <text x="80" y="264" class="prose">Mara unlocked the study. A heavy</text>
+  <text x="80" y="288" class="prose">wooden desk stood against the wall,</text>
+  <text x="80" y="312" class="prose">a small silver key on it. A tall window</text>
+  <text x="80" y="336" class="prose">faced the desk; a red armchair sat</text>
+  <text x="80" y="360" class="prose">near the stone fireplace, an old gilded</text>
+  <text x="80" y="384" class="prose">portrait beside it. The oak door was</text>
+  <text x="80" y="406" class="prose">locked.</text>
+
+  <path class="line" d="M256 418V462"/>
+
+  <rect class="box" x="54" y="462" width="404" height="486" fill="#ffffff" stroke="#398596"/>
+  <text x="80" y="500" class="tally">26 operations</text>
+  <text x="80" y="536" class="op"><tspan class="opname" fill="#2d8a73">discover_location</tspan> study_01</text>
+  <text x="80" y="566" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> desk_01</text>
+  <text x="80" y="592" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> key_01</text>
+  <text x="80" y="618" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> window_01</text>
+  <text x="80" y="644" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> armchair_01</text>
+  <text x="80" y="670" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> fireplace_01</text>
+  <text x="80" y="696" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> portrait_01</text>
+  <text x="80" y="722" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> door_01</text>
+  <text x="80" y="752" class="op"><tspan class="opname" fill="#5560b8">add_relation</tspan> key_01 on desk_01</text>
+  <text x="80" y="778" class="op"><tspan class="opname" fill="#5560b8">add_relation</tspan> armchair_01 near</text>
+  <text x="212" y="800" class="op">fireplace_01</text>
+  <text x="80" y="826" class="op"><tspan class="opname" fill="#5560b8">+ 4 more relations</tspan></text>
+  <text x="80" y="856" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> × 12</text>
+  <text x="80" y="878" class="op">material, condition, size, state …</text>
+  <rect x="80" y="898" width="352" height="2" fill="#cfe0e4"/>
+  <text x="80" y="926" class="small">Mara is in the prose, not the snapshot</text>
+
+  <!-- ============ P2 ============ -->
+  <rect class="box" x="500" y="186" width="404" height="232" fill="#fdeee2" stroke="#c2703a"/>
+  <text x="526" y="228" class="pid">P2</text>
+  <text x="596" y="228" class="ver">v1 → v2</text>
+  <text x="526" y="264" class="prose">The study was colder now. She pulled</text>
+  <text x="526" y="288" class="prose">the crimson armchair beside the tall</text>
+  <text x="526" y="312" class="prose">window. The silver key was no longer</text>
+  <text x="526" y="336" class="prose">on the desk. The fire had gone out,</text>
+  <text x="526" y="360" class="prose">and the portrait hung crooked.</text>
+
+  <path class="line" d="M702 418V462"/>
+
+  <rect class="box" x="500" y="462" width="404" height="486" fill="#ffffff" stroke="#c2703a"/>
+  <text x="526" y="500" class="tally">5 operations · 0 entities added</text>
+  <text x="526" y="536" class="op"><tspan class="opname" fill="#c2703a">move_entity</tspan> armchair_01</text>
+  <text x="546" y="562" class="op">near → window_01</text>
+  <text x="526" y="596" class="op"><tspan class="opname" fill="#b03a48">remove_relation</tspan> key_01</text>
+  <text x="546" y="622" class="op">on desk_01</text>
+  <text x="526" y="656" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> study_01</text>
+  <text x="546" y="682" class="op">temperature = colder</text>
+  <text x="526" y="716" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> fireplace_01</text>
+  <text x="546" y="742" class="op">temperature = cold</text>
+  <text x="526" y="776" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> portrait_01</text>
+  <text x="546" y="802" class="op">orientation = crooked</text>
+  <rect x="526" y="836" width="352" height="2" fill="#eed3bd"/>
+  <text x="526" y="872" class="small">Every ID from v1 is reused. The</text>
+  <text x="526" y="894" class="small">armchair keeps its identity — it is</text>
+  <text x="526" y="916" class="small">moved, not replaced.</text>
+
+  <!-- ============ P3 ============ -->
+  <rect class="box" x="946" y="186" width="404" height="232" fill="#e9f3e0" stroke="#5f8f3a"/>
+  <text x="972" y="228" class="pid">P3</text>
+  <text x="1042" y="228" class="ver">v2 → v3</text>
+  <text x="972" y="264" class="prose">She lifted the portrait aside. The</text>
+  <text x="972" y="288" class="prose">wallpaper behind it was torn, and a</text>
+  <text x="972" y="312" class="prose">narrow doorway stood open onto a</text>
+  <text x="972" y="336" class="prose">short, dark corridor. The silver key</text>
+  <text x="972" y="360" class="prose">lay just inside it.</text>
+
+  <path class="line" d="M1148 418V462"/>
+
+  <rect class="box" x="946" y="462" width="404" height="486" fill="#ffffff" stroke="#5f8f3a"/>
+  <text x="972" y="500" class="tally">9 operations</text>
+  <text x="972" y="536" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> wallpaper_01</text>
+  <text x="972" y="562" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> doorway_01</text>
+  <text x="972" y="588" class="op"><tspan class="opname" fill="#2d8a73">add_entity</tspan> corridor_01</text>
+  <text x="972" y="622" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> wallpaper_01</text>
+  <text x="992" y="648" class="op">condition = torn</text>
+  <text x="972" y="682" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> doorway_01</text>
+  <text x="992" y="708" class="op">size = narrow, state = open</text>
+  <text x="972" y="742" class="op"><tspan class="opname" fill="#c2703a">update_property</tspan> corridor_01</text>
+  <text x="992" y="768" class="op">length = short, lighting = dark</text>
+  <text x="972" y="802" class="op"><tspan class="opname" fill="#5560b8">add_relation</tspan> key_01 near</text>
+  <text x="992" y="828" class="op">doorway_01</text>
+  <rect x="972" y="856" width="352" height="2" fill="#cfe0bd"/>
+  <text x="972" y="892" class="small">The corridor extends the world.</text>
+  <text x="972" y="914" class="small">The study is not discarded.</text>
+
+  <!-- ============ P4 ============ -->
+  <rect class="box" x="1392" y="186" width="404" height="232" fill="#fbe6e8" stroke="#b03a48"/>
+  <text x="1418" y="228" class="pid">P4</text>
+  <text x="1488" y="228" class="ver">v3 → v4</text>
+  <text x="1418" y="264" class="prose">The desk had always stood beneath</text>
+  <text x="1418" y="288" class="prose">the window, she thought, and the key</text>
+  <text x="1418" y="312" class="prose">had been inside its drawer all along.</text>
+  <text x="1418" y="356" class="small">This contradicts v1, where the desk</text>
+  <text x="1418" y="378" class="small">stands against the wall.</text>
+
+  <path class="line" d="M1594 418V462"/>
+
+  <rect class="box" x="1392" y="462" width="404" height="486" fill="#ffffff" stroke="#b03a48"/>
+  <text x="1418" y="500" class="tally">1 conflict recorded</text>
+  <text x="1418" y="536" class="op"><tspan class="opname" fill="#b03a48">record_conflict</tspan></text>
+  <text x="1438" y="562" class="op">kind = spatial_contradiction</text>
+  <rect x="1418" y="584" width="352" height="104" rx="10" fill="#fbe6e8" stroke="#e6bcc2"/>
+  <text x="1436" y="612" class="op">desk_01 <tspan fill="#b03a48">near</tspan> window_01</text>
+  <text x="1436" y="638" class="op"><tspan class="opname" fill="#b03a48">rejected</tspan> — v1 already places</text>
+  <text x="1456" y="662" class="op">the desk against the wall</text>
+  <text x="1418" y="722" class="op"><tspan class="opname" fill="#5560b8">add_relation</tspan> key_01</text>
+  <text x="1438" y="748" class="op">inside desk_01 <tspan class="opname" fill="#2d8a73">accepted</tspan></text>
+  <text x="1418" y="782" class="small">No contradiction with v3 — the key</text>
+  <text x="1418" y="804" class="small">had no committed container.</text>
+  <rect x="1418" y="836" width="352" height="2" fill="#e6bcc2"/>
+  <text x="1418" y="872" class="small">The conflict is stored and surfaced</text>
+  <text x="1418" y="894" class="small">in the inspector — not silently</text>
+  <text x="1418" y="916" class="small">overwritten.</text>
+
+  <!-- bottom summary strip -->
+  <rect class="box" x="54" y="986" width="1742" height="98" fill="#e2f0f3" stroke="#398596"/>
+  <text x="80" y="1026" class="head">Persistence is the whole point</text>
+  <text x="80" y="1058" class="small">7 entities enter at v1 and are still the same 7 entities at v4 — same IDs, same positions, except where a passage explicitly changed them. P2 adds nothing at all: a passage written as pure delta produces a pure delta.</text>
+</svg>

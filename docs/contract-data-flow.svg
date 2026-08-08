@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080" role="img" aria-labelledby="title desc">
+  <title id="title">One passage enters Part 1 and three contract objects fan out to Part 2</title>
+  <desc id="desc">A single prose passage is processed by the Part 1 narrative engine, which emits three versioned contract objects: a WorldSnapshot holding complete factual state, a ScenePatch holding the ordered changes from version N to N plus 1, and a VisualScenePlan holding art direction. All three are consumed by the Part 2 spatial runtime. A sample JSON payload is shown beneath each object.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#49656c"/></marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#17323a" flood-opacity="0.13"/></filter>
+    <style>
+      .title{font:700 40px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .subtitle{font:20px 'Segoe UI',Arial,sans-serif;fill:#52666c}
+      .section{font:700 21px 'Segoe UI',Arial,sans-serif;letter-spacing:.6px;fill:#17323a}
+      .head{font:700 22px 'Segoe UI',Arial,sans-serif;fill:#17323a}
+      .body{font:17px 'Segoe UI',Arial,sans-serif;fill:#40565d}
+      .small{font:15px 'Segoe UI',Arial,sans-serif;fill:#52666c}
+      .prose{font:italic 17px Georgia,serif;fill:#40565d}
+      .code{font:14px Consolas,'Courier New',monospace;fill:#2f4a52}
+      .key{font:14px Consolas,'Courier New',monospace;fill:#8a5a2b}
+      .lbl{font:700 15px 'Segoe UI',Arial,sans-serif;fill:#49656c}
+      .box{stroke-width:2;rx:16;filter:url(#shadow)}
+      .line{fill:none;stroke:#49656c;stroke-width:3;marker-end:url(#arrow)}
+      .join{fill:none;stroke:#49656c;stroke-width:3}
+    </style>
+  </defs>
+  <rect width="1800" height="1080" fill="#f7f3e9"/>
+
+  <text x="54" y="64" class="title">One passage in, three contract objects out</text>
+  <text x="54" y="100" class="subtitle">Part 1 and Part 2 share no code — they communicate only through these three versioned JSON objects.</text>
+
+  <!-- Stage 1: the passage -->
+  <text x="54" y="158" class="section">1 · THE PASSAGE</text>
+  <rect class="box" x="54" y="186" width="352" height="196" fill="#e2f0f3" stroke="#398596"/>
+  <text x="230" y="224" text-anchor="middle" class="head">Prose passage</text>
+  <text x="80" y="258" class="prose">“She pulled the crimson armchair</text>
+  <text x="80" y="282" class="prose">beside the tall window.”</text>
+  <text x="80" y="322" class="small">passage_id: P2</text>
+  <text x="80" y="348" class="small">Characters are excluded — only the</text>
+  <text x="80" y="368" class="small">armchair and window are extracted.</text>
+
+  <path class="line" d="M406 284H470"/>
+
+  <!-- Stage 2: the engine -->
+  <text x="470" y="158" class="section">2 · NARRATIVE ENGINE</text>
+  <rect class="box" x="470" y="186" width="330" height="196" fill="#e1efe9" stroke="#2d8a73"/>
+  <text x="635" y="224" text-anchor="middle" class="head">Part 1</text>
+  <text x="496" y="258" class="body">extract → resolve identity →</text>
+  <text x="496" y="284" class="body">reconcile → record conflicts</text>
+  <text x="496" y="322" class="small">Reuses IDs from version N, so the</text>
+  <text x="496" y="342" class="small">desk in P3 is the desk from P1.</text>
+  <text x="496" y="368" class="small">Python · FastAPI · GPT-5.6 Terra</text>
+
+  <!-- fan-out from engine to the three objects -->
+  <path class="join" d="M800 284H846"/>
+  <path class="join" d="M846 284V492"/>
+  <path class="join" d="M300 492H1446"/>
+  <path class="line" d="M300 492V540"/>
+  <path class="line" d="M846 492V540"/>
+  <path class="line" d="M1446 492V540"/>
+
+  <text x="868" y="470" class="lbl">emits three objects, every version</text>
+
+  <!-- Stage 3: the three contract objects -->
+  <text x="54" y="446" class="section">3 · THE THREE CONTRACT OBJECTS</text>
+
+  <!-- WorldSnapshot -->
+  <rect class="box" x="54" y="540" width="492" height="376" fill="#eef0fb" stroke="#5560b8"/>
+  <text x="80" y="580" class="head">WorldSnapshot</text>
+  <text x="80" y="608" class="body">Complete factual state at one version.</text>
+  <text x="80" y="632" class="small">Replaces nothing — it is the whole world at N+1.</text>
+  <rect x="80" y="650" width="440" height="238" rx="10" fill="#ffffff" stroke="#c8cce8"/>
+  <text x="98" y="676" class="code">{</text>
+  <text x="112" y="698" class="key">"storyId"</text><text x="192" y="698" class="code">: "study-demo",</text>
+  <text x="112" y="720" class="key">"version"</text><text x="192" y="720" class="code">: 2,</text>
+  <text x="112" y="742" class="key">"entities"</text><text x="200" y="742" class="code">: [{</text>
+  <text x="132" y="764" class="key">"id"</text><text x="172" y="764" class="code">: "armchair_01",</text>
+  <text x="132" y="786" class="key">"semantic_type"</text><text x="264" y="786" class="code">: "armchair",</text>
+  <text x="132" y="808" class="key">"location_id"</text><text x="246" y="808" class="code">: "study_01",</text>
+  <text x="132" y="830" class="key">"properties"</text><text x="238" y="830" class="code">: { "color": "red" }</text>
+  <text x="112" y="852" class="code">}],</text>
+  <text x="112" y="874" class="key">"conflicts"</text><text x="208" y="874" class="code">: [ … ]  }</text>
+
+  <!-- ScenePatch -->
+  <rect class="box" x="600" y="540" width="492" height="376" fill="#fdeee2" stroke="#c2703a"/>
+  <text x="626" y="580" class="head">ScenePatch</text>
+  <text x="626" y="608" class="body">Ordered changes from version N to N+1.</text>
+  <text x="626" y="632" class="small">Version 1 has no patch — there is nothing to diff against.</text>
+  <rect x="626" y="650" width="440" height="238" rx="10" fill="#ffffff" stroke="#eed3bd"/>
+  <text x="644" y="676" class="code">{</text>
+  <text x="658" y="698" class="key">"fromVersion"</text><text x="772" y="698" class="code">: 1,</text>
+  <text x="658" y="720" class="key">"toVersion"</text><text x="754" y="720" class="code">: 2,</text>
+  <text x="658" y="742" class="key">"operations"</text><text x="764" y="742" class="code">: [{</text>
+  <text x="678" y="764" class="key">"operation"</text><text x="774" y="764" class="code">: "move_entity",</text>
+  <text x="678" y="786" class="key">"entity_id"</text><text x="774" y="786" class="code">: "armchair_01",</text>
+  <text x="678" y="808" class="key">"relation"</text><text x="766" y="808" class="code">: { "predicate": "near",</text>
+  <text x="698" y="830" class="code">"object_id": "window_01" },</text>
+  <text x="678" y="852" class="key">"evidence_ids"</text><text x="800" y="852" class="code">: ["P2-S2"]</text>
+  <text x="658" y="874" class="code">}] }</text>
+
+  <!-- VisualScenePlan -->
+  <rect class="box" x="1146" y="540" width="600" height="376" fill="#e9f3e0" stroke="#5f8f3a"/>
+  <text x="1172" y="580" class="head">VisualScenePlan</text>
+  <text x="1172" y="608" class="body">Art direction: palette, lighting, archetypes, asset hints.</text>
+  <text x="1172" y="632" class="small">Says how it should look — never what is true.</text>
+  <rect x="1172" y="650" width="548" height="238" rx="10" fill="#ffffff" stroke="#cfe0bd"/>
+  <text x="1190" y="676" class="code">{</text>
+  <text x="1204" y="698" class="key">"artDirection"</text><text x="1326" y="698" class="code">: { "styleLabel": "hand-painted</text>
+  <text x="1224" y="720" class="code">storybook realism" },</text>
+  <text x="1204" y="742" class="key">"entities"</text><text x="1292" y="742" class="code">: [{</text>
+  <text x="1224" y="764" class="key">"entityId"</text><text x="1312" y="764" class="code">: "armchair-1",</text>
+  <text x="1224" y="786" class="key">"visualDescription"</text><text x="1392" y="786" class="code">: "A deep crimson wing</text>
+  <text x="1244" y="808" class="code">chair with worn velvet.",</text>
+  <text x="1224" y="830" class="key">"assetSearchTags"</text><text x="1376" y="830" class="code">: ["wing chair", "velvet"],</text>
+  <text x="1224" y="852" class="key">"evidence"</text><text x="1312" y="852" class="code">: { "confidence": 0.9 }</text>
+  <text x="1204" y="874" class="code">}] }</text>
+
+  <!-- converge into Part 2 -->
+  <path class="join" d="M300 916V962"/>
+  <path class="join" d="M846 916V962"/>
+  <path class="join" d="M1446 916V962"/>
+  <path class="join" d="M300 962H1446"/>
+  <path class="line" d="M873 962V1000"/>
+
+  <rect class="box" x="560" y="1000" width="680" height="62" fill="#e2f0f3" stroke="#398596"/>
+  <text x="900" y="1030" text-anchor="middle" class="head">Part 2 — spatial runtime</text>
+  <text x="900" y="1052" text-anchor="middle" class="small">validates against contracts/ · resolves coordinates · places approved assets</text>
+</svg>

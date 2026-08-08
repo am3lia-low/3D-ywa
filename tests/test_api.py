@@ -19,7 +19,7 @@ from storyworld.storage import JsonStoryStorage
 from tests.test_pipeline import FixtureExtractor
 
 
-ROOT = Path(__file__).resolve().parents[1]
+PASSAGES = Path(__file__).resolve().parent / "fixtures"
 
 
 class ApiTests(unittest.TestCase):
@@ -43,7 +43,7 @@ class ApiTests(unittest.TestCase):
                 "/api/stories/study-demo/passages",
                 json={
                     "passage_id": f"P{number}",
-                    "text": (ROOT / f"passage_{number}.txt").read_text(encoding="utf-8"),
+                    "text": (PASSAGES / f"passage_{number}.txt").read_text(encoding="utf-8"),
                     "replay_cached_extraction": False,
                 },
             )

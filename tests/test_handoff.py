@@ -20,7 +20,7 @@ from storyworld.semantics import (
     simplify_predicate,
 )
 from storyworld.storage import JsonStoryStorage
-from tests.test_pipeline import FixtureExtractor, ROOT
+from tests.test_pipeline import FixtureExtractor, PASSAGES
 
 
 class HandoffTests(unittest.TestCase):
@@ -38,7 +38,7 @@ class HandoffTests(unittest.TestCase):
                 internal = pipeline.process_file(
                     story_id="study-main",
                     passage_id=f"P{number}",
-                    path=ROOT / f"passage_{number}.txt",
+                    path=PASSAGES / f"passage_{number}.txt",
                 )
                 response = adapter.passage_response(previous, internal)
                 self.assertEqual(len(response.snapshot.locations), 1)

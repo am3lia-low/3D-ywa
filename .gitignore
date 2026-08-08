@@ -15,3 +15,4 @@ public/generated/*.glb
 .pytest_cache/
 /data/
 test_runs/
+archives/
