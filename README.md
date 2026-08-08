@@ -39,7 +39,7 @@ Detailed implementation references remain in:
 
 ## Milestone 3
 
-- Loads normalized glTF assets through the semantic registry, including web-sized CC0 Poly Haven PBR models for hero furniture.
+- Loads normalized glTF assets through the semantic registry, including a 70+ model optimized CC0 Poly Haven library with three browser LODs for furniture, props, lighting, architecture and natural landmarks.
 - Uses suspense placeholders while models load and per-entity primitive fallbacks on failure.
 - Preserves selection and change highlighting across modeled and fallback assets.
 - Generates the original fallback model set reproducibly with `pnpm models:generate`; vendored CC0 assets retain source and license manifests.
