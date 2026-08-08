@@ -63,6 +63,8 @@ one, that contradiction is stored and surfaced rather than silently overwritten.
 > figure appears in any panel; the room changes on its own. Caption: everything
 > else stays exactly where it was.]`
 
+<img width="800" height="450" alt="2" src="https://github.com/user-attachments/assets/fdee914b-c17f-4edd-8749-1dd1ec034cb3" />
+
 ---
 
 ## How it works
