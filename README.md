@@ -179,6 +179,8 @@ confidence, relations, and any recorded conflicts.
 > `[ILLUSTRATION: The explorer with an object selected — inspector panel open,
 > relation lines drawn to related objects with predicate labels.]`
 
+<img width="800" height="450" alt="4" src="https://github.com/user-attachments/assets/cc524dbd-4d3a-4369-95cd-a8148f5a9753" />
+
 ---
 
 ## Running with live text (import your own prose)
