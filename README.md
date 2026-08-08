@@ -13,12 +13,6 @@ excluded during extraction; only locations, physical objects and architectural
 structures are placed. A passage about two people arguing over a desk yields the
 desk and the room, not the people.
 
-> `[ILLUSTRATION: a passage of prose on the left, the rendered 3D
-> study on the right. Lines connect the noun phrases "crimson armchair" and "tall
-> window" to those objects in the scene; the clause "she pulled" is struck through
-> with no line leaving it. The rendered room is empty of people — furniture,
-> walls and light only.]`
-
 <img width="800" height="450" alt="1" src="https://github.com/user-attachments/assets/d47e48da-e63e-46be-ad66-804bf06392e5" />
 
 ---
@@ -56,12 +50,6 @@ Three properties follow from that design:
 
 The system also records **conflicts**. If a later passage contradicts an earlier
 one, that contradiction is stored and surfaced rather than silently overwritten.
-
-> `[ILLUSTRATION: Three-panel sequence of the same empty study across passages
-> 1→2→3, shot from one fixed camera — the armchair moves from the fireplace to
-> the window, the portrait tilts crooked, the hidden doorway opens behind it. No
-> figure appears in any panel; the room changes on its own. Caption: everything
-> else stays exactly where it was.]`
 
 <img width="800" height="450" alt="2" src="https://github.com/user-attachments/assets/fdee914b-c17f-4edd-8749-1dd1ec034cb3" />
 
@@ -157,9 +145,6 @@ offers three prepared stories:
 Choose **Start Reading**, let the passage-processing stages finish, then choose
 **Explore the Scene**.
 
-> `[ILLUSTRATION: Annotated screenshot of the library screen with the three story
-> cards, with callouts on "Start Reading" and "Import Story".]`
-
 <img width="800" height="450" alt="3" src="https://github.com/user-attachments/assets/77536cc2-33ce-4d28-a5cc-7ab2bdf49cd9" />
 
 ### 4. Explore
@@ -175,9 +160,6 @@ Choose **Start Reading**, let the passage-processing stages finish, then choose
 
 Selecting an object opens an inspector showing its state, provenance,
 confidence, relations, and any recorded conflicts.
-
-> `[ILLUSTRATION: The explorer with an object selected — inspector panel open,
-> relation lines drawn to related objects with predicate labels.]`
 
 <img width="800" height="450" alt="4" src="https://github.com/user-attachments/assets/cc524dbd-4d3a-4369-95cd-a8148f5a9753" />
 
@@ -236,9 +218,6 @@ Open <http://127.0.0.1:8443/>, choose **Import Story**, paste text or upload a
 `.txt` file, confirm the detected chapters, and open the book. Each chapter is
 posted to the engine, validated against the shared contract, compiled by the
 runtime, and warmed by the reader before **Explore** unlocks.
-
-> `[ILLUSTRATION: The import flow as a filmstrip — paste text → chapter detection
-> → processing stages → Explore unlocked.]`
 
 <img width="800" height="450" alt="5" src="https://github.com/user-attachments/assets/41f46d80-a307-4487-b69a-9c9e14f24d16" />
 
