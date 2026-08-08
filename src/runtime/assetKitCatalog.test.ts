@@ -8,7 +8,7 @@ describe("asset kit catalog", () => {
   it("is the single source for runtime assets and semantic entries", () => {
     expect(assetKitCatalog.kits).toHaveLength(5);
     expect(assetKitCatalog.kits.map((kit) => kit.id)).toContain("speculative-storybook");
-    expect(assetKitCatalog.assets).toHaveLength(83);
+    expect(assetKitCatalog.assets).toHaveLength(110);
     expect(Object.keys(defaultAssetRegistry).sort()).toEqual(
       assetKitCatalog.assets.map((asset) => asset.registryKey).sort(),
     );
@@ -54,6 +54,30 @@ describe("asset kit catalog", () => {
       sourceUrl: "https://polyhaven.com/a/wooden_crate_01",
     });
     expect(crate?.qualityGate.maxAspectDistortion).toBe(2);
+  });
+
+  it("ships the broad high-detail expansion with portable LODs", () => {
+    const expectedKeys = [
+      "ornate-treasure-chest",
+      "vintage-travel-suitcase",
+      "rustic-painted-bench",
+      "vintage-standing-chalkboard",
+      "vintage-upholstered-daybed",
+      "classical-marble-bust",
+      "gnarled-root-cluster",
+      "weathered-stone-fire-pit",
+    ];
+
+    for (const key of expectedKeys) {
+      const entry = assetKitCatalog.assets.find((asset) => asset.registryKey === key);
+      expect(entry, key).toMatchObject({
+        source: "cc0",
+        license: "CC0 1.0 Universal",
+        qualityGate: { profile: "textured-pbr", requirePbrTextures: true },
+      });
+      expect(entry?.runtimeAsset.lods, key).toHaveLength(3);
+      expect(entry?.runtimeAsset.modelUrl, key).toContain("/models/optimized/polyhaven/");
+    }
   });
 
   it("rejects incomplete kits, duplicate registry keys and untraceable CC0 assets", () => {

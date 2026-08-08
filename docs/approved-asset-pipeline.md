@@ -56,6 +56,23 @@ quantization so the existing bounds gate can measure it. A native texture
 transcoder can be introduced later without changing the catalog or renderer
 contract.
 
+The broad quality expansion is declared once in
+`scripts/polyhaven-expansion-batch.mjs`. It currently contributes 27 reviewed
+PBR models spanning period furniture, storage, tableware, lighting, wall art,
+schoolroom and bedroom props, outdoor hearths, and woodland landmarks. Rebuild
+or re-register that batch with:
+
+```bash
+pnpm assets:prepare:quality <reviewed-slug...>
+pnpm assets:register:expansion
+pnpm models:generate
+```
+
+The registration step is idempotent. It updates semantic roles, style
+compatibility, physical dimensions, provenance and all three LOD URLs without
+duplicating catalog identities. Decorative selection remains deterministic and
+story facts keep their canonical entity IDs.
+
 The gate parses local glTF and GLB files, resolves their buffers and images,
 checks glTF 2.0 structure, PBR texture assignments, triangle and byte budgets,
 source bounds and normalization distortion. It also proves that each style kit

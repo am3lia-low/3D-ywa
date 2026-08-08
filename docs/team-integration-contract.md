@@ -253,6 +253,8 @@ in parallel because the frozen patch operations do not mutate conflict records.
   passages. Aliases do not replace canonical IDs.
 - `WorldSnapshot` contains narrative facts only. Decorative filler belongs in
   `VisualScenePlan.locations[].dressingTags`.
+- For the environment-only team MVP, Member 1 omits character entities and
+  character-linked spatial relations from snapshots, patches, and visual plans.
 - Every entity references an existing `locationId`.
 - Every relation subject/object references an existing entity.
 - `centered` and `against_wall` may omit `objectId`; other relations require it.

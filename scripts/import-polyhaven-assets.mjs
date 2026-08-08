@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { polyhavenExpansionBatch } from "./polyhaven-expansion-batch.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = path.join(root, "public", "models", "polyhaven");
@@ -12,6 +13,7 @@ const approvedSlugs = new Set([
   "large_castle_door",
   "painted_wooden_bench",
   "wine_barrel_01",
+  ...polyhavenExpansionBatch.map(({ slug }) => slug),
 ]);
 
 const requestedSlugs = process.argv.slice(2);

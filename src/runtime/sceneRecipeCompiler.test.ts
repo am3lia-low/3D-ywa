@@ -421,8 +421,8 @@ describe("scene recipe compiler", () => {
         "polyhaven:rock_face_01-optimized",
       ]));
     expect(openingDressing.filter((instance) => instance.renderKind === "asset").map((instance) => instance.catalogId)).toEqual(expect.arrayContaining([
-      "polyhaven:wine_barrel_01",
-      "polyhaven:painted_wooden_bench",
+      "polyhaven:wine-barrel-01-optimized",
+      "polyhaven:painted-wooden-bench-optimized",
       "polyhaven:wooden_crate_01",
     ]));
     expect(departureDressing.map(({ dressingId, position }) => ({ dressingId, position })))

@@ -52,9 +52,9 @@ const visualEntitySchema = z.looseObject({
   importance: z.enum(["background", "supporting", "hero"]),
   materials: stringListSchema,
   colors: stringListSchema,
-  condition: z.string().optional(),
+  condition: z.string().nullish(),
   assetSearchTags: stringListSchema,
-  assetGenerationPrompt: z.string().trim().min(1).optional(),
+  assetGenerationPrompt: z.string().trim().min(1).nullish(),
   evidence: evidenceSchema,
 });
 const presentationConnectionSchema = z.looseObject({
@@ -72,7 +72,7 @@ export const VisualScenePlanSchema = z.strictObject({
   sourcePassageIds: z.array(identifierSchema).min(1),
   snapshotVersion: z.number().int().nonnegative(),
   planVersion: z.number().int().positive(),
-  previousPlanVersion: z.number().int().positive().optional(),
+  previousPlanVersion: z.number().int().positive().nullish(),
   artDirection: z.strictObject({
     styleLabel: z.string().trim().min(1),
     stylePrompt: z.string().trim().min(1),

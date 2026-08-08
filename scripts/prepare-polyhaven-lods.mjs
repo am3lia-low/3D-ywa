@@ -4,6 +4,7 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { polyhavenExpansionOptimizationProfiles } from "./polyhaven-expansion-batch.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cacheRoot = path.join(root, ".asset-cache", "polyhaven");
@@ -418,6 +419,8 @@ const reviewedAssets = {
     ],
   },
 };
+
+Object.assign(reviewedAssets, polyhavenExpansionOptimizationProfiles);
 
 const requested = process.argv.slice(2);
 const slugs = requested.length ? requested : Object.keys(reviewedAssets);

@@ -114,6 +114,14 @@ describe("Member 3 prepared story scenes", () => {
           expect(Math.abs(photograph.position[2] - shelf.position[2])).toBeLessThan(0.5);
           expect(schoolroomRecipe.dressingInstances.map((instance) => instance.dressingId.split(":").at(-1)))
             .toEqual(expect.arrayContaining(["schoolroom-chair-west", "schoolroom-chair-east"]));
+          for (const schoolroomChair of schoolroomRecipe.dressingInstances.filter((instance) =>
+            /schoolroom-chair-(?:west|east)$/.test(instance.dressingId)
+          )) {
+            expect(schoolroomChair.renderKind).toBe("asset");
+            if (schoolroomChair.renderKind === "asset") {
+              expect(schoolroomChair.asset.key).toBe("chair");
+            }
+          }
           const schoolroomSupplyCabinet = schoolroomRecipe.dressingInstances.find((instance) =>
             instance.dressingId.endsWith(":schoolroom-supply-cabinet"),
           );

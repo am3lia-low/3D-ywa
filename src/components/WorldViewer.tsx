@@ -91,6 +91,10 @@ import {
 } from "../runtime/ghibliWoodlandKit";
 import { designedFallbackKind } from "../runtime/designedFallback";
 import {
+  isPracticalLightAssetKey,
+  practicalLightMaterialRole,
+} from "../runtime/practicalLightMaterials";
+import {
   IndustrialInteriorKit,
   UniversalNarrativeEnvironmentKit,
   UniversalLandscapeKit,
@@ -273,17 +277,19 @@ function LoadedModel({
   draftGenerated = false,
   tint,
   foliageColor,
+  practicalLight = false,
   shadows = true,
 }: {
   url: string;
   draftGenerated?: boolean;
   tint?: string;
   foliageColor?: string;
+  practicalLight?: boolean;
   shadows?: boolean;
 }) {
   const model = useGLTF(url);
   const renderedScene = useMemo(() => {
-    if (!draftGenerated && !tint && !foliageColor) return model.scene;
+    if (!draftGenerated && !tint && !foliageColor && !practicalLight) return model.scene;
     const clone = model.scene.clone(true);
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
@@ -298,8 +304,30 @@ function LoadedModel({
         const materials = Array.isArray(object.material) ? object.material : [object.material];
         const tinted = materials.map((material) => {
           const copy = material.clone();
+          const lightRole = practicalLightMaterialRole(copy.name);
           const isFoliage = /(?:leaf|leaves|foliage|needle|pine)/i.test(copy.name);
-          if (foliageColor && isFoliage && "color" in copy && copy.color instanceof THREE.Color) {
+          if (practicalLight && lightRole && copy instanceof THREE.MeshStandardMaterial) {
+            copy.map = null;
+            copy.emissiveMap = null;
+            copy.metalness = 0;
+            copy.toneMapped = false;
+            if (lightRole === "bulb") {
+              copy.color.set("#ffe2aa");
+              copy.emissive.set("#ff9b43");
+              copy.emissiveIntensity = 4.2;
+              copy.roughness = 0.22;
+            } else {
+              copy.color.set("#f4d3a0");
+              copy.emissive.set("#a84e18");
+              copy.emissiveIntensity = 0.9;
+              copy.roughness = 0.18;
+              copy.transparent = true;
+              copy.opacity = 0.42;
+              copy.depthWrite = false;
+              copy.side = THREE.DoubleSide;
+            }
+            copy.needsUpdate = true;
+          } else if (foliageColor && isFoliage && "color" in copy && copy.color instanceof THREE.Color) {
             copy.color.set(foliageColor);
             if ("vertexColors" in copy) copy.vertexColors = false;
           } else if (tint && "color" in copy && copy.color instanceof THREE.Color) {
@@ -313,9 +341,9 @@ function LoadedModel({
       object.receiveShadow = true;
     });
     return clone;
-  }, [draftGenerated, foliageColor, model.scene, shadows, tint]);
+  }, [draftGenerated, foliageColor, model.scene, practicalLight, shadows, tint]);
   useEffect(() => {
-    if (!draftGenerated && !tint && !foliageColor) return;
+    if (!draftGenerated && !tint && !foliageColor && !practicalLight) return;
     return () => {
       renderedScene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
@@ -323,7 +351,7 @@ function LoadedModel({
         materials.forEach((material) => material.dispose());
       });
     };
-  }, [draftGenerated, foliageColor, renderedScene, tint]);
+  }, [draftGenerated, foliageColor, practicalLight, renderedScene, tint]);
   const normalization = useMemo(() => {
     renderedScene.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(renderedScene);
@@ -341,7 +369,7 @@ function LoadedModel({
 
   return (
     <group scale={normalization.scale}>
-      {draftGenerated || tint ? (
+      {draftGenerated || tint || foliageColor || practicalLight ? (
         <primitive object={renderedScene} position={normalization.offset} />
       ) : (
         <Clone
@@ -373,6 +401,7 @@ function AdaptiveLoadedModel({
   const tint = asset.key === "storybook-lounge-chair" || asset.key === "victorian-armchair"
     ? "#a94f49"
     : undefined;
+  const practicalLight = isPracticalLightAssetKey(asset.key);
 
   useFrame(({ camera }) => {
     if (!group.current || levels.length < 2) return;
@@ -393,6 +422,7 @@ function AdaptiveLoadedModel({
         url={modelUrl}
         draftGenerated={asset.key.startsWith("generated:")}
         tint={asset.key === "authored-birch-tree" ? "#73906d" : tint}
+        practicalLight={practicalLight}
       />
       {asset.key === "worn-story-bookshelf" && (
         <BookcaseContents reservePortraitBay={reserveBookcasePortraitBay} />
@@ -3559,7 +3589,7 @@ function DressingAssets({ instances }: { instances: readonly ResolvedDressingIns
         userData={userData}
       >
         <EntityAsset asset={instance.asset} highlighted={false} highlightColor="#000000" />
-        {/lamp|light|chandelier/.test(instance.asset.key) && (
+        {isPracticalLightAssetKey(instance.asset.key) && (
           <pointLight
             position={[0, 0.32, 0.08]}
             color="#f3b96d"

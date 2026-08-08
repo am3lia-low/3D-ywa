@@ -145,11 +145,11 @@ const DRESSING_RULES: readonly DressingRule[] = [
     anyTags: ["schoolroom-furnishings", "classroom-furnishings"],
     slots: [
       {
-        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-west",
+        renderKind: "asset", searchTags: ["wood", "oak", "chair", "antique", "worn", "historical"], slotId: "schoolroom-chair-west",
         minimumDensity: "sparse", positionFactor: [-0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: 2.72,
       },
       {
-        renderKind: "asset", searchTags: ["wooden", "chair", "antique", "school"], slotId: "schoolroom-chair-east",
+        renderKind: "asset", searchTags: ["wood", "oak", "chair", "antique", "worn", "historical"], slotId: "schoolroom-chair-east",
         minimumDensity: "moderate", positionFactor: [0.16, 0.14], dimensions: [0.72, 1.1, 0.72], yaw: -2.72,
       },
       {

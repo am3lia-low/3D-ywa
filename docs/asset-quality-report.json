@@ -4,9 +4,9 @@
   "summary": {
     "kits": 5,
     "completeKits": 5,
-    "assets": 49,
-    "passed": 44,
-    "warnings": 5,
+    "assets": 110,
+    "passed": 93,
+    "warnings": 17,
     "environmentAssets": 15,
     "failed": 0
   },
@@ -545,6 +545,249 @@
             0.7024,
             3.8699,
             0.3865
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:street-lamp-02-optimized",
+      "registryKey": "victorian-wall-street-lamp",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod0.glb"
+      ],
+      "totalBytes": 2170892,
+      "triangles": 20338,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.3865,
+        1.675,
+        0.8068
+      ],
+      "aspectDistortion": 2.42,
+      "warnings": [
+        "LOD0 normalization distortion is 2.42x; limit is 1.35x. Waiver: The ornate wall bracket and lantern body use authored node transforms that accessor-only bounds omit; the runtime dimensions preserve the complete assembled lamp silhouette.",
+        "LOD1 normalization distortion is 2.42x; limit is 1.35x. Waiver: The ornate wall bracket and lantern body use authored node transforms that accessor-only bounds omit; the runtime dimensions preserve the complete assembled lamp silhouette.",
+        "LOD2 normalization distortion is 2.42x; limit is 1.35x. Waiver: The ornate wall bracket and lantern body use authored node transforms that accessor-only bounds omit; the runtime dimensions preserve the complete assembled lamp silhouette.",
+        "Runtime normalization distortion is 2.42x; limit is 1.35x. Waiver: The ornate wall bracket and lantern body use authored node transforms that accessor-only bounds omit; the runtime dimensions preserve the complete assembled lamp silhouette."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod0.glb",
+          "totalBytes": 2170892,
+          "triangles": 20338,
+          "sourceBounds": [
+            0.3865,
+            1.675,
+            0.8068
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod1.glb",
+          "totalBytes": 1947008,
+          "triangles": 11182,
+          "sourceBounds": [
+            0.3865,
+            1.6744,
+            0.8068
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 26,
+          "modelUrl": "/models/optimized/polyhaven/street_lamp_02/street_lamp_02_lod2.glb",
+          "totalBytes": 1794832,
+          "triangles": 5089,
+          "sourceBounds": [
+            0.3865,
+            1.6735,
+            0.8068
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-crate-02-optimized",
+      "registryKey": "maritime-rope-crate",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod0.glb"
+      ],
+      "totalBytes": 2234520,
+      "triangles": 5176,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.5291,
+        0.4691,
+        1.1663
+      ],
+      "aspectDistortion": 3.08,
+      "warnings": [
+        "LOD0 normalization distortion is 3.08x; limit is 1.35x. Waiver: Accessor bounds cover individual transformed crate pieces rather than the complete rope-handled assembly; runtime dimensions preserve the reviewed source proportions.",
+        "LOD1 normalization distortion is 3.08x; limit is 1.35x. Waiver: Accessor bounds cover individual transformed crate pieces rather than the complete rope-handled assembly; runtime dimensions preserve the reviewed source proportions.",
+        "LOD2 normalization distortion is 3.07x; limit is 1.35x. Waiver: Accessor bounds cover individual transformed crate pieces rather than the complete rope-handled assembly; runtime dimensions preserve the reviewed source proportions.",
+        "Runtime normalization distortion is 3.08x; limit is 1.35x. Waiver: Accessor bounds cover individual transformed crate pieces rather than the complete rope-handled assembly; runtime dimensions preserve the reviewed source proportions."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod0.glb",
+          "totalBytes": 2234520,
+          "triangles": 5176,
+          "sourceBounds": [
+            0.5291,
+            0.4691,
+            1.1663
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod1.glb",
+          "totalBytes": 2180488,
+          "triangles": 3104,
+          "sourceBounds": [
+            0.5291,
+            0.4691,
+            1.1663
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 25,
+          "modelUrl": "/models/optimized/polyhaven/wooden_crate_02/wooden_crate_02_lod2.glb",
+          "totalBytes": 2139896,
+          "triangles": 1550,
+          "sourceBounds": [
+            0.5291,
+            0.468,
+            1.1633
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-bucket-01-optimized",
+      "registryKey": "weathered-canal-bucket",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod0.glb"
+      ],
+      "totalBytes": 2329884,
+      "triangles": 5116,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.367,
+        0.3568,
+        0.3422
+      ],
+      "aspectDistortion": 1.11,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod0.glb",
+          "totalBytes": 2329884,
+          "triangles": 5116,
+          "sourceBounds": [
+            0.367,
+            0.3568,
+            0.3422
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 11,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod1.glb",
+          "totalBytes": 2274964,
+          "triangles": 3067,
+          "sourceBounds": [
+            0.367,
+            0.3568,
+            0.3422
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 23,
+          "modelUrl": "/models/optimized/polyhaven/wooden_bucket_01/wooden_bucket_01_lod2.glb",
+          "totalBytes": 2228852,
+          "triangles": 1532,
+          "sourceBounds": [
+            0.3663,
+            0.3568,
+            0.3419
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-lantern-01-optimized",
+      "registryKey": "maritime-wooden-lantern",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod0.glb"
+      ],
+      "totalBytes": 3764112,
+      "triangles": 8321,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.2452,
+        0.5468,
+        0.221
+      ],
+      "aspectDistortion": 1.62,
+      "warnings": [
+        "LOD0 normalization distortion is 1.62x; limit is 1.45x. Waiver: The lantern's handle, glass and timber cage use authored transforms omitted from accessor-only bounds; runtime normalization measures the assembled scene.",
+        "LOD1 normalization distortion is 1.62x; limit is 1.45x. Waiver: The lantern's handle, glass and timber cage use authored transforms omitted from accessor-only bounds; runtime normalization measures the assembled scene.",
+        "LOD2 normalization distortion is 1.62x; limit is 1.45x. Waiver: The lantern's handle, glass and timber cage use authored transforms omitted from accessor-only bounds; runtime normalization measures the assembled scene.",
+        "Runtime normalization distortion is 1.62x; limit is 1.45x. Waiver: The lantern's handle, glass and timber cage use authored transforms omitted from accessor-only bounds; runtime normalization measures the assembled scene."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod0.glb",
+          "totalBytes": 3764112,
+          "triangles": 8321,
+          "sourceBounds": [
+            0.2452,
+            0.5468,
+            0.221
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 10,
+          "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod1.glb",
+          "totalBytes": 3656840,
+          "triangles": 4597,
+          "sourceBounds": [
+            0.2451,
+            0.5468,
+            0.2209
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 21,
+          "modelUrl": "/models/optimized/polyhaven/wooden_lantern_01/wooden_lantern_01_lod2.glb",
+          "totalBytes": 3581964,
+          "triangles": 2114,
+          "sourceBounds": [
+            0.2441,
+            0.5436,
+            0.2197
           ]
         }
       ]
@@ -1127,6 +1370,1666 @@
       ]
     },
     {
+      "catalogId": "polyhaven:antique-ceramic-vase-01-optimized",
+      "registryKey": "antique-ceramic-vase",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod0.glb"
+      ],
+      "totalBytes": 525012,
+      "triangles": 9408,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.255,
+        0.4396,
+        0.255
+      ],
+      "aspectDistortion": 1.16,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod0.glb",
+          "totalBytes": 525012,
+          "triangles": 9408,
+          "sourceBounds": [
+            0.255,
+            0.4396,
+            0.255
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 10,
+          "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod1.glb",
+          "totalBytes": 441436,
+          "triangles": 5644,
+          "sourceBounds": [
+            0.2549,
+            0.4396,
+            0.255
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 20,
+          "modelUrl": "/models/optimized/polyhaven/antique_ceramic_vase_01/antique_ceramic_vase_01_lod2.glb",
+          "totalBytes": 375864,
+          "triangles": 2822,
+          "sourceBounds": [
+            0.2549,
+            0.4396,
+            0.255
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:chinese-tea-table-optimized",
+      "registryKey": "ornate-tea-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod0.glb"
+      ],
+      "totalBytes": 1580308,
+      "triangles": 2508,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8413,
+        0.4986,
+        0.8356
+      ],
+      "aspectDistortion": 1.19,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod0.glb",
+          "totalBytes": 1580308,
+          "triangles": 2508,
+          "sourceBounds": [
+            0.8413,
+            0.4986,
+            0.8356
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod1.glb",
+          "totalBytes": 1551564,
+          "triangles": 1504,
+          "sourceBounds": [
+            0.8405,
+            0.4986,
+            0.8348
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/chinese_tea_table/chinese_tea_table_lod2.glb",
+          "totalBytes": 1528036,
+          "triangles": 752,
+          "sourceBounds": [
+            0.8405,
+            0.4986,
+            0.8348
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:potted-plant-01-optimized",
+      "registryKey": "victorian-potted-plant",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb"
+      ],
+      "totalBytes": 3416628,
+      "triangles": 84904,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.5874,
+        1.3365,
+        0.6336
+      ],
+      "aspectDistortion": 1.46,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod0.glb",
+          "totalBytes": 3416628,
+          "triangles": 84904,
+          "sourceBounds": [
+            0.5874,
+            1.3365,
+            0.6336
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod1.glb",
+          "totalBytes": 2104656,
+          "triangles": 35417,
+          "sourceBounds": [
+            0.5874,
+            1.336,
+            0.6336
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_01/potted_plant_01_lod2.glb",
+          "totalBytes": 1486536,
+          "triangles": 14159,
+          "sourceBounds": [
+            0.5866,
+            1.336,
+            0.6336
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:side-table-tall-01-optimized",
+      "registryKey": "victorian-tall-side-table",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod0.glb"
+      ],
+      "totalBytes": 562988,
+      "triangles": 6408,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.384,
+        0.7612,
+        0.384
+      ],
+      "aspectDistortion": 1.64,
+      "warnings": [
+        "LOD0 normalization distortion is 1.64x; limit is 1.3x. Waiver: Validator accessor bounds omit the table's authored node transforms; runtime normalization preserves its intentionally tall, slender proportions.",
+        "LOD1 normalization distortion is 1.64x; limit is 1.3x. Waiver: Validator accessor bounds omit the table's authored node transforms; runtime normalization preserves its intentionally tall, slender proportions.",
+        "LOD2 normalization distortion is 1.65x; limit is 1.3x. Waiver: Validator accessor bounds omit the table's authored node transforms; runtime normalization preserves its intentionally tall, slender proportions.",
+        "Runtime normalization distortion is 1.64x; limit is 1.3x. Waiver: Validator accessor bounds omit the table's authored node transforms; runtime normalization preserves its intentionally tall, slender proportions."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod0.glb",
+          "totalBytes": 562988,
+          "triangles": 6408,
+          "sourceBounds": [
+            0.384,
+            0.7612,
+            0.384
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod1.glb",
+          "totalBytes": 495828,
+          "triangles": 3844,
+          "sourceBounds": [
+            0.384,
+            0.7611,
+            0.384
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/side_table_tall_01/side_table_tall_01_lod2.glb",
+          "totalBytes": 439680,
+          "triangles": 1921,
+          "sourceBounds": [
+            0.3837,
+            0.7611,
+            0.3837
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:brass-candleholders-optimized",
+      "registryKey": "ornate-brass-candleholders",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod0.glb"
+      ],
+      "totalBytes": 9368104,
+      "triangles": 33563,
+      "materialCount": 5,
+      "sourceBounds": [
+        0.4083,
+        0.8353,
+        0.3646
+      ],
+      "aspectDistortion": 1.81,
+      "warnings": [
+        "Primitive 1 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Primitive 1 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Primitive 4 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Primitive 4 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Primitive 6 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Primitive 6 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 1 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 1 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 4 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 4 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 6 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0: Primitive 6 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD0 normalization distortion is 1.81x; limit is 1.45x. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 1 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 1 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 4 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 4 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 6 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1: Primitive 6 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD1 normalization distortion is 1.82x; limit is 1.45x. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 1 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 1 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 4 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 4 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 6 has no metallic/roughness texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2: Primitive 6 has no normal texture. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "LOD2 normalization distortion is 1.76x; limit is 1.45x. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms.",
+        "Runtime normalization distortion is 1.81x; limit is 1.45x. Waiver: The candle wax and flame primitives intentionally use physical material constants while the ornate brass body retains its 1K PBR texture set; accessor bounds also omit authored node transforms."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod0.glb",
+          "totalBytes": 9368104,
+          "triangles": 33563,
+          "sourceBounds": [
+            0.4083,
+            0.8353,
+            0.3646
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 11,
+          "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod1.glb",
+          "totalBytes": 8915388,
+          "triangles": 16802,
+          "sourceBounds": [
+            0.407,
+            0.8353,
+            0.3644
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 22,
+          "modelUrl": "/models/optimized/polyhaven/brass_candleholders/brass_candleholders_lod2.glb",
+          "totalBytes": 8658716,
+          "triangles": 7542,
+          "sourceBounds": [
+            0.407,
+            0.8091,
+            0.3644
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:potted-plant-04-optimized",
+      "registryKey": "antique-table-succulent",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod0.glb"
+      ],
+      "totalBytes": 2119084,
+      "triangles": 8929,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.1679,
+        0.2675,
+        0.1848
+      ],
+      "aspectDistortion": 1.39,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod0.glb",
+          "totalBytes": 2119084,
+          "triangles": 8929,
+          "sourceBounds": [
+            0.1679,
+            0.2675,
+            0.1848
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 10,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod1.glb",
+          "totalBytes": 2049508,
+          "triangles": 6203,
+          "sourceBounds": [
+            0.1679,
+            0.2675,
+            0.1848
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 20,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_04/potted_plant_04_lod2.glb",
+          "totalBytes": 1970392,
+          "triangles": 3194,
+          "sourceBounds": [
+            0.1673,
+            0.2671,
+            0.1845
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:ornate-mirror-01-optimized",
+      "registryKey": "victorian-ornate-mirror",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod0.glb"
+      ],
+      "totalBytes": 676340,
+      "triangles": 14246,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.4865,
+        0.7442,
+        0.026
+      ],
+      "aspectDistortion": 2.87,
+      "warnings": [
+        "LOD0 normalization distortion is 2.87x; limit is 1.4x. Waiver: The mirror is deliberately shallow wall decor; runtime dimensions preserve its thin profile while accessor bounds omit authored transforms.",
+        "LOD1 normalization distortion is 2.87x; limit is 1.4x. Waiver: The mirror is deliberately shallow wall decor; runtime dimensions preserve its thin profile while accessor bounds omit authored transforms.",
+        "LOD2 normalization distortion is 2.87x; limit is 1.4x. Waiver: The mirror is deliberately shallow wall decor; runtime dimensions preserve its thin profile while accessor bounds omit authored transforms.",
+        "Runtime normalization distortion is 2.87x; limit is 1.4x. Waiver: The mirror is deliberately shallow wall decor; runtime dimensions preserve its thin profile while accessor bounds omit authored transforms."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod0.glb",
+          "totalBytes": 676340,
+          "triangles": 14246,
+          "sourceBounds": [
+            0.4865,
+            0.7442,
+            0.026
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 10,
+          "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod1.glb",
+          "totalBytes": 535388,
+          "triangles": 8546,
+          "sourceBounds": [
+            0.4865,
+            0.7442,
+            0.026
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 20,
+          "modelUrl": "/models/optimized/polyhaven/ornate_mirror_01/ornate_mirror_01_lod2.glb",
+          "totalBytes": 426448,
+          "triangles": 4272,
+          "sourceBounds": [
+            0.4865,
+            0.7442,
+            0.026
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-wooden-drawer-01-optimized",
+      "registryKey": "victorian-document-drawers",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod0.glb"
+      ],
+      "totalBytes": 753972,
+      "triangles": 5184,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8576,
+        0.6519,
+        0.4433
+      ],
+      "aspectDistortion": 1.4,
+      "warnings": [
+        "LOD0 normalization distortion is 1.40x; limit is 1.4x. Waiver: The reported 1.40x threshold crossing is rounding from accessor bounds that omit authored node transforms; runtime dimensions retain the measured drawer proportions.",
+        "LOD1 normalization distortion is 1.40x; limit is 1.4x. Waiver: The reported 1.40x threshold crossing is rounding from accessor bounds that omit authored node transforms; runtime dimensions retain the measured drawer proportions.",
+        "LOD2 normalization distortion is 1.40x; limit is 1.4x. Waiver: The reported 1.40x threshold crossing is rounding from accessor bounds that omit authored node transforms; runtime dimensions retain the measured drawer proportions.",
+        "Runtime normalization distortion is 1.40x; limit is 1.4x. Waiver: The reported 1.40x threshold crossing is rounding from accessor bounds that omit authored node transforms; runtime dimensions retain the measured drawer proportions."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod0.glb",
+          "totalBytes": 753972,
+          "triangles": 5184,
+          "sourceBounds": [
+            0.8576,
+            0.6519,
+            0.4433
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod1.glb",
+          "totalBytes": 690980,
+          "triangles": 3108,
+          "sourceBounds": [
+            0.8566,
+            0.6519,
+            0.4433
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/vintage_wooden_drawer_01/vintage_wooden_drawer_01_lod2.glb",
+          "totalBytes": 646436,
+          "triangles": 1755,
+          "sourceBounds": [
+            0.8566,
+            0.6519,
+            0.4414
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-cabinet-01-optimized",
+      "registryKey": "victorian-glass-cabinet",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod0.glb"
+      ],
+      "totalBytes": 1980072,
+      "triangles": 39706,
+      "materialCount": 3,
+      "sourceBounds": [
+        2.0218,
+        2.5759,
+        0.6483
+      ],
+      "aspectDistortion": 1.66,
+      "warnings": [
+        "Primitive 4 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "Primitive 6 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "Primitive 8 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD0: Primitive 4 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD0: Primitive 6 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD0: Primitive 8 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD0 normalization distortion is 1.66x; limit is 1.5x. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD1: Primitive 4 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD1: Primitive 6 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD1: Primitive 8 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD1 normalization distortion is 1.66x; limit is 1.5x. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD2: Primitive 4 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD2: Primitive 6 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD2: Primitive 8 has no base-color texture. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "LOD2 normalization distortion is 1.66x; limit is 1.5x. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms.",
+        "Runtime normalization distortion is 1.66x; limit is 1.5x. Waiver: The transparent glass primitives intentionally use physical material constants while the carved wooden body retains its PBR texture set; accessor bounds omit authored node transforms."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod0.glb",
+          "totalBytes": 1980072,
+          "triangles": 39706,
+          "sourceBounds": [
+            2.0218,
+            2.5759,
+            0.6483
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod1.glb",
+          "totalBytes": 1496744,
+          "triangles": 21386,
+          "sourceBounds": [
+            2.0218,
+            2.5759,
+            0.6483
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/vintage_cabinet_01/vintage_cabinet_01_lod2.glb",
+          "totalBytes": 1224920,
+          "triangles": 11000,
+          "sourceBounds": [
+            2.0218,
+            2.5759,
+            0.6483
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:tea-set-01-optimized",
+      "registryKey": "victorian-tea-service",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb"
+      ],
+      "totalBytes": 2091936,
+      "triangles": 32230,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.188,
+        0.1635,
+        0.2678
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod0.glb",
+          "totalBytes": 2091936,
+          "triangles": 32230,
+          "sourceBounds": [
+            0.188,
+            0.1635,
+            0.2678
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 10,
+          "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod1.glb",
+          "totalBytes": 1723992,
+          "triangles": 16112,
+          "sourceBounds": [
+            0.188,
+            0.1635,
+            0.2678
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 20,
+          "modelUrl": "/models/optimized/polyhaven/tea_set_01/tea_set_01_lod2.glb",
+          "totalBytes": 1519904,
+          "triangles": 7248,
+          "sourceBounds": [
+            0.1877,
+            0.1635,
+            0.2676
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:chinese-console-table-optimized",
+      "registryKey": "carved-story-console",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod0.glb"
+      ],
+      "totalBytes": 2791188,
+      "triangles": 13648,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.7196,
+        0.6607,
+        0.3388
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod0.glb",
+          "totalBytes": 2791188,
+          "triangles": 13648,
+          "sourceBounds": [
+            1.7196,
+            0.6607,
+            0.3388
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 13,
+          "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod1.glb",
+          "totalBytes": 2595568,
+          "triangles": 8187,
+          "sourceBounds": [
+            1.7196,
+            0.6607,
+            0.3388
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 26,
+          "modelUrl": "/models/optimized/polyhaven/chinese_console_table/chinese_console_table_lod2.glb",
+          "totalBytes": 2451936,
+          "triangles": 4094,
+          "sourceBounds": [
+            1.7196,
+            0.6602,
+            0.3386
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:sofa-01-optimized",
+      "registryKey": "victorian-carved-settee",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/Sofa_01/Sofa_01_lod0.glb"
+      ],
+      "totalBytes": 517076,
+      "triangles": 4101,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.5715,
+        0.7965,
+        0.658
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod0.glb",
+          "totalBytes": 517076,
+          "triangles": 4101,
+          "sourceBounds": [
+            1.5715,
+            0.7965,
+            0.658
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 13,
+          "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod1.glb",
+          "totalBytes": 474932,
+          "triangles": 2459,
+          "sourceBounds": [
+            1.5699,
+            0.7953,
+            0.6576
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 26,
+          "modelUrl": "/models/optimized/polyhaven/Sofa_01/Sofa_01_lod2.glb",
+          "totalBytes": 442304,
+          "triangles": 1230,
+          "sourceBounds": [
+            1.5699,
+            0.7831,
+            0.6575
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:ottoman-01-optimized",
+      "registryKey": "victorian-leather-ottoman",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod0.glb"
+      ],
+      "totalBytes": 651244,
+      "triangles": 4240,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8846,
+        0.6243,
+        0.6211
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod0.glb",
+          "totalBytes": 651244,
+          "triangles": 4240,
+          "sourceBounds": [
+            0.8846,
+            0.6243,
+            0.6211
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 11,
+          "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod1.glb",
+          "totalBytes": 609356,
+          "triangles": 2544,
+          "sourceBounds": [
+            0.8829,
+            0.6243,
+            0.6211
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 22,
+          "modelUrl": "/models/optimized/polyhaven/Ottoman_01/Ottoman_01_lod2.glb",
+          "totalBytes": 576088,
+          "triangles": 1272,
+          "sourceBounds": [
+            0.8828,
+            0.6243,
+            0.6208
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:gothic-coffee-table-optimized",
+      "registryKey": "gothic-parlor-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod0.glb"
+      ],
+      "totalBytes": 3111084,
+      "triangles": 19067,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.4431,
+        0.5588,
+        1.4431
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod0.glb",
+          "totalBytes": 3111084,
+          "triangles": 19067,
+          "sourceBounds": [
+            1.4431,
+            0.5588,
+            1.4431
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 13,
+          "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod1.glb",
+          "totalBytes": 2791088,
+          "triangles": 9533,
+          "sourceBounds": [
+            1.4431,
+            0.5588,
+            1.4431
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 26,
+          "modelUrl": "/models/optimized/polyhaven/gothic_coffee_table/gothic_coffee_table_lod2.glb",
+          "totalBytes": 2617864,
+          "triangles": 4289,
+          "sourceBounds": [
+            1.4431,
+            0.5588,
+            1.4431
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:gallinera-table-optimized",
+      "registryKey": "carved-arrival-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/gallinera_table/gallinera_table_lod0.glb"
+      ],
+      "totalBytes": 1836036,
+      "triangles": 5528,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8301,
+        0.4878,
+        0.5183
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod0.glb",
+          "totalBytes": 1836036,
+          "triangles": 5528,
+          "sourceBounds": [
+            0.8301,
+            0.4878,
+            0.5183
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod1.glb",
+          "totalBytes": 1777436,
+          "triangles": 3314,
+          "sourceBounds": [
+            0.8301,
+            0.4878,
+            0.5183
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/gallinera_table/gallinera_table_lod2.glb",
+          "totalBytes": 1730140,
+          "triangles": 1656,
+          "sourceBounds": [
+            0.8301,
+            0.4872,
+            0.5183
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:chandelier-03-optimized",
+      "registryKey": "victorian-crystal-chandelier",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb"
+      ],
+      "totalBytes": 1204796,
+      "triangles": 23440,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.7804,
+        1.0406,
+        0.7855
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod0.glb",
+          "totalBytes": 1204796,
+          "triangles": 23440,
+          "sourceBounds": [
+            0.7804,
+            1.0406,
+            0.7855
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod1.glb",
+          "totalBytes": 897216,
+          "triangles": 11720,
+          "sourceBounds": [
+            0.7804,
+            1.0406,
+            0.7852
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/Chandelier_03/Chandelier_03_lod2.glb",
+          "totalBytes": 721740,
+          "triangles": 5253,
+          "sourceBounds": [
+            0.7804,
+            1.0406,
+            0.7832
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:book-encyclopedia-set-01-optimized",
+      "registryKey": "victorian-encyclopedia-set",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb"
+      ],
+      "totalBytes": 2613852,
+      "triangles": 42542,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.0387,
+        0.2374,
+        0.1631
+      ],
+      "aspectDistortion": 14.73,
+      "warnings": [
+        "LOD0 normalization distortion is 14.73x; limit is 2.5x. Waiver: The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set.",
+        "LOD1 normalization distortion is 14.73x; limit is 2.5x. Waiver: The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set.",
+        "LOD2 normalization distortion is 14.73x; limit is 2.5x. Waiver: The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set.",
+        "Runtime normalization distortion is 14.73x; limit is 2.5x. Waiver: The encyclopedia volumes are arranged by authored node transforms; accessor-only bounds cover one volume rather than the full set."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod0.glb",
+          "totalBytes": 2613852,
+          "triangles": 42542,
+          "sourceBounds": [
+            0.0387,
+            0.2374,
+            0.1631
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 11,
+          "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod1.glb",
+          "totalBytes": 2323964,
+          "triangles": 31042,
+          "sourceBounds": [
+            0.0387,
+            0.2374,
+            0.1631
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 22,
+          "modelUrl": "/models/optimized/polyhaven/book_encyclopedia_set_01/book_encyclopedia_set_01_lod2.glb",
+          "totalBytes": 2133196,
+          "triangles": 24281,
+          "sourceBounds": [
+            0.0387,
+            0.2374,
+            0.1631
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-oil-lamp-optimized",
+      "registryKey": "victorian-porcelain-oil-lamp",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb"
+      ],
+      "totalBytes": 2159044,
+      "triangles": 7208,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.22,
+        0.8016,
+        0.22
+      ],
+      "aspectDistortion": 1.24,
+      "warnings": [
+        "Primitive 2 has no metallic/roughness texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "Primitive 2 has no normal texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD0: Primitive 2 has no metallic/roughness texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD0: Primitive 2 has no normal texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD0 normalization distortion is 1.24x; limit is 1.08x. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD1: Primitive 2 has no metallic/roughness texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD1: Primitive 2 has no normal texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD1 normalization distortion is 1.24x; limit is 1.08x. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD2: Primitive 2 has no metallic/roughness texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD2: Primitive 2 has no normal texture. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "LOD2 normalization distortion is 1.24x; limit is 1.08x. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures.",
+        "Runtime normalization distortion is 1.24x; limit is 1.08x. Waiver: The transparent chimney and flame intentionally use alpha and emissive materials while the porcelain and brass body retain PBR textures."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod0.glb",
+          "totalBytes": 2159044,
+          "triangles": 7208,
+          "sourceBounds": [
+            0.22,
+            0.8016,
+            0.22
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 11,
+          "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod1.glb",
+          "totalBytes": 2088288,
+          "triangles": 4327,
+          "sourceBounds": [
+            0.22,
+            0.8016,
+            0.22
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 22,
+          "modelUrl": "/models/optimized/polyhaven/vintage_oil_lamp/vintage_oil_lamp_lod2.glb",
+          "totalBytes": 2033172,
+          "triangles": 2165,
+          "sourceBounds": [
+            0.22,
+            0.8016,
+            0.22
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:fancy-picture-frame-01-optimized",
+      "registryKey": "victorian-framed-landscape",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb"
+      ],
+      "totalBytes": 739544,
+      "triangles": 938,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.603,
+        0.4641,
+        0.02
+      ],
+      "aspectDistortion": 1.01,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod0.glb",
+          "totalBytes": 739544,
+          "triangles": 938,
+          "sourceBounds": [
+            0.603,
+            0.4641,
+            0.02
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod1.glb",
+          "totalBytes": 731624,
+          "triangles": 610,
+          "sourceBounds": [
+            0.603,
+            0.4641,
+            0.02
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_01/fancy_picture_frame_01_lod2.glb",
+          "totalBytes": 723724,
+          "triangles": 328,
+          "sourceBounds": [
+            0.603,
+            0.4641,
+            0.02
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-grandfather-clock-01-optimized",
+      "registryKey": "victorian-grandfather-clock",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb"
+      ],
+      "totalBytes": 2352776,
+      "triangles": 8582,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.4266,
+        2.1984,
+        0.6256
+      ],
+      "aspectDistortion": 2.51,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod0.glb",
+          "totalBytes": 2352776,
+          "triangles": 8582,
+          "sourceBounds": [
+            0.4266,
+            2.1984,
+            0.6256
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod1.glb",
+          "totalBytes": 2239700,
+          "triangles": 5146,
+          "sourceBounds": [
+            0.4266,
+            2.1984,
+            0.6256
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/vintage_grandfather_clock_01/vintage_grandfather_clock_01_lod2.glb",
+          "totalBytes": 2144328,
+          "triangles": 2542,
+          "sourceBounds": [
+            0.4266,
+            2.1953,
+            0.6256
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:binder-notebook-optimized",
+      "registryKey": "aged-leather-notebook",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/binder_notebook/binder_notebook_lod0.glb"
+      ],
+      "totalBytes": 1887896,
+      "triangles": 18077,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.3652,
+        0.0253,
+        0.2
+      ],
+      "aspectDistortion": 2.35,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod0.glb",
+          "totalBytes": 1887896,
+          "triangles": 18077,
+          "sourceBounds": [
+            0.3652,
+            0.0253,
+            0.2
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 9,
+          "modelUrl": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod1.glb",
+          "totalBytes": 1675036,
+          "triangles": 9940,
+          "sourceBounds": [
+            0.3652,
+            0.0252,
+            0.2
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 18,
+          "modelUrl": "/models/optimized/polyhaven/binder_notebook/binder_notebook_lod2.glb",
+          "totalBytes": 1523872,
+          "triangles": 4517,
+          "sourceBounds": [
+            0.3652,
+            0.0252,
+            0.1997
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-candlestick-optimized",
+      "registryKey": "turned-wood-candlestick",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod1.glb"
+      ],
+      "totalBytes": 4033764,
+      "triangles": 74547,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.0972,
+        0.2197,
+        0.0987
+      ],
+      "aspectDistortion": 1.3,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod1.glb",
+          "totalBytes": 4033764,
+          "triangles": 74547,
+          "sourceBounds": [
+            0.0972,
+            0.2197,
+            0.0987
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wooden_candlestick/wooden_candlestick_lod2.glb",
+          "totalBytes": 3087616,
+          "triangles": 34077,
+          "sourceBounds": [
+            0.0972,
+            0.2197,
+            0.0987
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:fancy-picture-frame-02-optimized",
+      "registryKey": "victorian-framed-riverscape",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb"
+      ],
+      "totalBytes": 1726160,
+      "triangles": 35102,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.6606,
+        0.771,
+        0.089
+      ],
+      "aspectDistortion": 4.04,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod0.glb",
+          "totalBytes": 1726160,
+          "triangles": 35102,
+          "sourceBounds": [
+            0.6606,
+            0.771,
+            0.089
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod1.glb",
+          "totalBytes": 1430328,
+          "triangles": 22816,
+          "sourceBounds": [
+            0.6606,
+            0.771,
+            0.089
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/fancy_picture_frame_02/fancy_picture_frame_02_lod2.glb",
+          "totalBytes": 1189184,
+          "triangles": 12285,
+          "sourceBounds": [
+            0.6606,
+            0.771,
+            0.089
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:jug-01-optimized",
+      "registryKey": "antique-ceramic-jug",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/jug_01/jug_01_lod1.glb"
+      ],
+      "totalBytes": 1173548,
+      "triangles": 3462,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.275,
+        0.2113,
+        0.1675
+      ],
+      "aspectDistortion": 1.82,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/jug_01/jug_01_lod1.glb",
+          "totalBytes": 1173548,
+          "triangles": 3462,
+          "sourceBounds": [
+            0.275,
+            0.2113,
+            0.1675
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/jug_01/jug_01_lod2.glb",
+          "totalBytes": 1133424,
+          "triangles": 1730,
+          "sourceBounds": [
+            0.275,
+            0.2113,
+            0.1668
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:chess-set-optimized",
+      "registryKey": "marble-chess-set",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/chess_set/chess_set_lod1.glb"
+      ],
+      "totalBytes": 5570744,
+      "triangles": 11934,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.5532,
+        0.0951,
+        0.5532
+      ],
+      "aspectDistortion": 1.8,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/chess_set/chess_set_lod1.glb",
+          "totalBytes": 5570744,
+          "triangles": 11934,
+          "sourceBounds": [
+            0.5532,
+            0.0951,
+            0.5532
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/chess_set/chess_set_lod2.glb",
+          "totalBytes": 5385076,
+          "triangles": 4886,
+          "sourceBounds": [
+            0.5532,
+            0.0949,
+            0.5532
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:horse-statue-01-optimized",
+      "registryKey": "porcelain-horse-figurine",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb"
+      ],
+      "totalBytes": 957760,
+      "triangles": 13560,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.163,
+        0.2199,
+        0.1078
+      ],
+      "aspectDistortion": 1.13,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod1.glb",
+          "totalBytes": 957760,
+          "triangles": 13560,
+          "sourceBounds": [
+            0.163,
+            0.2199,
+            0.1078
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/horse_statue_01/horse_statue_01_lod2.glb",
+          "totalBytes": 708388,
+          "triangles": 6743,
+          "sourceBounds": [
+            0.1629,
+            0.2199,
+            0.1078
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wicker-basket-02-optimized",
+      "registryKey": "woven-reading-basket",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb"
+      ],
+      "totalBytes": 2805364,
+      "triangles": 6782,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.2302,
+        0.2209,
+        0.2159
+      ],
+      "aspectDistortion": 1.14,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod1.glb",
+          "totalBytes": 2805364,
+          "triangles": 6782,
+          "sourceBounds": [
+            0.2302,
+            0.2209,
+            0.2159
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wicker_basket_02/wicker_basket_02_lod2.glb",
+          "totalBytes": 2718180,
+          "triangles": 3212,
+          "sourceBounds": [
+            0.2302,
+            0.2206,
+            0.2157
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:brass-vase-02-optimized",
+      "registryKey": "antique-brass-vase",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb"
+      ],
+      "totalBytes": 1766856,
+      "triangles": 4133,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.2102,
+        0.5286,
+        0.2102
+      ],
+      "aspectDistortion": 1.37,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod1.glb",
+          "totalBytes": 1766856,
+          "triangles": 4133,
+          "sourceBounds": [
+            0.2102,
+            0.5286,
+            0.2102
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/brass_vase_02/brass_vase_02_lod2.glb",
+          "totalBytes": 1718960,
+          "triangles": 2066,
+          "sourceBounds": [
+            0.2102,
+            0.5286,
+            0.2102
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:rockingchair-01-optimized",
+      "registryKey": "victorian-rocking-chair",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb"
+      ],
+      "totalBytes": 803872,
+      "triangles": 11866,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.7081,
+        0.9949,
+        0.8335
+      ],
+      "aspectDistortion": 1.11,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod0.glb",
+          "totalBytes": 803872,
+          "triangles": 11866,
+          "sourceBounds": [
+            0.7081,
+            0.9949,
+            0.8335
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 12,
+          "modelUrl": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod1.glb",
+          "totalBytes": 678832,
+          "triangles": 7118,
+          "sourceBounds": [
+            0.7081,
+            0.9949,
+            0.8335
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 24,
+          "modelUrl": "/models/optimized/polyhaven/Rockingchair_01/Rockingchair_01_lod2.glb",
+          "totalBytes": 560928,
+          "triangles": 3558,
+          "sourceBounds": [
+            0.7081,
+            0.9949,
+            0.8335
+          ]
+        }
+      ]
+    },
+    {
       "catalogId": "polyhaven:painted-wooden-cabinet-02-optimized",
       "registryKey": "painted-archive-cabinet",
       "status": "warning",
@@ -1251,12 +3154,12 @@
       "status": "pass",
       "files": [
         "public/models/polyhaven/large_castle_door/large_castle_door.bin",
-        "public/models/polyhaven/large_castle_door/large_castle_door_2k.gltf",
+        "public/models/polyhaven/large_castle_door/large_castle_door_closed_2k.gltf",
         "public/models/polyhaven/large_castle_door/textures/large_castle_door_arm_2k.jpg",
         "public/models/polyhaven/large_castle_door/textures/large_castle_door_diff_2k.jpg",
         "public/models/polyhaven/large_castle_door/textures/large_castle_door_nor_gl_2k.jpg"
       ],
-      "totalBytes": 11539413,
+      "totalBytes": 11539346,
       "triangles": 12640,
       "materialCount": 1,
       "sourceBounds": [
@@ -1454,6 +3357,20 @@
       "lods": []
     },
     {
+      "catalogId": "project:story-staircase",
+      "registryKey": "story-staircase",
+      "status": "pass",
+      "files": [],
+      "totalBytes": 0,
+      "triangles": 0,
+      "materialCount": 0,
+      "sourceBounds": null,
+      "aspectDistortion": null,
+      "warnings": [],
+      "errors": [],
+      "lods": []
+    },
+    {
       "catalogId": "project:storybook-portrait",
       "registryKey": "storybook-portrait",
       "status": "pass",
@@ -1522,6 +3439,1599 @@
       "warnings": [],
       "errors": [],
       "lods": []
+    },
+    {
+      "catalogId": "polyhaven:treasure-chest-optimized",
+      "registryKey": "ornate-treasure-chest",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/treasure_chest/treasure_chest_lod0.glb"
+      ],
+      "totalBytes": 4493236,
+      "triangles": 64061,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.959,
+        0.5776,
+        0.7795
+      ],
+      "aspectDistortion": 1.6,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/treasure_chest/treasure_chest_lod0.glb",
+          "totalBytes": 4493236,
+          "triangles": 64061,
+          "sourceBounds": [
+            0.959,
+            0.5776,
+            0.7795
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/treasure_chest/treasure_chest_lod1.glb",
+          "totalBytes": 3670028,
+          "triangles": 33063,
+          "sourceBounds": [
+            0.959,
+            0.5776,
+            0.7792
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/treasure_chest/treasure_chest_lod2.glb",
+          "totalBytes": 3153148,
+          "triangles": 14462,
+          "sourceBounds": [
+            0.958,
+            0.5776,
+            0.7792
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-suitcase-optimized",
+      "registryKey": "vintage-travel-suitcase",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_suitcase/vintage_suitcase_lod0.glb"
+      ],
+      "totalBytes": 4075920,
+      "triangles": 16474,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.4371,
+        0.3523,
+        0.1507
+      ],
+      "aspectDistortion": 2.32,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_suitcase/vintage_suitcase_lod0.glb",
+          "totalBytes": 4075920,
+          "triangles": 16474,
+          "sourceBounds": [
+            0.4371,
+            0.3523,
+            0.1507
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/vintage_suitcase/vintage_suitcase_lod1.glb",
+          "totalBytes": 3978708,
+          "triangles": 9544,
+          "sourceBounds": [
+            0.4371,
+            0.3523,
+            0.1507
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/vintage_suitcase/vintage_suitcase_lod2.glb",
+          "totalBytes": 3906788,
+          "triangles": 4598,
+          "sourceBounds": [
+            0.437,
+            0.3514,
+            0.1504
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wine-barrel-01-optimized",
+      "registryKey": "aged-wine-barrel",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wine_barrel_01/wine_barrel_01_lod0.glb"
+      ],
+      "totalBytes": 921508,
+      "triangles": 10820,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.7419,
+        0.8713,
+        0.756
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wine_barrel_01/wine_barrel_01_lod0.glb",
+          "totalBytes": 921508,
+          "triangles": 10820,
+          "sourceBounds": [
+            0.7419,
+            0.8713,
+            0.756
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wine_barrel_01/wine_barrel_01_lod1.glb",
+          "totalBytes": 780244,
+          "triangles": 6269,
+          "sourceBounds": [
+            0.7419,
+            0.8713,
+            0.756
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/wine_barrel_01/wine_barrel_01_lod2.glb",
+          "totalBytes": 685884,
+          "triangles": 3215,
+          "sourceBounds": [
+            0.7419,
+            0.8695,
+            0.756
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wooden-barrels-01-optimized",
+      "registryKey": "maritime-barrel-group",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/wooden_barrels_01/wooden_barrels_01_lod0.glb"
+      ],
+      "totalBytes": 7474584,
+      "triangles": 33142,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.7527,
+        0.9702,
+        0.8881
+      ],
+      "aspectDistortion": 5.98,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wooden_barrels_01/wooden_barrels_01_lod0.glb",
+          "totalBytes": 7474584,
+          "triangles": 33142,
+          "sourceBounds": [
+            0.7527,
+            0.9702,
+            0.8881
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wooden_barrels_01/wooden_barrels_01_lod1.glb",
+          "totalBytes": 7011616,
+          "triangles": 19232,
+          "sourceBounds": [
+            0.7517,
+            0.9702,
+            0.8881
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/wooden_barrels_01/wooden_barrels_01_lod2.glb",
+          "totalBytes": 6685880,
+          "triangles": 9543,
+          "sourceBounds": [
+            0.7504,
+            0.9691,
+            0.8852
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:painted-wooden-bench-optimized",
+      "registryKey": "rustic-painted-bench",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/painted_wooden_bench/painted_wooden_bench_lod0.glb"
+      ],
+      "totalBytes": 1988632,
+      "triangles": 630,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.1649,
+        0.8893,
+        0.4965
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_bench/painted_wooden_bench_lod0.glb",
+          "totalBytes": 1988632,
+          "triangles": 630,
+          "sourceBounds": [
+            1.1649,
+            0.8893,
+            0.4965
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_bench/painted_wooden_bench_lod1.glb",
+          "totalBytes": 1979004,
+          "triangles": 364,
+          "sourceBounds": [
+            1.1647,
+            0.8893,
+            0.4965
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_bench/painted_wooden_bench_lod2.glb",
+          "totalBytes": 1972668,
+          "triangles": 194,
+          "sourceBounds": [
+            1.1647,
+            0.8893,
+            0.4965
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:outdoor-table-chair-set-01-optimized",
+      "registryKey": "cafe-table-chair-set",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/outdoor_table_chair_set_01/outdoor_table_chair_set_01_lod0.glb"
+      ],
+      "totalBytes": 1239456,
+      "triangles": 9828,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.7925,
+        0.8586,
+        1.7063
+      ],
+      "aspectDistortion": 1.1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/outdoor_table_chair_set_01/outdoor_table_chair_set_01_lod0.glb",
+          "totalBytes": 1239456,
+          "triangles": 9828,
+          "sourceBounds": [
+            0.7925,
+            0.8586,
+            1.7063
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/outdoor_table_chair_set_01/outdoor_table_chair_set_01_lod1.glb",
+          "totalBytes": 1005372,
+          "triangles": 3994,
+          "sourceBounds": [
+            0.7925,
+            0.8579,
+            1.7056
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/outdoor_table_chair_set_01/outdoor_table_chair_set_01_lod2.glb",
+          "totalBytes": 984904,
+          "triangles": 3297,
+          "sourceBounds": [
+            0.792,
+            0.8557,
+            1.7056
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:large-castle-door-optimized",
+      "registryKey": "weathered-castle-door",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/large_castle_door/large_castle_door_lod0.glb"
+      ],
+      "totalBytes": 3268060,
+      "triangles": 12640,
+      "materialCount": 1,
+      "sourceBounds": [
+        2.0121,
+        4.0623,
+        0.1764
+      ],
+      "aspectDistortion": 2.63,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/large_castle_door/large_castle_door_lod0.glb",
+          "totalBytes": 3268060,
+          "triangles": 12640,
+          "sourceBounds": [
+            2.0121,
+            4.0623,
+            0.1764
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/large_castle_door/large_castle_door_lod1.glb",
+          "totalBytes": 3118176,
+          "triangles": 7329,
+          "sourceBounds": [
+            2.0121,
+            4.0623,
+            0.1764
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/large_castle_door/large_castle_door_lod2.glb",
+          "totalBytes": 3006512,
+          "triangles": 3535,
+          "sourceBounds": [
+            2.0121,
+            4.0623,
+            0.1764
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:standing-chalkboard-01-optimized",
+      "registryKey": "vintage-standing-chalkboard",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/standing_chalkboard_01/standing_chalkboard_01_lod0.glb"
+      ],
+      "totalBytes": 2600620,
+      "triangles": 1988,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.9195,
+        1.509,
+        0.7587
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/standing_chalkboard_01/standing_chalkboard_01_lod0.glb",
+          "totalBytes": 2600620,
+          "triangles": 1988,
+          "sourceBounds": [
+            0.9195,
+            1.509,
+            0.7587
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/standing_chalkboard_01/standing_chalkboard_01_lod1.glb",
+          "totalBytes": 2569096,
+          "triangles": 1156,
+          "sourceBounds": [
+            0.9195,
+            1.509,
+            0.7587
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/standing_chalkboard_01/standing_chalkboard_01_lod2.glb",
+          "totalBytes": 2524748,
+          "triangles": 140,
+          "sourceBounds": [
+            0.9162,
+            1.509,
+            0.7587
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:chinese-armchair-optimized",
+      "registryKey": "carved-antique-armchair",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/chinese_armchair/chinese_armchair_lod0.glb"
+      ],
+      "totalBytes": 1702312,
+      "triangles": 2675,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.8483,
+        1.5875,
+        0.7887
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/chinese_armchair/chinese_armchair_lod0.glb",
+          "totalBytes": 1702312,
+          "triangles": 2675,
+          "sourceBounds": [
+            0.8483,
+            1.5875,
+            0.7887
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/chinese_armchair/chinese_armchair_lod1.glb",
+          "totalBytes": 1671152,
+          "triangles": 1551,
+          "sourceBounds": [
+            0.8483,
+            1.5875,
+            0.7887
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/chinese_armchair/chinese_armchair_lod2.glb",
+          "totalBytes": 1648988,
+          "triangles": 749,
+          "sourceBounds": [
+            0.8483,
+            1.5875,
+            0.7878
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:painted-wooden-chair-01-optimized",
+      "registryKey": "painted-schoolroom-chair",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/painted_wooden_chair_01/painted_wooden_chair_01_lod0.glb"
+      ],
+      "totalBytes": 491628,
+      "triangles": 724,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.4318,
+        0.9565,
+        0.5398
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_chair_01/painted_wooden_chair_01_lod0.glb",
+          "totalBytes": 491628,
+          "triangles": 724,
+          "sourceBounds": [
+            0.4318,
+            0.9565,
+            0.5398
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_chair_01/painted_wooden_chair_01_lod1.glb",
+          "totalBytes": 480316,
+          "triangles": 418,
+          "sourceBounds": [
+            0.4317,
+            0.9558,
+            0.5397
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/painted_wooden_chair_01/painted_wooden_chair_01_lod2.glb",
+          "totalBytes": 477884,
+          "triangles": 354,
+          "sourceBounds": [
+            0.4238,
+            0.9487,
+            0.537
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:small-wooden-table-01-optimized",
+      "registryKey": "rustic-small-wooden-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/small_wooden_table_01/small_wooden_table_01_lod0.glb"
+      ],
+      "totalBytes": 413844,
+      "triangles": 3410,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.9162,
+        0.5331,
+        0.44
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/small_wooden_table_01/small_wooden_table_01_lod0.glb",
+          "totalBytes": 413844,
+          "triangles": 3410,
+          "sourceBounds": [
+            0.9162,
+            0.5331,
+            0.44
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/small_wooden_table_01/small_wooden_table_01_lod1.glb",
+          "totalBytes": 378712,
+          "triangles": 1976,
+          "sourceBounds": [
+            0.9162,
+            0.5331,
+            0.44
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/small_wooden_table_01/small_wooden_table_01_lod2.glb",
+          "totalBytes": 351356,
+          "triangles": 954,
+          "sourceBounds": [
+            0.9162,
+            0.5331,
+            0.44
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:round-wooden-table-02-optimized",
+      "registryKey": "round-period-table",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/round_wooden_table_02/round_wooden_table_02_lod0.glb"
+      ],
+      "totalBytes": 1920296,
+      "triangles": 4254,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.7962,
+        0.746,
+        0.7962
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/round_wooden_table_02/round_wooden_table_02_lod0.glb",
+          "totalBytes": 1920296,
+          "triangles": 4254,
+          "sourceBounds": [
+            0.7962,
+            0.746,
+            0.7962
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/round_wooden_table_02/round_wooden_table_02_lod1.glb",
+          "totalBytes": 1871872,
+          "triangles": 2466,
+          "sourceBounds": [
+            0.7962,
+            0.746,
+            0.7962
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/round_wooden_table_02/round_wooden_table_02_lod2.glb",
+          "totalBytes": 1835488,
+          "triangles": 1191,
+          "sourceBounds": [
+            0.7923,
+            0.746,
+            0.7923
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:vintage-day-bed-optimized",
+      "registryKey": "vintage-upholstered-daybed",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/vintage_day_bed/vintage_day_bed_lod0.glb"
+      ],
+      "totalBytes": 2424796,
+      "triangles": 2715,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.9726,
+        1.1273,
+        0.8548
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/vintage_day_bed/vintage_day_bed_lod0.glb",
+          "totalBytes": 2424796,
+          "triangles": 2715,
+          "sourceBounds": [
+            1.9726,
+            1.1273,
+            0.8548
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/vintage_day_bed/vintage_day_bed_lod1.glb",
+          "totalBytes": 2398200,
+          "triangles": 1573,
+          "sourceBounds": [
+            1.9726,
+            1.1272,
+            0.8548
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/vintage_day_bed/vintage_day_bed_lod2.glb",
+          "totalBytes": 2380336,
+          "triangles": 831,
+          "sourceBounds": [
+            1.9726,
+            1.1188,
+            0.8548
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:marble-bust-01-optimized",
+      "registryKey": "classical-marble-bust",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/marble_bust_01/marble_bust_01_lod0.glb"
+      ],
+      "totalBytes": 897328,
+      "triangles": 17456,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.2717,
+        0.5149,
+        0.2997
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/marble_bust_01/marble_bust_01_lod0.glb",
+          "totalBytes": 897328,
+          "triangles": 17456,
+          "sourceBounds": [
+            0.2717,
+            0.5149,
+            0.2997
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/marble_bust_01/marble_bust_01_lod1.glb",
+          "totalBytes": 728308,
+          "triangles": 10124,
+          "sourceBounds": [
+            0.2717,
+            0.5149,
+            0.2997
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/marble_bust_01/marble_bust_01_lod2.glb",
+          "totalBytes": 604432,
+          "triangles": 4886,
+          "sourceBounds": [
+            0.2717,
+            0.5149,
+            0.2997
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:brass-diya-lantern-optimized",
+      "registryKey": "ornate-brass-diya-lantern",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/brass_diya_lantern/brass_diya_lantern_lod0.glb"
+      ],
+      "totalBytes": 2473096,
+      "triangles": 12742,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.124,
+        0.291,
+        0.123
+      ],
+      "aspectDistortion": 1.32,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/brass_diya_lantern/brass_diya_lantern_lod0.glb",
+          "totalBytes": 2473096,
+          "triangles": 12742,
+          "sourceBounds": [
+            0.124,
+            0.291,
+            0.123
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/brass_diya_lantern/brass_diya_lantern_lod1.glb",
+          "totalBytes": 2314300,
+          "triangles": 7412,
+          "sourceBounds": [
+            0.124,
+            0.291,
+            0.123
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/brass_diya_lantern/brass_diya_lantern_lod2.glb",
+          "totalBytes": 2201704,
+          "triangles": 3638,
+          "sourceBounds": [
+            0.124,
+            0.291,
+            0.123
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:brass-goblets-optimized",
+      "registryKey": "antique-brass-goblet-set",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/brass_goblets/brass_goblets_lod0.glb"
+      ],
+      "totalBytes": 4773144,
+      "triangles": 9600,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.1497,
+        0.2721,
+        0.1497
+      ],
+      "aspectDistortion": 3.02,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/brass_goblets/brass_goblets_lod0.glb",
+          "totalBytes": 4773144,
+          "triangles": 9600,
+          "sourceBounds": [
+            0.1497,
+            0.2721,
+            0.1497
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/brass_goblets/brass_goblets_lod1.glb",
+          "totalBytes": 4667040,
+          "triangles": 5564,
+          "sourceBounds": [
+            0.1497,
+            0.2721,
+            0.1497
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/brass_goblets/brass_goblets_lod2.glb",
+          "totalBytes": 4593072,
+          "triangles": 2684,
+          "sourceBounds": [
+            0.1497,
+            0.2721,
+            0.1497
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:wine-bottles-01-optimized",
+      "registryKey": "period-wine-bottle-set",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/wine_bottles_01/wine_bottles_01_lod0.glb"
+      ],
+      "totalBytes": 3974468,
+      "triangles": 28848,
+      "materialCount": 12,
+      "sourceBounds": [
+        0.0806,
+        0.3314,
+        0.0806
+      ],
+      "aspectDistortion": 8.4,
+      "warnings": [
+        "Primitive 2 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 2 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 6 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 6 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 6 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 10 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 10 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 10 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 14 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 14 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "Primitive 14 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 2 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 2 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 6 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 6 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 6 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 10 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 10 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 10 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 14 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 14 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD0: Primitive 14 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 2 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 2 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 6 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 6 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 6 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 10 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 10 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 10 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 14 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 14 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD1: Primitive 14 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 2 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 2 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 2 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 6 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 6 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 6 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 10 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 10 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 10 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 14 has no base-color texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 14 has no metallic/roughness texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint.",
+        "LOD2: Primitive 14 has no normal texture. Waiver: The transparent glass bottle primitives intentionally use physical material constants; authored transforms arrange the complete bottle set while runtime dimensions preserve its reviewed footprint."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/wine_bottles_01/wine_bottles_01_lod0.glb",
+          "totalBytes": 3974468,
+          "triangles": 28848,
+          "sourceBounds": [
+            0.0806,
+            0.3314,
+            0.0806
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/wine_bottles_01/wine_bottles_01_lod1.glb",
+          "totalBytes": 3708644,
+          "triangles": 16715,
+          "sourceBounds": [
+            0.0806,
+            0.3314,
+            0.0805
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/wine_bottles_01/wine_bottles_01_lod2.glb",
+          "totalBytes": 3515348,
+          "triangles": 8065,
+          "sourceBounds": [
+            0.0806,
+            0.3314,
+            0.0805
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:tree-stump-01-optimized",
+      "registryKey": "mossy-forest-stump",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/tree_stump_01/tree_stump_01_lod0.glb"
+      ],
+      "totalBytes": 3474552,
+      "triangles": 20522,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.4255,
+        0.5725,
+        1.5899
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/tree_stump_01/tree_stump_01_lod0.glb",
+          "totalBytes": 3474552,
+          "triangles": 20522,
+          "sourceBounds": [
+            1.4255,
+            0.5725,
+            1.5899
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/tree_stump_01/tree_stump_01_lod1.glb",
+          "totalBytes": 3225464,
+          "triangles": 9851,
+          "sourceBounds": [
+            1.4255,
+            0.5699,
+            1.5875
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/tree_stump_01/tree_stump_01_lod2.glb",
+          "totalBytes": 3085444,
+          "triangles": 4104,
+          "sourceBounds": [
+            1.4255,
+            0.5694,
+            1.5875
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:dead-tree-trunk-02-optimized",
+      "registryKey": "fallen-dead-tree-trunk",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/dead_tree_trunk_02/dead_tree_trunk_02_lod0.glb"
+      ],
+      "totalBytes": 3955372,
+      "triangles": 41564,
+      "materialCount": 1,
+      "sourceBounds": [
+        4.0514,
+        1.0551,
+        1.0542
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/dead_tree_trunk_02/dead_tree_trunk_02_lod0.glb",
+          "totalBytes": 3955372,
+          "triangles": 41564,
+          "sourceBounds": [
+            4.0514,
+            1.0551,
+            1.0542
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/dead_tree_trunk_02/dead_tree_trunk_02_lod1.glb",
+          "totalBytes": 3445688,
+          "triangles": 19950,
+          "sourceBounds": [
+            4.0476,
+            1.0549,
+            1.0527
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/dead_tree_trunk_02/dead_tree_trunk_02_lod2.glb",
+          "totalBytes": 3161952,
+          "triangles": 8310,
+          "sourceBounds": [
+            4.0476,
+            1.0514,
+            1.0467
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:boulder-01-optimized",
+      "registryKey": "weathered-story-boulder",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/boulder_01/boulder_01_lod0.glb"
+      ],
+      "totalBytes": 5093988,
+      "triangles": 56906,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.272,
+        1.0038,
+        1.8303
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/boulder_01/boulder_01_lod0.glb",
+          "totalBytes": 5093988,
+          "triangles": 56906,
+          "sourceBounds": [
+            1.272,
+            1.0038,
+            1.8303
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/boulder_01/boulder_01_lod1.glb",
+          "totalBytes": 5010008,
+          "triangles": 54168,
+          "sourceBounds": [
+            1.272,
+            1.0038,
+            1.8276
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/boulder_01/boulder_01_lod2.glb",
+          "totalBytes": 5009288,
+          "triangles": 54144,
+          "sourceBounds": [
+            1.272,
+            1.0038,
+            1.8276
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:root-cluster-01-optimized",
+      "registryKey": "gnarled-root-cluster",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/root_cluster_01/root_cluster_01_lod0.glb"
+      ],
+      "totalBytes": 5586480,
+      "triangles": 112626,
+      "materialCount": 1,
+      "sourceBounds": [
+        4.1216,
+        1.5093,
+        2.6828
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/root_cluster_01/root_cluster_01_lod0.glb",
+          "totalBytes": 5586480,
+          "triangles": 112626,
+          "sourceBounds": [
+            4.1216,
+            1.5093,
+            2.6828
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/root_cluster_01/root_cluster_01_lod1.glb",
+          "totalBytes": 4266104,
+          "triangles": 54062,
+          "sourceBounds": [
+            4.1212,
+            1.5069,
+            2.6828
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/root_cluster_01/root_cluster_01_lod2.glb",
+          "totalBytes": 3541300,
+          "triangles": 22520,
+          "sourceBounds": [
+            4.1202,
+            1.5055,
+            2.6828
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:potted-plant-02-optimized",
+      "registryKey": "lush-interior-potted-plant",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/potted_plant_02/potted_plant_02_lod0.glb"
+      ],
+      "totalBytes": 2043152,
+      "triangles": 46214,
+      "materialCount": 2,
+      "sourceBounds": [
+        0.7287,
+        0.6325,
+        0.7575
+      ],
+      "aspectDistortion": 1.53,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_02/potted_plant_02_lod0.glb",
+          "totalBytes": 2043152,
+          "triangles": 46214,
+          "sourceBounds": [
+            0.7287,
+            0.6325,
+            0.7575
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_02/potted_plant_02_lod1.glb",
+          "totalBytes": 1445976,
+          "triangles": 22334,
+          "sourceBounds": [
+            0.7282,
+            0.632,
+            0.7575
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/potted_plant_02/potted_plant_02_lod2.glb",
+          "totalBytes": 1120468,
+          "triangles": 9764,
+          "sourceBounds": [
+            0.7249,
+            0.6287,
+            0.755
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:standing-picture-frame-01-optimized",
+      "registryKey": "antique-standing-picture-frame",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/standing_picture_frame_01/standing_picture_frame_01_lod0.glb"
+      ],
+      "totalBytes": 683400,
+      "triangles": 1634,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.1003,
+        0.2497,
+        0.2008
+      ],
+      "aspectDistortion": 4.02,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/standing_picture_frame_01/standing_picture_frame_01_lod0.glb",
+          "totalBytes": 683400,
+          "triangles": 1634,
+          "sourceBounds": [
+            0.1003,
+            0.2497,
+            0.2008
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/standing_picture_frame_01/standing_picture_frame_01_lod1.glb",
+          "totalBytes": 663024,
+          "triangles": 948,
+          "sourceBounds": [
+            0.1003,
+            0.2497,
+            0.2008
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/standing_picture_frame_01/standing_picture_frame_01_lod2.glb",
+          "totalBytes": 647552,
+          "triangles": 460,
+          "sourceBounds": [
+            0.1003,
+            0.2497,
+            0.2008
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:hanging-picture-frame-01-optimized",
+      "registryKey": "antique-hanging-picture-frame",
+      "status": "warning",
+      "files": [
+        "public/models/optimized/polyhaven/hanging_picture_frame_01/hanging_picture_frame_01_lod0.glb"
+      ],
+      "totalBytes": 483252,
+      "triangles": 2586,
+      "materialCount": 3,
+      "sourceBounds": [
+        0.594,
+        0.841,
+        0.0157
+      ],
+      "aspectDistortion": 1.02,
+      "warnings": [
+        "Primitive 1 has no normal texture. Waiver: The inset picture surface is intentionally flat and has no normal map; the wooden frame retains its full PBR texture set.",
+        "LOD0: Primitive 1 has no normal texture. Waiver: The inset picture surface is intentionally flat and has no normal map; the wooden frame retains its full PBR texture set.",
+        "LOD1: Primitive 1 has no normal texture. Waiver: The inset picture surface is intentionally flat and has no normal map; the wooden frame retains its full PBR texture set.",
+        "LOD2: Primitive 1 has no normal texture. Waiver: The inset picture surface is intentionally flat and has no normal map; the wooden frame retains its full PBR texture set."
+      ],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/hanging_picture_frame_01/hanging_picture_frame_01_lod0.glb",
+          "totalBytes": 483252,
+          "triangles": 2586,
+          "sourceBounds": [
+            0.594,
+            0.841,
+            0.0157
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/hanging_picture_frame_01/hanging_picture_frame_01_lod1.glb",
+          "totalBytes": 451684,
+          "triangles": 1501,
+          "sourceBounds": [
+            0.594,
+            0.841,
+            0.0157
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/hanging_picture_frame_01/hanging_picture_frame_01_lod2.glb",
+          "totalBytes": 426260,
+          "triangles": 726,
+          "sourceBounds": [
+            0.594,
+            0.841,
+            0.0157
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:old-bed-frame-optimized",
+      "registryKey": "weathered-old-bed-frame",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/old_bed_frame/old_bed_frame_lod0.glb"
+      ],
+      "totalBytes": 3179276,
+      "triangles": 30992,
+      "materialCount": 1,
+      "sourceBounds": [
+        0.9047,
+        1.2015,
+        2.0017
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/old_bed_frame/old_bed_frame_lod0.glb",
+          "totalBytes": 3179276,
+          "triangles": 30992,
+          "sourceBounds": [
+            0.9047,
+            1.2015,
+            2.0017
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/old_bed_frame/old_bed_frame_lod1.glb",
+          "totalBytes": 2756300,
+          "triangles": 15864,
+          "sourceBounds": [
+            0.9047,
+            1.2015,
+            2.0017
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/old_bed_frame/old_bed_frame_lod2.glb",
+          "totalBytes": 2467692,
+          "triangles": 6278,
+          "sourceBounds": [
+            0.9046,
+            1.2015,
+            2.0017
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:scandinavian-masonry-heater-optimized",
+      "registryKey": "storybook-masonry-heater",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/scandinavian_masonry_heater/scandinavian_masonry_heater_lod0.glb"
+      ],
+      "totalBytes": 2366616,
+      "triangles": 9350,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.1677,
+        2.3605,
+        1.3353
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/scandinavian_masonry_heater/scandinavian_masonry_heater_lod0.glb",
+          "totalBytes": 2366616,
+          "triangles": 9350,
+          "sourceBounds": [
+            1.1677,
+            2.3605,
+            1.3353
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/scandinavian_masonry_heater/scandinavian_masonry_heater_lod1.glb",
+          "totalBytes": 2258872,
+          "triangles": 5414,
+          "sourceBounds": [
+            1.1677,
+            2.3605,
+            1.3328
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/scandinavian_masonry_heater/scandinavian_masonry_heater_lod2.glb",
+          "totalBytes": 2171468,
+          "triangles": 2612,
+          "sourceBounds": [
+            1.1643,
+            2.3605,
+            1.3328
+          ]
+        }
+      ]
+    },
+    {
+      "catalogId": "polyhaven:stone-fire-pit-optimized",
+      "registryKey": "weathered-stone-fire-pit",
+      "status": "pass",
+      "files": [
+        "public/models/optimized/polyhaven/stone_fire_pit/stone_fire_pit_lod0.glb"
+      ],
+      "totalBytes": 2534960,
+      "triangles": 3887,
+      "materialCount": 1,
+      "sourceBounds": [
+        1.4485,
+        0.3883,
+        1.4332
+      ],
+      "aspectDistortion": 1,
+      "warnings": [],
+      "errors": [],
+      "lods": [
+        {
+          "level": 0,
+          "minimumDistance": 0,
+          "modelUrl": "/models/optimized/polyhaven/stone_fire_pit/stone_fire_pit_lod0.glb",
+          "totalBytes": 2534960,
+          "triangles": 3887,
+          "sourceBounds": [
+            1.4485,
+            0.3883,
+            1.4332
+          ]
+        },
+        {
+          "level": 1,
+          "minimumDistance": 14,
+          "modelUrl": "/models/optimized/polyhaven/stone_fire_pit/stone_fire_pit_lod1.glb",
+          "totalBytes": 2497220,
+          "triangles": 2253,
+          "sourceBounds": [
+            1.4485,
+            0.3883,
+            1.4332
+          ]
+        },
+        {
+          "level": 2,
+          "minimumDistance": 28,
+          "modelUrl": "/models/optimized/polyhaven/stone_fire_pit/stone_fire_pit_lod2.glb",
+          "totalBytes": 2469096,
+          "triangles": 1087,
+          "sourceBounds": [
+            1.4485,
+            0.3821,
+            1.4332
+          ]
+        }
+      ]
     }
   ],
   "environmentKits": [
