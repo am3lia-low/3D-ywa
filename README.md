@@ -19,6 +19,8 @@ desk and the room, not the people.
 > with no line leaving it. The rendered room is empty of people — furniture,
 > walls and light only.]`
 
+<img width="800" height="450" alt="1" src="https://github.com/user-attachments/assets/d47e48da-e63e-46be-ad66-804bf06392e5" />
+
 ---
 
 ## Table of contents
