@@ -240,7 +240,7 @@ runtime, and warmed by the reader before **Explore** unlocks.
 > `[ILLUSTRATION: The import flow as a filmstrip — paste text → chapter detection
 > → processing stages → Explore unlocked.]`
 
-<img width="800" height="450" alt="5" src="https://github.com/user-attachments/assets/b7bd6613-b935-48fd-adf2-22f810ee4b2f" />
+<img width="800" height="450" alt="5" src="https://github.com/user-attachments/assets/f372e100-dc39-4e38-8f78-c183f26449a2" />
 
 ---
 
